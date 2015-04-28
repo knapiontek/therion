@@ -1,0 +1,71 @@
+
+package personal;
+
+persist Person {
+	Vector<char> name;
+}
+
+persist Employer {
+	char[4] name;
+	unique Person$ owner;
+	Person$[] employee;
+	int[] sector;
+}
+
+EmployerDetails {
+	char[] name;
+	char[] ownerName;
+
+	nil get(Employer$ employer, EmployerDetails[]$ details, char[] name) {
+		Employer[.owner.name = ..ownerName & sector ! 0] _employer; // . member of indexed object, .. context
+		employer : _employer { name, owner.name };
+	}
+}
+
+persist PersonEmployerXref {
+	Person$ person;
+	Employer$ employer;
+}
+
+nil get(Db$ db, PersonEmployerXref[]$ xref, Person[]$ person, int name, bool active) {
+	xref.person : db$.PersonEmployerXref$[employer$.name > name]
+		.person$[.active = active];
+}
+
+nil remove(Db$ db, int name, bool active) {
+	db$.remove(PersonEmployerXref[employer$.name > name]
+		.person$[.active = active]);
+}
+
+nil putPerson(Db$ db, int name, bool active) {
+	Person { name, active } person;
+	db$.put(person);
+}
+
+nil get(Db$ db, EmployerDetails[]$ details, PersonEmployerXref$[] xref, int name, bool active) {
+	xref : xref[employer$.name > name].person$[active = true] { name, name };
+
+	// very high level operators
+	EmployerDetails[]$ employers : db$.EmployerDetails[xref$.name = name];
+	employers[.time > 0] {
+		.name : '-ver-' + .time ^ .split; // dot is in front of the column name if the name of variable is ambigous
+	}
+}
+
+nil get(Db$ db, Person$ person, PersonEmployerXref[]$ xref, EmployerDetails[]$ details, int name, bool active) {
+	person : db$.PersonEmployerXref[employer$.name.find(name)]
+		.unique(name)
+		.person$[address {town = 'Tuchola' & street = nil} | active = true]
+		.desc(name);
+
+	person : person.asc(name);
+	person : person.unique();
+
+	char[][] result : (xref.employer.name ^ person.name) | (details.name & person.name);
+	Vector[] vector { content } : result;
+
+	EmployerDetails[] details { person } : person;
+	EmployerDetails[] details { person.name, employer.name } : person { name, name };
+	person : { person.name, person.name }; // not allowed - size might be improper
+	xref : EmployerDetails[] { person.name }; // first column as default
+}

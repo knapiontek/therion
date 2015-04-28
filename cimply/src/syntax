@@ -1,0 +1,202 @@
+COMPILER Cimply
+
+	public ast.Worker worker;
+	void Check(int length)
+	{
+		if(worker.Level(length))
+			SemErr("Wrong nesting level!");
+	}
+	void Check(string value)
+	{
+		int length = value.LastIndexOf('\t') - value.IndexOf('\t');
+		Check(length);
+	}
+	bool HasColon()
+	{
+		Token token = la;
+		while(token.kind != _end && token.kind != _EOF)
+		{
+			if(token.kind == _colon1 || token.kind == _colon2)
+				return true;
+			token = scanner.Peek();
+		}
+		return false;
+	}
+
+CHARACTERS
+	letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+	digit = "0123456789".
+	cntl = '\u0001' .. '\u001f'.
+	graph = ANY - cntl.
+	back = '\\'.
+	noQuote = ANY - '"' - cntl - back.
+
+TOKENS
+	id = letter { [ '-' ] ( letter | digit ) }.
+	unicode = '"' { noQuote | back graph } '"'.
+	int = [ '-' ] digit { digit }.
+	float = [ '-' ] digit { digit } '.' [ digit { digit } [ 'E' [ '-' ] digit { digit } ] ].
+	tabs = '\t' { '\t' }.
+
+	colon1 = ':'.
+	colon2 = ": ".
+	end = '\n'.
+
+COMMENTS FROM "{{" TO "}}" NESTED
+
+PRODUCTIONS
+
+Cimply
+	=
+	{											(. int length = 0; var define = new ast.Define(); .)
+		[
+			tabs								(. length = t.val.Length; .)
+		]										(. Check(length); .)
+		(
+			"case(" Link<out define.link> ')'	(. define.flag |= ast.Define.CASE; .)
+			| "snap(" Path<out define.link> ')'	(. define.flag |= ast.Define.SNAP; .)
+			| "until(" Link<out define.link> ')'(. define.flag |= ast.Define.UNTIL; .)
+			| "foreach("
+				Identity<out define.identity>
+				": " Link<out define.link>
+				')'								(. define.flag |= ast.Define.FOREACH; .)
+			| IF(HasColon())
+				Identity<out define.identity>
+				[ ParamList<out define.paramList> ]
+				(
+					':'
+					| ": " Link<out define.link>
+				)
+			| Link<out define.link>				(. define.identity = new ast.Identity(); .)
+		)										(. worker.Enter(define); .)
+		'\n' [ '\n' ]
+	}
+.
+
+Identity<out ast.Identity identity>
+	=
+	id	(. identity = new ast.Identity(t.val, t.line, t.col); .)
+.
+
+ParamList<out ast.DefineList defineList>
+	=
+	'('										(. defineList = ast.DefineList.empty; .)
+	[										(. defineList = new ast.DefineList(); ast.Define define; .)
+		Param<out define>					(. defineList.Add(define); .)
+		{
+			(
+				", "
+				| ",\n" tabs				(. Check(t.val); .)
+			)
+			Param<out define>				(. defineList.Add(define); .)
+		}
+	]
+	')'
+.
+
+Param<out ast.Define define>	(. define = new ast.Define(); .)
+	=
+	Identity<out define.identity>
+	[ ParamList<out define.paramList> ]
+	": "
+	Link<out define.link>
+.
+
+Link<out ast.Link link>					(. link = null; .)
+	=
+	(
+		Final<out link>
+		| Path<out link>
+		| '(' Link<out link> ')'
+	)
+	{									(. ast.Path path = null; .)
+		Op<out path>					(. path.partList[0].paramList.Add(link); link = path; ast.Link peer = null; .)
+		(
+			Final<out peer>
+			| Path<out peer>
+			| '(' Link<out peer> ')'
+		)								(. path.partList[0].paramList.Add(peer); .)
+	}
+.
+
+Final<out ast.Link link>		(. string value = null; ast.Define define = null; .)
+	=
+	(
+		unicode					(. value = t.val; define = ast.Define.unicode; .)
+		| "true"				(. value = t.val; define = ast.Define.boolean; .)
+		| "false"				(. value = t.val; define = ast.Define.boolean; .)
+		| int					(. value = t.val; define = ast.Define.int4; .)
+			[
+				"i1"			(. define = ast.Define.int1; .)
+				| "i2"			(. define = ast.Define.int2; .)
+				| "i4"
+				| "i8"			(. define = ast.Define.int8; .)
+				| "u1"			(. define = ast.Define.uint1; .)
+				| "u2"			(. define = ast.Define.uint2; .)
+				| "u4"			(. define = ast.Define.uint4; .)
+				| "u8"			(. define = ast.Define.uint8; .)
+			]
+		| float					(. value = t.val; define = ast.Define.float8; .)
+			[
+				"f8"
+				| "f12"			(. define = ast.Define.float12; .)
+			]
+	)							(. link = new ast.Final(value, define); .)
+.
+
+Path<out ast.Link link>	(. var path = new ast.Path(); link = path; ast.Part part; .)
+	=
+	Part<out part>		(. path.partList.Add(part); .)
+	{
+		'.'
+		Part<out part>	(. path.partList.Add(part); .)
+	}
+.
+
+Op<out ast.Path path>		(. path = new ast.Path(); var part = new ast.Part(); part.paramList = new ast.LinkList(); path.partList.Add(part); .)
+	=
+	" * "					(. part.identity = new ast.Identity("*", "mul", t.line, t.col + 1); .)
+	| " / "					(. part.identity = new ast.Identity("/", "div", t.line, t.col + 1); .)
+	| " + "					(. part.identity = new ast.Identity("+", "add", t.line, t.col + 1); .)
+	| " - "					(. part.identity = new ast.Identity("-", "sub", t.line, t.col + 1); .)
+	| " << "				(. part.identity = new ast.Identity("<<", "shl", t.line, t.col + 1); .)
+	| " >> "				(. part.identity = new ast.Identity(">>", "shr", t.line, t.col + 1); .)
+	| " < "					(. part.identity = new ast.Identity("<", "lt", t.line, t.col + 1); .)
+	| " > "					(. part.identity = new ast.Identity(">", "gt", t.line, t.col + 1); .)
+	| " <= " 				(. part.identity = new ast.Identity("<=", "le", t.line, t.col + 1); .)
+	| " >= " 				(. part.identity = new ast.Identity(">=", "ge", t.line, t.col + 1); .)
+	| " & "					(. part.identity = new ast.Identity("&", "and", t.line, t.col + 1); .)
+	| " | "					(. part.identity = new ast.Identity("|", "or", t.line, t.col + 1); .)
+	| " ^ "					(. part.identity = new ast.Identity("^", "xor", t.line, t.col + 1); .)
+	| " % "					(. part.identity = new ast.Identity("%", "mod", t.line, t.col + 1); .)
+.
+
+Part<out ast.Part part>				(. part = new ast.Part(); .)
+	=
+	{
+		'$'							(. part.level++; .)
+	}
+	Identity<out part.identity>
+	{
+		'$'							(. part.level--; .)
+	}
+	[ LinkList<out part.paramList> ]
+.
+
+LinkList<out ast.LinkList linkList>
+	=
+	'('									(. linkList = ast.LinkList.empty; .)
+	[									(. linkList = new ast.LinkList(); ast.Link link; .)
+		Link<out link>					(. linkList.Add(link); .)
+		{
+			(
+				", "
+				| ",\n" tabs			(. Check(t.val); .)
+			)
+			Link<out link>				(. linkList.Add(link); .)
+		}
+	]
+	')'
+.
+
+END Cimply.

@@ -1,0 +1,69 @@
+
+Country
+{
+	String name
+}
+
+Town
+{
+	String name
+	uint8 uint8_id
+	Country$ country
+}
+
+Street
+{
+	String name
+	Town$ town
+}
+
+Address
+{
+	uint16 no
+	Street$ street
+}
+
+Person
+{
+	String first_name
+	String last_name
+	uint16 uint16_id
+	uint64 uint64_id
+	Country[] import_seq
+	Address address
+}
+
+Person_name
+{
+	String name
+}
+
+Factory
+{
+	String name
+	Country[] country_seq
+	Town[] town_seq
+	Person[] worker_seq
+}
+
+Country[] country_seq
+@@ country_seq[name]
+
+Town[] town_seq
+nil unique_town()
+{
+	@@ town_seq[name]
+}
+
+Person[] worker_seq
+@@ worker_seq[first_name][last_name]
+@ worker_seq[first_name][last_name][address.no][address.street.name]
+
+Person_name find_Person(String name)
+{
+	return worker_seq[Person.name <> name]
+}
+
+Factory[] factory_seq
+@@ factory_seq[name]
+

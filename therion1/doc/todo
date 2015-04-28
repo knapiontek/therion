@@ -1,0 +1,45 @@
+
+* now
+
+change plus -> star in .pro[n] files where nessessary
+Field+ -> Field* does not work
+Erase-iterator in all collections
+unique fields in clazz (tho)
+@ worker_seq[address.no][address.street.name] address offset calculated 2x
+obgen::cast(square) forgets dots address.no -> addressno
+Model::list user defined has to have guards in prototype.hpp
+.pro aliases cause state machine to grow
+no throw/no action in ctor (obgen ClazzIterator, Runtime::Iterator)
+change recursion into iteration in langen
+minimize Machine::Node by replacing map/set with seq/sort
+item->unique is never true 1-used + 1-defined = 2
+obgen.cpp does not check all ptrs for null
+
+* known bugs
+
+* make
+check if #include is nessesary
+
+* langen
+
+prototype: byte can borrow input_id from parent, ensure that order of borrowing is correct
+metatargets $W $w $.
+copy instead of copy ctor for collections
+add Pair to collections with key() value() found()
+'00 will not have special treatment, overload reduction needed
+check if translation is available in pl (env specially)
+the_average_line_size - change name/refactoring of all occures
+::isalphanum() will be covered in charset namespace i.e. charset::isalphanum()
+remove hardcoded dependency on output/pager (it's messy, partly hardcoded, partly read from #include's)
+
+* long term tasks
+
+source dependencies tool, check for unwanted #include<>
+queue based on atomic operations, atomicqueue.h
+Log is very poor - prints only to stdout
+test if a single file can be compiled alone (includes all nessesary headers)
+check returned pointer in all allocating functions
+check if assert used properly/undef assert will remove only not wanted code
+cairo diagrams/grid monitoring tool
+openssl
+

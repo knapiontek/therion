@@ -1,0 +1,169 @@
+/**
+ * persons (firstname, age) -> persons.firstname, persons.age
+ */
+
+co.Info[] get(Db$ db, Test[]$ tests, String$ name) {
+
+	co.Employer[] employerSet; // empty collection
+	db$.co.Employer[address(town.equal('Tuchola') & street = 'Warszawska')].person[lastname = 'Napiontek'] personSet; // filter on db
+
+	co.Info[] infoSet : personSet.firstname, personSet.age; // init of new collection
+	co.Info[] infoSet { name, age } : personSet { firstname, age }; // the same using coping list
+
+	out.print(personSet {$, age} ) // print some columns
+
+	personSet[test = nil] {
+		test = .firstname;
+	}
+
+	co.Employer('name', 'address') employer;
+	db$.put(employer);
+	db$.put(co.Employer('name', 'address'));
+
+	return infos; // return data
+}
+
+[[]]
+[[]]
+[[]]
+[[]]
+[[]]
+
+// call
+NetBin image;
+NetInt number;
+NetString name;
+NetList<Employ> employNet;
+NetList<Person> personNet = host.getEmploy(number, name, employNet);
+
+// put
+number.put(999);
+name.put("xxx");
+QList<Employ> employList;
+while(employList.hasNext()) {
+	employNet.put(it.next());
+}
+
+// get
+Person person;
+QList<Person> personList;
+while(personNet.get(person)) {
+	personList.append(person);
+}
+
+[[]]
+
+Person[] getEmploy(int number, final String name, Employ[] employ) {
+	Person[..name = name] person;
+	number = person.size;
+	person { name : ':' + name; }
+	return person;
+}
+
+[[]]
+
+name:	getEmploy
+in:	String
+inout:	int, Employ[]
+return:	Person[]
+
+[[]]
+
+int number = 0;
+String name = "test";
+Employ employ("employ");
+QList<Employ> employList;
+employList.append(employ);
+
+[[]]
+
+Host host;
+Proc proc = host.open_getEmploy();
+proc.post_number(number);
+proc.post_name(name);
+while(true) {
+	Class clazz = proc.post_employList(employ);
+	clazz.post(sth);
+}
+while(true) {
+	proc.receive_personList(person);
+}
+proc.close_getEmploy();
+
+[[]]
+
+cmd ::= proc param type 0 value
+cmd ::= proc param type size value [, value]
+
+type ::= simple value
+simple ::= int float double class classid
+
+[[]]
+
+Host host;
+Procedure getEmploy(host);
+
+// set
+getEmploy.set_number(number);
+getEmploy.set_name(name);
+while(true) {
+	getEmploy.set_employList(employList); // set id of employ
+	getEmploy.set_employ(employ); // set employ with above id
+}
+
+// get
+while(true) {
+	List<PersonId> personList;
+	getEmploy.get_personList(personList);
+	Iterator<PersonId> personIt(personList);
+	while(personIt.hasNext()) {
+		Person person;
+		person.id = personIt.next();
+		getEmploy.get_person(person);
+	}
+}
+
+[[]]
+
+QList<Person> getEmploy(int &number, const String name, QList<Employ> employList) {
+	Person ("employ");
+	employList.empty();
+	while(employIt.hasNext()) {
+	}
+
+
+	Person[..name = name] person;
+	number = person.size;
+	person { name : ':' + name; }
+	return person;
+}
+
+void getEmpoy(Stream out, Stream in) {
+	enum { RET, NUMBER, NAME, EMPLOY_LIST };
+
+	String name;
+	Employ employ;
+	Integer number;
+	List<Person> ret;
+	List<Employ> employList;
+
+	out.watch(ret);
+	out.watch(number);
+	out.watch(employList);
+	getEmploy(ret, number, name, employList);
+
+	while(in.wait()) {
+		switch(in.getParam()) {
+		case NUMBER:
+			in.uncompress(number);
+			break;
+		case NAME:
+			in.uncompress(name);
+			break;
+		case EMPLOY_LIST:
+			in.uncompress(employ);
+			employList.append(employ);
+			break;
+		}
+	}
+}

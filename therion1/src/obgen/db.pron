@@ -1,0 +1,596 @@
+
+Model{class}
+: $n#ifndef$sOBGEN_GENERATED_ NameSpace _HPP
+  $n#define$sOBGEN_GENERATED_ NameSpace _HPP
+  $n
+  $nNAMESPACE_BEGIN( NameSpace )
+  Struct+
+  ClazzIndex
+  ClazzUtil
+  ClazzEncode
+  ClazzDecode
+  ClazzIterator
+  ClazzPersistSeq
+  ClazzSeq+
+  ClazzPersist
+  $n
+  $nNAMESPACE_END( NameSpace )
+  $n
+  $n#endif$s//$sOBGEN_GENERATED_ NameSpace _HPP
+  $n
+
+Struct{byte-list}
+: $n
+  $nstruct$s ClazzId
+  $n{
+  $n$ttypedef$score::Shared< ClazzId >$sshare;
+  $n$ttypedef$score::Managed< ClazzId >$smanage;
+  Field+
+  $n};
+
+Field{byte-list}
+: $n$tcore:: TypeId $s VarId ;
+: $n$tcore::Seq< TypeId >$s VarId ;
+: $n$t TypeId $s VarId ;
+
+ClazzIndex{byte-list}
+: $n
+  $nstruct$sIndex$s:$spublic$score::Index
+  $n{
+  FuncCompare+
+  $n};
+
+FuncCompare{byte-list}
+: $n$tcore::int32$scompare( ClazzId &$s ClazzVarId 1,$s ClazzId &$s ClazzVarId 2)
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$s0;
+  CallCompare+
+  $n$t$treturn$sresult;
+  $n$t}
+  $n$tcore::int32$scompare(core::Seq< ClazzId >&$s ClazzVarId 1_seq,$score::Seq< ClazzId >&$s ClazzVarId 2_seq)
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$s ClazzVarId 1_seq.size()$s-$s ClazzVarId 2_seq.size();
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+  $n$t$tcore::Seq< ClazzId >::Iterator$s ClazzVarId 1_it$s=$s ClazzVarId 1_seq.head();
+  $n$t$tcore::Seq< ClazzId >::Iterator$s ClazzVarId 2_it$s=$s ClazzVarId 2_seq.head();
+  $n$t$twhile( ClazzVarId 1_it.next()$s&&$s ClazzVarId 2_it.next())
+  $n$t$t{
+  $n$t$t$t ClazzId &$s ClazzVarId 1$s=$s ClazzVarId 1_it.value();
+  $n$t$t$t ClazzId &$s ClazzVarId 2$s=$s ClazzVarId 2_it.value();
+  $n$t$t$tresult$s=$sIndex::compare( ClazzVarId 1,$s ClazzVarId 2);
+  $n$t$t$tif(result)
+  $n$t$t$t$treturn$sresult;
+  $n$t$t}
+  $n$t$treturn$sresult;
+  $n$t}
+
+CallCompare{byte-list}
+: $n$t$tresult$s=$score::Index::compare( ClazzVarId 1. VarId ,$s ClazzVarId 2. VarId );
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+: $n$t$tresult$s=$sIndex::compare( ClazzVarId 1. VarId ,$s ClazzVarId 2. VarId );
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+
+ClazzUtil{byte-list}
+: $n
+  $nstruct$sUtil
+  $n{
+  FuncSize+
+  FuncShift+
+  $n};
+
+FuncSize{byte-list}
+: $n$tstatic$score::uint32$ssize( ClazzId &$s ClazzVarId )
+  $n$t{
+  $n$t$tcore::uint32$sresult$s=$s0;
+  CallSize+
+  $n$t$treturn$sresult;
+  $n$t}
+  $n$tstatic$score::uint32$ssize(core::Seq< ClazzId >&$s ClazzVarId _seq)
+  $n$t{
+  $n$t$tcore::uint32$sresult$s=$s0;
+  $n$t$tcore::Seq< ClazzId >::Iterator$s ClazzVarId _it$s=$s ClazzVarId _seq.head();
+  $n$t$twhile( ClazzVarId _it.next())
+  $n$t$t{
+  $n$t$t$t ClazzId &$s ClazzVarId $s=$s ClazzVarId _it.value();
+  $n$t$t$tresult$s+=$sUtil::size( ClazzVarId );
+  $n$t$t}
+  $n$t$treturn$sresult;
+  $n$t}
+
+CallSize{byte-list}
+: $n$t$tresult$s+=$ssizeof(core::uint32)$s+$s ClazzVarId . VarId .size();
+: $n$t$tresult$s+=$ssizeof( ClazzVarId . VarId );
+: $n$t$tresult$s+=$sUtil::size( ClazzVarId . VarId );
+
+FuncShift{byte-list}
+: $n$tstatic$svoid$sshift_ ClazzId (core::uint8*&$spt)
+  $n$t{
+  CallShift+
+  $n$t}
+  $n$tstatic$svoid$sshift_ ClazzId Seq(core::uint8*&$spt)
+  $n$t{
+  $n$t$tcore::uint32$scnt$s=$s*(core::uint32*)pt;
+  $n$t$tpt$s+=$ssizeof(core::uint32);
+  $n$t$twhile(cnt--)
+  $n$t$t$tUtil::shift_ ClazzId (pt);
+  $n$t}
+
+CallShift{byte-list}
+: $n$t$tpt$s+=$ssizeof(core::uint32)$s+$s*(core::uint32*)pt;
+: $n$t$tpt$s+=$ssizeof(core:: TypeId );
+: $n$t$tUtil::shift_ ClazzId Seq(pt);
+: $n$t$tUtil::shift_ ClazzId (pt);
+
+ClazzEncode{byte-list}
+: $n
+  $nclass$sEncode$s:$spublic$sio::Encode
+  $n{
+  $npublic:
+  $n$tEncode(io::Output&$soutput)$s:$sio::Encode(output)
+  $n$t{
+  $n
+  $n$t}
+  FuncWrite+
+  $n};
+
+FuncWrite{byte-list}
+: $n$tvoid$swrite( ClazzId &$s ClazzVarId )
+  $n$t{
+  CallWrite+
+  $n$t}
+  $n$tvoid$swrite(core::Seq< ClazzId >&$s ClazzVarId _seq)
+  $n$t{
+  $n$t$tio::Encode::write( ClazzVarId _seq.size());
+  $n$t$tcore::Seq< ClazzId >::Iterator$s ClazzVarId _it$s=$s ClazzVarId _seq.head();
+  $n$t$twhile( ClazzVarId _it.next())
+  $n$t$t{
+  $n$t$t$t ClazzId &$s ClazzVarId $s=$s ClazzVarId _it.value();
+  $n$t$t$tEncode::write( ClazzVarId );
+  $n$t$t}
+  $n$t}
+
+CallWrite{byte-list}
+: $n$t$tio::Encode::write_st( ClazzVarId . VarId );
+: $n$t$tio::Encode::write( ClazzVarId . VarId );
+: $n$t$tEncode::write( ClazzVarId . VarId );
+
+ClazzDecode{byte-list}
+: $n
+  $nclass$sDecode$s:$spublic$sio::Decode
+  $n{
+  $npublic:
+  $n$tDecode(io::Input&$sinput)$s:$sio::Decode(input)
+  $n$t{
+  $n
+  $n$t}
+  FuncRead+
+  $n};
+
+FuncRead{byte-list}
+: $n$tvoid$sread( ClazzId &$s ClazzVarId )
+  $n$t{
+  CallRead+
+  $n$t}
+  $n$tvoid$sread(core::Seq< ClazzId >&$s ClazzVarId _seq)
+  $n$t{
+  $n$t$tcore::uint32$ssize;
+  $n$t$tio::Decode::read(size);
+  $n$t$t ClazzVarId _seq.size(size);
+  $n$t$tcore::Seq< ClazzId >::Iterator$s ClazzVarId _it$s=$s ClazzVarId _seq.head();
+  $n$t$twhile( ClazzVarId _it.next())
+  $n$t$t{
+  $n$t$t$t ClazzId &$s ClazzVarId $s=$s ClazzVarId _it.value();
+  $n$t$t$tDecode::read( ClazzVarId );
+  $n$t$t}
+  $n$t}
+
+CallRead{byte-list}
+: $n$t$tio::Decode::read_st( ClazzVarId . VarId );
+: $n$t$tio::Decode::read( ClazzVarId . VarId );
+: $n$t$tDecode::read( ClazzVarId . VarId );
+
+ClazzIterator{byte-list}
+: $n
+  $ntemplate<class$sClazz>
+  $nclass$sIterator$s:$sio::Input
+  $n{
+  $npublic:
+  $n$tIterator(DB*$sdb)$s:$sthe_decode(*this)
+  $n$t{
+  $n$t$t::bzero(&the_key,$ssizeof(the_key));
+  $n$t$t::bzero(&the_pkey,$ssizeof(the_pkey));
+  $n$t$t::bzero(&the_data,$ssizeof(the_data));
+  $n$t$tcore::int32$sresult$s=$sdb->cursor(db,$s0,$s&the_dbc,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t}
+  $n$t~Iterator()
+  $n$t{
+  $n$t$tclose();
+  $n$t}
+  $n$tvoid$sclose()
+  $n$t{
+  $n$t$tif(the_dbc)
+  $n$t$t{
+  $n$t$t$tcore::int32$sresult$s=$sthe_dbc->c_close(the_dbc);
+  $n$t$t$tif(result)
+  $n$t$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$t$tthe_dbc$s=$s0;
+  $n$t$t}
+  $n$t}
+  $n$tbool$snext()
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$sthe_dbc->c_pget(the_dbc,$s&the_key,$s&the_pkey,$s&the_data,$sDB_NEXT);
+  $n$t$tswitch(result)
+  $n$t$t{
+  $n$t$tcase$s0:
+  $n$t$t$treturn$strue;
+  $n$t$tcase$sDB_NOTFOUND:
+  $n$t$t$treturn$sfalse;
+  $n$t$tdefault:
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$t}
+  $n$t$treturn$sfalse;
+  $n$t}
+  $n$tbool$sprev()
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$sthe_dbc->c_pget(the_dbc,$s&the_key,$s&the_pkey,$s&the_data,$sDB_PREV);
+  $n$t$tswitch(result)
+  $n$t$t{
+  $n$t$tcase$s0:
+  $n$t$t$treturn$strue;
+  $n$t$tcase$sDB_NOTFOUND:
+  $n$t$t$treturn$sfalse;
+  $n$t$tdefault:
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$t}
+  $n$t$treturn$sfalse;
+  $n$t}
+  $n$tvoid$skey(core::uint32& id)
+  $n$t{
+  $n$t$tid$s=$s*(core::uint32*)the_pkey.data;
+  $n$t}
+  $n$tvoid$svalue(Clazz&$sclazz)
+  $n$t{
+  $n$t$tthe_input_pt$s=$s(core::uint8*)the_data.data;
+  $n$t$tthe_decode.read(clazz);
+  $n$t}
+  $nprivate:
+  $n$tvoid$sinput(core::uint8*$sdata,$score::uint32$ssize)
+  $n$t{
+  $n$t$tcore::assert(the_input_pt$s+$ssize$s<=$s(core::uint8*)the_data.data$s+$sthe_data.size);
+  $n$t$t::memcpy(data,$sthe_input_pt,$ssize);
+  $n$t$tthe_input_pt$s+=$ssize;
+  $n$t}
+  $n$tvoid$sskip(core::uint32$ssize)
+  $n$t{
+  $n$t$tthe_input_pt$s+=$ssize;
+  $n$t}
+  $nprivate:
+  $n$tDBT$sthe_key;
+  $n$tDBT$sthe_pkey;
+  $n$tDBT$sthe_data;
+  $n$tDBC*$sthe_dbc;
+  $n$tcore::uint8*$sthe_input_pt;
+  $n$tDecode$sthe_decode;
+  $n};
+
+ClazzPersistSeq{byte-list}
+: $n
+  $ntemplate<class$sClazz>
+  $nclass$sPersistSeq$s:$sio::Input,$sio::Output
+  $n{
+  $npublic:
+  $n$tPersistSeq()$s:$sthe_decode(*this),$sthe_encode(*this)
+  $n$t{
+  $n$t$tthe_txn$s=$s0;
+  $n$t$tthe_clazz_id$s=$s0;
+  $n$t$tthe_clazz_db$s=$s0;
+  $n$t$tthe_input_pt$s=$s0;
+  $n$t$tthe_output_pos$s=$s0;
+  $n$t$t::bzero(&the_key,$ssizeof(the_key));
+  $n$t$t::bzero(&the_data,$ssizeof(the_data));
+  $n$t$tthe_output_st.size(0x4FF);
+  $n$t}
+  $n$tvoid$sopen(DB_ENV*$senv,$score::String&$sname)
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$sdb_create(&the_clazz_db,$senv,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tthe_clazz_db->set_bt_compare(the_clazz_db,$scompare_uint32);
+  $n$t$tresult$s=$sthe_clazz_db->open(the_clazz_db,$sthe_txn,$sname.ascii(),$s0,$sDB_BTREE,$sDB_CREATE,$s0664);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n
+  $n$t$tDBC*$sdbc;
+  $n$t$tDBT$skey,$sdata;
+  $n$t$t::bzero(&key,$ssizeof(key));
+  $n$t$t::bzero(&data,$ssizeof(data));
+  $n$t$tkey.data$s=$s&the_clazz_id;
+  $n$t$tkey.ulen$s=$ssizeof(core::uint32);
+  $n$t$tkey.flags$s=$sDB_DBT_USERMEM;
+  $n$t$tresult$s=$sthe_clazz_db->cursor(the_clazz_db,$s0,$s&dbc,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tresult$s=$sdbc->c_get(dbc,$s&key,$s&data,$sDB_LAST);
+  $n$t$tdbc->c_close(dbc);
+  $n$t$tif(~DB_NOTFOUND$s&$sresult)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t}
+  $n$tvoid$sclose()
+  $n$t{
+  $n$t$tif(the_clazz_db)
+  $n$t$t$tthe_clazz_db->close(the_clazz_db,$s0);
+  $n$t}
+  $n$tcore::uint32$sput(Clazz&$sclazz)
+  $n$t{
+  $n$t$tthe_output_pos$s=$s0;
+  $n$t$tthe_encode.write(clazz);
+  $n$t$tthe_key.data$s=$s&(++the_clazz_id);
+  $n$t$tthe_key.size$s=$ssizeof(the_clazz_id);
+  $n$t$tthe_data.data$s=$sthe_output_st.data();
+  $n$t$tthe_data.size$s=$sthe_output_pos;
+  $n$t$tcore::int32$sresult$s=$sthe_clazz_db->put(the_clazz_db,$sthe_txn,$s&the_key,$s&the_data,$sDB_NOOVERWRITE);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$treturn$sthe_clazz_id;
+  $n$t}
+  $n$tvoid$sset(core::uint32$sclazz_id,$sClazz&$sclazz)
+  $n$t{
+  $n$t$tthe_output_pos$s=$s0;
+  $n$t$tthe_encode.write(clazz);
+  $n$t$tthe_key.data$s=$s&(clazz_id);
+  $n$t$tthe_key.size$s=$ssizeof(clazz_id);
+  $n$t$tthe_data.data$s=$sthe_output_st.data();
+  $n$t$tthe_data.size$s=$sthe_output_pos;
+  $n$t$tcore::int32$sresult$s=$sthe_clazz_db->put(the_clazz_db,$sthe_txn,$s&the_key,$s&the_data,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t}
+  $n$tvoid$sget(core::uint32$sclazz_id,$sClazz&$sclazz)
+  $n$t{
+  $n$t$tthe_key.data$s=$s&(clazz_id);
+  $n$t$tthe_key.size$s=$ssizeof(clazz_id);
+  $n$t$tcore::int32$sresult$s=$sthe_clazz_db->get(the_clazz_db,$sthe_txn,$s&the_key,$s&the_data,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tthe_input_pt$s=$s(core::uint8*)the_data.data;
+  $n$t$tthe_decode.read(clazz);
+  $n$t}
+  $n$tvoid$serase(core::uint32$sclazz_id)
+  $n$t{
+  $n$t$tthe_key.data$s=$s&(clazz_id);
+  $n$t$tthe_key.size$s=$ssizeof(clazz_id);
+  $n$t$tcore::int32$sresult$s=$sthe_clazz_db->del(the_clazz_db,$sthe_txn,$s&the_key,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t}
+  $n$tIterator<Clazz>$sfind_all()
+  $n$t{
+  $n$t$treturn$sIterator<Clazz>(the_clazz_db);
+  $n$t}
+  $nprotected:
+  $n$tstatic$sint$scompare_uint32(DB*$sdb,$sconst$sDBT*$skey1,$sconst$sDBT*$skey2)
+  $n$t{
+  $n$t$treturn$s(*(core::uint32*)key1->data$s-$s*(core::uint32*)key2->data);
+  $n$t}
+  $n$tstatic$svoid$scopy_string(core::uint8*$sdst,$score::uint8*&$ssrc)
+  $n$t{
+  $n$t$tcore::uint32$ssize$s=$ssizeof(core::uint32)$s+$s*(core::uint32*)src;
+  $n$t$t::memcpy(dst,$ssrc,$ssize);
+  $n$t$tsrc$s+=$ssize;
+  $n$t}
+  $n$ttemplate<typename$sType>
+  $n$tstatic$svoid$scopy_primitive(core::uint8*$sdst,$score::uint8*&$ssrc)
+  $n$t{
+  $n$t$tcore::uint32$ssize$s=$ssizeof(Type);
+  $n$t$t::memcpy(dst,$ssrc,$ssize);
+  $n$t$tsrc$s+=$ssize;
+  $n$t}
+  $n$tstatic$sint$scompare_string(core::uint8*&$skey1,$score::uint8*&$skey2)
+  $n$t{
+  $n$t$tcore::uint32$ssize1$s=$s*(core::uint32*)key1;
+  $n$t$tcore::uint32$ssize2$s=$s*(core::uint32*)key2;
+  $n$t$tkey1$s+=$ssizeof(size1);
+  $n$t$tkey2$s+=$ssizeof(size2);
+  $n$t$tcore::uint32$smin$s=$score::min(size1,$ssize2);
+  $n$t$tcore::uint32$sresult$s=$s::memcmp(key1,$skey2,$smin);
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+  $n$t$treturn$s(size1$s-$ssize2);
+  $n$t}
+  $n$ttemplate<typename$sType>
+  $n$tstatic$sint$scompare_primitive(core::uint8*&$skey1,$score::uint8*&$skey2)
+  $n$t{
+  $n$t$tType&$stype1$s=$s*(Type*)key1;
+  $n$t$tType&$stype2$s=$s*(Type*)key2;
+  $n$t$tkey1$s+=$ssizeof(type1);
+  $n$t$tkey2$s+=$ssizeof(type2);
+  $n$t$treturn$s(type1$s-$stype2);
+  $n$t}
+  $nprivate:
+  $n$tvoid$sinput(core::uint8*$sdata,$score::uint32$ssize)
+  $n$t{
+  $n$t$tcore::assert(the_input_pt$s+$ssize$s<=$s(core::uint8*)the_data.data$s+$sthe_data.size);
+  $n$t$t::memcpy(data,$sthe_input_pt,$ssize);
+  $n$t$tthe_input_pt$s+=$ssize;
+  $n$t}
+  $n$tvoid$sskip(core::uint32$ssize)
+  $n$t{
+  $n$t$tthe_input_pt$s+=$ssize;
+  $n$t}
+  $n$tvoid$soutput(core::uint8*$sdata,$score::uint32$ssize)
+  $n$t{
+  $n$t$tthe_output_st.copy_in(the_output_pos,$sdata,$ssize);
+  $n$t}
+  $nprotected:
+  $n$tDB_TXN*$sthe_txn;
+  $n$tcore::uint32$sthe_clazz_id;
+  $n$tDB*$sthe_clazz_db;
+  $n$tcore::uint8*$sthe_input_pt;
+  $n$tcore::uint32$sthe_output_pos;
+  $n$tDBT$sthe_key;
+  $n$tDBT$sthe_data;
+  $n$tcore::String$sthe_output_st;
+  $n$tDecode$sthe_decode;
+  $n$tEncode$sthe_encode;
+  $n};
+
+ClazzSeq{class}
+: $n
+  $nclass$s ClazzVarId $s:$spublic$sPersistSeq< ClazzId >
+  $n{
+  $npublic:
+  $n$tvoid$sopen(DB_ENV*$senv)
+  $n$t{
+  $n$t$tPersistSeq< ClazzId >::open(env,$s" VarId ");
+  DeclareResult?
+  FuncOpen+
+  $n$t}
+  $n$tvoid$sclose()
+  $n$t{
+  FuncClose+
+  $n$t$tPersistSeq< ClazzId >::close();
+  $n$t}
+  FuncFindAll+
+  PrivateSection?
+  FuncIndex+
+  PrivateSection?
+  FieldIndex+
+  $n};
+
+DeclareResult{byte-list} : $n$t$tcore::int32$sresult$s=$s0;
+PrivateSection{alias} : $nprivate:
+
+FuncOpen{byte-list}
+: $n$t$tresult$s=$sdb_create(&the IndexId _db,$senv,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tresult$s=$sthe IndexId _db->set_flags(the IndexId _db,$sDB_DUP);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tthe IndexId _db->set_bt_compare(the IndexId _db,$scompare IndexId );
+  $n$t$tresult$s=$sthe IndexId _db->open(the IndexId _db,$sthe_txn,$s" VarId IndexId ",$s0,$sDB_BTREE,$sDB_CREATE,$s0660);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tresult$s=$sthe_clazz_db->associate(the_clazz_db,$sthe_txn,$sthe IndexId _db,$sindex IndexId ,$sDB_CREATE);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+
+FuncClose{byte-list}
+: $n$t$tif(the IndexId _db)
+  $n$t$t$tthe IndexId _db->close(the IndexId _db,$s0);
+
+FuncFindAll{byte-list}
+: $n$tIterator< ClazzId >$sfind_all_sort_by IndexId ()
+  $n$t{
+  $n$t$treturn$sIterator< ClazzId >(the IndexId _db);
+  $n$t}
+
+FuncIndex{byte-list}
+: $n$tstatic$sint$sindex IndexId (DB*$sdb,$sconst$sDBT*$skey,$sconst$sDBT*$sdata,$sDBT*$sskey)
+  $n$t{
+  $n$t$tcore::uint8*$spt;
+  $n$t$tcore::uint32$ssize$s=$s0;
+  ShiftField+
+  $n$t$tcore::uint8*$smy_data$s=$score::acquire<core::uint8>(size);
+  CopyField+
+  $n$t$tskey->data$s=$smy_data;
+  $n$t$tskey->size$s=$ssize;
+  $n$t$tskey->flags$s=$sDB_DBT_APPMALLOC;
+  $n$t$treturn$s0;
+  $n$t}
+  $n$tstatic$sint$scompare IndexId (DB*$sdb,$sconst$sDBT*$skey1,$sconst$sDBT*$skey2)
+  $n$t{
+  $n$t$tcore::int32$sresult$s=$s0;
+  $n$t$tcore::uint8*$spt1$s=$s(core::uint8*)key1->data;
+  $n$t$tcore::uint8*$spt2$s=$s(core::uint8*)key2->data;
+  CompareField+
+  $n$t$treturn$sresult;
+  $n$t}
+
+FieldIndex{byte-list} : $n$tDB*$sthe IndexId _db;
+
+ShiftField{byte-list}
+: $n$t$tpt$s=$s(core::uint8*)data->data;
+  CallShift+
+  $n$t$tsize$s+=$ssizeof(core::uint32)$s+$s*(core::uint32*)pt;
+: $n$t$tpt$s=$s(core::uint8*)data->data;
+  CallShift+
+  $n$t$tsize$s+=$ssizeof(core:: TypeId );
+
+CopyField{byte-list}
+: $n$t$tcopy_string(my_data,$spt);
+: $n$t$tcopy_primitive<core:: TypeId >(my_data,$spt);
+
+CompareField{byte-list}
+: $n$t$tresult$s=$scompare_string(pt1,$spt2);
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+: $n$t$tresult$s=$scompare_primitive<core:: TypeId >(pt1,$spt2);
+  $n$t$tif(result)
+  $n$t$t$treturn$sresult;
+
+ClazzPersist{byte-list}
+: $n
+  $nclass$sPersist
+  $n{
+  $npublic:
+  $n$tPersist()
+  $n$t{
+  $n$t$tthe_env$s=$s0;
+  $n$t}
+  $n$tvoid$sopen(core::String&$shome)
+  $n$t{
+  $n$t$thome.append("/ Now ");
+  $n$t$tio::File::make_directories(home);
+  $n
+  $n$t$tcore::int32$sresult$s=$sdb_env_create(&the_env,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tresult$s=$sthe_env->set_cachesize(the_env,$s0,$s16*1024*1024,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n$t$tresult$s=$sthe_env->open(the_env,$shome.ascii(),$sDB_CREATE$s|$sDB_INIT_MPOOL$s|$sDB_INIT_TXN$s|$sDB_INIT_LOG,$s0);
+  $n$t$tif(result)
+  $n$t$t$tenv::Fail::fire(db_strerror(result));
+  $n
+  CallOpen+
+  $n$t}
+  $n$tvoid$sclose()
+  $n$t{
+  CallClose+
+  $n
+  $n$t$tif(the_env)
+  $n$t$t$tthe_env->close(the_env,$s0);
+  $n$t}
+  FuncGetSeq+
+  $nprivate:
+  $n$tDB_ENV*$sthe_env;
+  FieldSeq+
+  $n};
+
+CallOpen{byte-list} : $n$t$tthe_ ClazzVarId .open(the_env);
+
+CallClose{byte-list} : $n$t$tthe_ ClazzVarId .close();
+
+FuncGetSeq{byte-list}
+: $n$t ClazzId &$s ClazzVarId ()
+  $n$t{
+  $n$t$treturn$sthe_ ClazzVarId ;
+  $n$t}
+
+FieldSeq{byte-list} : $n$t ClazzId $sthe_ ClazzVarId ;
+
+NameSpace{alias}
+ClazzId{alias}
+ClazzVarId{alias}
+TypeId{alias}
+VarId{alias}
+IndexId{alias}
+Shift{alias}
+Now{alias}
+

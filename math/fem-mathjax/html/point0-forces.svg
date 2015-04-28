@@ -1,0 +1,28 @@
+<div class="container">
+	<div class="math vcenter_pos hcenter_pos" style="left:282px;top:89px;">$R_x$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:417px;top:90px;">$S_x$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:350px;top:22px;">$R_y$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:350px;top:157px;">$S_y$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:375px;top:64px;">$R_z$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:322px;top:117px;">$S_z$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:361px;top:102px;">$p_0$</div>
+</div>
+<svg width="800" height="170">
+	<defs>
+		<marker id="arrow-start-black" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-end-black" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-start-red" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="red" fill="red"/>
+		</marker>
+		<marker id="arrow-end-red" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="red" fill="red"/>
+		</marker>
+	</defs>
+	<line stroke="red" marker-start=url(#arrow-start-red) marker-end=url(#arrow-end-red) x1="290" y1="89" x2="409" y2="90"/>
+	<line stroke="red" marker-start=url(#arrow-start-red) marker-end=url(#arrow-end-red) x1="350" y1="30" x2="350" y2="149"/>
+	<line stroke="red" marker-start=url(#arrow-start-red) marker-end=url(#arrow-end-red) x1="371" y1="68" x2="328" y2="111"/>
+</svg>

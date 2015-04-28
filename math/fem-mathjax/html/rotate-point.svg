@@ -1,0 +1,35 @@
+<div class="container">
+	<div class="math above_pos hcenter_pos" style="left:470px;top:227px;">$x$</div>
+	<div class="math vcenter_pos right_pos" style="left:253px;top:50px;">$y$</div>
+	<div class="math above_pos hcenter_pos" stroke="red" style="left:343px;top:192px;">$r$</div>
+	<div class="math vcenter_pos right_pos" style="left:440px;top:161px;">$(x_0,y_0)$</div>
+	<div class="math above_pos hcenter_pos" stroke="red" style="left:312px;top:148px;">$r$</div>
+	<div class="math vcenter_pos right_pos" style="left:377px;top:73px;">$(x_1,y_1)$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:328px;top:216px;">$\alpha_0$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:298px;top:194px;">$\alpha_1$</div>
+</div>
+<svg width="800" height="300">
+	<defs>
+		<marker id="arrow-start-black" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-end-black" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-start-red" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="red" fill="red"/>
+		</marker>
+		<marker id="arrow-end-red" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="red" fill="red"/>
+		</marker>
+	</defs>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M250 50 L250 230 L470 230" fill="none"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M250 161 L437 161 L437 230" fill="none"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M250 73 L374 73 L374 230" fill="none"/>
+	<line stroke="red" x1="250" y1="230" x2="437" y2="161"/>
+	<circle stroke="black" fill="black" cx="437" cy="161" r="3"/>
+	<line stroke="red" stroke-dasharray="7,7" x1="250" y1="230" x2="374" y2="73"/>
+	<circle stroke="black" fill="black" cx="374" cy="73" r="3"/>
+	<path fill="none" stroke="black" d="M310 230 A60 60 0 0 0 306 209"/>
+	<path fill="none" stroke="black" marker-end=url(#arrow-end-black) d="M325 202 A80 80 0 0 0 299 167"/>
+</svg>

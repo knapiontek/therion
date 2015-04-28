@@ -1,0 +1,49 @@
+
+my-listener
+	name : "my-listener-name"
+	last-name : string.nil
+	factor : float.nil
+
+event
+	nil : 0
+	send : 1
+	receive : 2
+
+db(test, var : uint8(0)) : hello("from-me")
+	class.final : ..db.final
+	final()
+		it : listeners.head()
+		while(it.next())
+			i : it.value()
+			switch(i)
+				default
+					return main # back to main
+				event.nil
+					env.con.write("unexpected event")
+					throw event
+				event.send
+					env.con.write("event.sending")
+				event.receive
+					env.con.write("event.receiving")
+		repeat
+			i : it.value()
+			until(it.prev())
+		for(i, listeners@)
+			i.call()
+		trace(event)
+			env.con.write("trace unexpected event")
+		catch(event)
+			env.con.write("caught unexpected event")
+
+	listeners : @seq(test.my-listener, 99)
+	listeners@.size(100)
+	factor : 4.2
+	pt : $uint64
+
+my-test
+	my-listener : uint32
+
+my-thing : my-test.my-listener.factor - my-float + 1
+
+main : db(my-test)
+

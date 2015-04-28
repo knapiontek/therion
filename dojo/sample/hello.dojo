@@ -1,0 +1,8 @@
+basic:
+	person-data(name: unicode, age: int):
+		name: name
+		age: age
+	employee-info(name: unicode): person-data(name, 36)
+		age: 37
+
+myself: basic.employee-info("Kris")

@@ -1,0 +1,52 @@
+<div class="container">
+	<div class="math below_pos hcenter_pos" style="left:250px;top:151px;">$x$</div>
+	<div class="math vcenter_pos left_pos" style="left:208px;top:107px;">$y$</div>
+	<div class="math vcenter_pos left_pos" style="left:196px;top:159px;">$z$</div>
+	<div class="math vcenter_pos right_pos" style="left:381px;top:129px;">$e_0$</div>
+	<div class="math vcenter_pos left_pos" style="left:480px;top:126px;">$e_1$</div>
+	<div class="math above_pos hcenter_pos" style="left:483px;top:218px;">$e_2$</div>
+	<div class="math vcenter_pos right_pos" style="left:365px;top:236px;">$e_3$</div>
+	<div class="math vcenter_pos left_pos" style="left:347px;top:153px;">$e_4$</div>
+	<div class="math below_pos hcenter_pos" style="left:455px;top:252px;">$e_5$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:384px;top:220px;">$p_0$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:378px;top:37px;">$p_1$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:585px;top:222px;">$p_2$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:334px;top:264px;">$p_3$</div>
+</div>
+<svg width="800" height="300">
+	<defs>
+		<marker id="arrow-start-black" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-end-black" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-start-red" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="red" fill="red"/>
+		</marker>
+		<marker id="arrow-end-red" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="red" fill="red"/>
+		</marker>
+	</defs>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="211" y1="147" x2="250" y2="148"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="211" y1="147" x2="211" y2="107"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="211" y1="147" x2="199" y2="159"/>
+	<line stroke="red" x1="378" y1="208" x2="378" y2="49"/>
+	<circle stroke="black" fill="black" cx="378" cy="208" r="3"/>
+	<circle stroke="black" fill="black" cx="378" cy="49" r="3"/>
+	<line stroke="red" x1="394" y1="45" x2="573" y2="206"/>
+	<circle stroke="black" fill="black" cx="394" cy="45" r="3"/>
+	<circle stroke="black" fill="black" cx="573" cy="206" r="3"/>
+	<line stroke="red" x1="573" y1="222" x2="394" y2="220"/>
+	<circle stroke="black" fill="black" cx="573" cy="222" r="3"/>
+	<circle stroke="black" fill="black" cx="394" cy="220" r="3"/>
+	<line stroke="red" x1="350" y1="248" x2="374" y2="224"/>
+	<circle stroke="black" fill="black" cx="350" cy="248" r="3"/>
+	<circle stroke="black" fill="black" cx="374" cy="224" r="3"/>
+	<line stroke="red" x1="338" y1="244" x2="362" y2="61"/>
+	<circle stroke="black" fill="black" cx="338" cy="244" r="3"/>
+	<circle stroke="black" fill="black" cx="362" cy="61" r="3"/>
+	<line stroke="red" x1="354" y1="260" x2="557" y2="238"/>
+	<circle stroke="black" fill="black" cx="354" cy="260" r="3"/>
+	<circle stroke="black" fill="black" cx="557" cy="238" r="3"/>
+</svg>

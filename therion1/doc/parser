@@ -1,0 +1,38 @@
+    Zbiór sytuacji 0
+    Z → • E
+    + E → • E * B
+    + E → • E + B
+    + E → • B
+    + B → • 0
+    + B → • 1
+
+    Zbiór sytuacji 1
+    B → 0 •
+
+    Zbiór sytuacji 2
+    B → 1 •
+
+    Zbiór sytuacji 3
+    Z → E •
+    E → E • * B
+    E → E • + B
+
+    Zbiór sytuacji 4
+    E → B •
+
+    Zbiór sytuacji 5
+    E → E * • B
+    + B → • 0
+    + B → • 1
+
+    Zbiór sytuacji 6
+    E → E + • B
+    + B → • 0
+    + B → • 1
+
+    Zbiór sytuacji 7
+    E → E * B •
+
+    Zbiór sytuacji 8
+    E → E + B • 
+

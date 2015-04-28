@@ -1,0 +1,16 @@
+
+Person {
+	int8[] name;
+}
+
+Employer {
+	int8[4] name;
+	unique Person$ owner;
+	Person$[] employees;
+	int32[] sector;
+}
+
+Person$[] getEmployees(int8[] name) {
+	# return all workers with name as a boss name ending with 'ski'
+	#return Employer[.employees$.name = name & .owner.name <> '*ski'].employees[.name = name];
+}

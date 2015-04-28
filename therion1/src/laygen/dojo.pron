@@ -1,0 +1,63 @@
+
+Model{byte-list}
+: <!DOCTYPE$sHTML$sPUBLIC$s"-//W3C//DTD$sHTML$s4.01//EN"$s"http://www.w3.org/TR/html4/strict.dtd">
+  $n<html$sdir="ltr">
+  $n$t<head>
+  $n$t$t<script$ssrc="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"
+  $n$t$t$tdjConfig="parseOnLoad:$strue">
+  $n$t$t</script>
+  $n$t$t<script$stype="text/javascript">
+  $n$t$t$tdojo.require("dijit.Dialog");
+  $n$t$t$tdojo.require("dijit.form.TextBox");
+  $n$t$t$tdojo.require("dijit.form.TimeTextBox");
+  $n$t$t$tdojo.require("dijit.form.Button");
+  $n$t$t$tdojo.require("dijit.form.DateTextBox");
+  $n$t$t</script>
+  $n$t$t<link$srel="stylesheet"$stype="text/css"$shref="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/claro/claro.css"/>
+  $n$t</head>
+  $n$t<body$sclass="$sclaro$s">
+  Main
+  $n$t</body>
+  $n</html>
+  $n
+
+Main{byte-list}
+: $n$t$t<button$sdojoType="dijit.form.Button"$sonclick="dijit.byId('dialog1').show()">Show$sDialog</button>
+  Dialog
+
+Dialog{byte-list}
+: $n$t$t<div$sdojoType="dijit.Dialog"$sid="dialog1"$stitle="First$sDialog"$sexecute="alert('submitted$sw/args:\n'$s+$sdojo.toJson(arguments[0],$strue));">
+  Axis
+  $n$t$t</div>
+
+Axis{byte-list}
+: $n$t$t$t<table>
+  XAxis
+  $n$t$t$t</table>
+
+YAxis{byte-list} : Axis
+
+XAxis{byte-list}
+: $n$t$t$t$t<tr>
+  Window
+  $n$t$t$t$t</tr>
+
+Window{byte-list}
+: Label
+  Edit
+  Date
+  Time
+  Button
+
+Label{byte-list} : $n$t$t$t$t$t<td><label$sfor="name"> Id :$s</label></td>
+
+Edit{byte-list} : $n$t$t$t$t$t<td><input$sdojoType="dijit.form.TextBox"$stype="text"$sname="name"$sid=" Id "></td>
+
+Date{byte-list} : $n$t$t$t$t$t<td><input$sdojoType="dijit.form.DateTextBox"$stype="text"$sname="date"$sid=" Id "></td>
+
+Time{byte-list} : $n$t$t$t$t$t<td><input$sdojoType="dijit.form.TimeTextBox"$stype="text"$sname="time"$sid=" Id "></td>
+
+Button{byte-list} : $n$t$t$t$t$t<td><button$sdojoType="dijit.form.Button"$stype="submit"> Id </button></td>
+
+Id{alias}
+

@@ -1,0 +1,140 @@
+see the code to follow rules
+
+* highlights
+	follow rules in existing code
+	low level code has diffrent philosofy than the high one (pointers, more stack than heap, operators etc.)
+	very limited use of libc in high level code (only isdigit() etc.)
+	prefer
+		- return (-1 == very_long_function_name());
+		- && something
+	no throw in ctors (simple ctor better)
+	dtor always fully clean up
+	throw only when desperate
+
+* memory management:
+
+	space described by (data,size) pair
+	indices are type of uint32
+
+* access operator preference
+
+	& - function parameter or class member (class init list)
+	Shared<> - class member (points to static/local object or collection element)
+	Managed<> - never 0, no central memory management
+	* - low level, local algorithms
+
+* allowed part of libc in langen/cover it in core namespace
+
+	#include <ctype.h>
+	#include <math.h>
+
+* class/struct always uses "the_*" for members/if there are no methodes "the_" can be omited
+
+* no static such as: (thread and string are exceptions)
+
+	grep -r static * | grep -v svn | grep -v lem | grep -v "(" | grep -v const
+
+* no const - avoid const usage as it is not guarantied feature
+	I have removed all possible consts I hope that valgrind will safe me from madness
+	const-ness requires more afford that it is worth, valgrind does better job
+	const usage is imposed by C++ standard thus it has to be used for parameters:
+		* const core::float64& f; i.e. at(1) = 0; // use core::float64 if possible
+		* core::String& st; i.e. at("1") = "0"; // typedef const MutableString String;
+		* Templates which may have parameters as above have to use const too.
+	String functions have to be const due to i18n const declarations and const char* inlined strings
+	i.e why not use const.
+		struct A
+		{ int* i; };
+		const A a =
+		{ 0 };
+		*a.i = 1; // allowed - one can access memory owened by const class
+
+* thoughts
+
+	follow coding rules from "core"
+	no throw/no functionality in ctors (simple assignments only)
+	all main() and run() must have try/catch statement
+	'\n' tends to be in front of text (not at the back)
+	auto-clean in destructor/exception safe
+	no new, delete, malloc, free
+	use try_ prefix for alt function without throw
+	if object describes only type its name is to be "arg" (core.hpp, string.hpp)
+	prefer ref& over ptr* (use core::Shared/Managed)
+	copy-ctors and operators restricted to Runtime, String, Shared and Managed only
+	Hash is faster, Tree more flexible (it has Sort-iterator)
+	Seq is faster for known/static size, List otherwise
+	reconsider all direct use of Shared<> Managed<>/use typedef(this) within struct if possible
+	dont use uint32& and family.
+	unique/multi-value in collections is implemented with no extra memory and may be slow
+
+* directory dependency:
+
+	core
+		thread
+			env
+				io
+					test
+					langen
+						test
+
+* the only allowed macros
+
+	NAMESPACE_BEGIN(name)
+	NAMESPACE_END(name)
+	NAMESPACE(name)
+	assert(expr)
+	i18n(value)
+	i18n_eng(value)
+	i18n_pl(value)
+
+* main function example for server process (not sure if instances required)
+
+int main(int argc, char *argv[])
+{
+	thread::Thread main(argv[0], true); // always required
+	env::SystemLog log; // optional - default stdout
+	env::SignalHandler handler; // optional - default standard behaviour
+	try
+	{
+
+	}
+	catch(core::Exception& exception)
+	{
+		env::Con::exception(exception);
+	}
+	catch(...)
+	{
+		env::Con(unknown_exception_i18n).endl();
+	}
+	return 0;
+}
+
+* new platform has to be tested by below function
+
+	void String::size(uint32 size) const
+	{
+		if(--the_handle->cnt)
+		{
+			the_handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * size);
+		}
+		else
+		{
+			Handle* handle = the_handle;
+			core::uint32 oldsize = the_handle->size;
+			the_handle = acquire<Handle>(handle, sizeof(Handle) + sizeof(uint8) * size);
+			if(the_handle != handle && oldsize >= size)
+				assert(false);
+		}
+		the_handle->cnt = 1;
+		the_handle->size = size;
+		the_handle->data[size] = '\0';
+	}
+
+* langen prototype grammar description
+
+	' is escape char
+	operators ' ? + * used as chars '' '? '+ '* or '27 '3F '2B '2A at the and of any element
+	space is separator, char used only as '20
+	product definition is Product : def, colon is not special operator
+	Product name has to be C identifier
+

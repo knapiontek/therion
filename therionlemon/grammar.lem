@@ -1,0 +1,55 @@
+%token_prefix TOK_
+%token_type { Token* }
+%extra_argument { Data *data }
+%syntax_error { data->error(); }
+%include { #include "daisy/data.hpp" }
+
+input ::= class_map func_map.
+
+class_map ::= class_map class(c).			{ data->insert_class(c); }
+class_map ::= class(c).					{ data->insert_class(c); }
+
+%type class { Class* }
+class(c) ::= ID(i) LP decl_map(dm) RP.			{ c = data->create_class(i, dm); }
+
+%type decl_map { DeclMap* }
+decl_map(dm) ::= decl_map(idm) decl(d).			{ dm = data->insert_decl(idm, d); }
+decl_map(dm) ::= decl(d).				{ dm = data->create_decl_map(d); }
+
+%type decl { Decl* }
+decl(d) ::= FAST type(t) ID(i) SEMI.			{ d = data->create_decl(Decl::FAST, t, i); }
+decl(d) ::= UNIQUE type(t) ID(i) SEMI.			{ d = data->create_decl(Decl::UNIQUE, t, i); }
+decl(d) ::= type(t) ID(i) SEMI.				{ d = data->create_decl(Decl::NONE, t, i); }
+
+func_map ::= func_map func(f).				{ data->insert_func(f); }
+func_map ::= func(f).					{ data->insert_func(f); }
+
+%type func { Func* }
+func(f) ::= type(t) ID(i) LB arg_map(am) RB LP RP.	{ f = data->create_func(t, i, am); }
+
+%type arg_map { ArgMap* }
+arg_map(am) ::= arg_map(iam) COMMA arg(a).		{ am = data->insert_arg(iam, a); }
+arg_map(am) ::= arg(a).					{ am = data->create_arg_map(a); }
+
+%type arg { Arg* }
+arg(a) ::= type(t) ID(i).				{ a = data->create_arg(t, i); }
+
+%type type { Type* }
+type(t) ::= type(it) LS RS.				{ t = data->type_size(it); }
+type(t) ::= type(it) LS DECIMAL(size) RS.		{ t = data->type_size(it, size); }
+type(t) ::= BOOL.					{ t = data->create_type(Type::BOOL); }
+type(t) ::= INT8.					{ t = data->create_type(Type::INT8); }
+type(t) ::= INT16.					{ t = data->create_type(Type::INT16); }
+type(t) ::= INT32.					{ t = data->create_type(Type::INT32); }
+type(t) ::= INT64.					{ t = data->create_type(Type::INT64); }
+type(t) ::= INT128.					{ t = data->create_type(Type::INT128); }
+type(t) ::= UINT8.					{ t = data->create_type(Type::UINT8); }
+type(t) ::= UINT16.					{ t = data->create_type(Type::UINT16); }
+type(t) ::= UINT32.					{ t = data->create_type(Type::UINT32); }
+type(t) ::= UINT64.					{ t = data->create_type(Type::UINT64); }
+type(t) ::= UINT128.					{ t = data->create_type(Type::UINT128); }
+type(t) ::= FLOAT32.					{ t = data->create_type(Type::FLOAT32); }
+type(t) ::= FLOAT64.					{ t = data->create_type(Type::FLOAT64); }
+type(t) ::= FLOAT128.					{ t = data->create_type(Type::FLOAT128); }
+type(t) ::= ID(i) DOLLAR.				{ t = data->create_type(i); }
+type ::= LB RB DOT OR EQ NE LE LT GE GT AND FLOAT.	{}

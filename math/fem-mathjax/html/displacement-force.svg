@@ -1,0 +1,66 @@
+<div class="container">
+	<div class="math above_pos hcenter_pos" style="left:400px;top:287px;">$x$</div>
+	<div class="math vcenter_pos left_pos" style="left:117px;top:10px;">$y$</div>
+	<div class="math above_pos hcenter_pos" style="left:187px;top:259px;">$\Delta x_0$</div>
+	<div class="math vcenter_pos left_pos" style="left:144px;top:232px;">$\Delta y_0$</div>
+	<div class="math above_pos hcenter_pos" style="left:187px;top:229px;">$\Delta p_0$</div>
+	<div class="math below_pos hcenter_pos" style="left:147px;top:265px;">$(x_0,y_0)$</div>
+	<div class="math above_pos right_pos" style="left:303px;top:87px;">$\Delta x_1$</div>
+	<div class="math vcenter_pos left_pos" style="left:237px;top:70px;">$\Delta y_1$</div>
+	<div class="math above_pos hcenter_pos" style="left:300px;top:67px;">$\Delta p_1$</div>
+	<div class="math below_pos right_pos" style="left:243px;top:93px;">$(x_1,y_1)$</div>
+	<div class="math above_pos left_pos" stroke="red" style="left:191px;top:172px;">$L$</div>
+	<div class="math below_pos right_pos" stroke="red" style="left:296px;top:129px;">$L'$</div>
+	<div class="math above_pos hcenter_pos" style="left:700px;top:287px;">$x$</div>
+	<div class="math vcenter_pos left_pos" style="left:417px;top:10px;">$y$</div>
+	<div class="math above_pos hcenter_pos" style="left:490px;top:187px;">$f_{x_0}$</div>
+	<div class="math vcenter_pos right_pos" style="left:523px;top:230px;">$f_{y_0}$</div>
+	<div class="math below_pos hcenter_pos" style="left:490px;top:233px;">$f_0$</div>
+	<div class="math vcenter_pos right_pos" style="left:523px;top:190px;">$(x_0,y_0)$</div>
+	<div class="math above_pos hcenter_pos" style="left:630px;top:80px;">$f_{x_1}$</div>
+	<div class="math vcenter_pos left_pos" style="left:597px;top:43px;">$f_{y_1}$</div>
+	<div class="math above_pos hcenter_pos" style="left:630px;top:40px;">$f_1$</div>
+	<div class="math below_pos right_pos" style="left:603px;top:86px;">$(x_1,y_1)$</div>
+	<div class="math above_pos left_pos" stroke="red" style="left:557px;top:133px;">$L'$</div>
+</div>
+<svg width="800" height="300">
+	<defs>
+		<marker id="arrow-start-black" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-end-black" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-start-red" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="red" fill="red"/>
+		</marker>
+		<marker id="arrow-end-red" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="red" fill="red"/>
+		</marker>
+	</defs>
+	<text  baseline-shift="-40%" x="163" y="10">a) Displacements</text>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M120 10 L120 290 L400 290" fill="none"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M147 201 L228 201 L228 262" fill="none"/>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M147 201 L147 262 L228 262" fill="none"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="147" y1="262" x2="228" y2="201"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M240 50 L360 50 L360 90" fill="none"/>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M240 50 L240 90 L360 90" fill="none"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="240" y1="90" x2="360" y2="50"/>
+	<line stroke="red" x1="147" y1="262" x2="240" y2="90"/>
+	<circle stroke="black" fill="black" cx="147" cy="262" r="3"/>
+	<circle stroke="black" fill="black" cx="240" cy="90" r="3"/>
+	<line stroke="red" stroke-dasharray="7,7" x1="228" y1="201" x2="360" y2="50"/>
+	<circle stroke="black" fill="black" cx="228" cy="201" r="3"/>
+	<circle stroke="black" fill="black" cx="360" cy="50" r="3"/>
+	<text  baseline-shift="-40%" x="463" y="10">b) Forces</text>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M420 10 L420 290 L700 290" fill="none"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M460 190 L460 270 L520 270" fill="none"/>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M460 190 L520 190 L520 270" fill="none"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="520" y1="190" x2="460" y2="270"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M600 3 L660 3 L660 83" fill="none"/>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M600 3 L600 83 L660 83" fill="none"/>
+	<line stroke="black" marker-end=url(#arrow-end-black) x1="600" y1="83" x2="660" y2="3"/>
+	<line stroke="red" stroke-dasharray="7,7" x1="520" y1="190" x2="600" y2="83"/>
+	<circle stroke="black" fill="black" cx="520" cy="190" r="3"/>
+	<circle stroke="black" fill="black" cx="600" cy="83" r="3"/>
+</svg>

@@ -1,0 +1,5 @@
+factory
+	person
+		i : 1
+
+return factory.person.i

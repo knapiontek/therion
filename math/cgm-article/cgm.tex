@@ -1,0 +1,101 @@
+
+\input{setup}
+
+\title{THIS WORK IS STILL UNDER DEVELOPMENT Conjugate Gradients Method by Example in Qt/C++}
+\author{Krzysztof Napiontek\protect\\knapiontek@gmail.com}
+\date{Version 1.0\protect\\\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+Work under active development.
+
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Practical implementation of CGM.
+
+\section{The Realistic Example}
+
+\begin{figure}[H]
+\centering
+\input{figure-pipe}
+\caption{Pipe}
+\label{fig:pipe}
+\end{figure}
+
+\section{The Simplest Geometry}
+
+\begin{figure}[H]
+\centering
+\input{figure-tetrahedron}
+\caption{Tetrahedron}
+\label{fig:tetrahedron}
+\end{figure}
+
+\section{The Steepest Descent Method}
+
+\begin{figure}[H]
+\centering
+\input{figure-quadratic-form}
+\caption{Quadratic Form}
+\label{fig:quadratic-form}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\input{figure-levels}
+\caption{Intersection for $\psi = 0$}
+\label{fig:levels}
+\end{figure}
+
+\section{Conjugate Gradients Method}
+
+\begin{eqnarray}
+A x = f \\
+\Phi = \frac 1 2 x^T A x + x^T f \\
+\nabla \Phi = \frac 1 2 I A x + \frac 1 2 x^T A I - I f \\
+\nabla \Phi =
+\begin{bmatrix}
+\frac{\partial \Phi}{\partial x_1} \\
+\frac{\partial \Phi}{\partial x_2} \\
+\vdots \\
+\frac{\partial \Phi}{\partial x_n}
+\end{bmatrix} \\
+\nabla \Phi = A x - f \\
+x = x_0 + P s \\
+p_i^T A p_j = 0\;\;\mbox{for}\;\;i \neq j \\
+P^T A P = D \\
+d_i = p_i^T A p_i \\
+\nabla \Phi = A x - f = A x_0 + A P s - f \\
+\nabla \Phi = A P s + r_0 \\
+r_0 = f - A x_0 \\
+P^T A P s + P^T r_0 = 0 \\
+D s + P^T r_0 = 0 \\
+s_i = \frac{p_i^T r_0}{p_i^T A p_i} \\
+x = x_0 + P s
+\end{eqnarray}
+
+\section{Calculations for Tetrahedron}
+
+\begin{figure}[H]
+\centering
+\input{equation_K}
+\caption{Equation K for Tetrahedron}
+\label{eq:K}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\input{equation_T}
+\caption{Equation T for Tetrahedron}
+\label{eq:T}
+\end{figure}
+
+\end{document}

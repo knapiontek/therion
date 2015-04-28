@@ -1,0 +1,17 @@
+list : list.data(a : *hello.^^from-the**.*hell, my.bell : list(hello), one : two, 15i8, "he\"llo", list(5))
+	my : give-me-data(my.bell + big) : and.that
+	bite.me : in.my-leg
+	hello* : "dog" + "bitch"
+	house : 34.0E10f64
+	return +my-this.dog-a-- * number
+
+
+
+hello.start(mode : int, message : string)
+	i : 5
+	f1 : f2 : 6.7
+	system.console.write-line(message, i, mode, f1)
+	return 9
+
+hello.mode : 8
+return hello.start(hello.mode, "hello {0}-{1}-{2}")

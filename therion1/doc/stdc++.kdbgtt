@@ -1,0 +1,16 @@
+[Type Table]
+Types1=String
+Types2=Seq
+Types3=List
+LibDisplayName=libstdc++
+ShlibRE=libstdc\+\+\.so\.6
+[String]
+Display={ % }
+Expr1=(const char*)(%s).the_handle->data
+[Seq]
+Display={ % }
+Expr1=(%s).the_size
+[List]
+Display={ % }
+Expr1=(%s).the_size
+

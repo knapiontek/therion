@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Finite Element Method by Example in Qt/C++</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
+<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+		tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+		TeX: { equationNumbers: {autoNumber: "all"} }
+	});
+	MathJax.Hub.Queue(function () {
+		$(".left_pos").each(function(){$(this).css("left", $(this).position().left - $(this).width());});
+		$(".hcenter_pos").each(function(){$(this).css("left", $(this).position().left - ($(this).width() / 2));});
+		$(".above_pos").each(function(){$(this).css("top", $(this).position().top - $(this).height());});
+		$(".vcenter_pos").each(function(){$(this).css("top", $(this).position().top - ($(this).height() / 2));});
+	});
+</script>
+<style>
+#main_page {
+	padding: 80px;
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #ffffff;
+	box-shadow: 10px 10px 5px #888888;
+}
+.container {
+	position: relative;
+}
+.math {
+	position: absolute;
+}
+.centered {
+	text-align: center;
+}
+.shrink {
+	font-size: 85%;
+}
+.toc1 {
+	line-height: 2.5em;
+}
+.toc2 {
+	margin: 1.5em;
+}
+.toc3 {
+	margin: 3.0em;
+}
+a {
+	text-decoration: none !important;
+}
+body {
+	background-color: #cccccc;
+	font: 14px Myriad,Helvetica,Tahoma,Arial,clean,sans-serif;
+	font-size: 0.8em;
+	line-height: 1.5em;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+iframe {
+	border: 1px solid #000000;
+	width: 100%;
+	height: 400px;
+}
+h1 {
+	font-size: 2.0em;
+	font-weight: normal;
+	line-height: 2.5em;
+	margin-top: 1em;
+	margin-bottom:0.643em;
+}
+h2 {
+	font-size: 1.6em;
+	font-weight: bold;
+	line-height: 1.286em;
+	margin-top: 1.929em;
+	margin-bottom:0.643em;
+}
+h3 {
+	font-size: 1.2em;
+	font-weight: bold;
+	line-height: 1.5em;
+	margin-top: 1.5em;
+	margin-bottom: 0.643em;
+}
+</style>
+</head>

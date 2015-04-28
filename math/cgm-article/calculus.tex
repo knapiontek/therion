@@ -1,0 +1,96 @@
+
+\input{setup}
+
+\begin{document}
+
+\section*{Segment Intersection}
+
+\begin{figure}[H]
+\centering
+\input{figure-intersection}
+\caption{Segment Intersection}
+\label{fig:intersection}
+\end{figure}
+
+\section*{Clipping Triangles}
+
+\begin{figure}[H]
+\centering
+\input{figure-triangle1}
+\input{figure-triangle2}
+\input{figure-triangle3}
+\caption{Clipping Triangles}
+\label{fig:triangles}
+\end{figure}
+
+\section*{Quadratic Form}
+
+\[
+\psi = \frac12
+\begin{bmatrix}
+x_0 & x_1
+\end{bmatrix}
+\begin{bmatrix}
+A_{00} & A_{01} \\
+A_{10} & A_{11}
+\end{bmatrix}
+\begin{bmatrix}
+x_0 \\
+x_1
+\end{bmatrix}
+-
+\begin{bmatrix}
+x_0 & x_1
+\end{bmatrix}
+\begin{bmatrix}
+b_0 \\
+b_1
+\end{bmatrix}
+\]
+
+\[
+\psi = \frac12
+\begin{bmatrix}
+x_0A_{00} + x_1A_{10} & x_0A_{01} + x_1A_{11}
+\end{bmatrix}
+\begin{bmatrix}
+x_0 \\
+x_1
+\end{bmatrix}
+-
+\begin{bmatrix}
+x_0 & x_1
+\end{bmatrix}
+\begin{bmatrix}
+b_0 \\
+b_1
+\end{bmatrix}
+\]
+
+\[\psi = \frac12 x_0 A_{00} x_0 + \frac12 x_1 A_{10} x_0 + \frac12 x_0 A_{01} x_1 + \frac12 x_1 A_{11} x_1 - x_0 b_0 - x_1 b_1\]
+
+\section*{Case $x_1 = f(x_0)$}
+
+\[\frac12 A_{11} x_1^2 + \frac12 A_{10} x_0 x_1 + \frac12 A_{01} x_0 x_1 - b_1 x_1 + \frac12 A_{00} x_0^2 - b_0 x_0 - \psi = 0\]
+\[\frac12 A_{11} x_1^2 + \left[ \frac12 ( A_{10} + A_{01} ) x_0 - b_1 \right] x_1 + \frac12 A_{00} x_0^2 - b_0 x_0 - \psi = 0\]
+\[\frac{df}{dx_1} = A_{11} x_1 + \left[ \frac12 ( A_{10} + A_{01} ) x_0 - b_1 \right]\]
+
+\subsection*{Calculate $\Delta$}
+
+\[a = \frac12 A_{11}\]
+\[b = \frac12 ( A_{10} + A_{01} ) x_0 - b_1\]
+\[c = \frac12 A_{00} x_0^2 - b_0 x_0 - \psi\]
+
+\section*{Case $x_0 = f(x_1)$}
+
+\[\frac12 A_{00} x_0^2 + \frac12 A_{10} x_1 x_0 + \frac12 A_{01} x_1 x_0 - b_0 x_0 + \frac12 A_{11} x_1^2 - b_1 x_1 - \psi = 0\]
+\[\frac12 A_{00} x_0^2 + \left[ \frac12 ( A_{10} + A_{01} ) x_1 - b_0 \right] x_0 + \frac12 A_{11} x_1^2 - b_1 x_1 - \psi = 0\]
+\[\frac{df}{dx_0} = A_{00} x_0 + \left[ \frac12 ( A_{10} + A_{01} ) x_1 - b_0 \right]\]
+
+\subsection*{Calculate $\Delta$}
+
+\[a = \frac12 A_{00}\]
+\[b = \frac12 ( A_{10} + A_{01} ) x_1 - b_0\]
+\[c = \frac12 A_{11} x_1^2 - b_1 x_1 - \psi\]
+
+\end{document}

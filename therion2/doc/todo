@@ -1,0 +1,5 @@
+uncomment acquire
+CastIndex can be part of Index with default template parameter
+check for String(), should be core::nil
+
+

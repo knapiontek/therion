@@ -1,0 +1,23 @@
+grep -nr \" * | grep -v svn | grep -v include | grep -v i18n | grep -v printf | grep -v define | grep -v lemon
+find . -name *.hpp | xargs perl -pi -e 's/var2type/var_to_type/g'
+
+grep _i18n langen/i18n.hpp | sed -e "s/core::String \(.*_i18n\) = .*$/\1/g"
+grep _i18n langen/encode.hpp | sed -e "s/^.*(\(.*_i18n\).*$/\1/g" | sed "s/[ \t]*//g"
+
+find . -name *.cpp | xargs perl -pi -e 's/core::Exception/env::Exception/g'
+
+SHIFT		1	0	:	1
+INSTANT		1	1	:	3
+DEFERRED	0	1	:	2
+UNDEFINED	0	0	:	0
+
+
+optimize void put():
+				if(!reduction.element_seq.size())
+					the_encode.format(cs_empty_reduction).arg(product.item->var).write();
+				else if(~Model::Product::byte & product.clazz)
+
+
+http://manpages.courier-mta.org/htmlman2/timerfd_create.2.html
+http://www.yolinux.com/TUTORIALS/LinuxTutorialNetworking.html
+

@@ -1,0 +1,44 @@
+todo-now:
+- dont print structs and calls is not used, similar to NEED_COPY
+
+todo:
+- call closed loop detection
+- import other files
+- syntax error does not stop execution (SYNC does not work)
+- final or action (i.e "12" or "1 * 2") cannot be placed in mutable parameter
+- pointers
+- unicast operators
+- nil parameters (incomplete types)
+- keywords
+- Clone() does deep cloning now, it should skip not mutable objects
+
+
+taken optimalizations:
+- Add parent only if a field really needs that
+- if node (this) has a parent (that) pointer - use it directly to access remote vars (that->x1 instead of this->that->x1)
+- use root to make var paths shorter, avoid parent pointers then
+- use type of link.Tail if possible to avoid another extended type
+- remove copy c-functions if not used
+
+
+
+
+
+sample
+				if(field.IsCase)
+				{
+					var format = clang.Begin(clang.caseBlock);
+					format.Put(field.Name);
+					clang.Enter();
+					foreach(var subfield in field.fieldList)
+						WriteCallField(subfield, define);
+					foreach(var clone in field.cloneList)
+						WriteCallField(clone, define);
+					clang.Leave();
+					format.End();
+				}
+				else if(field.IsSnap)
+				{
+					clang.Begin(clang.goToLabel)
+						.Put(field.Name);
+				}

@@ -1,0 +1,186 @@
+COMPILER Daisy
+
+	// helpers
+	public ast.Worker worker;
+	void check(int value)
+	{
+		worker.Indentation(value);
+	}
+	void check(string value)
+	{
+		int length = value.LastIndexOf('\t') - value.IndexOf('\t');
+		worker.Indentation(length);
+	}
+
+CHARACTERS
+	letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+	digit = "0123456789".
+	cntl = '\u0001' .. '\u001f'.
+	graph = ANY - cntl.
+	back = '\\'.
+	noQuote = ANY - '"' - cntl - back.
+
+TOKENS
+	id = letter { ( letter | digit ) | '-' ( letter | digit ) { letter | digit } }.
+	string = '"' { noQuote | back graph } '"'.
+	int = digit { digit }.
+	float = digit { digit } '.' digit { digit } [ 'E' [ '+' | '-' ] digit { digit } ].
+	tabs = '\t' { '\t' }.
+
+	assign = '\n' { '\t' } ": ".
+	add = '\n' { '\t' } "+ ".
+	sub = '\n' { '\t' } "- ".
+	mul = '\n' { '\t' } "* ".
+	div = '\n' { '\t' } "/ ".
+	mod = '\n' { '\t' } "% ".
+	and = '\n' { '\t' } "& ".
+	or = '\n' { '\t' } "| ".
+	xor = '\n' { '\t' } "^ ".
+	shl = '\n' { '\t' } "<< ".
+	shr = '\n' { '\t' } ">> ".
+
+COMMENTS FROM "{{" TO "}}" NESTED
+
+PRODUCTIONS
+
+Daisy = { Line '\n' [ '\n' ] }.
+
+Line											(. int length = 0; ast.Keyword keyword = ast.Keyword.NONE; ast.Expr expr; .)
+	=
+	[
+		tabs									(. length = t.val.Length; .)
+	]											(. check(length); .)
+	[ Keyword<out keyword> ' ' ] Expr<out expr>	(. worker.Add(keyword, expr); .)
+.
+
+Item<out ast.Item item>				(. item = null; ast.Const cnst; ast.Call call; ast.Expr expr; .)
+	=
+	(
+		Const<out cnst>				(. item = cnst; .)
+		| Call<out call>			(. item = call; .)
+		| '(' Expr<out expr> ')'	(. item = expr; .)
+	)
+.
+
+Const<out ast.Const cnst>	(. cnst = new ast.Const(); .)
+	=
+	string					(. cnst.value = t.val.Substring(1, t.val.Length - 2); cnst.kind = ast.Const.Kind.STRING; .)
+	| int					(. cnst.value = t.val; cnst.kind = ast.Const.Kind.I4; .)
+		[
+			  "u1"			(. cnst.kind = ast.Const.Kind.U1; .)
+			| "u2"			(. cnst.kind = ast.Const.Kind.U2; .)
+			| "u4"			(. cnst.kind = ast.Const.Kind.U4; .)
+			| "u8"			(. cnst.kind = ast.Const.Kind.U8; .)
+			| "i1"			(. cnst.kind = ast.Const.Kind.I1; .)
+			| "i2"			(. cnst.kind = ast.Const.Kind.I2; .)
+			| "i4"
+			| "i8"			(. cnst.kind = ast.Const.Kind.I8; .)
+		]
+	| float					(. cnst.value = t.val; cnst.kind = ast.Const.Kind.F8; .)
+		[
+			  "f4"			(. cnst.kind = ast.Const.Kind.F4; .)
+			| "f8"
+		]
+.
+
+Call<out ast.Call call>		(. call = new ast.Call(); .)
+	=
+	Path<out call.path>
+	[
+		ExprList<out call.exprList>
+	]
+.
+
+Expr<out ast.Expr expr>			(. expr = new ast.Expr(); ast.Item item; .)
+	=
+	Item<out item>				(. expr.itemList.Add(item); .)
+	{
+		Operator<out item.op>
+		Item<out item>			(. expr.itemList.Add(item); .)
+	}
+.
+
+Keyword<out ast.Keyword keyword>	(. keyword = ast.Keyword.RETURN; .)
+	=
+	  "return"
+	| "foreach"						(. keyword = ast.Keyword.FOREACH; .)
+	| "while"						(. keyword = ast.Keyword.WHILE; .)
+	| "repeat"						(. keyword = ast.Keyword.REPEAT; .)
+	| "until"						(. keyword = ast.Keyword.UNTIL; .)
+	| "throw"						(. keyword = ast.Keyword.THROW; .)
+	| "trace"						(. keyword = ast.Keyword.TRACE; .)
+	| "catch"						(. keyword = ast.Keyword.CATCH; .)
+.
+
+Operator<out ast.Op op>	(. op = new ast.Op(); .)
+	=					(. op.kind = ast.Op.Kind.ASSIGN; .)
+	  " : "
+	| " + "				(. op.kind = ast.Op.Kind.ADD; .)
+	| " - "				(. op.kind = ast.Op.Kind.SUB; .)
+	| " * "				(. op.kind = ast.Op.Kind.MUL; .)
+	| " / "				(. op.kind = ast.Op.Kind.DIV; .)
+	| " % "				(. op.kind = ast.Op.Kind.MOD; .)
+	| " & "				(. op.kind = ast.Op.Kind.AND; .)
+	| " | "				(. op.kind = ast.Op.Kind.OR; .)
+	| " ^ "				(. op.kind = ast.Op.Kind.XOR; .)
+	| " << "			(. op.kind = ast.Op.Kind.SHL; .)
+	| " >> "			(. op.kind = ast.Op.Kind.SHR; .)
+	| assign			(. check(t.val); .)
+	| add				(. op.kind = ast.Op.Kind.ADD; check(t.val); .)
+	| sub				(. op.kind = ast.Op.Kind.SUB; check(t.val); .)
+	| mul				(. op.kind = ast.Op.Kind.MUL; check(t.val); .)
+	| div				(. op.kind = ast.Op.Kind.DIV; check(t.val); .)
+	| mod				(. op.kind = ast.Op.Kind.MOD; check(t.val); .)
+	| and				(. op.kind = ast.Op.Kind.AND; check(t.val); .)
+	| or				(. op.kind = ast.Op.Kind.OR; check(t.val); .)
+	| xor				(. op.kind = ast.Op.Kind.XOR; check(t.val); .)
+	| shl				(. op.kind = ast.Op.Kind.SHL; check(t.val); .)
+	| shr				(. op.kind = ast.Op.Kind.SHR; check(t.val); .)
+.
+
+Path<out ast.Path path>		(. path = new ast.Path(); ast.Part part; .)
+	=
+	Part<out part>		(. path.partList.Add(part); .)
+	{
+		'.'
+		Part<out part>	(. path.partList.Add(part); .)
+	}
+.
+
+ExprList<out ast.ExprList exprList>	(. exprList = new ast.ExprList(); ast.Expr expr; .)
+	=
+	'('
+	Expr<out expr>					(. exprList.Add(expr); .)
+	{
+		(
+			", "
+			| ",\n" tabs			(. check(t.val); .)
+		)
+		Expr<out expr>				(. exprList.Add(expr); .)
+	}
+	')'
+.
+
+Part<out ast.Part part>		(. part = new ast.Part(); ast.Op op; .)
+	=
+	{
+		Modifier<out op>	(. op.flag = ast.Op.Flag.PRE; part.opList.Add(op); .)
+	}
+	id						(. part.name = t.val; part.line = t.line; part.col = t.col; .)
+	{
+		Modifier<out op>	(. op.flag = ast.Op.Flag.POST; part.opList.Add(op); .)
+	}
+.
+
+Modifier<out ast.Op op>	(. op = new ast.Op(); .)
+	=					(. op.kind = ast.Op.Kind.MUL; .)
+	  '*'
+	| '+'				(. op.kind = ast.Op.Kind.ADD; .)
+	| '^'				(. op.kind = ast.Op.Kind.XOR; .)
+	| '~'				(. op.kind = ast.Op.Kind.NOT; .)
+	| '#'				(. op.kind = ast.Op.Kind.NUM; .)
+	| "++"				(. op.kind = ast.Op.Kind.INC; .)
+	| "--"				(. op.kind = ast.Op.Kind.DEC; .)
+.
+
+END Daisy.

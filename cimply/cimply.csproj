@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{83765762-06BB-47EE-B6ED-45E038FC1BDC}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>cimply</RootNamespace>
+    <AssemblyName>cimply</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <StartupObject>Cimply</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="./coco/Coco.exe -namespace coco -frames coco -o bin src/syntax" workingdir="${SolutionDir}" />
+      </CustomCommands>
+    </CustomCommands>
+    <Commandlineparameters>hello ../sample/hello.cy ../bin/hello</Commandlineparameters>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+    <Commandlineparameters>hello ../sample/hello.cy ../bin/hello</Commandlineparameters>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CLang.targets" />
+  <ItemGroup>
+    <Compile Include="src\AST.cs" />
+    <Compile Include="src\Cimply.cs" />
+    <Compile Include="src\Format.cs" />
+    <Compile Include="src\Printer.cs" />
+    <Compile Include="src\SafeList.cs" />
+    <Compile Include="src\CLang.cs" />
+    <Compile Include="bin\Parser.cs" />
+    <Compile Include="bin\Scanner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Core" />
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sample\hello.cy" />
+    <None Include="doc\todo" />
+    <None Include="src\syntax" />
+    <None Include="sample\callback.c" />
+    <None Include="sample\dojo.cy" />
+    <None Include="sample\test.cy" />
+    <None Include="sample\design.cy" />
+  </ItemGroup>
+</Project>

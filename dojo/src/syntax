@@ -1,0 +1,179 @@
+COMPILER Dojo
+
+	public ast.Worker worker;
+	string Capital(string name)
+	{
+		return name.Replace('-', '_');
+	}
+	void Check(int length)
+	{
+		if(worker.Level(length))
+			SemErr("Wrong nesting level!");
+	}
+	void Check(string value)
+	{
+		int length = value.LastIndexOf('\t') - value.IndexOf('\t');
+		Check(length);
+	}
+	bool IsPath()
+	{
+		Token token = la;
+		while(token.kind != _end && token.kind != _EOF)
+		{
+			if(token.kind == _colon1 || token.kind == _colon2)
+				return false;
+			token = scanner.Peek();
+		}
+		return true;
+	}
+
+CHARACTERS
+	letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+	digit = "0123456789".
+	cntl = '\u0001' .. '\u001f'.
+	graph = ANY - cntl.
+	back = '\\'.
+	noQuote = ANY - '"' - cntl - back.
+
+TOKENS
+	id = letter { ( letter | digit ) | '-' ( letter | digit ) { letter | digit } }.
+	unicode = '"' { noQuote | back graph } '"'.
+	int = digit { digit }.
+	float = digit { digit } '.' digit { digit } [ 'E' [ '+' | '-' ] digit { digit } ].
+	tabs = '\t' { '\t' }.
+
+	colon1 = ':'.
+	colon2 = ": ".
+	end = '\n'.
+
+COMMENTS FROM "{{" TO "}}" NESTED
+
+PRODUCTIONS
+
+Dojo = { Line '\n' [ '\n' ] }.
+
+Line						(. int length = 0; ast.Define define; .)
+	=
+	[
+		tabs				(. length = t.val.Length; .)
+	]						(. Check(length); .)
+	FakeDefine<out define>	(. worker.Add(define); .)
+.
+
+FakeDefine<out ast.Define define>	(. define = new ast.Define(); ast.Path path; .)
+	=
+	IF(IsPath()) Path<out path>		(. define.identity = path.DefaultName; define.node = path; .)
+	| Define<out define>
+.
+
+Define<out ast.Define define>	(. define = new ast.Define(); .)
+	=
+	Identity<out define.identity>
+	[
+		DefineList<out define.paramList>
+	]
+	(
+		':'
+		| ": " Node<out define.node>
+	)
+.
+
+DefineList<out ast.DefineList defineList>	(. defineList = new ast.DefineList(); ast.Define define; .)
+	=
+	'('
+	Define<out define>						(. define.flag = ast.Define.PARAM; defineList.Add(define); .)
+	{
+		(
+			", "
+			| ",\n" tabs					(. Check(t.val); .)
+		)
+		Define<out define>					(. define.flag = ast.Define.PARAM; defineList.Add(define); .)
+	}
+	')'
+.
+
+Node<out ast.Node node>	(. node = null; ast.Final final; ast.Path path; .)
+	=
+	Final<out final>	(. node = final; .)
+	| Path<out path>	(. node = path; .)
+.
+
+Final<out ast.Final final>	(. final = new ast.Final(); .)
+	=
+	unicode					(. final.value = t.val; final.kind = ast.Final.Kind.UNICODE; .)
+	| int					(. final.value = t.val; final.kind = ast.Final.Kind.I4; .)
+		[
+			"i1"			(. final.kind = ast.Final.Kind.I1; .)
+			| "i2"			(. final.kind = ast.Final.Kind.I2; .)
+			| "i4"
+			| "i8"			(. final.kind = ast.Final.Kind.I8; .)
+			| "u1"			(. final.kind = ast.Final.Kind.U1; .)
+			| "u2"			(. final.kind = ast.Final.Kind.U2; .)
+			| "u4"			(. final.kind = ast.Final.Kind.U4; .)
+			| "u8"			(. final.kind = ast.Final.Kind.U8; .)
+		]
+	| float					(. final.value = t.val; final.kind = ast.Final.Kind.F8; .)
+		[
+			"f8"
+			| "f12"			(. final.kind = ast.Final.Kind.F12; .)
+		]
+	| "unicode"				(. final.value = t.val; final.kind = ast.Final.Kind.UNICODE; .)
+	| "int1"				(. final.value = t.val; final.kind = ast.Final.Kind.I1; .)
+	| "int2"				(. final.value = t.val; final.kind = ast.Final.Kind.I2; .)
+	| "int4"				(. final.value = t.val; final.kind = ast.Final.Kind.I4; .)
+	| "int8"				(. final.value = t.val; final.kind = ast.Final.Kind.I8; .)
+	| "uint1"				(. final.value = t.val; final.kind = ast.Final.Kind.U1; .)
+	| "uint2"				(. final.value = t.val; final.kind = ast.Final.Kind.U2; .)
+	| "uint4"				(. final.value = t.val; final.kind = ast.Final.Kind.U4; .)
+	| "uint8"				(. final.value = t.val; final.kind = ast.Final.Kind.U8; .)
+	| "byte"				(. final.value = t.val; final.kind = ast.Final.Kind.U1; .)
+	| "int"					(. final.value = t.val; final.kind = ast.Final.Kind.I4; .)
+	| "uint"				(. final.value = t.val; final.kind = ast.Final.Kind.U4; .)
+	| "float"				(. final.value = t.val; final.kind = ast.Final.Kind.F8; .)
+
+	| "layout"				(. final.value = t.val; final.kind = ast.Final.Kind.LAYOUT; .)
+	| "dialog"				(. final.value = t.val; final.kind = ast.Final.Kind.DIALOG; .)
+	| "pane"				(. final.value = t.val; final.kind = ast.Final.Kind.PANE; .)
+	| "tab-pane"			(. final.value = t.val; final.kind = ast.Final.Kind.TABPANE; .)
+	| "edit"				(. final.value = t.val; final.kind = ast.Final.Kind.EDIT; .)
+	| "label"				(. final.value = t.val; final.kind = ast.Final.Kind.LABEL; .)
+	| "button"				(. final.value = t.val; final.kind = ast.Final.Kind.BUTTON; .)
+.
+
+Path<out ast.Path path>	(. path = new ast.Path(); ast.Part part; .)
+	=
+	Part<out part>		(. path.partList.Add(part); .)
+	{
+		'.'
+		Part<out part>	(. path.partList.Add(part); .)
+	}
+.
+
+Part<out ast.Part part>	(. part = new ast.Part(); .)
+	=
+	Identity<out part.identity>
+	[
+		NodeList<out part.paramList>
+	]
+.
+
+NodeList<out ast.NodeList nodeList>	(. nodeList = new ast.NodeList(); ast.Node node; .)
+	=
+	'('
+	Node<out node>					(. nodeList.Add(node); .)
+	{
+		(
+			", "
+			| ",\n" tabs			(. Check(t.val); .)
+		)
+		Node<out node>				(. nodeList.Add(node); .)
+	}
+	')'
+.
+
+Identity<out ast.Identity identity>	(. identity = new ast.Identity(); .)
+	=
+	id								(. identity.name = Capital(t.val); identity.line = t.line; identity.col = t.col; .)
+.
+
+END Dojo.

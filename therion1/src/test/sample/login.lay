@@ -1,0 +1,17 @@
+
+login-dialog : dialog
+	y-axis
+		axis
+			x-axis
+				label("Email")
+				email-edit : edit
+			x-axis
+				label("Password")
+				password-edit : edit
+		x-axis
+			register-button : button("Register")
+			login-button : button("Login")
+
+main
+	login-dialog : main
+

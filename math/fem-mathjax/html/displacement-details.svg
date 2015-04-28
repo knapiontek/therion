@@ -1,0 +1,35 @@
+<div class="container">
+	<div class="math above_pos hcenter_pos" style="left:530px;top:257px;">$x$</div>
+	<div class="math vcenter_pos right_pos" style="left:253px;top:60px;">$y$</div>
+	<div class="math below_pos hcenter_pos" style="left:390px;top:223px;">$\Delta x_0$</div>
+	<div class="math vcenter_pos left_pos" style="left:287px;top:160px;">$\Delta y_0$</div>
+	<div class="math above_pos hcenter_pos" stroke="red" style="left:390px;top:157px;">$\Delta p_0$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:330px;top:207px;">$\theta_x$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:466px;top:207px;">$\theta_y$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:481px;top:187px;">$\theta_x$</div>
+	<div class="math vcenter_pos hcenter_pos" style="left:481px;top:120px;">$\theta_y$</div>
+	<div class="math below_pos hcenter_pos" style="left:290px;top:223px;">$(x_0,y_0)$</div>
+</div>
+<svg width="800" height="300">
+	<defs>
+		<marker id="arrow-start-black" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-end-black" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="black" fill="black"/>
+		</marker>
+		<marker id="arrow-start-red" markerWidth="13" markerHeight="13" refx="0" refy="4" orient="auto">
+			<path d="M12,0 L12,8 L0,4 z" stroke="red" fill="red"/>
+		</marker>
+		<marker id="arrow-end-red" markerWidth="13" markerHeight="13" refx="12" refy="4" orient="auto">
+			<path d="M0,0 L0,8 L12,4 z" stroke="red" fill="red"/>
+		</marker>
+	</defs>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M250 60 L250 260 L530 260" fill="none"/>
+	<path stroke="black" stroke-dasharray="7,7" d="M290 100 L490 100 L490 220" fill="none"/>
+	<path stroke="black" marker-start=url(#arrow-start-black) marker-end=url(#arrow-end-black) d="M290 100 L290 220 L490 220" fill="none"/>
+	<line stroke="red" marker-end=url(#arrow-end-red) x1="290" y1="220" x2="490" y2="100"/>
+	<line stroke="red" stroke-dasharray="7,7" x1="490" y1="220" x2="437" y2="131"/>
+	<circle stroke="black" fill="black" cx="290" cy="220" r="3"/>
+	<path stroke="black" d="M427 137 L433 147 L442 141" fill="none"/>
+</svg>

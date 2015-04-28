@@ -1,0 +1,16 @@
+In order to compile therion from the scratch:
+
+1.	Download source code for therionc++.
+	This project contains the code of generated C++ for:
+	* build - make-like tool oriented on therion
+    * langen - compiler compiler, used also for generating therion code
+    * therion - generator, uses "build" and "langen" to build therion executable
+
+2.	Download source code for proper therion.
+	Tools build, langen, therion are rebuild from the therion lang source.
+	Other tools are generated afterwards using therion lang based tools.
+
+3.	Therion has backends for C++ and mono.CIL.
+	All therion code can be converted to pure C++ code at any time to support
+	users who dont want to stick with therion as a devel tool.
+

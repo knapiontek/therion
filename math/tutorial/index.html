@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Finite Element Method by Example in Qt/C++</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<script type="text/x-mathjax-config">
+	MathJax.Hub.Queue(function () {
+		document.getElementById("hide_page").style.visibility = "";
+	});
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full"></script>
+<style>
+body {
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #eeeeee;
+}
+</style>
+</head>
+<body>
+<div id="hide_page" style="visibility:hidden">
+<h1>Finite Element Method by Example in Qt/C++</h1>
+<h2>Rotation of Objects</h2>
+<h3>Rotation of Point 2D</h3>
+<p>
+given from geometry:
+\[
+x_0 = r cos \alpha \\
+y_0 = r sin \alpha \\
+x_1 = r cos ( \alpha + \beta ) = r cos \alpha cos \beta - r sin \alpha sin \beta \\
+y_1 = r sin ( \alpha + \beta ) = r sin \alpha cos \beta + r cos \alpha sin \beta \\
+\]
+hence:
+\[
+x_1 = x_0 cos \beta - y_0 sin \beta \\
+y_1 = x_0 sin \beta + y_0 cos \beta \\
+\]
+</p>
+<figure>
+<center>
+<img src="point-rotation.svg"/>
+<figcaption>Figure: Point Rotation</figcaption>
+</figure>
+<h3>Rotation Matrix 3D</h3>
+\[
+\left[\begin{matrix}
+	x_1 \\
+	y_1 \\
+	z_1
+\end{matrix}\right]
+=
+\left[\begin{matrix}
+	cos \beta & - sin \beta & 0 \\
+	sin \beta & cons \beta & 0 \\
+	0 & 0 & 1
+\end{matrix}\right]
+\left[\begin{matrix}
+	x_0 \\
+	y_0 \\
+	z_0
+\end{matrix}\right]
+\]
+<h3>Example of Rotated Cube</h3>
+<h3>Element Stiffness Matrix in Local Coordinates</h3>
+<p>
+Relation between axial forces, {q1, q2}, and axial displacements, {u1, u2}, only
+(in local coordinates).
+\[
+\textbf k = \frac {EA} L
+\left[\begin{matrix}
+	1 & −1 \\
+	−1 & 1
+\end{matrix}\right] \\
+\textbf{q = k u}
+\]
+</p>
+<figure>
+<center>
+<img src="local-coordinates.svg"/>
+<figcaption>Figure: Displacements on Local Coordinates</figcaption>
+</figure>
+<h3>Coordinate Transformation</h3>
+<p>
+Global and local coordinates
+\[
+L = \sqrt { (x_b − x_a)^2 + (y_b − y_a)^2 + (z_b − z_a)^2 } \\
+cos x = \frac {x_b − x_a} L = c_x \\
+cos y = \frac {y_b − y_a} L = c_y \\
+cos z = \frac {z_b − z_a} L = c_z \\
+\]
+Displacements
+<figure>
+<center>
+<img src="displacement.svg"/>
+<figcaption>Figure: Displacement at Point a</figcaption>
+</figure>
+\[
+u_a = a_x cos x + a_y cos y + a_z cos z \\
+u_b = b_x cos x + b_y cos y + b_z cos z \\
+\left[\begin{matrix}
+u_a \\
+u_b
+\end{matrix}\right]
+=
+\left[\begin{matrix}
+c_x & c_y & c_z & 0 & 0 & 0 \\
+0 & 0 & 0 & c_x & c_y & c_z
+\end{matrix}\right]
+\left[\begin{matrix}
+a_x \\
+a_y \\
+a_z \\
+b_x \\
+b_y \\
+b_z
+\end{matrix}\right] \\
+\textbf{u = T v}
+\]
+Forces
+\[
+\left[\begin{matrix}
+f_{ax} \\
+f_{ay} \\
+f_{az} \\
+f_{bx} \\
+f_{by} \\
+f_{bz}
+\end{matrix}\right]
+=
+\left[\begin{matrix}
+c_x & 0 \\
+c_y & 0 \\
+c_z & 0 \\
+0 & c_x \\
+0 & c_y \\
+0 & c_z \\
+\end{matrix}\right]
+\left[\begin{matrix}
+q1 \\
+q2
+\end{matrix}\right] \\
+f = {T}^{T} q
+\]
+</p>
+<h3>Element Stiffness Matrix in Global Coordinates</h3>
+<p>
+\[
+\left[\begin{matrix}
+q1 \\
+q2
+\end{matrix}\right]
+= \frac {EA} L
+\left[\begin{matrix}
+1 & −1 \\
+−1 & 1
+\end{matrix}\right]
+\left[\begin{matrix}
+u1
+u2
+\end{matrix}\right] \\
+f = TT q u = T v \\
+q = k u \\
+q = k T v \\
+TTq = TT k T v \\
+f = TT k T v \\
+f = K v \\
+K = \frac {EA} L
+\left[\begin{matrix}
+c^2_x & c_xc_y & c_xc_z & −c^2_x & −c_xc_y & −c_xc_z \\
+c_xc_y & c^2_y & c_yc_z & −c_xc_y & −c^2_y & −c_yc_z \\
+c_xc_z & c_yc_z & c^2_z & −c_xc_z & −c_yc_z & −c^2_z \\
+−c^2_x & −c_xc_y & −c_xc_z & c^2_x & c_xc_y & c_xc_z \\
+−c_xc_y & −c^2_y & −c_yc_z & c_xc_y & c^2_y & c_yc_z \\
+−c_xc_z & −c_yc_z & −c^2_z & c_xc_z & c_yc_z & c^2_z
+\end{matrix}\right]
+\]
+</p>
+<h3>Stiffness Matrix Construction</h3>
+<p>
+Consider linear equations with exactly one solution:
+\[
+a_1 x + b_1 y = c_1 \\
+a_2 x + b_2 y = c_2 \\
+\left[\begin{matrix}
+a_1 & b_1 \\
+a_2 & b_2
+\end{matrix}\right]
+\left[\begin{matrix}
+x \\
+y
+\end{matrix}\right]
+=
+\left[\begin{matrix}
+c_1 \\
+c_2
+\end{matrix}\right]
+\]
+Fixing y to 0 one of constants must be freed \(c_2 has been chosen\).
+Moving variables to left and constants to right side we get
+\[
+a_1 x = c_1 \\
+a_2 x - c_2 = 0 \\
+\left[\begin{matrix}
+a_1 & 0 \\
+a_2 & -1
+\end{matrix}\right]
+\left[\begin{matrix}
+x \\
+c_2
+\end{matrix}\right]
+=
+\left[\begin{matrix}
+c_1 \\
+0
+\end{matrix}\right]
+\]
+</p>
+</div>
+</body>
+</html>
