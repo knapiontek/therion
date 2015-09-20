@@ -8,14 +8,14 @@
 [ Email | knapiontek@gmail.com ]
 [ Phone | +353 86 842 4950 ]
 
-# Ideal Role
+## Ideal Role
 
   - Active software development and research
   - C/C++ or Java
   - Work in environment with Quality Assurance and fully automated production process
   - Related to Applied Mathematics
 
-# Education
+## Education
 
 [>|<]
 [ 1996 - 2001 | University of Technology in Poznan Poland ]
@@ -23,7 +23,7 @@
 [ 1990 - 1995 | Technikum Elektroniczne in Bydgoszcz Poland ]
 [ | Secondary school specializes in *Electronics and Telecommunication* ]
 
-# Key Technical Skills
+## Key Technical Skills
 
   - Strong debugging skills
   - *Concurrent processing* expert: multi-threading or event-driven systems, also barriers and atomic operations
@@ -37,7 +37,7 @@
   - Object Databases - Hibernate, db4o (also Berkley DB)
   - Maven, Ant, Subversion, Eclipse, Makefile ...
 
-# Employment Experience
+## Employment Experience
 
 [>|<]
 [ 07/2015 - present | *NuoDB* ]
@@ -76,17 +76,17 @@ The primary project was a spatial data manager. The system created a graphics vi
   - Implementation of the FTP client and extensions of FTP server
   - SMTP implementation ]
 
-# Languages
+## Languages
 
   - English - fluent
   - Polski - native
   - Español - learning
 
-# Interests
+## Interests
 
   - Rock Climbing
   - Applied Mathematics. My recent work can be found at http://knapiontek.github.io/fem.pdf
 
-# References
+## References
 
   - Available on request
