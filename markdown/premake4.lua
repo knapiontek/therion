@@ -11,6 +11,7 @@ solution "markdown"
    configuration "debug"
    defines { "DEBUG" }
    flags { "Symbols" }
+   buildoptions { "-std=c++11" }
 
    configuration "release"
    defines { "NDEBUG" }
