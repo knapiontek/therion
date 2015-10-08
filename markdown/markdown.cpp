@@ -3,16 +3,37 @@
 #include <vector>
 #include <stdexcept>
 
-enum class Mode { None, Line, List, Table };
+enum class Mode { None, Line, List, Header, Table };
 
-int nested_tables = 0;
-std::vector<int> nested_list;
+struct Context
+{
+    Mode mode;
+    int indent;
+    int header;
+};
+
+class ContextStack : public std::vector<Context>
+{
+public:
+    void push(Mode mode)
+    {
+        Context context { mode, 0, 0 };
+        push_back(context);
+    }
+    Context pop()
+    {
+        Context context = back();
+        pop_back();
+        return context;
+    }
+    Context& top()
+    {
+        return back();
+    }
+};
 
 void convert(const std::string& md)
 {
-    Mode mode;
-    char chars[3] = { '\0', '\0', '\0' };
-
     std::string html = md;
     int index = md.rfind('.');
     if (index != std::string::npos)
@@ -22,23 +43,40 @@ void convert(const std::string& md)
     std::ifstream in(md, std::ios::in);
     std::ofstream out(html, std::ios::out);
 
+    ContextStack stack;
+    stack.push(Mode::Line);
+
     while (!in.eof())
     {
-        chars[2] = chars[1];
-        chars[1] = chars[0];
-        chars[0] = in.get();
-        switch (chars[0])
+        char ch = in.get();
+        switch (ch)
         {
+        case ' ':
+        case '\t':
+            stack.top().indent++;
+            out << ch;
+            break;
         case '\n':
-            mode = Mode::Line;
-            goto action;
+            if (stack.top().mode == Mode::List)
+            {
+                out << "\n</li>";
+                stack.top().mode = Mode::Line;
+            }
+            if (stack.top().mode != Mode::Line)
+            {
+                stack.push(Mode::Line);
+            }
         case '*':
-            mode = Mode::List;
-            goto action;
+            if (stack.top().mode == Mode::Line)
+            {
+                out << "\n<li>";
+                stack.top().mode = Mode::List;
+            }
+            break;
         case '#':
-            goto action;
+            stack.top().header++;
+            break;
         case '[':
-            mode = Mode::Table;
             out << "\n</table>\n<tr>";
             break;
         case '|':
@@ -48,11 +86,16 @@ void convert(const std::string& md)
             out << "\n</tr>\n</table>";
             break;
         default:
-        action:
-            if (mode == Mode::Table)
+            switch (stack.top().mode)
             {
+            case Mode::Line:
+                stack.pop();
+                break;
+            case Mode::Header:
+                out << "\n<h" << stack.top().header << ">";
+                break;
             }
-            out << chars[0];
+            out << ch;
         }
     }
 }
