@@ -100,7 +100,6 @@ void convert(const std::string& md)
     }
 }
 
-
 int main(int argc, char* argv[])
 {
     try
