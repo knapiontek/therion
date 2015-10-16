@@ -9,7 +9,7 @@ public class Broker1
     {
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(9999);
+            serverSocket = new ServerSocket(8888);
             System.out.println ("Ready ...");
 
             Socket clientSocket = serverSocket.accept();
@@ -23,24 +23,24 @@ public class Broker1
 
             String startTLS = is.readUTF();
             if (startTLS.equals("StartTLS")) {
-	        	SSLSocketFactory sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
-	            SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(
-	            		clientSocket,
-	            		clientSocket.getInetAddress().getHostAddress(),
-	            		clientSocket.getPort(),
-	            		true);
-	            sslSocket.setUseClientMode(false);
-	            sslSocket.startHandshake();
-	            
-	            is = new DataInputStream(sslSocket.getInputStream());
-	            os = new DataOutputStream(sslSocket.getOutputStream());
-	
-	            String helloTLS = is.readUTF();
-	            os.writeUTF("Broker1: " + helloTLS);
+                SSLSocketFactory sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+                SSLSocket sslSocket = (SSLSocket)sslSocketFactory
+                    .createSocket(clientSocket,
+                                  clientSocket.getInetAddress().getHostAddress(),
+                                  clientSocket.getPort(),
+                                  true);
+                sslSocket.setUseClientMode(false);
+                sslSocket.startHandshake();
 
-	            System.out.println("StartTLS accepted");
+                is = new DataInputStream(sslSocket.getInputStream());
+                os = new DataOutputStream(sslSocket.getOutputStream());
+
+                String helloTLS = is.readUTF();
+                os.writeUTF("Broker1: " + helloTLS);
+
+                System.out.println("StartTLS accepted");
             } else {
-            	System.out.println("Broker1: received unexpected: " + startTLS);
+                System.out.println("Broker1: received unexpected: " + startTLS);
             }
         } catch (Exception e) {
             e.printStackTrace();

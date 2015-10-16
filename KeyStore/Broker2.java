@@ -10,11 +10,11 @@ public class Broker2
     {
         Socket socket = null;
         try {
-        	socket = new Socket("localhost", 9999);
+            socket = new Socket("localhost", 8888);
             DataInputStream is = new DataInputStream(socket.getInputStream());
-        	DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+            DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
-        	String hello = "Hello";
+            String hello = "Hello";
             os.writeUTF(hello);
             System.out.println("Broker2: sent: " + hello);
             String received = is.readUTF();
@@ -23,13 +23,13 @@ public class Broker2
             String startTLS = "StartTLS";
             os.writeUTF(startTLS);
             System.out.println("Broker2: sent: " + startTLS);
-            
+
             SSLSocketFactory sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
-            SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(
-            		socket,
-            		socket.getInetAddress().getHostAddress(),
-            		socket.getPort(),
-            		true);
+            SSLSocket sslSocket = (SSLSocket)sslSocketFactory
+                .createSocket(socket,
+                              socket.getInetAddress().getHostAddress(),
+                              socket.getPort(),
+                              true);
 
             is = new DataInputStream(sslSocket.getInputStream());
             os = new DataOutputStream(sslSocket.getOutputStream());
@@ -43,7 +43,7 @@ public class Broker2
             e.printStackTrace();
         } finally {
             if (socket != null) {
-            	socket.close();
+                socket.close();
             }
         }
     }
