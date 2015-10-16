@@ -1,8 +1,16 @@
 # Key store demo
 
+## generate java key store
+
+~~~bash
+keytool -genkey -alias hurley.local -keyalg RSA -keystore domain.jks -keysize 2048
+~~~
+
+### password: domain
+
 ## run
 
 ~~~bash
-java -Djavax.net.ssl.keyStore=foobar -Djavax.net.ssl.keyStorePassword=foobar Broker1 &
-java -Djavax.net.ssl.trustStore=foobar -Djavax.net.ssl.trustStorePassword=foobar Broker2
+java Broker1 &
+java Broker2
 ~~~
