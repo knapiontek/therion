@@ -11,33 +11,35 @@ public class Broker1 {
 		try (ServerSocket serverSocket = new ServerSocket(8888)) {
 			System.out.println("Ready ...");
 
-			Socket clientSocket = serverSocket.accept();
-			System.out.println("Connection accepted");
+			try (Socket clientSocket = serverSocket.accept()) {
+				System.out.println("Connection accepted");
 
-			DataInputStream is = new DataInputStream(clientSocket.getInputStream());
-			DataOutputStream os = new DataOutputStream(clientSocket.getOutputStream());
+				DataInputStream is = new DataInputStream(clientSocket.getInputStream());
+				DataOutputStream os = new DataOutputStream(clientSocket.getOutputStream());
 
-			String hello = is.readUTF();
-			os.writeUTF("Broker1: " + hello);
+				String hello = is.readUTF();
+				os.writeUTF("Broker1: " + hello);
 
-			String startTLS = is.readUTF();
-			if (!startTLS.equals("StartTLS")) {
-				throw new Exception("Broker1: received unexpected: " + startTLS);
+				String startTLS = is.readUTF();
+				if (!startTLS.equals("StartTLS")) {
+					throw new Exception("Broker1: received unexpected: " + startTLS);
+				}
+
+				SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+				try (SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(clientSocket,
+						clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort(), true)) {
+					sslSocket.setUseClientMode(false);
+					sslSocket.startHandshake();
+
+					is = new DataInputStream(sslSocket.getInputStream());
+					os = new DataOutputStream(sslSocket.getOutputStream());
+
+					String helloTLS = is.readUTF();
+					os.writeUTF("Broker1: " + helloTLS);
+
+					System.out.println("StartTLS accepted");
+				}
 			}
-
-			SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-			SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(clientSocket,
-					clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort(), true);
-			sslSocket.setUseClientMode(false);
-			sslSocket.startHandshake();
-
-			is = new DataInputStream(sslSocket.getInputStream());
-			os = new DataOutputStream(sslSocket.getOutputStream());
-
-			String helloTLS = is.readUTF();
-			os.writeUTF("Broker1: " + helloTLS);
-
-			System.out.println("StartTLS accepted");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
