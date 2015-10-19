@@ -4,7 +4,7 @@ import java.io.*;
 
 import javax.net.ssl.*;
 
-public class Broker2 {
+class Broker2 {
 	public static void main(String[] args) {
 		System.setProperty("javax.net.ssl.trustStore", "domain.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword", "domain");

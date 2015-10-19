@@ -3,7 +3,7 @@ import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
 
-public class Broker1 {
+class Broker1 {
 	public static void main(String[] args) {
 		System.setProperty("javax.net.ssl.keyStore", "domain.jks");
 		System.setProperty("javax.net.ssl.keyStorePassword", "domain");
@@ -25,6 +25,9 @@ public class Broker1 {
 					throw new Exception("Broker1: received unexpected: " + startTLS);
 				}
 
+				Test.run();
+				KeyStoreManager.create();
+
 				SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 				try (SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(clientSocket,
 						clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort(), true)) {
@@ -38,6 +41,10 @@ public class Broker1 {
 					os.writeUTF("Broker1: " + helloTLS);
 
 					System.out.println("StartTLS accepted");
+
+					sslSocket.close();
+
+					// KeyStoreManager.clean();
 				}
 			}
 		} catch (Exception e) {
