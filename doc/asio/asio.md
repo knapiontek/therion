@@ -2,6 +2,18 @@ asio
 
 ![boost](https://github.com/knapiontek/therion/blob/master/doc/asio/boost.png)
 
+## lambda syntax in C++11
+
+```c++
+#include <iostream>
+
+int main()
+{
+    auto func = [] () { std::cout << "Hello world"; };
+    func(); // now call the function
+}
+```
+        
 ## Lambdas in asio
 
 ```c++
