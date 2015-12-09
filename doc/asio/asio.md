@@ -3,7 +3,7 @@ asio
 ![boost](https://github.com/knapiontek/therion/blob/master/doc/asio/boost.png)
 
 ## Lambdas in asio
-x
+
 ```c++
 socket.async_connect(server_endpoint,
     [&](std::error_code ec) // lambda1
