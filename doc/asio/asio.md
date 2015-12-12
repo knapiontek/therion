@@ -1,5 +1,5 @@
 
-![boost](https://github.com/knapiontek/therion/blob/master/doc/asio/boost.png)
+![boost](boost.png)
 
 
 # boost::asio in context of C++11 and event-driven programming
