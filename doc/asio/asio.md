@@ -111,7 +111,7 @@ int main()
 }
 ```
 
-## Lambdas in asio
+## Lambdas in boost::asio
 
 ![ASIO](asio.png)
 
