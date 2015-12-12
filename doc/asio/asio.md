@@ -8,6 +8,8 @@
 ###### Asynchronous I/O
 
 
+
+
 ## Multithreading problem
 
 
@@ -29,13 +31,15 @@
      - 50% context switching
      - 0% idle CPU
 
-###### not HTTP server is writen in this way
+###### no HTTP server is writen in this way
+
+
 
 
 ## Event-Driven Programming
 
 
-### Node.js example
+##### Node.js example
 
 ```javascript
 fs.readFile('/etc/passwd',
@@ -48,13 +52,16 @@ fs.readFile('/etc/passwd',
 
 ![Node.js](nodejs.png)
 
-#### poll() function
+
+
+
+##### poll() function
 
 ```c++
 int poll(struct pollfd fds[], nfds_t nfds, int timeout); 
 ```
 
-#### example
+##### example
 
 ```c++
 #include <stropts.h>
@@ -88,6 +95,9 @@ if (ret > 0) {
 }
 ```
 
+
+
+
 ## Lambda syntax in C++11
 
 ##### The most trivial case
@@ -111,6 +121,9 @@ int main()
 }
 ```
 
+
+
+
 ## Lambdas in boost::asio
 
 ![ASIO](asio.png)
@@ -132,10 +145,13 @@ socket.async_connect(server_endpoint,
     });
 ```
 
+
+
+
 ### Issues related to event-driven programming
 
     - thread stack very small
+    - heap usually used instead of stack
     - debugging
     - code flow may not be clear
     - trailing references
-    - heap usually used instead of stack

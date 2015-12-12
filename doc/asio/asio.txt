@@ -7,9 +7,9 @@ NodeJS -> NodeJS : analyse data
 
 # boost::asio
 
-asio -> OS : async_connect
-OS --> asio : socket ready (call lambda1)
-asio -> OS : async_read_some
-OS --> asio : data ready (call lambda2)
-asio -> OS : async_write
-OS --> asio : data delivered (call lambda2)
+ASIO -> OS : async_connect
+OS --> Lambda1 : socket ready
+Lambda1 -> OS : async_read_some
+OS --> Lambda2 : data ready
+Lambda2 -> OS : async_write
+OS --> Lambda3 : data delivered
