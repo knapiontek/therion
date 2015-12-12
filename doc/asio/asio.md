@@ -46,7 +46,7 @@ fs.readFile('/etc/passwd',
     });
 ```
 
-![Node.js](https://github.com/knapiontek/therion/blob/master/doc/asio/nodejs.svg)
+![Node.js](nodejs.png)
 
 #### poll() function
 
@@ -113,28 +113,22 @@ int main()
 
 ## Lambdas in asio
 
-![ASIO](https://github.com/knapiontek/therion/blob/master/doc/asio/asio.svg)
+![ASIO](asio.png)
 
 ```c++
 socket.async_connect(server_endpoint,
     [&](std::error_code ec) // lambda1
     {
-        if (!ec)
-        {
-            socket.async_read_some(asio::buffer(data),
-                [&](std::error_code ec, std::size_t length) // lambda2
-                {
-                    if (!ec)
-                    {
-                        async_write(socket,
-                            asio::buffer(data, length),
-                            [&](std::error_code ec, std::size_t length) // lambda3
-                            {
-                                // ...
-                            });
-                    }
-                });
-        }
+        socket.async_read_some(asio::buffer(data),
+            [&](std::error_code ec, std::size_t length) // lambda2
+            {
+                    async_write(socket,
+                        asio::buffer(data, length),
+                        [&](std::error_code ec, std::size_t length) // lambda3
+                        {
+                            // ...
+                        });
+            });
     });
 ```
 

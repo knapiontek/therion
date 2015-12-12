@@ -1,3 +1,18 @@
+
+# node.js
+
 NodeJS -> OS : readFile /etc/passwd
 OS -> NodeJS : data ready
 NodeJS -> NodeJS : analyse data
+
+# boost::asio
+
+asio -> OS : async_connect
+OS --> asio : socket ready
+asio -> asio : call lambda1
+asio -> OS : async_read_some
+OS --> asio : data ready
+asio -> asio : call lambda2
+asio -> OS : async_write
+OS --> asio : data delivered
+asio -> asio : call lambda3
