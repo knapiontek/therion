@@ -105,9 +105,9 @@ int main()
 ```c++
 int main()
 {
-    string hello = "Hello world";
-    auto lambda = [&] () { cout << hello; };
-    lambda();
+    string hello = "Hello";
+    auto lambda = [&] (const string& world) { cout << hello << world; };
+    lambda(" world");
 }
 ```
 

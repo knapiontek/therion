@@ -1,0 +1,3 @@
+NodeJS -> OS : readFile /etc/passwd
+OS -> NodeJS : data ready
+NodeJS -> NodeJS : analyse data
