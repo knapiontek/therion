@@ -24,13 +24,13 @@ public:
 	{
 		this->filename = filename;
 
-		svg += "<svg>";
+		svg += "\n<svg width='300px' height='300px' xmlns='http://www.w3.org/2000/svg'>";
 	}
 	~Paint()
 	{
-		svg += "</svg>";
+		svg += "\n</svg>\n";
 
-		QFile svg_file(filename);
+		QFile svg_file(filename + ".svg");
 		svg_file.open(QIODevice::WriteOnly | QIODevice::Text);
 		QTextStream svg_stream(&svg_file);
 		svg_stream << svg;
@@ -45,7 +45,7 @@ public:
 	}
 	void line(const Point2D& p1, const Point2D& p2, Style style = NONE)
 	{
-		svg += QString("\n\\draw%1 (%2,%3) -- (%4,%5);")
+		svg += QString("\n<line style='%1' x1='%2' y1='%3' x2='%4' y2='%5'/>")
 			.arg(style_svg(style))
 			.arg(p1.x)
 			.arg(p1.y)
