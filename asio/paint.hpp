@@ -17,7 +17,6 @@ public:
 		RIGHT = 0x0400,
 		ABOVE = 0x0800,
 		BELOW = 0x1000,
-		TEXT = 0x2000
 	};
 	typedef int Style;
 public:
@@ -25,29 +24,29 @@ public:
 	{
 		this->filename = filename;
 
-		tex += "\\begin{tikzpicture}";
+		svg += "<svg>";
 	}
 	~Paint()
 	{
-		tex += "\n\\end{tikzpicture}";
+		svg += "</svg>";
 
-		QFile tex_file(filename);
-		tex_file.open(QIODevice::WriteOnly | QIODevice::Text);
-		QTextStream tex_stream(&tex_file);
-		tex_stream << tex;
-		tex_file.close();
+		QFile svg_file(filename);
+		svg_file.open(QIODevice::WriteOnly | QIODevice::Text);
+		QTextStream svg_stream(&svg_file);
+		svg_stream << svg;
+		svg_file.close();
 	}
 	void dot(const Point2D& p, Style style = NONE)
 	{
-		tex += QString("\n\\draw%1 (%2,%3) circle(0.05);")
-			.arg(style_tex(style | FILL))
+		svg += QString("\n\\draw%1 (%2,%3) circle(0.05);")
+			.arg(style_svg(style | FILL))
 			.arg(p.x)
 			.arg(p.y);
 	}
 	void line(const Point2D& p1, const Point2D& p2, Style style = NONE)
 	{
-		tex += QString("\n\\draw%1 (%2,%3) -- (%4,%5);")
-			.arg(style_tex(style))
+		svg += QString("\n\\draw%1 (%2,%3) -- (%4,%5);")
+			.arg(style_svg(style))
 			.arg(p1.x)
 			.arg(p1.y)
 			.arg(p2.x)
@@ -65,8 +64,8 @@ public:
 				.arg(p.x)
 				.arg(p.y);
 		}
-		tex += QString("\n\\draw%1 %2;")
-			.arg(style_tex(style))
+		svg += QString("\n\\draw%1 %2;")
+			.arg(style_svg(style))
 			.arg(points);
 	}
 	void spline(const QList<Point2D>& coord_list, Style style = NONE)
@@ -81,14 +80,14 @@ public:
 				.arg(p.x)
 				.arg(p.y);
 		}
-		tex += QString("\n\\draw%1 plot[smooth cycle] coordinates {%2};")
-			.arg(style_tex(style))
+		svg += QString("\n\\draw%1 plot[smooth cycle] coordinates {%2};")
+			.arg(style_svg(style))
 			.arg(points);
 	}
 	void arc(const Point2D& p, double radius, double angle0, double angle1, Style style = NONE)
 	{
-		tex += QString("\n\\draw%1 (%2,%3) arc (%4:%5:%6);")
-			.arg(style_tex(style))
+		svg += QString("\n\\draw%1 (%2,%3) arc (%4:%5:%6);")
+			.arg(style_svg(style))
 			.arg(p.x)
 			.arg(p.y)
 			.arg(180/pi*angle0)
@@ -97,14 +96,14 @@ public:
 	}
 	void text(const QString text, const Point2D& p, Style style = NONE)
 	{
-		tex += QString("\n\\node%1 at (%2,%3) {%4};")
-			.arg(style_tex(style))
+		svg += QString("\n\\node%1 at (%2,%3) {%4};")
+			.arg(style_svg(style))
 			.arg(p.x)
 			.arg(p.y)
 			.arg(text);
 	}
 private:
-	QString style_tex(Style style)
+	QString style_svg(Style style)
 	{
 		QString name;
 
@@ -158,6 +157,6 @@ private:
 	}
 private:
 	QString filename;
-	QString tex;
+	QString svg;
 	const int color_size = 30;
 };

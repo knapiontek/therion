@@ -13,10 +13,12 @@ const double pi = 4.0 * std::atan(1.0);
 
 #include "point.hpp"
 #include "paint.hpp"
+#include "diagram.hpp"
 
 int main(int argc, char* argv[])
 {
 	QApplication app(argc, argv);
-    app.exit();
-    return 0;
+	draw_thread_switch_context();
+	app.exit();
+	return 0;
 }
