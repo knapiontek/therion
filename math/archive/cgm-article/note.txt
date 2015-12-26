@@ -1,0 +1,3 @@
+cd C:\Kris\therioncode\math\cgm-article\debug
+set PATH=C:\programs\Qt\5.1.1\mingw48_32\bin;%PATH%
+"c:\Program Files (x86)\Dr. Memory\bin\drmemory.exe" -light -count_leaks cgm.exe
