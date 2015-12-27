@@ -24,7 +24,8 @@ public:
 	{
 		this->filename = filename;
 
-		svg += "\n<svg width='300px' height='300px' xmlns='http://www.w3.org/2000/svg'>";
+		svg += "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
+			"\n<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg'>";
 	}
 	~Paint()
 	{
@@ -38,14 +39,14 @@ public:
 	}
 	void dot(const Point2D& p, Style style = NONE)
 	{
-		svg += QString("\n\\draw%1 (%2,%3) circle(0.05);")
+		svg += QString("\n<circle%1 (%2,%3) circle(0.05)/>")
 			.arg(style_svg(style | FILL))
 			.arg(p.x)
 			.arg(p.y);
 	}
 	void line(const Point2D& p1, const Point2D& p2, Style style = NONE)
 	{
-		svg += QString("\n<line style='%1' x1='%2' y1='%3' x2='%4' y2='%5'/>")
+		svg += QString("\n<path%1 d='M %2,%3 L %4,%5'/>")
 			.arg(style_svg(style))
 			.arg(p1.x)
 			.arg(p1.y)
@@ -55,38 +56,34 @@ public:
 	void path(const QList<Point2D>& coord_list, Style style = NONE)
 	{
 		QString points;
+		QString format[2] = { " L %1,%2", "M %1,%2" };
 		for(const Point2D& p : coord_list)
 		{
-			QString format = points.isEmpty()
-				? "(%1,%2)"
-				: " -- (%1,%2)";
-			points += QString(format)
+			points += QString(format[points.isEmpty()])
 				.arg(p.x)
 				.arg(p.y);
 		}
-		svg += QString("\n\\draw%1 %2;")
+		svg += QString("\n<path%1 d='%2 Z'/>")
 			.arg(style_svg(style))
 			.arg(points);
 	}
 	void spline(const QList<Point2D>& coord_list, Style style = NONE)
 	{
 		QString points;
+		QString format[2] = { " L %1,%2", "M %1,%2" };
 		for(const Point2D& p : coord_list)
 		{
-			QString format = points.isEmpty()
-				? "(%1,%2)"
-				: " (%1,%2)";
-			points += QString(format)
+			points += QString(format[points.isEmpty()])
 				.arg(p.x)
 				.arg(p.y);
 		}
-		svg += QString("\n\\draw%1 plot[smooth cycle] coordinates {%2};")
+		svg += QString("\n<path%1 d='%2 Z'/>")
 			.arg(style_svg(style))
 			.arg(points);
 	}
 	void arc(const Point2D& p, double radius, double angle0, double angle1, Style style = NONE)
 	{
-		svg += QString("\n\\draw%1 (%2,%3) arc (%4:%5:%6);")
+		svg += QString("\n<circle%1 (%2,%3) arc (%4:%5:%6)/>")
 			.arg(style_svg(style))
 			.arg(p.x)
 			.arg(p.y)
@@ -96,7 +93,7 @@ public:
 	}
 	void text(const QString text, const Point2D& p, Style style = NONE)
 	{
-		svg += QString("\n\\node%1 at (%2,%3) {%4};")
+		svg += QString("\n<text%1 at (%2,%3) {%4}>")
 			.arg(style_svg(style))
 			.arg(p.x)
 			.arg(p.y)
