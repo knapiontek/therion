@@ -104,51 +104,36 @@ private:
 	{
 		QString name;
 
-		if(FILL & style)
-			name.append("fill");
-
-		if(ARROW & style)
-			name.append(",->");
-		else if(DARROW & style)
-			name.append(",<->");
-
-		if(THICK & style)
-			name.append(",thick");
-
-		if(DASH & style)
-			name.append(",dashed");
-
-		if(RED & style)
-			name.append(",red");
-		else if(GREEN & style)
-			name.append(",green");
-		else if(BLUE & style)
-			name.append(",blue");
-
-		if(ABOVE & style)
-			name.append(",above");
-		else if(BELOW & style)
-			name.append(",below");
-		else if(LEFT & style)
-			name.append(",left");
-		else if(RIGHT & style)
-			name.append(",right");
-
-		if((ABOVE | BELOW) & style)
+		struct
 		{
-			if(LEFT & style)
-				name.append(" left");
-			else if(RIGHT & style)
-				name.append(" right");
+			Style style;
+			QString value;
+		}
+		formats[]
+		{
+			{ NONE, ""},
+			{ FILL, ""},
+			{ ARROW, ""},
+			{ DARROW, ""},
+			{ THICK, ""},
+			{ DASH, ""},
+			{ RED, " stroke='red'"},
+			{ GREEN, " stroke='green'"},
+			{ BLUE, " stroke='blue'"},
+			{ LEFT, ""},
+			{ RIGHT, ""},
+			{ ABOVE, ""},
+			{ BELOW, ""}
+		};
+
+		for(const auto& format : formats)
+		{
+			if(format.style & style)
+				name += format.value;
 		}
 
-		if(!name.isEmpty())
-		{
-			if(name.startsWith(','))
-				name.remove(0, 1);
-			name.prepend('[');
-			name.append(']');
-		}
+		if(style & (RED | GREEN | BLUE))
+			name += " stroke='black'";
 
 		return name;
 	}
