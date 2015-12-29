@@ -7,7 +7,7 @@ void draw_thread_switch_context()
 	Point2D b2(10, 60), e2(90, 60);
 
 	paint.line(b1, e1, Paint::arrow1);
-	paint.line(b2, e2, Paint::arrow1);
+	paint.line(b2, e2, Paint::arrow2);
 
 	QList<Point2D> coord_list
 	{

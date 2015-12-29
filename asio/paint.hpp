@@ -26,8 +26,11 @@ public:
 		svg += "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
 			"\n<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg'>"
 			"\n<defs>"
-			"\n<marker id='arrow' markerWidth='10' markerHeight='10' refx='0' refy='3' orient='auto' markerUnits='strokeWidth'>"
-			"\n<path d='M0,0 L0,6 L9,3 z' fill='strokeFill'/>"
+			"\n<marker id='arrow-end' markerWidth='13' markerHeight='13' refX='2' refY='6' orient='auto'>"
+			"\n<path d='M2,2 L2,11 L10,6 Z'/>"
+			"\n</marker>"
+			"\n<marker id='arrow-start' markerWidth='13' markerHeight='13' refX='2' refY='6' orient='auto'>"
+			"\n<path d='M2,2 L2,11 L10,6 Z'/>"
 			"\n</marker>"
 			"\n</defs>";
 	}
@@ -41,16 +44,9 @@ public:
 		svg_stream << svg;
 		svg_file.close();
 	}
-	void dot(const Point2D& p, Style style)
-	{
-		svg += QString("\n<circle%1 (%2,%3) circle(0.05)/>")
-			.arg(style_svg(style))
-			.arg(pos_x(p.x))
-			.arg(pos_y(p.y));
-	}
 	void line(const Point2D& p1, const Point2D& p2, Style style)
 	{
-		svg += QString("\n<path%1 d='M %2,%3 L %4,%5'/>")
+		svg += QString("\n<path%1 d='M%2,%3 L%4,%5'/>")
 			.arg(style_svg(style))
 			.arg(pos_x(p1.x))
 			.arg(pos_y(p1.y))
@@ -60,7 +56,7 @@ public:
 	void path(const QList<Point2D>& coord_list, Style style)
 	{
 		QString points;
-		QString format[2] = { " L %1,%2", "M %1,%2" };
+		QString format[2] = { " L%1,%2", "M%1,%2" };
 		for(const Point2D& p : coord_list)
 		{
 			points += QString(format[points.isEmpty()])
@@ -70,30 +66,6 @@ public:
 		svg += QString("\n<path%1 d='%2'/>")
 			.arg(style_svg(style))
 			.arg(points);
-	}
-	void spline(const QList<Point2D>& coord_list, Style style)
-	{
-		QString points;
-		QString format[2] = { " L %1,%2", "M %1,%2" };
-		for(const Point2D& p : coord_list)
-		{
-			points += QString(format[points.isEmpty()])
-				.arg(pos_x(p.x))
-				.arg(pos_y(p.y));
-		}
-		svg += QString("\n<path%1 d='%2 Z'/>")
-			.arg(style_svg(style))
-			.arg(points);
-	}
-	void arc(const Point2D& p, double radius, double angle0, double angle1, Style style)
-	{
-		svg += QString("\n<circle%1 (%2,%3) arc (%4:%5:%6)/>")
-			.arg(style_svg(style))
-			.arg(pos_x(p.x))
-			.arg(pos_y(p.y))
-			.arg(180/pi*angle0)
-			.arg(180/pi*angle1)
-			.arg(radius);
 	}
 	void text(const QString text, const Point2D& p, Style style)
 	{
@@ -116,7 +88,7 @@ private:
 			Style style;
 			QString value;
 		}
-		formats[]
+		format_seq[]
 		{
 			{ black, " stroke='black'"},
 			{ red, " stroke='red'"},
@@ -126,13 +98,13 @@ private:
 			{ south, ""},
 			{ west, ""},
 			{ east, ""},
-			{ arrow1, " marker-end='url(#arrow)'"},
-			{ arrow2, " marker-start='url(#arrow)' marker-end='url(#arrow)'"},
+			{ arrow1, " marker-end='url(#arrow-end)'"},
+			{ arrow2, " marker-start='url(#arrow-start)' marker-end='url(#arrow-end)'"},
 			{ thick, ""},
 			{ dash, ""}
 		};
 
-		for(const auto& format : formats)
+		for(const auto& format : format_seq)
 		{
 			if(format.style & style)
 				name += format.value;
@@ -152,5 +124,5 @@ private:
 	QString filename;
 	QString svg;
 	Point2D region = { 100, 100 };
-	double scale = 3;
+	double scale = 6;
 };
