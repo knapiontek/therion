@@ -24,13 +24,13 @@ public:
 		this->filename = filename;
 
 		svg += "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-			"\n<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg'>"
+			"\n<svg version='1.1' xmlns='http://www.w3.org/2000/svg'>"
 			"\n<defs>"
-			"\n<marker id='arrow-end' markerWidth='13' markerHeight='13' refX='2' refY='6' orient='auto'>"
-			"\n<path d='M2,2 L2,11 L10,6 Z'/>"
+			"\n<marker id='arrow-end' markerWidth='13' markerHeight='13' refX='12' refY='4' orient='auto'>"
+			"\n<path d='M0,0 L0,8 L12,4 Z'/>"
 			"\n</marker>"
-			"\n<marker id='arrow-start' markerWidth='13' markerHeight='13' refX='2' refY='6' orient='auto'>"
-			"\n<path d='M2,2 L2,11 L10,6 Z'/>"
+			"\n<marker id='arrow-start' markerWidth='13' markerHeight='13' refX='0' refY='4' orient='auto'>"
+			"\n<path d='M12,0 L12,8 L0,4 Z'/>"
 			"\n</marker>"
 			"\n</defs>";
 	}
