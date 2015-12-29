@@ -4,26 +4,18 @@ class Paint
 public:
 	enum EStyle
 	{
-		STROKE_BLACK = 1 << 0,
-		STROKE_RED = 1 << 1,
-		STROKE_GREEN = 1 << 2,
-		STROKE_BLUE = 1 << 3,
-		FILL_BLACK = 1 << 4,
-		FILL_RED = 1 << 5,
-		FILL_GREEN = 1 << 6,
-		FILL_BLUE = 1 << 7,
-		POS_NORTH = 1 << 8,
-		POS_SOUTH = 1 << 9,
-		POS_WEST = 1 << 10,
-		POS_EAST = 1 << 11,
-		ARROW_1 = 1 << 12,
-		ARROW_2 = 1 << 13,
-		THICK = 1 << 14,
-		DASH = 1 << 15,
-		BLACK = STROKE_BLACK | FILL_BLACK,
-		RED = STROKE_RED | FILL_RED,
-		GREEN = STROKE_GREEN | FILL_GREEN,
-		BLUE = STROKE_BLUE | FILL_BLUE
+		BLACK = 1 << 0,
+		RED = 1 << 1,
+		GREEN = 1 << 2,
+		BLUE = 1 << 3,
+		NORTH = 1 << 4,
+		SOUTH = 1 << 5,
+		WEST = 1 << 6,
+		EAST = 1 << 7,
+		ARROW1 = 1 << 8,
+		ARROW2 = 1 << 9,
+		THICK = 1 << 10,
+		DASH = 1 << 11,
 	};
 	typedef int Style;
 public:
@@ -118,20 +110,16 @@ private:
 		}
 		formats[]
 		{
-			{ STROKE_BLACK, " stroke='black'"},
-			{ STROKE_RED, " stroke='red'"},
-			{ STROKE_GREEN, " stroke='green'"},
-			{ STROKE_BLUE, " stroke='blue'"},
-			{ FILL_BLACK, " fill='black'"},
-			{ FILL_RED, " fill='red'"},
-			{ FILL_GREEN, " fill='green'"},
-			{ FILL_BLUE, " fill='blue'"},
-			{ POS_NORTH, ""},
-			{ POS_SOUTH, ""},
-			{ POS_WEST, ""},
-			{ POS_EAST, ""},
-			{ ARROW_1, ""},
-			{ ARROW_2, ""},
+			{ BLACK, " stroke='black'"},
+			{ RED, " stroke='red'"},
+			{ GREEN, " stroke='green'"},
+			{ BLUE, " stroke='blue'"},
+			{ NORTH, ""},
+			{ SOUTH, ""},
+			{ WEST, ""},
+			{ EAST, ""},
+			{ ARROW1, ""},
+			{ ARROW2, ""},
 			{ THICK, ""},
 			{ DASH, ""}
 		};
