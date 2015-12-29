@@ -4,18 +4,18 @@ class Paint
 public:
 	enum EStyle
 	{
-		BLACK = 1 << 0,
-		RED = 1 << 1,
-		GREEN = 1 << 2,
-		BLUE = 1 << 3,
-		NORTH = 1 << 4,
-		SOUTH = 1 << 5,
-		WEST = 1 << 6,
-		EAST = 1 << 7,
-		ARROW1 = 1 << 8,
-		ARROW2 = 1 << 9,
-		THICK = 1 << 10,
-		DASH = 1 << 11,
+		black = 1 << 0,
+		red = 1 << 1,
+		green = 1 << 2,
+		blue = 1 << 3,
+		north = 1 << 4,
+		south = 1 << 5,
+		west = 1 << 6,
+		east = 1 << 7,
+		arrow1 = 1 << 8,
+		arrow2 = 1 << 9,
+		thick = 1 << 10,
+		dash = 1 << 11
 	};
 	typedef int Style;
 public:
@@ -110,18 +110,18 @@ private:
 		}
 		formats[]
 		{
-			{ BLACK, " stroke='black'"},
-			{ RED, " stroke='red'"},
-			{ GREEN, " stroke='green'"},
-			{ BLUE, " stroke='blue'"},
-			{ NORTH, ""},
-			{ SOUTH, ""},
-			{ WEST, ""},
-			{ EAST, ""},
-			{ ARROW1, ""},
-			{ ARROW2, ""},
-			{ THICK, ""},
-			{ DASH, ""}
+			{ black, " stroke='black'"},
+			{ red, " stroke='red'"},
+			{ green, " stroke='green'"},
+			{ blue, " stroke='blue'"},
+			{ north, ""},
+			{ south, ""},
+			{ west, ""},
+			{ east, ""},
+			{ arrow1, ""},
+			{ arrow2, ""},
+			{ thick, ""},
+			{ dash, ""}
 		};
 
 		for(const auto& format : formats)
