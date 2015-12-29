@@ -2,7 +2,8 @@
 class Paint
 {
 public:
-	enum StyleEnum
+	typedef int Style;
+	enum
 	{
 		black = 1 << 0,
 		red = 1 << 1,
@@ -17,14 +18,18 @@ public:
 		thick = 1 << 10,
 		dash = 1 << 11
 	};
-	typedef int Style;
 public:
 	Paint(const QString& filename)
 	{
 		this->filename = filename;
 
 		svg += "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-			"\n<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg'>";
+			"\n<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg'>"
+			"\n<defs>"
+			"\n<marker id='arrow' markerWidth='10' markerHeight='10' refx='0' refy='3' orient='auto' markerUnits='strokeWidth'>"
+			"\n<path d='M0,0 L0,6 L9,3 z' fill='strokeFill'/>"
+			"\n</marker>"
+			"\n</defs>";
 	}
 	~Paint()
 	{
@@ -40,17 +45,17 @@ public:
 	{
 		svg += QString("\n<circle%1 (%2,%3) circle(0.05)/>")
 			.arg(style_svg(style))
-			.arg(p.x)
-			.arg(p.y);
+			.arg(pos_x(p.x))
+			.arg(pos_y(p.y));
 	}
 	void line(const Point2D& p1, const Point2D& p2, Style style)
 	{
 		svg += QString("\n<path%1 d='M %2,%3 L %4,%5'/>")
 			.arg(style_svg(style))
-			.arg(p1.x)
-			.arg(p1.y)
-			.arg(p2.x)
-			.arg(p2.y);
+			.arg(pos_x(p1.x))
+			.arg(pos_y(p1.y))
+			.arg(pos_x(p2.x))
+			.arg(pos_y(p2.y));
 	}
 	void path(const QList<Point2D>& coord_list, Style style)
 	{
@@ -59,10 +64,10 @@ public:
 		for(const Point2D& p : coord_list)
 		{
 			points += QString(format[points.isEmpty()])
-				.arg(p.x)
-				.arg(p.y);
+				.arg(pos_x(p.x))
+				.arg(pos_y(p.y));
 		}
-		svg += QString("\n<path%1 d='%2 Z'/>")
+		svg += QString("\n<path%1 d='%2'/>")
 			.arg(style_svg(style))
 			.arg(points);
 	}
@@ -73,8 +78,8 @@ public:
 		for(const Point2D& p : coord_list)
 		{
 			points += QString(format[points.isEmpty()])
-				.arg(p.x)
-				.arg(p.y);
+				.arg(pos_x(p.x))
+				.arg(pos_y(p.y));
 		}
 		svg += QString("\n<path%1 d='%2 Z'/>")
 			.arg(style_svg(style))
@@ -84,8 +89,8 @@ public:
 	{
 		svg += QString("\n<circle%1 (%2,%3) arc (%4:%5:%6)/>")
 			.arg(style_svg(style))
-			.arg(p.x)
-			.arg(p.y)
+			.arg(pos_x(p.x))
+			.arg(pos_y(p.y))
 			.arg(180/pi*angle0)
 			.arg(180/pi*angle1)
 			.arg(radius);
@@ -94,14 +99,17 @@ public:
 	{
 		svg += QString("\n<text%1 at (%2,%3) {%4}>")
 			.arg(style_svg(style))
-			.arg(p.x)
-			.arg(p.y)
+			.arg(pos_x(p.x))
+			.arg(pos_y(p.y))
 			.arg(text);
 	}
 private:
 	QString style_svg(Style style)
 	{
-		QString name;
+		QString name = " fill='none'";
+
+		if (!(style & (red | green | blue)))
+			style |= black;
 
 		struct
 		{
@@ -118,8 +126,8 @@ private:
 			{ south, ""},
 			{ west, ""},
 			{ east, ""},
-			{ arrow1, ""},
-			{ arrow2, ""},
+			{ arrow1, " marker-end='url(#arrow)'"},
+			{ arrow2, " marker-start='url(#arrow)' marker-end='url(#arrow)'"},
 			{ thick, ""},
 			{ dash, ""}
 		};
@@ -132,8 +140,17 @@ private:
 
 		return name;
 	}
+	double pos_x(double x)
+	{
+		return scale * x;
+	}
+	double pos_y(double y)
+	{
+		return scale * (region.y - y);
+	}
 private:
 	QString filename;
 	QString svg;
-	const int color_size = 30;
+	Point2D region = { 100, 100 };
+	double scale = 3;
 };
