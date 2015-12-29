@@ -2,7 +2,7 @@
 class Paint
 {
 public:
-	enum EStyle
+	enum StyleEnum
 	{
 		black = 1 << 0,
 		red = 1 << 1,
