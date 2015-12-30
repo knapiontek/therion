@@ -83,7 +83,7 @@ private:
 		if (!(style & (red | green | blue)))
 			style |= black;
 
-		struct
+		const struct
 		{
 			Style style;
 			QString value;

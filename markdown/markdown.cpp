@@ -1,7 +1,15 @@
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <stdexcept>
+
+#include <QApplication>
+#include <QTextStream>
+#include <QFile>
+#include <QSet>
+#include <QVector>
+#include <QTime>
+#include <QDebug>
+
+const double pi = 4.0 * std::atan(1.0);
+
+#include <math.h>
 
 enum class Mode { None, Line, List, Header, Table };
 
@@ -102,17 +110,21 @@ void convert(const std::string& md)
 
 int main(int argc, char* argv[])
 {
+	int rc = 0;
+	QApplication app(argc, argv);
 	try
 	{
 		if (argc != 2)
 			throw std::invalid_argument("expected: markdown <file>.md");
 		else
 			convert(argv[1]);
-		return 0;
 	}
 	catch(std::exception& e)
 	{
 		std::cout << e.what() << std::endl;
-		return -1;
+		rc = -1;
 	}
+	app.exit();
+	return rc;
 }
+
