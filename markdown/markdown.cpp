@@ -5,7 +5,7 @@
 #include <QSet>
 #include <QVector>
 #include <QTime>
-#include <QDebug>
+#include <QtGlobal>
 
 const double pi = 4.0 * std::atan(1.0);
 
@@ -61,10 +61,10 @@ void convert(const QString& md)
 
 	while (!in.atEnd())
 	{
-		char ch = 0;// = in.read(1);
+		char ch;
+		in >> ch;
 		switch (ch)
 		{
-		case ' ':
 		case '\t':
 			stack.top().indent++;
 			out << ch;
@@ -112,27 +112,24 @@ void convert(const QString& md)
 			}
 			out << ch;
 		}
-
-		md_file.close();
-		html_file.close();
 	}
+
+	md_file.close();
+	html_file.close();
 }
 
 int main(int argc, char* argv[])
 {
 	int rc = 0;
 	QApplication app(argc, argv);
-	try
+	if (argc != 2)
 	{
-		if (argc != 2)
-			throw std::invalid_argument("expected: markdown <file>.md");
-		else
-			convert(argv[1]);
+		qCritical("expected: markdown <file>.md");
+		rc = 1;
 	}
-	catch(std::exception& e)
+	else
 	{
-		//qDebug() << e.what() << std::endl;
-		rc = -1;
+		convert(argv[1]);
 	}
 	app.exit();
 	return rc;
