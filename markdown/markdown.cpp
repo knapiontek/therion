@@ -20,7 +20,7 @@ struct Context
 	int header;
 };
 
-class ContextStack : public std::vector<Context>
+class ContextStack : public QVector<Context>
 {
 public:
 	void push(Mode mode)
@@ -40,23 +40,28 @@ public:
 	}
 };
 
-void convert(const std::string& md)
+void convert(const QString& md)
 {
-	std::string html = md;
-	int index = md.rfind('.');
-	if (index != std::string::npos)
-		html = md.substr(0, index);
+	QString html = md;
+	int index = md.lastIndexOf('.');
+	if (index != -1)
+		html = md.left(index);
 	html += ".html";
 
-	std::ifstream in(md, std::ios::in);
-	std::ofstream out(html, std::ios::out);
+	QFile md_file(md);
+	md_file.open(QIODevice::ReadOnly | QIODevice::Text);
+	QTextStream in(&md_file);
+
+	QFile html_file(md);
+	html_file.open(QIODevice::WriteOnly | QIODevice::Text);
+	QTextStream out(&html_file);
 
 	ContextStack stack;
 	stack.push(Mode::Line);
 
-	while (!in.eof())
+	while (!in.atEnd())
 	{
-		char ch = in.get();
+		char ch = 0;// = in.read(1);
 		switch (ch)
 		{
 		case ' ':
@@ -102,9 +107,14 @@ void convert(const std::string& md)
 			case Mode::Header:
 				out << "\n<h" << stack.top().header << ">";
 				break;
+			default:
+				break;
 			}
 			out << ch;
 		}
+
+		md_file.close();
+		html_file.close();
 	}
 }
 
@@ -121,10 +131,9 @@ int main(int argc, char* argv[])
 	}
 	catch(std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		//qDebug() << e.what() << std::endl;
 		rc = -1;
 	}
 	app.exit();
 	return rc;
 }
-
