@@ -90,17 +90,17 @@ private:
 		}
 		format_seq[]
 		{
-			{ black, " stroke='black'"},
-			{ red, " stroke='red'"},
-			{ green, " stroke='green'"},
-			{ blue, " stroke='blue'"},
-			{ north, ""},
-			{ south, ""},
-			{ west, ""},
-			{ east, ""},
-			{ arrow1, " marker-end='url(#arrow-end)'"},
-			{ arrow2, " marker-start='url(#arrow-start)' marker-end='url(#arrow-end)'"},
-			{ thick, ""},
+			{ black, " stroke='black'" },
+			{ red, " stroke='red'" },
+			{ green, " stroke='green'" },
+			{ blue, " stroke='blue'" },
+			{ north, "" },
+			{ south, "" },
+			{ west, "" },
+			{ east, "" },
+			{ arrow1, " marker-end='url(#arrow-end)'" },
+			{ arrow2, " marker-start='url(#arrow-start)' marker-end='url(#arrow-end)'" },
+			{ thick, " stroke-width='2'" },
 			{ dash, ""}
 		};
 
