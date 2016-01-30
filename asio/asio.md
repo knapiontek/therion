@@ -22,26 +22,26 @@
 
     - Switch time:           ~0.000004 s
     - Switch happends every: ~0.001 s
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ## Event-Driven Programming
 
 ##### Node.js example
@@ -96,26 +96,26 @@ if (ret > 0) {
     }
 }
 ```
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ## Lambda syntax in C++11
 
 ##### The most trivial case
@@ -138,26 +138,26 @@ int main()
     lambda(" world");
 }
 ```
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ## Lambdas in boost::asio
 
 ![ASIO](asio.png)
@@ -178,26 +178,26 @@ socket.async_connect(server_endpoint,
             });
     });
 ```
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ### Issues Related To Event-Driven Programming
 
     - thread stack very small
