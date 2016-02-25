@@ -1,0 +1,38 @@
+C=2 - cases
+
+------------
+
+N=5 - colours
+M=3 - customers
+----
+T=1, 1 1
+T=2, 1 0, 2 0
+T=1, 5 0
+
+------------
+
+N=1 - colours
+M=2 - customers
+----
+T=1, 1 0
+T=1, 1 1
+
+------------
+
+X=1..N
+Y=0,1 # glossy, matte
+X,Y unique pairs for a single customer
+
+N glossy + N matte = 2N types
+customer happy if 1 type exist
+max 1 type matte per customer
+
+
+Create N batches
+each of N batches is glossy or matte
+1 customer must have at least 1 batch they like, max 1 batch is matte
+minimize number of matte batches (expensive)
+
+
+Case #1: 1 0 0 0 0 - N numbers where 0 glossy, 1 matte
+Case #2: IMPOSSIBLE
