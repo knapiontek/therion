@@ -1,17 +1,16 @@
 
 ![boost](boost.png)
 
-
 # boost::asio in context of C++11 and event-driven programming
-
 
 ###### Asynchronous I/O
 
+## Syncronized Multithreading Paradigm
 
+##### Downside Of Syncronized Multithreading
 
-
-## Multithreading problem
-
+    - huge thread call stack (100+ frames)
+    - 30 threads competing to write to one file => most of time spent in context switching
 
 ##### Context Switching Overhead
 
@@ -19,25 +18,31 @@
     - std::mutex::lock()
     - ::read(int fd, void *buf, size_t count);
 
-##### Only 5% overhead for single thread
+##### Estimated Times
 
-     - 5% message processing
-     - 5% context switching
-     - 90% idle CPU - networking
-
-##### 50% overhead for 10 simultaneous threads
-
-     - 50% message processing
-     - 50% context switching
-     - 0% idle CPU
-
-###### no HTTP server is writen in this way
-
-
-
-
+    - Switch time:           ~0.000004 s
+    - Switch happends every: ~0.001 s
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 ## Event-Driven Programming
-
 
 ##### Node.js example
 
@@ -51,9 +56,6 @@ fs.readFile('/etc/passwd',
 ```
 
 ![Node.js](nodejs.png)
-
-
-
 
 ##### poll() function
 
@@ -94,10 +96,26 @@ if (ret > 0) {
     }
 }
 ```
-
-
-
-
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 ## Lambda syntax in C++11
 
 ##### The most trivial case
@@ -120,10 +138,26 @@ int main()
     lambda(" world");
 }
 ```
-
-
-
-
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 ## Lambdas in boost::asio
 
 ![ASIO](asio.png)
@@ -144,14 +178,30 @@ socket.async_connect(server_endpoint,
             });
     });
 ```
-
-
-
-
-### Issues related to event-driven programming
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+### Issues Related To Event-Driven Programming
 
     - thread stack very small
     - heap usually used instead of stack
-    - debugging
+    - difficult debugging
     - code flow may not be clear
     - trailing references
