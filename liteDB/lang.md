@@ -30,30 +30,27 @@ hive-seq: find-by-name('Hive')
 ```c++
 
 struct address {
-    string street;
+    std::string street;
     int house_no;
 };
 
 struct family {
-    string last_name;
-    vector<string> first_name_seq;
-    vector<address> address_seq;
+    std::string last_name;
+    lite::db::Seq<std::string> first_name_seq;
+    lite::db::Seq<address> address_seq;
 };
 
-vector<family> family_seq = family {
-    'Napiontek',
-    vector<string> { 'Kris', 'Aga', 'Borys', 'Sophia' },
-    vector<address> { { street: 'Southdene' }, { street: 'Warszawska' } }
+lite::db::Seq<family> family_seq;
+
+lite::db::Seq<std::string>> family_name_seq;
+
+struct find_by_name_t {
+    std::string name;
+    std::string street;
 };
 
-vector<string>> family_name_seq;
+lite::db::Seq<find_by_name_t> find_by_name(const std::string& name);
 
-vector<find_by_name_t> find_by_name(const string& name);
-
-for (auto &i: find_by_name('Hello')) {
-    cout << "name: " << i.name << "street: " << i.street << endl;
-}
-
-vector<find_by_name_t> hive_seq('Hive');
+lite::db::Seq<find_by_name_t> hive_seq;
 
 ```
