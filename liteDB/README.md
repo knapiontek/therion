@@ -14,11 +14,11 @@ Multicast/UDP is a good answer since we have to sort messages anyway.
 ## Catalog
  - Catalog is a piece of meta-data which tells a engine where to find real data or meta-data pointing to yet another data. Catalog can be structured as tree. Root catalog must be replicated to all possible engines. Catalog leaves may be replicated when data is requested. It can be recursive engine.
  - Catalog Types:
-   # Schema Catalog
-   # Sequence Catalog
-   # Record Catalog
-   # Data Catalog
-   # Index Catalog
+   * Schema Catalog
+   * Sequence Catalog
+   * Record Catalog
+   * Data Catalog
+   * Index Catalog
 
 ## Distributed Blocks
  - Atoms can contain any type of data. Their task is to replicate data to other engines. When atom is changed - its engine makes sure that the change was replicated to all other engines which hold him. Atom knows all engines holding him. Atom knows its originator, if originating engine is dropped the next one on the sorted list of engines should be chosen immediately.
