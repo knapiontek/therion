@@ -18,13 +18,15 @@ family-seq << family {
 
 family-name-seq: family-seq[first-name[0] >= 'Z'].last-name
 
+# dot on seq '[].' creates new sequence
+
 find-by-name(name: string):
     family-seq[last-name = 'Napiontek' & first-name-seq[name]]
         .address-seq[street = 'Southdene']
 {
-    street-name: address.street,
-    house: address.house-no,
-    family-name: family.last-name
+    street: .street, # number of dots in agregator must match those in selector
+    house-no: address.house-no, # another way to choose part of selector
+    family-name: last-name
 }
 
 hive-seq: find-by-name('Hive')
