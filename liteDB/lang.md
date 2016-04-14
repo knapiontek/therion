@@ -18,10 +18,14 @@ family-seq << family {
 
 family-name-seq: family-seq[first-name[0] >= 'Z'].last-name
 
-find-by-name(name: string): {
-    name: family.last-name,
-    street: family.address-seq[0]
-} family-seq[last-name = 'Napiontek' & first-name-seq[name]]
+find-by-name(name: string):
+    family-seq[last-name = 'Napiontek' & first-name-seq[name]]
+        .address-seq[street = 'Southdene']
+{
+    street-name: address.street,
+    house: address.house-no,
+    family-name: family.last-name
+}
 
 hive-seq: find-by-name('Hive')
 
