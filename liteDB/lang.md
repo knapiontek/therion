@@ -31,6 +31,25 @@ find-by-name(name: string):
 
 hive-seq: find-by-name('Hive')
 
+###
+
+person: { name: string, address: { street: string } }
+
+employee: person { work: string }
+
+find-people(name: string): person[] {
+    var test: string
+    . << person[]
+}
+
+hello: find-people("Kris")
+
+find-address(name: string): person[] {
+    for i: people[name = "Kris"] {
+        . << i.address
+    }
+}
+
 ```
 
 ```c++
