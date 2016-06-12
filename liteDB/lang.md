@@ -44,9 +44,9 @@ find-by-name(name: unicode): item[] {
 
 hive-seq: find-by-name('Hive')
 
-person: (name: unicode, address: { street: unicode })
+person: { name: unicode, address: { street: unicode } }
 
-employee: person(work: unicode)
+employee: person { work: unicode }
 
 find-people(name: unicode): person[] {
     test: unicode
