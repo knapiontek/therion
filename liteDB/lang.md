@@ -32,7 +32,7 @@ family-seq: family[]
 family-seq << family (
     'Napiontek',
     ['Kris', 'Aga', 'Borys', 'Sophia'],
-    [ (street: 'Southdene'), (street: 'Warszawska')]
+    [(street: 'Southdene'), (street: 'Warszawska')]
 )
 
 item: (
