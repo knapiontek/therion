@@ -1,10 +1,14 @@
-```
+```javascript
 
 string: ''
 unicode: u8[]
 int: i32
 
-# address
+// address
+
+/*
+    multi-line comment
+*/
 
 address-town: (town: unicode)
 address: address-town (street: unicode, house-no: int)
@@ -28,7 +32,7 @@ family-seq: family[]
 family-seq << family (
     'Napiontek',
     ['Kris', 'Aga', 'Borys', 'Sophia'],
-    [(street: 'Southdene'), (street: 'Warszawska')]
+    [ (street: 'Southdene'), (street: 'Warszawska')]
 )
 
 item: (
@@ -38,8 +42,8 @@ item: (
 )
 
 find-by-name (name: unicode): item[] {
-    items: family-seq[last-name = 'Napiontek' & first-name-seq[name]].address-seq[street = 'Southdene']
-    for i: items { . << item (street: i.street, house-no: i.house-no, family-name: name) }
+    items: family-seq[.last-name = 'Napiontek' & first-name-seq[name]].address-seq[street = 'Southdene']
+    for (i: items) { . << item (street: i.street, house-no: i.house-no, family-name: name) }
 }
 
 hive-seq: find-by-name ('Hive')
@@ -50,7 +54,7 @@ employee: person (work: unicode)
 
 find-people (name: unicode): person[] {
     test: unicode
-    if test = name {
+    if (test = name) {
         . << person[]
     }
 }
@@ -58,7 +62,8 @@ find-people (name: unicode): person[] {
 hello: find-people ("Kris")
 
 find-address (name: unicode): person[] {
-    for i: people[name = "Kris"] {
+    for (i: people[name = "Kris"]) {
+        log.debug << i
         . << i.address
     }
 }
