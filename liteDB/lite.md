@@ -29,8 +29,10 @@ family-seq << family {
     [ { street: 'Avenue' }, { street: 'Strand' } ]
 }
 
+item: { street: address.street, house-no: address.house-no, family.last-name }
+
 find-by-name(street: address.street):
-    family-seq[.last-name = 'Napiontek' & first-name-seq[name]]
-        .address-seq[street = street]
-            % { street, address.house-no, family.last-name }
+    family-seq[.last-name = 'Napiontek' & .first-name-seq[name]]
+        .address-seq[.street = street]
+            item { .street, .house-no, ..last-name }
 ```
