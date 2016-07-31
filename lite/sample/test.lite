@@ -1,0 +1,10 @@
+
+unicode: ''
+
+address: {town: unicode, street: unicode, house-no: 0}
+
+person:
+    first-name: unicode
+    last-name: unicode
+    home-address: address
+    age: 0
