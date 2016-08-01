@@ -13,7 +13,7 @@
 #define NAMESPACE_END(name) }
 #define NAMESPACE(name) using namespace name
 
-NAMESPACE_BEGIN(core);
+NAMESPACE_BEGIN(core)
 
 // basic types
 
@@ -33,10 +33,10 @@ typedef long double float128;
 
 struct Nil
 {
-	Nil()
-	{
+    Nil()
+    {
 
-	}
+    }
 };
 
 const Nil nil;
@@ -79,14 +79,14 @@ const float128 float128_inf = INFINITY;
 class Handler
 {
 public:
-	static Handler*& handler()
-	{
-		static Handler* handler = 0;
-		return handler;
-	}
+    static Handler*& handler()
+    {
+        static Handler* handler = 0;
+        return handler;
+    }
 public:
-	virtual void throw_alloc_exception() = 0;
-	virtual void call_assert(const char* file_name, int line_no, const char* content) = 0;
+    virtual void throw_alloc_exception() = 0;
+    virtual void call_assert(const char* file_name, int line_no, const char* content) = 0;
 };
 
 // miscellaneous
@@ -94,36 +94,36 @@ public:
 template <typename Type>
 inline Type& min(const Type& arg1, const Type& arg2)
 {
-	return (arg1 < arg2) ? (Type&)arg1 : (Type&)arg2;
+    return (arg1 < arg2) ? (Type&)arg1 : (Type&)arg2;
 }
 
 template <typename Type>
 inline Type& max(const Type& arg1, const Type& arg2)
 {
-	return (arg1 > arg2) ? (Type&)arg1 : (Type&)arg2;
+    return (arg1 > arg2) ? (Type&)arg1 : (Type&)arg2;
 }
 
 template <typename Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
-	const uint32 size = sizeof(Type);
-	uint8 type[size];
-	::memcpy((void*)&type, &arg1, size);
-	::memcpy((void*)&arg1, &arg2, size);
-	::memcpy((void*)&arg2, &type, size);
+    const uint32 size = sizeof(Type);
+    uint8 type[size];
+    ::memcpy((void*)&type, &arg1, size);
+    ::memcpy((void*)&arg1, &arg2, size);
+    ::memcpy((void*)&arg2, &type, size);
 }
 
 inline uint32 randomize()
 {
-	static bool init = true;
-	if(init)
-	{
-		init = false;
-		struct timeval time;
-		::gettimeofday(&time, 0);
-		::srand(time.tv_sec);
-	}
-	return ::rand();
+    static bool init = true;
+    if(init)
+    {
+        init = false;
+        struct timeval time;
+        ::gettimeofday(&time, 0);
+        ::srand(time.tv_sec);
+    }
+    return ::rand();
 }
 
 // memory management
@@ -131,33 +131,33 @@ inline uint32 randomize()
 template<class Type>
 inline Type* acquire(uint32 size)
 {
-	Type* type = (Type*)::malloc(size);
-	if(!type)
-		Handler::handler()->throw_alloc_exception();
-	return type;
+    Type* type = (Type*)::malloc(size);
+    if(!type)
+        Handler::handler()->throw_alloc_exception();
+    return type;
 }
 
 template<class Type>
 inline Type* acquire(Type* type, uint32 size)
 {
-	type = (Type*)::realloc((void*)type, size);
-	if(!type)
-		Handler::handler()->throw_alloc_exception();
-	return type;
+    type = (Type*)::realloc((void*)type, size);
+    if(!type)
+        Handler::handler()->throw_alloc_exception();
+    return type;
 }
 
 template<class Type>
 inline void release(Type* type)
 {
-	::free((void*)type);
+    ::free((void*)type);
 }
 
 // assert/verify
 
 inline void call_assert(bool expr, const char* file_name, int line_no, const char* content)
 {
-	if(!expr)
-		Handler::handler()->call_assert(file_name, line_no, content);
+    if(!expr)
+        Handler::handler()->call_assert(file_name, line_no, content);
 }
 
 inline void call_nil()
@@ -166,14 +166,14 @@ inline void call_nil()
 }
 
 #ifndef ASSERT
-	#define assert(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
+    #define assert(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
 #else
-	#define assert(expr) call_nil()
+    #define assert(expr) call_nil()
 #endif
 
 #define verify(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
 
-NAMESPACE_END(core);
+NAMESPACE_END(core)
 
 #endif // CORE_CORE_HPP
 

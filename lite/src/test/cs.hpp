@@ -2,7 +2,7 @@
 #ifndef TEST_CS_HPP
 #define TEST_CS_HPP
 
-#include "core/core/string.hpp"
+#include "core/string.hpp"
 
 // core
 

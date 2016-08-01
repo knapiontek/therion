@@ -2,7 +2,7 @@
 #ifndef ENV_CS_HPP
 #define ENV_CS_HPP
 
-#include "core/core/string.hpp"
+#include "core/string.hpp"
 
 NAMESPACE_BEGIN(env);
 
@@ -27,16 +27,16 @@ core::String cs_line_tab = cs("\n\t");
 core::String cs_frame = cs("\n\t$1 [$2:$3]");
 
 core::String cs_exception =
-	cs_eng("\nexception:")
-	cs_pl("\nwyjątek:");
+    cs_eng("\nexception:")
+    cs_pl("\nwyjątek:");
 
 core::String cs_context =
-	cs_eng("\ncontext:")
-	cs_pl("\ncontekst:");
+    cs_eng("\ncontext:")
+    cs_pl("\ncontekst:");
 
 core::String cs_backtrace =
-	cs_eng("\nbacktrace:")
-	cs_pl("\nstos wykonania:");
+    cs_eng("\nbacktrace:")
+    cs_pl("\nstos wykonania:");
 
 NAMESPACE_END(env);
 
