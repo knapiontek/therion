@@ -466,7 +466,7 @@ public:
         Cursor cr;
         convert(cr, lbond);
         move_up(cr);
-        new((void*)cr.elem) Element(arg);
+        new((void*)cr.elem) Element(pager.append());
         return *cr.elem;
     }
     bool put(const Element& arg, bool unique = true)

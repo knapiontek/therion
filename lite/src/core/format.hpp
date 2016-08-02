@@ -164,9 +164,10 @@ private:
     String& merge(bool new_line)
     {
         static String cs_new_line = cs("\n");
+        core::uint8 max = core::uint8_max;
         static const core::uint8 hex2index[] =    {
             0, 1, 2, 3, 4, 5, 6, 7, 8,
-            (core::uint8)-1, (core::uint8)-1, (core::uint8)-1, (core::uint8)-1, (core::uint8)-1, (core::uint8)-1, (core::uint8)-1,
+            max, max, max, max, max, max, max,
             9,
             0xA, 0xB, 0xC, 0xD, 0xE
         };
