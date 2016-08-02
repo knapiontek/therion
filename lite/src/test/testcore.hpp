@@ -77,11 +77,13 @@ inline void test_share()
     // trivial
     core::share::uint32 share_one = 1;
     core::share::uint32 share_two = share_one;
+    core::assert(share_two != core::nil);
     share_one = 0;
 
     // complex
     core::String::share share_first = cs_first;
     core::String::share share_second = share_first;
+    core::assert(share_second != core::nil);
     share_first = cs_third;
     core::verify(share_first->equal(cs_third));
     share_first = cs_third;
@@ -380,6 +382,8 @@ inline void test_seq()
     core::Seq<core::String> seq;
     core::Seq<core::String>::share shared_seq = seq;
     core::Seq<core::String>::manage managed_seq;
+    core::assert(shared_seq != core::nil);
+    core::assert(managed_seq == core::nil);
 
     // empty
     core::verify(!seq.head().next());
@@ -580,6 +584,8 @@ inline void test_list()
     core::List<core::String> list;
     core::List<core::String>::share shared_list = list;
     core::List<core::String>::manage managed_list;
+    core::assert(shared_list != core::nil);
+    core::assert(managed_list == core::nil);
 
     // init
     list.page_size(core::randomize() % variation + 1);
@@ -791,6 +797,8 @@ inline void test_hash_set()
     core::HashSet<core::String> set;
     core::HashSet<core::String>::share shared_set = set;
     core::HashSet<core::String>::manage managed_set;
+    core::assert(shared_set != core::nil);
+    core::assert(managed_set == core::nil);
 
     // init
     set.page_size(core::randomize() % variation + 1);
@@ -914,6 +922,8 @@ inline void test_hash_map()
     core::HashMap<core::String, core::uint32> map;
     core::HashMap<core::String, core::uint32>::share shared_map = map;
     core::HashMap<core::String, core::uint32>::manage managed_map;
+    core::assert(shared_map != core::nil);
+    core::assert(managed_map == core::nil);
 
     // init
     map.page_size(core::randomize() % variation + 1);
@@ -1019,6 +1029,8 @@ inline void test_tree_set()
     core::TreeSet<core::String> set;
     core::TreeSet<core::String>::share shared_set = set;
     core::TreeSet<core::String>::manage managed_set;
+    core::assert(shared_set != core::nil);
+    core::assert(managed_set == core::nil);
 
     // init
     set.page_size(core::randomize() % variation + 1);
@@ -1186,6 +1198,8 @@ inline void test_tree_map()
     core::TreeMap<core::String, core::uint32> map;
     core::TreeMap<core::String, core::uint32>::share shared_map = map;
     core::TreeMap<core::String, core::uint32>::manage managed_map;
+    core::assert(shared_map != core::nil);
+    core::assert(managed_map == core::nil);
 
     // init
     map.page_size(core::randomize() % variation + 1);
