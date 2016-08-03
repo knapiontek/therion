@@ -116,7 +116,7 @@ public:
     private:
         static void find_address_in_section(bfd *abfd, asection *section, void *cookie)
         {
-            Iterator* it = (Iterator*)cookie;
+            auto it = (Iterator*)cookie;
 
             bfd_vma vma;
             bfd_size_type size;

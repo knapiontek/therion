@@ -2,6 +2,9 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+QMAKE_CXXFLAGS += -std=c++14
+TARGET = test
+LIBS += -lbfd
 
 SOURCES += test/test.cpp
 
@@ -36,5 +39,3 @@ HEADERS += \
     test/testcore.hpp \
     test/testenv.hpp \
     test/testio.hpp
-
-LIBS += -lbfd
