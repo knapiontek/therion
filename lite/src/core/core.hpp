@@ -129,7 +129,7 @@ inline uint32 randomize()
 // memory management
 
 template<class Type>
-inline Type* acquire(uint32 size)
+inline Type* acquire(uint64 size)
 {
     Type* type = (Type*)::malloc(size);
     if(!type)
@@ -138,7 +138,7 @@ inline Type* acquire(uint32 size)
 }
 
 template<class Type>
-inline Type* acquire(Type* type, uint32 size)
+inline Type* acquire(Type* type, uint64 size)
 {
     type = (Type*)::realloc((void*)type, size);
     if(!type)

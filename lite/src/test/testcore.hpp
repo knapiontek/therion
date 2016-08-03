@@ -316,7 +316,7 @@ inline void test_acquire()
     }
     catch(...)
     {
-
+        core::assert(true);
     }
 }
 

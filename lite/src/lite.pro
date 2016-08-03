@@ -36,3 +36,5 @@ HEADERS += \
     test/testcore.hpp \
     test/testenv.hpp \
     test/testio.hpp
+
+LIBS += -lbfd

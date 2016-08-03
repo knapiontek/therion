@@ -4,12 +4,11 @@
 
 #include "core/core.hpp"
 #include <unistd.h>
-#include <bfd.h>
-#include <libiberty/libiberty.h>
 #include <libiberty/demangle.h>
+#include <bfd.h>
 #include <execinfo.h>
 
-NAMESPACE_BEGIN(env);
+NAMESPACE_BEGIN(env)
 
 class Runtime
 {
@@ -34,20 +33,20 @@ public:
             the_bfd = 0;
             the_syms = 0;
 
-//            bfd_init();
+            bfd_init();
 
             char file_name[core::uint8_max];
             ::snprintf(file_name, sizeof(file_name), "/proc/%d/exe", getpid());
 
-//            the_bfd = bfd_openr(file_name, 0);
+            the_bfd = bfd_openr(file_name, 0);
             if(!the_bfd)
                 return;
 
-//            if(bfd_check_format(the_bfd, bfd_archive))
+            if(bfd_check_format(the_bfd, bfd_archive))
                 return;
 
             char** matching;
-//            if(!bfd_check_format_matches(the_bfd, bfd_object, &matching))
+            if(!bfd_check_format_matches(the_bfd, bfd_object, &matching))
             {
                 ::free(matching);
                 return;
@@ -81,8 +80,8 @@ public:
                 ::free(the_demangled);
             if(the_syms)
                 ::free(the_syms);
-//            if(the_bfd)
-//                bfd_close(the_bfd);
+            if(the_bfd)
+                bfd_close(the_bfd);
         }
         bool next()
         {
@@ -95,7 +94,7 @@ public:
             while(the_init && the_index < the_handle->size)
             {
                 the_pc = (bfd_vma)the_handle->path[the_index++];
-//                bfd_map_over_sections(the_bfd, find_address_in_section, this);
+                bfd_map_over_sections(the_bfd, find_address_in_section, this);
                 if(!the_found || !the_frame.function_name || !the_frame.file_name)
                     continue;
                 const char* slash = ::strrchr(the_frame.file_name, '/');
@@ -103,7 +102,7 @@ public:
                     the_frame.file_name = slash + 1;
                 if(the_demangled)
                     ::free(the_demangled);
-//                the_demangled = bfd_demangle(the_bfd, the_frame.function_name, DMGL_ANSI | DMGL_PARAMS);
+                the_demangled = bfd_demangle(the_bfd, the_frame.function_name, DMGL_ANSI | DMGL_PARAMS);
                 if(the_demangled)
                     the_frame.function_name = the_demangled;
                 return true;
@@ -174,6 +173,6 @@ private:
     Handle* the_handle;
 };
 
-NAMESPACE_END(env);
+NAMESPACE_END(env)
 
 #endif // ENV_RUNTIME_HPP
