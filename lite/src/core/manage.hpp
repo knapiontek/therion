@@ -1,11 +1,4 @@
 
-#ifndef CORE_MANAGE_HPP
-#define CORE_MANAGE_HPP
-
-#include "core/core.hpp"
-
-NAMESPACE_BEGIN(core)
-
 template<typename Type>
 class Managed
 {
@@ -170,8 +163,3 @@ namespace manage
     typedef Managed<float64> float64;
     typedef Managed<float128> float128;
 }
-
-NAMESPACE_END(core)
-
-#endif // CORE_MANAGE_HPP
-

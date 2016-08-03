@@ -1,11 +1,4 @@
 
-#ifndef CORE_SHARE_HPP
-#define CORE_SHARE_HPP
-
-#include "core/core.hpp"
-
-NAMESPACE_BEGIN(core)
-
 template<typename Type>
 class Shared
 {
@@ -118,8 +111,3 @@ namespace share
     typedef Shared<float64> float64;
     typedef Shared<float128> float128;
 }
-
-NAMESPACE_END(core)
-
-#endif // CORE_SHARE_HPP
-

@@ -1,14 +1,4 @@
 
-#ifndef CORE_TREE_SET_HPP
-#define CORE_TREE_SET_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include "core/index.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 const uint32 the_treeset_path_size = 32;
 
 template< typename Value, class TreeIndex = Index<Value> >
@@ -800,7 +790,3 @@ private:
     uint32 the_page_size;
     TreeIndex the_index;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_TREE_SET_HPP

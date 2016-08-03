@@ -1,15 +1,4 @@
 
-#ifndef ENV_RUNTIME_HPP
-#define ENV_RUNTIME_HPP
-
-#include "core/core.hpp"
-#include <unistd.h>
-#include <libiberty/demangle.h>
-#include <bfd.h>
-#include <execinfo.h>
-
-NAMESPACE_BEGIN(env)
-
 class Runtime
 {
     struct Handle;
@@ -172,7 +161,3 @@ private:
 private:
     Handle* the_handle;
 };
-
-NAMESPACE_END(env)
-
-#endif // ENV_RUNTIME_HPP

@@ -1,14 +1,4 @@
 
-#ifndef CORE_STRING_HPP
-#define CORE_STRING_HPP
-
-#include "core/convert.hpp"
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include <ctype.h>
-
-NAMESPACE_BEGIN(core)
-
 class Mutable
 {
     struct Handle;
@@ -740,8 +730,3 @@ typedef const Mutable String;
 #define cs(value) core::String((core::uint8*)value, sizeof(value) - 1)
 #define cs_eng(value) cs(value)
 #define cs_pl(value)
-
-NAMESPACE_END(core)
-
-#endif // CORE_STRING_HPP
-

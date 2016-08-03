@@ -1,13 +1,4 @@
 
-#ifndef CORE_QUEUE_HPP
-#define CORE_QUEUE_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 template<typename Element>
 class Queue
 {
@@ -185,8 +176,3 @@ private:
     Element* the_head;
     uint32 the_page_size;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_QUEUE_HPP
-

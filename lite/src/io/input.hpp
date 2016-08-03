@@ -1,12 +1,4 @@
 
-#ifndef IO_INPUT_HPP
-#define IO_INPUT_HPP
-
-#include "core/string.hpp"
-#include "core/seq.hpp"
-
-NAMESPACE_BEGIN(io)
-
 class Input
 {
 public:
@@ -107,7 +99,3 @@ public:
 private:
     Input& the_input;
 };
-
-NAMESPACE_END(io)
-
-#endif // IO_INPUT_HPP

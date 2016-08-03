@@ -1,11 +1,4 @@
 
-#ifndef CORE_INDEX_HPP
-#define CORE_INDEX_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(core)
-
 struct PrivateIndex
 {
     uint32 hash(uint8* key, uint32 size)
@@ -192,8 +185,3 @@ struct Index : PrivateIndex
         return PrivateIndex::compare(cast1, cast2);
     }
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_INDEX_HPP
-

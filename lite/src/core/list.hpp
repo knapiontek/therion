@@ -1,14 +1,4 @@
 
-#ifndef CORE_LIST_HPP
-#define CORE_LIST_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include "core/index.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 template< typename Element, class ListIndex = Index<Element> >
 class List
 {
@@ -711,7 +701,3 @@ private:
     uint32 the_page_size;
     ListIndex the_index;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_LIST_HPP

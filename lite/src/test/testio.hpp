@@ -1,12 +1,4 @@
 
-#ifndef TEST_IO_HPP
-#define TEST_IO_HPP
-
-#include "test/cs.hpp"
-#include "io/file.hpp"
-#include "env/os.hpp"
-#include "env/console.hpp"
-
 const core::uint16 the_port = 8071;
 
 inline void test_file()
@@ -55,5 +47,3 @@ inline void test_io()
 {
     test_file();
 }
-
-#endif // TEST_IO_HPP

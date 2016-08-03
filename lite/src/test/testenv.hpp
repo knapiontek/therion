@@ -1,12 +1,4 @@
 
-#ifndef TEST_ENV_HPP
-#define TEST_ENV_HPP
-
-#include "test/cs.hpp"
-#include "env/os.hpp"
-#include "env/time.hpp"
-#include "env/env.hpp"
-
 inline void test_exception()
 {
     try
@@ -50,5 +42,3 @@ inline void test_env()
     test_exception();
     test_utils();
 }
-
-#endif // TEST_ENV_HPP

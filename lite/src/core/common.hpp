@@ -1,20 +1,4 @@
 
-#ifndef CORE_CORE_HPP
-#define CORE_CORE_HPP
-
-#include <new>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-
-#define NAMESPACE_BEGIN(name) namespace name {
-#define NAMESPACE_END(name) }
-#define NAMESPACE(name) using namespace name
-
-NAMESPACE_BEGIN(core)
-
 // basic types
 
 typedef char int8;
@@ -172,8 +156,3 @@ inline void call_nil()
 #endif
 
 #define verify(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
-
-NAMESPACE_END(core)
-
-#endif // CORE_CORE_HPP
-

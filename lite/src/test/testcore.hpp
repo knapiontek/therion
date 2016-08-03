@@ -1,17 +1,4 @@
 
-#ifndef TEST_CORE_HPP
-#define TEST_CORE_HPP
-
-#include "test/cs.hpp"
-#include "core/format.hpp"
-#include "core/queue.hpp"
-#include "core/seq.hpp"
-#include "core/list.hpp"
-#include "core/hashset.hpp"
-#include "core/hashmap.hpp"
-#include "core/treeset.hpp"
-#include "core/treemap.hpp"
-
 struct Int2String
 {
     core::int32 i;
@@ -1343,6 +1330,3 @@ inline void test_core()
         test_tree_map();
     }
 }
-
-#endif // TEST_CORE_HPP
-

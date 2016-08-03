@@ -1,11 +1,4 @@
 
-#ifndef CORE_CONVERT_HPP
-#define CORE_CONVERT_HPP
-
-#include "core.hpp"
-
-NAMESPACE_BEGIN(core)
-
 const uint8 bool_max_digit = 5;
 const uint8 int8_max_digit = 4;
 const uint8 int16_max_digit = 6;
@@ -203,8 +196,3 @@ private:
         return byte2digit[byte];
     }
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_CONVERT_HPP
-

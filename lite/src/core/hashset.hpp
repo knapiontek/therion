@@ -1,14 +1,4 @@
 
-#ifndef CORE_HASH_SET_HPP
-#define CORE_HASH_SET_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include "core/index.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 template< typename Value, class HashIndex = Index<Value> >
 class HashSet
 {
@@ -422,7 +412,3 @@ private:
     uint32 the_page_size;
     HashIndex the_index;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_HASH_SET_HPP

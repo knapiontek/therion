@@ -1,11 +1,4 @@
 
-#ifndef ENV_DEVICE_HPP
-#define ENV_DEVICE_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(env);
-
 class Device
 {
 public:
@@ -44,7 +37,3 @@ public:
 private:
     bool the_used;
 };
-
-NAMESPACE_END(env);
-
-#endif // ENV_DEVICE_HPP

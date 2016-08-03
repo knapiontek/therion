@@ -9,8 +9,9 @@ LIBS += -lbfd
 SOURCES += test/test.cpp
 
 HEADERS += \
-    core/convert.hpp \
     core/core.hpp \
+    core/common.hpp \
+    core/convert.hpp \
     core/format.hpp \
     core/hashmap.hpp \
     core/hashset.hpp \
@@ -23,14 +24,16 @@ HEADERS += \
     core/string.hpp \
     core/treemap.hpp \
     core/treeset.hpp \
+    env/env.hpp \
+    env/common.hpp \
     env/console.hpp \
     env/cs.hpp \
     env/device.hpp \
-    env/env.hpp \
     env/exception.hpp \
     env/os.hpp \
     env/runtime.hpp \
     env/time.hpp \
+    io/io.hpp \
     io/cs.hpp \
     io/file.hpp \
     io/input.hpp \

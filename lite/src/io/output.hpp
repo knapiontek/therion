@@ -1,12 +1,4 @@
 
-#ifndef IO_OUTPUT_HPP
-#define IO_OUTPUT_HPP
-
-#include "core/string.hpp"
-#include "core/seq.hpp"
-
-NAMESPACE_BEGIN(io)
-
 class Output
 {
 public:
@@ -96,7 +88,3 @@ public:
 private:
     Output& the_output;
 };
-
-NAMESPACE_END(io)
-
-#endif // IO_OUTPUT_HPP

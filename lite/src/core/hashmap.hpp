@@ -1,14 +1,4 @@
 
-#ifndef CORE_HASH_MAP_HPP
-#define CORE_HASH_MAP_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include "core/index.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 template< typename Key, typename Value, class HashIndex = Index<Key> >
 class HashMap
 {
@@ -457,7 +447,3 @@ private:
     uint32 the_page_size;
     HashIndex the_index;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_HASH_MAP_HPP

@@ -1,11 +1,4 @@
 
-#ifndef ENV_TIME_HPP
-#define ENV_TIME_HPP
-
-#include <time.h>
-
-NAMESPACE_BEGIN(env);
-
 class Time
 {
 public:
@@ -33,7 +26,3 @@ public:
 private:
     clock_t the_start;
 };
-
-NAMESPACE_END(env);
-
-#endif // ENV_TIME_HPP

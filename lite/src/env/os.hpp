@@ -1,11 +1,4 @@
 
-#ifndef ENV_OS_HPP
-#define ENV_OS_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(env);
-
 struct OS
 {
     static void var(core::String& name, core::String& value)
@@ -41,7 +34,3 @@ struct OS
         return ::system(command.ascii());
     }
 };
-
-NAMESPACE_END(env);
-
-#endif // ENV_OS_HPP

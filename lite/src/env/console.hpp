@@ -1,14 +1,4 @@
 
-#ifndef ENV_CONSOLE_HPP
-#define ENV_CONSOLE_HPP
-
-#include "env/cs.hpp"
-#include "env/device.hpp"
-#include "env/exception.hpp"
-#include "core/format.hpp"
-
-NAMESPACE_BEGIN(env);
-
 class Con : public core::FormatClass<Con>
 {
 public:
@@ -29,15 +19,6 @@ public:
         st_exception.copy_in(pos, cs_exception);
         st_exception.copy_in(pos, cs_line_tab);
         st_exception.copy_in(pos, exception.message());
-
-        // context
-        st_exception.copy_in(pos, cs_context);
-        core::Seq<core::String>::Iterator context_it = exception.context_seq().head();
-        while(context_it.next())
-        {
-            st_exception.copy_in(pos, cs_line_tab);
-            st_exception.copy_in(pos, context_it.value());
-        }
 
         // backtrace
         st_exception.copy_in(pos, cs_backtrace);
@@ -71,7 +52,3 @@ public:
         Device::device().writeln(core::FormatClass<Con>::end());
     }
 };
-
-NAMESPACE_END(env);
-
-#endif // ENV_CONSOLE_HPP

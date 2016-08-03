@@ -1,11 +1,4 @@
 
-#ifndef IO_CS_HPP
-#define IO_CS_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(io)
-
 core::String cs_open_file_fail =
     cs_eng("open file fail: $1")
     cs_pl("błąd otwarcia pliku: $1");
@@ -61,7 +54,3 @@ core::String cs_epoll_ctl_fail =
 core::String cs_epoll_wait_fail =
     cs_eng("::epoll_wait fail")
     cs_pl("błąd ::epoll_wait");
-
-NAMESPACE_END(io)
-
-#endif // IO_CS_HPP

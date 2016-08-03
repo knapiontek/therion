@@ -1,9 +1,4 @@
 
-#ifndef TEST_CS_HPP
-#define TEST_CS_HPP
-
-#include "core/string.hpp"
-
 // core
 
 core::String cs_first = cs("first");
@@ -58,6 +53,3 @@ core::String cs_outgoing = cs("the_outgoing");
 core::String cs_incoming = cs("the_incoming");
 core::String cs_www_google_com = cs("www.google.com");
 core::String cs_http = cs("http");
-
-#endif // TEST_CS_HPP
-

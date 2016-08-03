@@ -1,11 +1,4 @@
 
-#ifndef ENV_CS_HPP
-#define ENV_CS_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(env);
-
 core::String cs_F = cs("F: ");
 core::String cs_E = cs("E: ");
 core::String cs_W = cs("W: ");
@@ -37,7 +30,3 @@ core::String cs_context =
 core::String cs_backtrace =
     cs_eng("\nbacktrace:")
     cs_pl("\nstos wykonania:");
-
-NAMESPACE_END(env);
-
-#endif // ENV_CS_HPP

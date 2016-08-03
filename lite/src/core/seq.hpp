@@ -1,14 +1,4 @@
 
-#ifndef CORE_SEQ_HPP
-#define CORE_SEQ_HPP
-
-#include "core/share.hpp"
-#include "core/manage.hpp"
-#include "core/index.hpp"
-#include <new>
-
-NAMESPACE_BEGIN(core)
-
 template< typename Element, class SeqIndex = Index<Element> >
 class Seq
 {
@@ -509,8 +499,3 @@ private:
     Element* the_bond;
     SeqIndex the_index;
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_SEQ_HPP
-

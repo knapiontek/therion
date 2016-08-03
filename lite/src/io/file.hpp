@@ -1,18 +1,4 @@
 
-#ifndef IO_FILE_HPP
-#define IO_FILE_HPP
-
-#include "io/cs.hpp"
-#include "io/input.hpp"
-#include "io/output.hpp"
-#include "env/env.hpp"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-
-NAMESPACE_BEGIN(io)
-
 class File
 {
 public:
@@ -245,7 +231,3 @@ private:
     core::String the_name;
     bool the_remove_on_close;
 };
-
-NAMESPACE_END(io)
-
-#endif // IO_FILE_HPP

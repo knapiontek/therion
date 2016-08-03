@@ -1,11 +1,4 @@
 
-#ifndef CORE_FORMAT_HPP
-#define CORE_FORMAT_HPP
-
-#include "core/string.hpp"
-
-NAMESPACE_BEGIN(core)
-
 template<class FormatReturn>
 class FormatClass
 {
@@ -244,8 +237,3 @@ public:
 
     }
 };
-
-NAMESPACE_END(core)
-
-#endif // CORE_FORMAT_HPP
-
