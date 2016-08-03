@@ -12,7 +12,7 @@
 
 namespace core
 {
-#include "core/common.hpp"
+#include "core/util.hpp"
 #include "core/convert.hpp"
 #include "core/share.hpp"
 #include "core/manage.hpp"

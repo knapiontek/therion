@@ -1,4 +1,14 @@
 
+core::String cs_filetest_tmp = cs("/tmp/filetest.tmp");
+core::String cs_tmp = cs(".tmp");
+core::String cs_file_format = cs("$1/$2.$3");
+core::String cs_slash = cs("/");
+core::String cs_host = cs("::1");
+core::String cs_outgoing = cs("the_outgoing");
+core::String cs_incoming = cs("the_incoming");
+core::String cs_www_google_com = cs("www.google.com");
+core::String cs_http = cs("http");
+
 const core::uint16 the_port = 8071;
 
 inline void test_file()

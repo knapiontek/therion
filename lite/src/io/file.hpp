@@ -1,4 +1,9 @@
 
+core::String cs_open_file_fail = cs("open file fail: $1");
+core::String cs_read_file_size_fail = cs("read file size fail: $1");
+core::String cs_read_data_fail = cs("read data fail: block size: $1");
+core::String cs_write_data_fail = cs("write data fail: block size: $1");
+
 class File
 {
 public:

@@ -15,7 +15,7 @@ namespace env
 #include "env/runtime.hpp"
 #include "env/exception.hpp"
 #include "env/device.hpp"
-#include "env/common.hpp"
+#include "env/util.hpp"
 #include "env/console.hpp"
 #include "env/os.hpp"
 #include "env/time.hpp"

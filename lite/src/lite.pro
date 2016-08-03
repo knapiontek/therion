@@ -10,7 +10,7 @@ SOURCES += test/test.cpp
 
 HEADERS += \
     core/core.hpp \
-    core/common.hpp \
+    core/util.hpp \
     core/convert.hpp \
     core/format.hpp \
     core/hashmap.hpp \
@@ -25,7 +25,7 @@ HEADERS += \
     core/treemap.hpp \
     core/treeset.hpp \
     env/env.hpp \
-    env/common.hpp \
+    env/util.hpp \
     env/console.hpp \
     env/cs.hpp \
     env/device.hpp \
@@ -34,11 +34,9 @@ HEADERS += \
     env/runtime.hpp \
     env/time.hpp \
     io/io.hpp \
-    io/cs.hpp \
     io/file.hpp \
     io/input.hpp \
     io/output.hpp \
-    test/cs.hpp \
     test/testcore.hpp \
     test/testenv.hpp \
     test/testio.hpp

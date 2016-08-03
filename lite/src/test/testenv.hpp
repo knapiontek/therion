@@ -1,4 +1,10 @@
 
+core::String cs_message = cs("exception test 10.00000");
+core::String cs_exception_test = cs("exception test $1");
+core::String cs_name = cs("name");
+core::String cs_value = cs("value");
+core::String cs_sh = cs("sh");
+
 inline void test_exception()
 {
     try
