@@ -1,4 +1,8 @@
 
+core::String cs_line_tab = cs("\n\t");
+core::String cs_exception = cs("\nexception:");
+core::String cs_backtrace = cs("\nbacktrace:");
+
 class Con : public core::FormatClass<Con>
 {
 public:

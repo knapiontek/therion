@@ -11,7 +11,9 @@
 
 namespace env
 {
-#include "env/cs.hpp"
+core::String cs_line = cs("\n");
+core::String cs_frame = cs("\n\t$1 [$2:$3]");
+
 #include "env/runtime.hpp"
 #include "env/exception.hpp"
 #include "env/device.hpp"

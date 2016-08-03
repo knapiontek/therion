@@ -1,4 +1,20 @@
 
+core::String cs_F = cs("F: ");
+core::String cs_E = cs("E: ");
+core::String cs_W = cs("W: ");
+core::String cs_I = cs("I: ");
+core::String cs_D = cs("D: ");
+
+core::String cs_abort = cs("captured signal: Abort");
+core::String cs_fpe = cs("captured signal: Floating-Point Exception");
+core::String cs_ill = cs("captured signal: Illegal Instruction");
+core::String cs_interrupt = cs("captured signal: Interrupt");
+core::String cs_segv = cs("captured signal: Segmentation Violation");
+core::String cs_terminate = cs("captured signal: Terminate");
+
+core::String cs_allocation_exception = cs("allocation exception");
+core::String cs_assert = cs("\nassert:\n\t$1 [$2:$3]\nbacktrace:");
+
 class Return
 {
 public:
@@ -38,37 +54,37 @@ public:
     {
         Return::code() |= Return::log_fatal;
         core::FormatClass<Log>::format(format);
-        the_type = env::cs_F;
+        the_type = cs_F;
         return *this;
     }
     Log& err(core::String& format)
     {
         Return::code() |= Return::log_err;
         core::FormatClass<Log>::format(format);
-        the_type = env::cs_E;
+        the_type = cs_E;
         return *this;
     }
     Log& warn(core::String& format)
     {
         core::FormatClass<Log>::format(format);
-        the_type = env::cs_W;
+        the_type = cs_W;
         return *this;
     }
     Log& info(core::String& format)
     {
         core::FormatClass<Log>::format(format);
-        the_type = env::cs_I;
+        the_type = cs_I;
         return *this;
     }
     Log& debug(core::String& format)
     {
         core::FormatClass<Log>::format(verbose() ? format : core::nil);
-        the_type = env::cs_D;
+        the_type = cs_D;
         return *this;
     }
     void end()
     {
-        if(verbose() || the_type != env::cs_D)
+        if(verbose() || the_type != cs_D)
         {
             if(Device::device().used())
                 Device::device().write(cs_line);
@@ -94,7 +110,7 @@ public:
     static void fire(core::String& message)
     {
         Return::code() |= Return::fail;
-        env::Exception exception;
+        Exception exception;
         exception.message() = message;
         throw exception;
     }
@@ -106,7 +122,7 @@ public:
     void fire()
     {
         Return::code() |= Return::fail;
-        env::Exception exception;
+        Exception exception;
         exception.message() = core::FormatClass<Fail>::end();
         throw exception;
     }
@@ -159,7 +175,7 @@ private:
         if(cnt++) return;
 
         Return::code() |= Return::signal;
-        env::Exception exception;
+        Exception exception;
         switch(id)
         {
         case SIGABRT:
@@ -200,7 +216,7 @@ public:
     {
         // ::malloc not allowed in here!
         Return::code() |= Return::throw_alloc_exception;
-        env::Exception exception;
+        Exception exception;
         exception.message() = cs_allocation_exception;
         throw exception;
     }

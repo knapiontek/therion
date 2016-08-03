@@ -27,7 +27,6 @@ HEADERS += \
     env/env.hpp \
     env/util.hpp \
     env/console.hpp \
-    env/cs.hpp \
     env/device.hpp \
     env/exception.hpp \
     env/os.hpp \
