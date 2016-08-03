@@ -60,6 +60,11 @@ public:
         the_handle = arg.the_handle;
         the_handle->cnt++;
     }
+    Mutable(const char* arg)
+    {
+        uint32 size = ::strlen(arg);
+        the_handle = clone((core::uint8*)arg, size);
+    }
     explicit Mutable(uint8* arg, uint32 size)
     {
         the_handle = clone(arg, size);

@@ -49,7 +49,7 @@ inline void test_file()
     core::verify(file.status(io::File::exist | io::File::readable | io::File::writable | io::File::executable));
 
     // rename, remove
-    core::verify(file.rename(core::String(file.name()).append(cs_tmp)));
+    core::verify(file.rename(file.name().clone().append(cs_tmp)));
     core::verify(file.remove());
 }
 
