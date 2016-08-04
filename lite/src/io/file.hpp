@@ -46,6 +46,11 @@ public:
     {
         return !::remove(name.ascii());
     }
+    static core::String& slash()
+    {
+        static core::String that = "/";
+        return that;
+    }
 public:
     File()
     {

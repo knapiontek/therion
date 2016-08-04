@@ -223,7 +223,15 @@ public:
     {
         return ::strverscmp((char*)the_handle->data, (char*)arg.the_handle->data);
     }
+    int32 compare(const char* arg) const
+    {
+        return ::strverscmp((char*)the_handle->data, arg);
+    }
     bool equal(const Mutable& arg) const
+    {
+        return !compare(arg);
+    }
+    bool equal(const char* arg) const
     {
         return !compare(arg);
     }
@@ -241,6 +249,14 @@ public:
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
         the_handle = arg.the_handle;
+        return *this;
+    }
+    const Mutable& operator=(const char* arg) const
+    {
+        if(!--the_handle->cnt)
+            release<Handle>(the_handle);
+        uint32 size = ::strlen(arg);
+        the_handle = clone((uint8*)arg, size);
         return *this;
     }
     friend bool operator==(const Nil&, const Mutable& arg)
@@ -276,6 +292,11 @@ public:
     void copy_in(uint32& pos, const Mutable& arg) const
     {
         copy_in(pos, arg.the_handle->data, arg.the_handle->size);
+    }
+    void copy_in(uint32& pos, const char* arg) const
+    {
+        uint32 size = ::strlen(arg);
+        copy_in(pos, (uint8*)arg, size);
     }
     void copy_in(uint32& pos, uint8* arg, uint32 size) const
     {
@@ -390,6 +411,11 @@ public:
     const Mutable& prepend(const Mutable& arg) const
     {
         return prepend(arg.the_handle->data, arg.the_handle->size);
+    }
+    const Mutable& prepend(const char* arg) const
+    {
+        uint32 size = ::strlen(arg);
+        return prepend((uint8*)arg, size);
     }
     const Mutable& prepend(uint8* arg, uint32 size) const
     {
@@ -511,6 +537,12 @@ public:
         }
         else
             append(arg.the_handle->data, arg.the_handle->size);
+        return *this;
+    }
+    const Mutable& append(const char* arg) const
+    {
+        uint32 size = ::strlen(arg);
+        append((uint8*)arg, size);
         return *this;
     }
     const Mutable& append(uint8* arg, uint32 size) const

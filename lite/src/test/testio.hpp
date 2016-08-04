@@ -13,7 +13,7 @@ inline void test_file()
         .end();
     core::verify(filename.equal(cs_filetest_tmp));
     filename = file.path()
-        .append(core::String("/")) // TODO: separator
+        .append(io::File::slash())
         .append(file.local());
     core::verify(filename.equal(cs_filetest_tmp));
 
