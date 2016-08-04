@@ -187,9 +187,9 @@ public:
         size = end - data;
     }
 private:
-    static core::uint8 byte2digit(core::uint8 byte)
+    static uint8 byte2digit(uint8 byte)
     {
-        static const core::uint8 byte2digit[] = {
+        static const uint8 byte2digit[] = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F'
         };

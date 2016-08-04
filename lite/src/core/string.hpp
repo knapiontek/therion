@@ -63,7 +63,7 @@ public:
     Mutable(const char* arg)
     {
         uint32 size = ::strlen(arg);
-        the_handle = clone((core::uint8*)arg, size);
+        the_handle = clone((uint8*)arg, size);
     }
     explicit Mutable(uint8* arg, uint32 size)
     {

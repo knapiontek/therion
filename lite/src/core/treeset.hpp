@@ -778,7 +778,7 @@ private:
             int8 h0 = self_test(root->leaves[0]);
             int8 h1 = self_test(root->leaves[1]);
             assert(h1 - h0 == root->balance);
-            return 1 + core::max(h0, h1);
+            return 1 + max(h0, h1);
         }
         return 0;
     }

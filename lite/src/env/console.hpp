@@ -14,7 +14,7 @@ public:
     {
         Device::device().writeln(arg);
     }
-    static void exception(env::Exception& exception)
+    static void exception(Exception& exception)
     {
         core::uint32 pos = 0;
         core::String st_exception;
