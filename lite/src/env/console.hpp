@@ -1,8 +1,4 @@
 
-core::String cs_line_tab = cs("\n\t");
-core::String cs_exception = cs("\nexception:");
-core::String cs_backtrace = cs("\nbacktrace:");
-
 class Con : public core::FormatClass<Con>
 {
 public:
@@ -20,12 +16,12 @@ public:
         core::String st_exception;
 
         // header
-        st_exception.copy_in(pos, cs_exception);
-        st_exception.copy_in(pos, cs_line_tab);
+        st_exception.copy_in(pos, "\nexception:");
+        st_exception.copy_in(pos, "\n\t");
         st_exception.copy_in(pos, exception.message());
 
         // backtrace
-        st_exception.copy_in(pos, cs_backtrace);
+        st_exception.copy_in(pos, "\nbacktrace:");
         Runtime::Iterator frame_it = exception.runtime();
         while(frame_it.next())
         {

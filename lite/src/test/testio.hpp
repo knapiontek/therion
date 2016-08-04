@@ -1,30 +1,19 @@
 
-core::String cs_filetest_tmp = cs("/tmp/filetest.tmp");
-core::String cs_tmp = cs(".tmp");
-core::String cs_file_format = cs("$1/$2.$3");
-core::String cs_slash = cs("/");
-core::String cs_host = cs("::1");
-core::String cs_outgoing = cs("the_outgoing");
-core::String cs_incoming = cs("the_incoming");
-core::String cs_www_google_com = cs("www.google.com");
-core::String cs_http = cs("http");
-
-const core::uint16 the_port = 8071;
-
 inline void test_file()
 {
-    core::String message = cs_host;
+    core::String cs_tmp = ".tmp";
+    core::String cs_filetest_tmp = "/tmp/filetest.tmp";
     io::File file(cs_filetest_tmp);
 
     // assemble filename
-    core::String filename = core::Format(cs_file_format)
+    core::String filename = core::Format("$1/$2.$3")
         .arg(file.path())
         .arg(file.core())
         .arg(file.ext())
         .end();
     core::verify(filename.equal(cs_filetest_tmp));
     filename = file.path()
-        .append(cs_slash)
+        .append(core::String("/")) // TODO: separator
         .append(file.local());
     core::verify(filename.equal(cs_filetest_tmp));
 
@@ -32,6 +21,7 @@ inline void test_file()
     file.name().append(cs_tmp);
     file.open(io::File::read_write);
     io::Encode encode = file.output();
+    core::String cs_outgoing = "the_outgoing";
     encode.write_st(cs_outgoing);
     file.close();
 
@@ -39,6 +29,7 @@ inline void test_file()
     core::verify(file.status(io::File::exist));
 
     // read
+    core::String message = "::1";
     file.open(io::File::read_only);
     io::Decode decode = file.input();
     decode.read_st(message);
