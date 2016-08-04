@@ -165,7 +165,7 @@ public:
 private:
     String& merge(bool new_line)
     {
-        static String cs_new_line = "\n";
+        static String cs_line = "\n";
         auto max = uint8_max;
         static const uint8 hex2index[] =    {
             0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -177,7 +177,7 @@ private:
         uint32 pos = 0;
         uint32 last = 0;
         if(new_line)
-            the_result.copy_in(pos, cs_new_line);
+            the_result.copy_in(pos, cs_line);
         String::Iterator it = the_format.head();
         while(it.next())
         {
@@ -204,7 +204,7 @@ private:
     }
     String& join(bool new_line)
     {
-        static String cs_new_line = cs("\n");
+        static String cs_line = "\n";
         uint32 size = new_line;
         for(uint32 i = 0; i < the_cnt; i++)
             size += the_items[i].size;
@@ -212,7 +212,7 @@ private:
 
         uint32 pos = 0;
         if(new_line)
-            the_result.copy_in(pos, cs_new_line);
+            the_result.copy_in(pos, cs_line);
         for(uint32 i = 0; i < the_cnt; i++)
         {
             Item& item = the_items[i];

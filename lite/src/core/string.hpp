@@ -758,12 +758,3 @@ private:
 };
 
 typedef const Mutable String;
-
-#define ascii_len(value) core::String((core::uint8*)value, ::strlen(value))
-#define ascii_nlen(value) core::String((core::uint8*)value, ::strnlen(value, sizeof(value)))
-
-#define bs(value) core::String(value, sizeof(value))
-
-#define cs(value) core::String((core::uint8*)value, sizeof(value) - 1)
-#define cs_eng(value) cs(value)
-#define cs_pl(value)

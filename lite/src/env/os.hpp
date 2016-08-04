@@ -18,7 +18,7 @@ struct OS
     {
         char* env = ::getenv(name.ascii());
         return env
-            ? ascii_len(env)
+            ? core::String(env)
             : core::nil;
     }
     static void abort()

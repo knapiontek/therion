@@ -9,7 +9,7 @@ public:
         char buffer[0x4F];
         struct tm* timeinfo = ::localtime(&rawtime);
         ::strftime(buffer, sizeof(buffer), "%Z.%y-%m-%d.%H:%M:%S", timeinfo);
-        return ascii_nlen(buffer);
+        return buffer;
     }
 public:
     Time()
