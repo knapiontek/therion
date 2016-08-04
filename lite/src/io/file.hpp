@@ -48,8 +48,8 @@ public:
     }
     static core::String& slash()
     {
-        static core::String that = "/";
-        return that;
+        static core::String slash = "/";
+        return slash;
     }
 public:
     File()
