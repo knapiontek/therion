@@ -1,0 +1,5 @@
+range for for loop
+head,tail -> begin,end
+arg -> <<
+while -> for (auto& i: seq)
+uint,int types
