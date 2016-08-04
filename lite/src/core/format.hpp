@@ -37,6 +37,15 @@ public:
         item.size = arg.size();
         return *(FormatReturn*)this;
     }
+    FormatReturn& arg(const char* arg)
+    {
+        assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
+        uint32 size = ::strlen(arg);
+        Item& item = the_items[the_cnt++];
+        item.pt = (uint8*)arg;
+        item.size = size;
+        return *(FormatReturn*)this;
+    }
     FormatReturn& arg(uint8* arg, uint32 size)
     {
         assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
@@ -156,7 +165,7 @@ public:
 private:
     String& merge(bool new_line)
     {
-        static String cs_new_line = cs("\n");
+        static String cs_new_line = "\n";
         auto max = uint8_max;
         static const uint8 hex2index[] =    {
             0, 1, 2, 3, 4, 5, 6, 7, 8,

@@ -153,7 +153,7 @@ inline void test_manage()
 
 inline void test_string()
 {
-    // TODO: change to const char*
+    // TODO: test const char* for append, prepend, arg, format etc
     core::String cs_string = " string: $ $";
     core::String cs_data = " data: ";
     core::String cs_bool = " bool: ";
@@ -170,8 +170,12 @@ inline void test_string()
     core::String cs_float128 = " float128: ";
     core::String cs_and_the_end = " and the end$";
     core::String cs_mix = "-127false-9223372036854775807";
-    core::String cs_format = " string: $$ $$$1 data: $2 bool: $3 int8: $4 int16: $A int32: $6 int64: $7 uint8: $8 uint16: $9 uint32: $5 uint64: $B float32: $C float64: $D float128: $E and the end$$";
-    core::String cs_hardcoded_output = " string: $ $!\"£$^&*()_+{}[]:@~;'#|\\<>?,./ data: *** bool: false int8: -127 int16: -32767 int32: -2147483647 int64: -9223372036854775807 uint8: 127 uint16: 32767 uint32: 2147483647 uint64: 9223372036854775807 float32: 123456.78 float64: 1234567890.123456 float128: 1234567890.1234567 and the end$";
+    core::String cs_format = " string: $$ $$$1 data: $2 bool: $3 int8: $4 int16: $A int32: $6 int64: $7 "
+            "uint8: $8 uint16: $9 uint32: $5 uint64: $B float32: $C float64: $D float128: $E and the end$$";
+    core::String cs_hardcoded_output = " string: $ $!\"£$^&*()_+{}[]:@~;'#|\\<>?,./ data: *** bool: false "
+            "int8: -127 int16: -32767 int32: -2147483647 int64: -9223372036854775807 uint8: 127 uint16: 32767 "
+            "uint32: 2147483647 uint64: 9223372036854775807 float32: 123456.78 float64: 1234567890.123456 "
+            "float128: 1234567890.1234567 and the end$";
 
     // nil
     core::verify(core::nil == core::String());
@@ -200,7 +204,7 @@ inline void test_string()
     core::float64 var_float64 = 1234567890.123456;
     core::float128 var_float128 = 1234567890.1234567L;
 
-    // core::String type
+    // core::String ctor
     core::String st(var_st);
     core::String st_data(var_data, sizeof(var_data));
     core::String st_bool(var_bool);
@@ -215,6 +219,20 @@ inline void test_string()
     core::String st_float32(var_float32, 2);
     core::String st_float64(var_float64, 6);
     core::String st_float128(var_float128, 7);
+    core::uint32 size = st.size()
+            + st_data.size()
+            + st_int8.size()
+            + st_int16.size()
+            + st_int32.size()
+            + st_int64.size()
+            + st_uint8.size()
+            + st_uint16.size()
+            + st_uint32.size()
+            + st_uint64.size()
+            + st_float32.size()
+            + st_float64.size()
+            + st_float128.size();
+    core::verify(155 == size);
 
     // basic String operations
     st_bool.prepend(var_int8).append(var_int64);
@@ -752,6 +770,7 @@ inline void test_list()
 
     for(core::uint32 i = 0; i < 100; i++)
     {
+        // TODO: needs verification
         core::String st(i);
         share_seq.acquire(st, pager);
         share_list.acquire(st, pager);
