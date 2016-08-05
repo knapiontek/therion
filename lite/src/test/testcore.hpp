@@ -151,6 +151,21 @@ inline void test_manage()
     core::verify(!cnt);
 }
 
+inline void test_iterator()
+{
+    int sum = 0;
+    for(auto it : core::range(-1, 5))
+    {
+        sum += it;
+    }
+    core::verify(9 == sum);
+    for(auto it : core::reverse(core::range(-1, 5)))
+    {
+        sum += it;
+    }
+    core::verify(18 == sum);
+}
+
 inline void test_string()
 {
     // TODO: test const char* for append, prepend, arg, format etc
@@ -1360,6 +1375,7 @@ inline void test_core()
 {
     test_share();
     test_manage();
+    test_iterator();
     test_string();
     test_acquire();
     test_queue();

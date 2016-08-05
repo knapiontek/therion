@@ -12,6 +12,8 @@ HEADERS += \
     core/core.hpp \
     core/util.hpp \
     core/convert.hpp \
+    core/iterator.hpp \
+    core/string.hpp \
     core/format.hpp \
     core/hashmap.hpp \
     core/hashset.hpp \
@@ -21,7 +23,6 @@ HEADERS += \
     core/queue.hpp \
     core/seq.hpp \
     core/share.hpp \
-    core/string.hpp \
     core/treemap.hpp \
     core/treeset.hpp \
     env/env.hpp \

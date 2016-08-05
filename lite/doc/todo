@@ -3,3 +3,6 @@ head,tail -> begin,end
 arg -> <<
 while -> for (auto& i: seq)
 uint,int types
+
+# check policy
+find . -name "*.hpp" -exec grep -sI "\"" {} +|grep -v include|grep -v static|grep -v test
