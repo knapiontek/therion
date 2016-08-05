@@ -1,4 +1,21 @@
 
+inline void test_types()
+{
+    core::verify(1 == sizeof(core::int8));
+    core::verify(2 == sizeof(core::int16));
+    core::verify(4 == sizeof(core::int32));
+    core::verify(8 == sizeof(core::int64));
+
+    core::verify(1 == sizeof(core::uint8));
+    core::verify(2 == sizeof(core::uint16));
+    core::verify(4 == sizeof(core::uint32));
+    core::verify(8 == sizeof(core::uint64));
+
+    core::verify(4 == sizeof(core::float32));
+    core::verify(8 == sizeof(core::float64));
+    core::verify(16 == sizeof(core::float128));
+}
+
 struct Int2String
 {
     core::int32 i;
@@ -1373,6 +1390,7 @@ inline void test_tree_map()
 
 inline void test_core()
 {
+    test_types();
     test_share();
     test_manage();
     test_iterator();

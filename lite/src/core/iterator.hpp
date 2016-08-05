@@ -8,7 +8,7 @@ public:
     {
 
     }
-    bool operator!=(const RangeIterator& it)
+    bool operator!=(RangeIterator& it)
     {
         return the_pos != it.the_pos;
     }
@@ -36,7 +36,7 @@ public:
     {
 
     }
-    bool operator!=(const ReverseIterator& it)
+    bool operator!=(ReverseIterator& it)
     {
         return Iterator::operator!=(it);
     }
