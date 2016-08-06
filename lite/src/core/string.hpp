@@ -198,11 +198,11 @@ public:
     }
     Reverse<Mutable>::Iterator reverse_begin() const
     {
-        return Reverse<Mutable>::Iterator(Iterator(the_handle->data - 1, the_handle));
+        return Reverse<Mutable>::Iterator(Iterator(the_handle->data + the_handle->size, the_handle));
     }
     Reverse<Mutable>::Iterator reverse_end() const
     {
-        return Reverse<Mutable>::Iterator(Iterator(the_handle->data + the_handle->size, the_handle));
+        return Reverse<Mutable>::Iterator(Iterator(the_handle->data - 1, the_handle));
     }
     uint8* data() const
     {
