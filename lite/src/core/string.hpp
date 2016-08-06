@@ -10,11 +10,11 @@ public:
     {
         friend class Mutable;
     public:
-        bool head()
+        bool begin()
         {
             return the_pos < the_handle->data;
         }
-        bool tail()
+        bool end()
         {
             return the_pos == the_handle->data + the_handle->size;
         }
@@ -170,11 +170,11 @@ public:
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
     }
-    Iterator head() const
+    Iterator begin() const
     {
         return Iterator(the_handle->data - 1, the_handle);
     }
-    Iterator tail() const
+    Iterator end() const
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }

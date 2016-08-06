@@ -12,11 +12,11 @@ public:
     {
         friend class HashMap;
     public:
-        bool head()
+        bool begin()
         {
             return the_page == the_map->the_head_page && the_node == the_page->data;
         }
-        bool tail()
+        bool end()
         {
             return the_node == the_map->the_tail;
         }
@@ -136,7 +136,7 @@ public:
         if(the_page_size)
             erase_all(true);
     }
-    Iterator head()
+    Iterator begin()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
@@ -144,7 +144,7 @@ public:
             : the_tail;
         return Iterator(the_head_page, the_head_page->data - 1, bond, this);
     }
-    Iterator tail()
+    Iterator end()
     {
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);

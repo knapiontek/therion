@@ -217,8 +217,8 @@ inline void test_string()
 
     // empty
     core::verify(core::String().is_empty());
-    core::verify(!core::String().head().next());
-    core::verify(!core::String().tail().prev());
+    core::verify(!core::String().begin().next());
+    core::verify(!core::String().end().prev());
 
     // basic types
     core::String var_st = "!\"£$^&*()_+{}[]:@~;'#|\\<>?,./";
@@ -360,12 +360,12 @@ inline void test_string()
     core::verify(cs_hardcoded_output.equal(st_format));
 
     // iterator
-    core::String::Iterator it = cs_hardcoded_output.head();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::String::Iterator it = cs_hardcoded_output.begin();
+    core::verify(it.begin());
+    core::verify(!it.end());
     while(it.next());
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.begin());
+    core::verify(it.end());
 }
 
 inline void test_acquire()
@@ -447,8 +447,8 @@ inline void test_seq()
     core::assert(managed_seq != core::nil);
 
     // empty
-    core::verify(!seq.head().next());
-    core::verify(!seq.tail().prev());
+    core::verify(!seq.begin().next());
+    core::verify(!seq.end().prev());
     core::verify(!seq.content());
     core::verify(!seq.capacity());
     seq.squeeze();
@@ -474,16 +474,16 @@ inline void test_seq()
     }
 
     // begin of verifying balance
-    core::Seq<core::String>::Iterator it = seq.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::Seq<core::String>::Iterator it = seq.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
     {
         balance -= it.value().to_uint32();
         balance -= it.position();
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
 
     // sorting
     seq.sort();
@@ -514,7 +514,7 @@ inline void test_seq()
 
     // end of verifying balance after sorting
     core::String prev;
-    it = seq.head();
+    it = seq.begin();
     while(it.next())
     {
         core::String& next = it.value();
@@ -568,7 +568,7 @@ inline void test_seq()
     // erase driven by sequence of positions
     core::Seq<core::uint32> pos_seq;
     pos_seq.capacity(seq.size() / 2);
-    it = seq.head();
+    it = seq.begin();
     while(it.next())
     {
         core::uint32 pos = it.position();
@@ -576,7 +576,7 @@ inline void test_seq()
             pos_seq.append(pos);
     }
     pos_seq.squeeze();
-    seq.erase_by_iterator(pos_seq.head());
+    seq.erase_by_iterator(pos_seq.begin());
     core::verify(size / 8 == seq.size());
 
     // clean up
@@ -609,7 +609,7 @@ inline void test_seq()
         int_seq.put(i2s);
     }
     core::int32 int_prev = 0;
-    core::Seq<Int2String, IntIndex>::Iterator int_seq_it = int_seq.head();
+    core::Seq<Int2String, IntIndex>::Iterator int_seq_it = int_seq.begin();
     while(int_seq_it.next())
     {
         core::int32& int_next = (core::int32&)int_seq_it.value();
@@ -628,7 +628,7 @@ inline void test_seq()
         st_seq.put(s2i);
     }
     core::String st_prev;
-    core::Seq<String2Int, StringIndex>::Iterator st_seq_it = st_seq.head();
+    core::Seq<String2Int, StringIndex>::Iterator st_seq_it = st_seq.begin();
     while(st_seq_it.next())
     {
         core::String& st_next = (core::String&)st_seq_it.value();
@@ -652,8 +652,8 @@ inline void test_list()
     list.page_size(core::randomize() % variation + 1);
 
     // empty
-    core::verify(!list.head().next());
-    core::verify(!list.tail().prev());
+    core::verify(!list.begin().next());
+    core::verify(!list.end().prev());
     core::verify(list.page_size());
     core::verify(!list.size());
     core::verify(list.is_empty());
@@ -674,16 +674,16 @@ inline void test_list()
     }
 
     // begin of verifying balance
-    core::List<core::String>::Iterator it = list.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::List<core::String>::Iterator it = list.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
     {
         balance -= it.value().to_uint32();
         balance -= it.position();
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
 
     // sorting
     list.sort();
@@ -714,7 +714,7 @@ inline void test_list()
 
     // end of verifying balance after sorting
     core::String prev;
-    it = list.head();
+    it = list.begin();
     while(it.next())
     {
         core::String& next = it.value();
@@ -763,13 +763,13 @@ inline void test_list()
 
     // erase driven by list of positions
     core::List<core::uint32> pos_list(list.size() / 2);
-    it = list.head();
+    it = list.begin();
     while(it.next())
     {
         core::uint32 pos = it.position();
         if(pos % 2) pos_list.append(pos);
     }
-    list.erase_by_iterator(pos_list.head());
+    list.erase_by_iterator(pos_list.begin());
     core::verify(size / 8 == list.size());
 
     // clean up
@@ -823,7 +823,7 @@ inline void test_list()
         int_list.put(i2s);
     }
     core::int32 int_prev = 0;
-    core::List<Int2String, IntIndex>::Iterator int_list_it = int_list.head();
+    core::List<Int2String, IntIndex>::Iterator int_list_it = int_list.begin();
     while(int_list_it.next())
     {
         core::int32& int_next = (core::int32&)int_list_it.value();
@@ -842,7 +842,7 @@ inline void test_list()
         st_list.put(s2i);
     }
     core::String st_prev;
-    core::List<String2Int, StringIndex>::Iterator st_list_it = st_list.head();
+    core::List<String2Int, StringIndex>::Iterator st_list_it = st_list.begin();
     while(st_list_it.next())
     {
         core::String& st_next = (core::String&)st_list_it.value();
@@ -866,8 +866,8 @@ inline void test_hash_set()
     set.page_size(core::randomize() % variation + 1);
 
     // empty
-    core::verify(!set.head().next());
-    core::verify(!set.tail().prev());
+    core::verify(!set.begin().next());
+    core::verify(!set.end().prev());
     core::verify(set.page_size());
     core::verify(!set.size());
     core::verify(set.is_empty());
@@ -910,20 +910,20 @@ inline void test_hash_set()
     }
 
     // verify balance
-    core::HashSet<core::String>::Iterator it = set.head();
+    core::HashSet<core::String>::Iterator it = set.begin();
     while(it.next())
     {
         balance -= it.value().to_uint32();
         if(findy.equal(it.value()))
             balance--;
     }
-    it = set.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    it = set.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
         balance -= it.value().to_uint32();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
     core::verify(!balance);
 
     // erase by key
@@ -991,8 +991,8 @@ inline void test_hash_map()
     map.page_size(core::randomize() % variation + 1);
 
     // empty
-    core::verify(!map.head().next());
-    core::verify(!map.tail().prev());
+    core::verify(!map.begin().next());
+    core::verify(!map.end().prev());
     core::verify(map.page_size());
     core::verify(!map.size());
     core::verify(map.is_empty());
@@ -1037,20 +1037,20 @@ inline void test_hash_map()
     }
 
     // verify balance
-    core::HashMap<core::String, core::uint32>::Iterator it = map.head();
+    core::HashMap<core::String, core::uint32>::Iterator it = map.begin();
     while(it.next())
         balance -= it.value();
-    it = map.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    it = map.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
     {
         balance -= it.value();
         if(findy.equal(it.key()))
             balance--;
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
     core::verify(!balance);
 
     // erase by key
@@ -1098,8 +1098,8 @@ inline void test_tree_set()
     set.page_size(core::randomize() % variation + 1);
 
     // empty
-    core::verify(!set.head().next());
-    core::verify(!set.tail().prev());
+    core::verify(!set.begin().next());
+    core::verify(!set.end().prev());
     core::verify(set.page_size());
     core::verify(!set.size());
     core::verify(set.is_empty());
@@ -1176,16 +1176,16 @@ inline void test_tree_set()
     core::verify(size == set.size());
 
     // read in put order
-    core::TreeSet<core::String>::Iterator it = set.head();
+    core::TreeSet<core::String>::Iterator it = set.begin();
     while(it.next())
         balance -= it.value().to_uint32();
-    it = set.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    it = set.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
         balance -= it.value().to_uint32();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
     core::verify(!balance);
 
     // erase by key
@@ -1267,8 +1267,8 @@ inline void test_tree_map()
     map.page_size(core::randomize() % variation + 1);
 
     // empty
-    core::verify(!map.head().next());
-    core::verify(!map.tail().prev());
+    core::verify(!map.begin().next());
+    core::verify(!map.end().prev());
     core::verify(map.page_size());
     core::verify(!map.size());
     core::verify(map.is_empty());
@@ -1346,16 +1346,16 @@ inline void test_tree_map()
     core::verify(size == map.size());
 
     // read in put order
-    core::TreeMap<core::String, core::uint32>::Iterator it = map.head();
+    core::TreeMap<core::String, core::uint32>::Iterator it = map.begin();
     while(it.next())
         balance -= it.value();
-    it = map.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    it = map.end();
+    core::verify(!it.begin());
+    core::verify(it.end());
     while(it.prev())
         balance -= it.value();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.begin());
+    core::verify(!it.end());
     core::verify(!balance);
 
     // erase by key

@@ -10,11 +10,11 @@ public:
     {
         friend class Seq;
     public:
-        bool head()
+        bool begin()
         {
             return the_elem < the_seq->the_head;
         }
-        bool tail()
+        bool end()
         {
             return the_elem == the_seq->the_tail;
         }
@@ -104,11 +104,11 @@ public:
     {
         erase_all();
     }
-    Iterator head()
+    Iterator begin()
     {
         return Iterator(the_head - 1, this);
     }
-    Iterator tail()
+    Iterator end()
     {
         return Iterator(the_tail, this);
     }
