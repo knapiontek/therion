@@ -16,19 +16,16 @@ public:
         core::String st_exception;
 
         // header
-        static core::String cs_exception = "\nexception:\n\t";
-        st_exception.copy_in(pos, cs_exception);
+        st_exception.copy_in(pos, "\nexception:\n\t");
         st_exception.copy_in(pos, exception.message());
 
         // backtrace
-        static core::String cs_backtrace = "\nbacktrace:";
-        st_exception.copy_in(pos, cs_backtrace);
+        st_exception.copy_in(pos, "\nbacktrace:");
         Runtime::Iterator frame_it = exception.runtime();
         while(frame_it.next())
         {
             Runtime::Frame& frame = frame_it.value();
-            static core::String cs_format = "\n\t$1 [$2:$3]";
-            core::String st_frame = core::Format(cs_format)
+            core::String st_frame = core::Format("\n\t$1 [$2:$3]")
                 .arg(frame.function_name)
                 .arg(frame.file_name)
                 .arg(frame.line)

@@ -76,9 +76,8 @@ public:
     {
         if(verbose() || the_type != cs_D)
         {
-            static core::String cs_line = "\n";
             if(Device::device().used())
-                Device::device().write(cs_line);
+                Device::device().writeln();
             Device::device().write(the_type);
             core::String& arg = core::FormatClass<Log>::end();
             Device::device().write(arg);
@@ -170,28 +169,22 @@ private:
         switch(id)
         {
         case SIGABRT:
-            static core::String cs_abort = "captured signal: Abort";
-            exception.message() = cs_abort;
+            exception.message() = "captured signal: Abort";
             break;
         case SIGFPE:
-            static core::String cs_fpe = "captured signal: Floating-Point Exception";
-            exception.message() = cs_fpe;
+            exception.message() = "captured signal: Floating-Point Exception";
             break;
         case SIGILL:
-            static core::String cs_ill = "captured signal: Illegal Instruction";
-            exception.message() = cs_ill;
+            exception.message() = "captured signal: Illegal Instruction";
             break;
         case SIGINT:
-            static core::String cs_interrupt = "captured signal: Interrupt";
-            exception.message() = cs_interrupt;
+            exception.message() = "captured signal: Interrupt";
             break;
         case SIGSEGV:
-            static core::String cs_segv = "captured signal: Segmentation Violation";
-            exception.message() = cs_segv;
+            exception.message() = "captured signal: Segmentation Violation";
             break;
         case SIGTERM:
-            static core::String cs_terminate = "captured signal: Terminate";
-            exception.message() = cs_terminate;
+            exception.message() = "captured signal: Terminate";
             break;
         default:
             core::assert(false);
@@ -214,14 +207,12 @@ public:
         // ::malloc not allowed in here!
         Return::code() |= Return::throw_alloc_exception;
         Exception exception;
-        static core::String cs_allocation_exception = "allocation exception";
-        exception.message() = cs_allocation_exception;
+        exception.message() = "allocation exception";
         throw exception;
     }
     void call_assert(const char* file_name, int line_no, const char* content)
     {
-        static core::String cs_assert = "\nassert:\n\t$1 [$2:$3]\nbacktrace:";
-        core::String message = core::Format(cs_assert)
+        core::String message = core::Format("\nassert:\n\t$1 [$2:$3]\nbacktrace:")
             .arg(content)
             .arg(file_name)
             .arg(line_no)
@@ -231,9 +222,8 @@ public:
         Runtime::Iterator it = Runtime::backtrace();
         while(it.next())
         {
-            static core::String cs_format = "\n\t$1 [$2:$3]";
             Runtime::Frame& frame = it.value();
-            core::String st_frame = core::Format(cs_format)
+            core::String st_frame = core::Format("\n\t$1 [$2:$3]")
                 .arg(frame.function_name)
                 .arg(frame.file_name)
                 .arg(frame.line)
@@ -254,8 +244,7 @@ inline void init(int /*argc*/, char* /*argv*/[])
 
 inline core::int32 final()
 {
-    static core::String cs_line = "\n";
     if(Device::device().used())
-        Device::device().write(cs_line);
+        Device::device().writeln();
     return Return::code();
 }
