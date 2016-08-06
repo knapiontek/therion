@@ -22,8 +22,7 @@ public:
     }
     static bool make_folders(core::String& name)
     {
-        core::String::Iterator it = name.begin();
-        while(it.next())
+        for(auto it : name)
         {
             if('/' == it.value())
             {
@@ -125,8 +124,7 @@ public:
     }
     core::String local()
     {
-        core::String::Iterator it = the_name.end();
-        while(it.prev())
+        for(auto it : core::reverse(the_name))
         {
             if('/' == it.value())
             {

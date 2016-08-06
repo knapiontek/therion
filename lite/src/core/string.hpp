@@ -10,6 +10,8 @@ public:
     {
         friend class Mutable;
     public:
+        typedef uint8 Type;
+    public:
         bool begin()
         {
             return the_pos < the_handle->data;
@@ -33,6 +35,22 @@ public:
         uint8& value()
         {
             return *the_pos;
+        }
+        bool operator!=(Iterator& it)
+        {
+            return the_pos != it.the_pos;
+        }
+        uint8 operator++()
+        {
+            return *++the_pos;
+        }
+        uint8 operator--()
+        {
+            return *the_pos--;
+        }
+        Iterator& operator*()
+        {
+            return *this;
         }
     private:
         Iterator(uint8* pos, Handle* handle)
@@ -177,6 +195,14 @@ public:
     Iterator end() const
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
+    }
+    Reverse<Mutable>::Iterator reverse_begin() const
+    {
+        return Reverse<Mutable>::Iterator(Iterator(the_handle->data - 1, the_handle));
+    }
+    Reverse<Mutable>::Iterator reverse_end() const
+    {
+        return Reverse<Mutable>::Iterator(Iterator(the_handle->data + the_handle->size, the_handle));
     }
     uint8* data() const
     {
