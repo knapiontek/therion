@@ -11,11 +11,11 @@ public:
     {
         friend class List;
     public:
-        bool head()
+        bool is_head()
         {
             return the_cr.page == the_list->the_head && the_cr.elem == *the_cr.page;
         }
-        bool tail()
+        bool is_tail()
         {
             return the_cr.elem == the_list->the_tail.elem;
         }

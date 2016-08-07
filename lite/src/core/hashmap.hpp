@@ -12,11 +12,11 @@ public:
     {
         friend class HashMap;
     public:
-        bool head()
+        bool is_head()
         {
             return the_page == the_map->the_head_page && the_node == the_page->data;
         }
-        bool tail()
+        bool is_tail()
         {
             return the_node == the_map->the_tail;
         }

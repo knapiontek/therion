@@ -12,11 +12,11 @@ public:
     {
         friend class HashSet;
     public:
-        bool head()
+        bool is_head()
         {
             return the_page == the_set->the_head_page && the_node == the_page->data;
         }
-        bool tail()
+        bool is_tail()
         {
             return the_node == the_set->the_tail;
         }

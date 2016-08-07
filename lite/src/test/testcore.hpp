@@ -360,12 +360,29 @@ inline void test_string()
     core::verify(cs_hardcoded_output.equal(st_format));
 
     // iterator
-    core::String::Iterator it = cs_hardcoded_output.head();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    auto it = cs_hardcoded_output.head();
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
     while(it.next());
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
+
+    // loop iterator
+    uint position = 0;
+    for(auto it : cs_hardcoded_output)
+    {
+        core::verify(it.position() == position);
+        core::verify(it.value() == cs_hardcoded_output[position]);
+        position++;
+    }
+    core::verify(position == cs_hardcoded_output.size());
+    for(auto it : core::reverse(cs_hardcoded_output))
+    {
+        position--;
+        core::verify(it.position() == position);
+        core::verify(it.value() == cs_hardcoded_output[position]);
+    }
+    core::verify(position == 0);
 }
 
 inline void test_acquire()
@@ -475,15 +492,15 @@ inline void test_seq()
 
     // begin of verifying balance
     core::Seq<core::String>::Iterator it = seq.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
     {
         balance -= it.value().to_uint32();
         balance -= it.position();
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
 
     // sorting
     seq.sort();
@@ -675,15 +692,15 @@ inline void test_list()
 
     // begin of verifying balance
     core::List<core::String>::Iterator it = list.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
     {
         balance -= it.value().to_uint32();
         balance -= it.position();
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
 
     // sorting
     list.sort();
@@ -918,12 +935,12 @@ inline void test_hash_set()
             balance--;
     }
     it = set.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
         balance -= it.value().to_uint32();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
     core::verify(!balance);
 
     // erase by key
@@ -1041,16 +1058,16 @@ inline void test_hash_map()
     while(it.next())
         balance -= it.value();
     it = map.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
     {
         balance -= it.value();
         if(findy.equal(it.key()))
             balance--;
     }
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
     core::verify(!balance);
 
     // erase by key
@@ -1180,12 +1197,12 @@ inline void test_tree_set()
     while(it.next())
         balance -= it.value().to_uint32();
     it = set.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
         balance -= it.value().to_uint32();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
     core::verify(!balance);
 
     // erase by key
@@ -1350,12 +1367,12 @@ inline void test_tree_map()
     while(it.next())
         balance -= it.value();
     it = map.tail();
-    core::verify(!it.head());
-    core::verify(it.tail());
+    core::verify(!it.is_head());
+    core::verify(it.is_tail());
     while(it.prev())
         balance -= it.value();
-    core::verify(it.head());
-    core::verify(!it.tail());
+    core::verify(it.is_head());
+    core::verify(!it.is_tail());
     core::verify(!balance);
 
     // erase by key

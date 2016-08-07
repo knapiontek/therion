@@ -10,11 +10,11 @@ public:
     {
         friend class Seq;
     public:
-        bool head()
+        bool is_head()
         {
             return the_elem < the_seq->the_head;
         }
-        bool tail()
+        bool is_tail()
         {
             return the_elem == the_seq->the_tail;
         }

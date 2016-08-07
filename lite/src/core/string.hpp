@@ -225,7 +225,7 @@ public:
     }
     LoopIterator begin() const
     {
-        return LoopIterator(Iterator(the_handle->data - 1, the_handle));
+        return LoopIterator(Iterator(the_handle->data, the_handle));
     }
     LoopIterator end() const
     {
@@ -233,7 +233,7 @@ public:
     }
     ReverseLoopIterator rbegin() const
     {
-        return ReverseLoopIterator(Iterator(the_handle->data + the_handle->size, the_handle));
+        return ReverseLoopIterator(Iterator(the_handle->data + the_handle->size - 1, the_handle));
     }
     ReverseLoopIterator rend() const
     {
@@ -248,6 +248,11 @@ public:
         return (char*)the_handle->data;
     }
     uint8& at(uint32 pos) const
+    {
+        assert(pos < the_handle->size);
+        return the_handle->data[pos];
+    }
+    uint8& operator[](uint32 pos) const
     {
         assert(pos < the_handle->size);
         return the_handle->data[pos];
