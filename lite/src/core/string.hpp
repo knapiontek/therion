@@ -10,8 +10,6 @@ public:
     {
         friend class Mutable;
     public:
-        typedef uint8 Type;
-    public:
         bool begin()
         {
             return the_pos < the_handle->data;
@@ -40,13 +38,9 @@ public:
         {
             return the_pos != it.the_pos;
         }
-        uint8 operator++()
+        void operator++()
         {
-            return *++the_pos;
-        }
-        uint8 operator--()
-        {
-            return *the_pos--;
+            the_pos++;
         }
         Iterator& operator*()
         {
@@ -58,9 +52,21 @@ public:
             the_pos = pos;
             the_handle = handle;
         }
-    private:
+    protected:
         uint8* the_pos;
         Handle* the_handle;
+    };
+    class ReverseIterator : public Iterator
+    {
+    public:
+        ReverseIterator(Iterator&& it) : Iterator(it)
+        {
+
+        }
+        void operator++()
+        {
+            the_pos--;
+        }
     };
 public:
     Mutable()
@@ -196,13 +202,13 @@ public:
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }
-    Reverse<Mutable>::Iterator reverse_begin() const
+    ReverseIterator reverse_begin() const
     {
-        return Reverse<Mutable>::Iterator(Iterator(the_handle->data + the_handle->size, the_handle));
+        return ReverseIterator(Iterator(the_handle->data + the_handle->size, the_handle));
     }
-    Reverse<Mutable>::Iterator reverse_end() const
+    ReverseIterator reverse_end() const
     {
-        return Reverse<Mutable>::Iterator(Iterator(the_handle->data - 1, the_handle));
+        return ReverseIterator(Iterator(the_handle->data - 1, the_handle));
     }
     uint8* data() const
     {

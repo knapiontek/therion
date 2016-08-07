@@ -3,36 +3,15 @@ template<typename Forward>
 class Reverse
 {
 public:
-    class Iterator : public Forward::Iterator
-    {
-    public:
-        Iterator(typename Forward::Iterator&& it) : Forward::Iterator(it)
-        {
-
-        }
-        bool operator!=(Iterator& it)
-        {
-            return Forward::Iterator::operator!=(it);
-        }
-        typename Forward::Iterator::Type operator++()
-        {
-            return Forward::Iterator::operator--();
-        }
-        typename Forward::Iterator::Type operator--()
-        {
-            return Forward::Iterator::operator++();
-        }
-    };
-public:
     Reverse(Forward& forward): the_forward(forward)
     {
 
     }
-    Iterator begin()
+    typename Forward::ReverseIterator begin()
     {
         return the_forward.reverse_begin();
     }
-    Iterator end()
+    typename Forward::ReverseIterator end()
     {
         return the_forward.reverse_end();
     }
@@ -58,8 +37,6 @@ public:
     class Iterator
     {
     public:
-        typedef int Type;
-    public:
         Iterator(int pos) : the_pos(pos)
         {
 
@@ -68,20 +45,28 @@ public:
         {
             return the_pos != it.the_pos;
         }
-        int operator++()
+        void operator++()
         {
-            return ++the_pos;
-        }
-        int operator--()
-        {
-            return --the_pos;
+            the_pos++;
         }
         int operator*()
         {
             return the_pos;
         }
-    private:
+    protected:
         int the_pos;
+    };
+    class ReverseIterator : public Iterator
+    {
+    public:
+        ReverseIterator(Iterator&& it) : Iterator(it)
+        {
+
+        }
+        void operator++()
+        {
+            the_pos--;
+        }
     };
 public:
     Range(int begin, int end) : the_begin(begin), the_end(end)
@@ -96,13 +81,13 @@ public:
     {
         return Iterator(the_end);
     }
-    Reverse<Range>::Iterator reverse_begin()
+    ReverseIterator reverse_begin()
     {
-        return Reverse<Range>::Iterator(Iterator(the_end - 1));
+        return ReverseIterator(Iterator(the_end - 1));
     }
-    Reverse<Range>::Iterator reverse_end()
+    ReverseIterator reverse_end()
     {
-        return Reverse<Range>::Iterator(Iterator(the_begin - 1));
+        return ReverseIterator(Iterator(the_begin - 1));
     }
 private:
     int the_begin;
