@@ -42,7 +42,7 @@ public:
     {
 
     }
-    void end()
+    void tail()
     {
         Device::device().write(core::FormatClass<Con>::end());
     }

@@ -178,7 +178,7 @@ private:
         uint32 last = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
-        String::Iterator it = the_format.begin();
+        String::Iterator it = the_format.head();
         while(it.next())
         {
             if('$' == it.value())

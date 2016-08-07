@@ -10,11 +10,11 @@ public:
     {
         friend class Mutable;
     public:
-        bool begin()
+        bool head()
         {
             return the_pos < the_handle->data;
         }
-        bool end()
+        bool tail()
         {
             return the_pos == the_handle->data + the_handle->size;
         }
@@ -34,7 +34,22 @@ public:
         {
             return *the_pos;
         }
-        bool operator!=(Iterator& it)
+    private:
+        Iterator(uint8* pos, Handle* handle)
+        {
+            the_pos = pos;
+            the_handle = handle;
+        }
+    protected:
+        uint8* the_pos;
+    private:
+        Handle* the_handle;
+    };
+    class LoopIterator : public Iterator
+    {
+        friend class Mutable;
+    public:
+        bool operator!=(LoopIterator& it)
         {
             return the_pos != it.the_pos;
         }
@@ -47,19 +62,23 @@ public:
             return *this;
         }
     private:
-        Iterator(uint8* pos, Handle* handle)
+        LoopIterator(Iterator& it) : Iterator(it)
         {
-            the_pos = pos;
-            the_handle = handle;
+
         }
-    protected:
-        uint8* the_pos;
-        Handle* the_handle;
+        LoopIterator(Iterator&& it) : Iterator(it)
+        {
+
+        }
     };
-    class ReverseIterator : public Iterator
+    class ReverseLoopIterator : public LoopIterator
     {
     public:
-        ReverseIterator(Iterator&& it) : Iterator(it)
+        ReverseLoopIterator(Iterator& it) : LoopIterator(it)
+        {
+
+        }
+        ReverseLoopIterator(Iterator&& it) : LoopIterator(it)
         {
 
         }
@@ -194,21 +213,29 @@ public:
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
     }
-    Iterator begin() const
+    Iterator head() const
     {
         return Iterator(the_handle->data - 1, the_handle);
     }
-    Iterator end() const
+    Iterator tail() const
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }
-    ReverseIterator reverse_begin() const
+    LoopIterator begin() const
     {
-        return ReverseIterator(Iterator(the_handle->data + the_handle->size, the_handle));
+        return LoopIterator(Iterator(the_handle->data - 1, the_handle));
     }
-    ReverseIterator reverse_end() const
+    LoopIterator end() const
     {
-        return ReverseIterator(Iterator(the_handle->data - 1, the_handle));
+        return LoopIterator(Iterator(the_handle->data + the_handle->size, the_handle));
+    }
+    ReverseLoopIterator rbegin() const
+    {
+        return ReverseLoopIterator((Iterator(the_handle->data + the_handle->size, the_handle)));
+    }
+    ReverseLoopIterator rend() const
+    {
+        return ReverseLoopIterator(Iterator(the_handle->data - 1, the_handle));
     }
     uint8* data() const
     {

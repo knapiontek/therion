@@ -114,7 +114,7 @@ public:
     }
     core::String path()
     {
-        core::String::Iterator it = the_name.end();
+        core::String::Iterator it = the_name.tail();
         while(it.prev())
         {
             if('/' == it.value())
@@ -136,7 +136,7 @@ public:
     }
     core::String core()
     {
-        core::String::Iterator it = the_name.end();
+        core::String::Iterator it = the_name.tail();
         core::uint32 dot = it.position();
         while(it.prev())
         {
@@ -152,7 +152,7 @@ public:
     }
     core::String ext()
     {
-        core::String::Iterator it = the_name.end();
+        core::String::Iterator it = the_name.tail();
         while(it.prev())
         {
             if('.' == it.value())
@@ -169,7 +169,7 @@ public:
     }
     bool make_folders()
     {
-        core::String::Iterator it = the_name.begin();
+        core::String::Iterator it = the_name.head();
         while(it.next())
         {
             if('/' == it.value())

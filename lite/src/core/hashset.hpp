@@ -12,11 +12,11 @@ public:
     {
         friend class HashSet;
     public:
-        bool begin()
+        bool head()
         {
             return the_page == the_set->the_head_page && the_node == the_page->data;
         }
-        bool end()
+        bool tail()
         {
             return the_node == the_set->the_tail;
         }
@@ -128,7 +128,7 @@ public:
         if(the_page_size)
             erase_all(true);
     }
-    Iterator begin()
+    Iterator head()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
@@ -136,7 +136,7 @@ public:
             : the_tail;
         return Iterator(the_head_page, the_head_page->data - 1, bond, this);
     }
-    Iterator end()
+    Iterator tail()
     {
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);

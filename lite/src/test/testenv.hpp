@@ -33,7 +33,7 @@ inline void test_utils()
     time.mark();
     return;
     env::Log log;
-    log.debug("test").end();
+    log.debug("test").tail();
     env::Con::write(result);
     env::Fail::fire(result);
     env::OS::exit(0);

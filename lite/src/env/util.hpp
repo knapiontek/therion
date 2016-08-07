@@ -72,7 +72,7 @@ public:
         the_type = cs_D;
         return *this;
     }
-    void end()
+    void tail()
     {
         if(verbose() || the_type != cs_D)
         {
@@ -117,7 +117,7 @@ public:
         throw exception;
     }
 private:
-    void end()
+    void tail()
     {
 
     }

@@ -11,11 +11,11 @@ public:
     {
         friend class List;
     public:
-        bool begin()
+        bool head()
         {
             return the_cr.page == the_list->the_head && the_cr.elem == *the_cr.page;
         }
-        bool end()
+        bool tail()
         {
             return the_cr.elem == the_list->the_tail.elem;
         }
@@ -160,7 +160,7 @@ public:
         if(the_page_size)
             erase_all();
     }
-    Iterator begin()
+    Iterator head()
     {
         assert(the_page_size);
         Element* hbond = (the_head != the_tail.page)
@@ -168,7 +168,7 @@ public:
             : the_tail.elem;
         return Iterator(the_head, *the_head - 1, *the_head, hbond, this);
     }
-    Iterator end()
+    Iterator tail()
     {
         assert(the_page_size);
         return Iterator(the_tail.page, the_tail.elem, *the_tail.page, the_tail.elem, this);

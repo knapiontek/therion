@@ -7,13 +7,13 @@ public:
     {
 
     }
-    typename Forward::ReverseIterator begin()
+    typename Forward::ReverseLoopIterator begin()
     {
-        return the_forward.reverse_begin();
+        return the_forward.rbegin();
     }
-    typename Forward::ReverseIterator end()
+    typename Forward::ReverseLoopIterator end()
     {
-        return the_forward.reverse_end();
+        return the_forward.rend();
     }
 private:
     Forward& the_forward;
@@ -34,14 +34,14 @@ Reverse<Forward> reverse(Forward&& forward)
 class Range
 {
 public:
-    class Iterator
+    class LoopIterator
     {
     public:
-        Iterator(int pos) : the_pos(pos)
+        LoopIterator(int pos) : the_pos(pos)
         {
 
         }
-        bool operator!=(Iterator& it)
+        bool operator!=(LoopIterator& it)
         {
             return the_pos != it.the_pos;
         }
@@ -56,10 +56,10 @@ public:
     protected:
         int the_pos;
     };
-    class ReverseIterator : public Iterator
+    class ReverseLoopIterator : public LoopIterator
     {
     public:
-        ReverseIterator(Iterator&& it) : Iterator(it)
+        ReverseLoopIterator(LoopIterator&& it) : LoopIterator(it)
         {
 
         }
@@ -73,21 +73,21 @@ public:
     {
 
     }
-    Iterator begin()
+    LoopIterator begin()
     {
-        return Iterator(the_begin);
+        return LoopIterator(the_begin);
     }
-    Iterator end()
+    LoopIterator end()
     {
-        return Iterator(the_end);
+        return LoopIterator(the_end);
     }
-    ReverseIterator reverse_begin()
+    ReverseLoopIterator rbegin()
     {
-        return ReverseIterator(Iterator(the_end - 1));
+        return ReverseLoopIterator(LoopIterator(the_end - 1));
     }
-    ReverseIterator reverse_end()
+    ReverseLoopIterator rend()
     {
-        return ReverseIterator(Iterator(the_begin - 1));
+        return ReverseLoopIterator(LoopIterator(the_begin - 1));
     }
 private:
     int the_begin;
