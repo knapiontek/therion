@@ -381,7 +381,7 @@ inline void test_string()
     core::verify(it.is_tail());
 
     // loop iterator
-    uint position = 0;
+    core::uint32 position = 0;
     for(auto it : cs_hardcoded_output)
     {
         core::verify(it.position() == position);
@@ -1029,6 +1029,21 @@ inline void test_hash_map()
     }
     core::verify(size == map.size());
 
+    // loop iterator
+    /*
+    core::uint32 position = 0;
+    for(auto it : map)
+    {
+        position++;
+    }
+    core::verify(position == map.size());
+    for(auto it : core::reverse(map))
+    {
+        position--;
+    }
+    core::verify(position == 0);
+    */
+
     // put/erase multi-value
     core::uint32 erased = 0;
     while(erased < 2)
@@ -1098,22 +1113,6 @@ inline void test_hash_map()
         core::verify(erasing == map.erase(erase, scope & 2) || scope & 2);
         core::verify(!map.erase(erase) || scope & 2);
     }
-
-    return;
-    // loop iterator
-    uint position = 0;
-    for(auto it : map)
-    {
-        core::verify(it.value() == map[it.key()]);
-        position++;
-    }
-    core::verify(position == map.size());
-    for(auto it : core::reverse(map))
-    {
-        position--;
-        core::verify(it.value() == map[it.key()]);
-    }
-    core::verify(position == 0);
 }
 
 inline void test_tree_set()
