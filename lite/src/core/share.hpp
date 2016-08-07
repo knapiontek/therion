@@ -26,7 +26,7 @@ public:
     {
         the_type = static_cast<Type*>(arg.the_type);
     }
-    Shared& operator=(const Nil& nil)
+    Shared& operator=(const Nil&)
     {
         the_type = 0;
         return *this;
