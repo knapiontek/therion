@@ -389,7 +389,7 @@ inline void test_acquire()
 {
     try
     {
-        core::acquire<core::uint32>(-1);
+        core::acquire<core::float128>(core::uint64_max);
         core::verify(false);
     }
     catch(...)

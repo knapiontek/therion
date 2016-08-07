@@ -64,11 +64,55 @@ public:
             the_bond = bond;
             the_map = map;
         }
-    private:
+    private: // GCC bug, it should not allow to access it from loop iterators
         Page* the_page;
         Node* the_node;
         Node* the_bond;
         HashMap* the_map;
+    };
+    class LoopIterator : public Iterator
+    {
+        friend class HashMap;
+    public:
+        bool operator!=(LoopIterator& it)
+        {
+            return this->the_node != it.the_node; // GCC bug, this should not be required
+        }
+        void operator++()
+        {
+            this->next(); // GCC bug, this should not be required
+        }
+        LoopIterator& operator*()
+        {
+            return *this;
+        }
+    private:
+        LoopIterator(Iterator& it) : Iterator(it)
+        {
+
+        }
+        LoopIterator(Iterator&& it) : Iterator(it)
+        {
+
+        }
+    };
+    class ReverseLoopIterator : public LoopIterator
+    {
+        friend class HashMap;
+    public:
+        void operator++()
+        {
+            this->prev(); // GCC bug, this should not be required
+        }
+    private:
+        ReverseLoopIterator(Iterator& it) : LoopIterator(it)
+        {
+
+        }
+        ReverseLoopIterator(Iterator&& it) : LoopIterator(it)
+        {
+
+        }
     };
     class Find
     {
@@ -148,6 +192,32 @@ public:
     {
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
+    }
+    LoopIterator begin() const
+    {
+        assert(the_page_size);
+        Node* bond = (the_head_page != the_tail_page)
+            ? the_head_page->data + the_page_size
+            : the_tail;
+        return LoopIterator(Iterator(the_head_page, the_head_page->data - 1, bond, this));
+    }
+    LoopIterator end() const
+    {
+        assert(the_page_size);
+        return LoopIterator(Iterator(the_tail_page, the_tail, the_tail, this));
+    }
+    ReverseLoopIterator rbegin() const
+    {
+        assert(the_page_size);
+        return ReverseLoopIterator(Iterator(the_tail_page, the_tail, the_tail, this));
+    }
+    ReverseLoopIterator rend() const
+    {
+        assert(the_page_size);
+        Node* bond = (the_head_page != the_tail_page)
+            ? the_head_page->data + the_page_size
+            : the_tail;
+        return ReverseLoopIterator(Iterator(the_head_page, the_head_page->data - 1, bond, this));
     }
     Find find(const Key& key)
     {

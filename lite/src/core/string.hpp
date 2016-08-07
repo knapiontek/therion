@@ -57,7 +57,7 @@ public:
         {
             the_pos++;
         }
-        Iterator& operator*()
+        LoopIterator& operator*()
         {
             return *this;
         }
