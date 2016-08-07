@@ -10,11 +10,11 @@ public:
     {
         friend class Mutable;
     public:
-        bool head()
+        bool is_head()
         {
             return the_pos < the_handle->data;
         }
-        bool tail()
+        bool is_tail()
         {
             return the_pos == the_handle->data + the_handle->size;
         }
@@ -73,7 +73,13 @@ public:
     };
     class ReverseLoopIterator : public LoopIterator
     {
+        friend class Mutable;
     public:
+        void operator++()
+        {
+            the_pos--;
+        }
+    private:
         ReverseLoopIterator(Iterator& it) : LoopIterator(it)
         {
 
@@ -81,10 +87,6 @@ public:
         ReverseLoopIterator(Iterator&& it) : LoopIterator(it)
         {
 
-        }
-        void operator++()
-        {
-            the_pos--;
         }
     };
 public:
@@ -231,7 +233,7 @@ public:
     }
     ReverseLoopIterator rbegin() const
     {
-        return ReverseLoopIterator((Iterator(the_handle->data + the_handle->size, the_handle)));
+        return ReverseLoopIterator(Iterator(the_handle->data + the_handle->size, the_handle));
     }
     ReverseLoopIterator rend() const
     {
