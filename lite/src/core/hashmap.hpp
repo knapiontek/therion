@@ -193,24 +193,24 @@ public:
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
-    LoopIterator begin() const
+    LoopIterator begin()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
-        return LoopIterator(Iterator(the_head_page, the_head_page->data - 1, bond, this));
+        return LoopIterator(Iterator(the_head_page, the_head_page->data, bond, this));
     }
-    LoopIterator end() const
+    LoopIterator end()
     {
         return LoopIterator(tail());
     }
-    ReverseLoopIterator rbegin() const
+    ReverseLoopIterator rbegin()
     {
         assert(the_page_size);
-        return ReverseLoopIterator(Iterator(the_tail_page, the_tail, the_tail, this));
+        return ReverseLoopIterator(Iterator(the_tail_page, the_tail - 1, the_tail, this));
     }
-    ReverseLoopIterator rend() const
+    ReverseLoopIterator rend()
     {
         return ReverseLoopIterator(head());
     }
@@ -297,6 +297,10 @@ public:
         new((void*)&head->key) Key(key);
         new((void*)&head->value) Value();
         return head->value;
+    }
+    Value& operator[](const Key& key)
+    {
+        return at(key);
     }
     Value& at(const Key& key, const Value& value)
     {

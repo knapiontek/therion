@@ -16,6 +16,19 @@ inline void test_types()
     core::verify(16 == sizeof(core::float128));
 }
 
+inline void test_acquire()
+{
+    try
+    {
+        core::acquire<core::float128>(core::uint64_max);
+        core::verify(false);
+    }
+    catch(...)
+    {
+        core::assert(true);
+    }
+}
+
 struct Int2String
 {
     core::int32 i;
@@ -383,19 +396,6 @@ inline void test_string()
         core::verify(it.value() == cs_hardcoded_output[position]);
     }
     core::verify(position == 0);
-}
-
-inline void test_acquire()
-{
-    try
-    {
-        core::acquire<core::float128>(core::uint64_max);
-        core::verify(false);
-    }
-    catch(...)
-    {
-        core::assert(true);
-    }
 }
 
 inline void test_queue()
@@ -1071,7 +1071,7 @@ inline void test_hash_map()
     core::verify(!balance);
 
     // erase by key
-    for(core::uint32 i = 0; i < size / 2; i++)
+    for(auto i : core::range(0, size / 2))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1098,6 +1098,22 @@ inline void test_hash_map()
         core::verify(erasing == map.erase(erase, scope & 2) || scope & 2);
         core::verify(!map.erase(erase) || scope & 2);
     }
+
+    return;
+    // loop iterator
+    uint position = 0;
+    for(auto it : map)
+    {
+        core::verify(it.value() == map[it.key()]);
+        position++;
+    }
+    core::verify(position == map.size());
+    for(auto it : core::reverse(map))
+    {
+        position--;
+        core::verify(it.value() == map[it.key()]);
+    }
+    core::verify(position == 0);
 }
 
 inline void test_tree_set()
