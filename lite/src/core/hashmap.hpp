@@ -64,7 +64,7 @@ public:
             the_bond = bond;
             the_map = map;
         }
-    private: // GCC bug, it should not allow to access it from loop iterators
+    protected:
         Page* the_page;
         Node* the_node;
         Node* the_bond;
@@ -76,11 +76,11 @@ public:
     public:
         bool operator!=(LoopIterator& it)
         {
-            return this->the_node != it.the_node; // GCC bug, this should not be required
+            return this->the_node != it.the_node;
         }
         void operator++()
         {
-            this->next(); // GCC bug, this should not be required
+            this->next();
         }
         LoopIterator& operator*()
         {
@@ -102,7 +102,7 @@ public:
     public:
         void operator++()
         {
-            this->prev(); // GCC bug, this should not be required
+            this->prev();
         }
     private:
         ReverseLoopIterator(Iterator& it) : LoopIterator(it)
@@ -203,8 +203,7 @@ public:
     }
     LoopIterator end() const
     {
-        assert(the_page_size);
-        return LoopIterator(Iterator(the_tail_page, the_tail, the_tail, this));
+        return LoopIterator(tail());
     }
     ReverseLoopIterator rbegin() const
     {
@@ -213,11 +212,7 @@ public:
     }
     ReverseLoopIterator rend() const
     {
-        assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
-            ? the_head_page->data + the_page_size
-            : the_tail;
-        return ReverseLoopIterator(Iterator(the_head_page, the_head_page->data - 1, bond, this));
+        return ReverseLoopIterator(head());
     }
     Find find(const Key& key)
     {
