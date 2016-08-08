@@ -206,14 +206,14 @@ private:
     {
         static String cs_line = "\n";
         uint32 size = new_line;
-        for(uint32 i = 0; i < the_cnt; i++)
+        for(auto i : range(0, the_cnt))
             size += the_items[i].size;
         the_result.size(size);
 
         uint32 pos = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
-        for(uint32 i = 0; i < the_cnt; i++)
+        for(auto i : range(0, the_cnt))
         {
             Item& item = the_items[i];
             the_result.copy_in(pos, item.pt, item.size);

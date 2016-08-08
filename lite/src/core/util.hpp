@@ -97,7 +97,7 @@ inline void xchange(Type& arg1, Type& arg2)
     ::memcpy((void*)&arg2, &type, size);
 }
 
-inline uint32 randomize()
+inline uint32 randomize(uint32 seed = 0)
 {
     static bool init = true;
     if(init)
@@ -105,7 +105,7 @@ inline uint32 randomize()
         init = false;
         struct timeval time;
         ::gettimeofday(&time, 0);
-        ::srand(time.tv_sec);
+        ::srand(time.tv_sec + seed);
     }
     return ::rand();
 }

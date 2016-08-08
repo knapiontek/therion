@@ -415,7 +415,7 @@ inline void test_queue()
     core::verify(core::nil == queue.peek());
 
     // push
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += i;
         queue.push(core::String(i));
@@ -423,16 +423,18 @@ inline void test_queue()
     core::verify(size == queue.size());
 
     // pop partly
-    for(core::uint32 i = 0; i < size / 2; i++)
+    for(auto i : core::range(0, size / 2))
     {
         core::String st;
         core::verify(queue.pop(st));
-        balance -= st.to_uint32();
+        auto value = st.to_int32();
+        core::verify(i == value);
+        balance -= value;
     }
     core::verify(size / 2 == queue.size());
 
     // push more
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += i;
         queue.push(core::String(i));
@@ -481,9 +483,9 @@ inline void test_seq()
     seq.size(size);
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String rand(core::randomize() % size);
+        core::String rand(core::randomize(i) % size);
         seq.at(i) = rand;
         seq.append() = rand;
         balance += 4 * rand.to_uint32();
@@ -546,7 +548,7 @@ inline void test_seq()
     // search
     for(core::uint32 i = 0; i < seq.size(); i++)
     {
-        core::uint32 pos = core::randomize() % seq.size();
+        core::uint32 pos = core::randomize(i) % seq.size();
         core::verify(seq.lookup(seq.at(pos))->equal(seq.at(pos)));
         core::verify(seq.at(seq.search(seq.at(pos))).equal(seq.at(pos)));
     }
@@ -602,10 +604,10 @@ inline void test_seq()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         seq.put(put, scope & 1);
         core::uint32 erasing = 0;
         core::Seq<core::String>::Find find = seq.find(erase);
@@ -618,11 +620,11 @@ inline void test_seq()
     // int index
     typedef core::Index<core::int32> IntIndex;
     core::Seq<Int2String, IntIndex> int_seq;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         Int2String i2s;
-        i2s.i = core::randomize() % scope;
-        i2s.st = core::String(core::randomize() % scope);
+        i2s.i = core::randomize(i) % scope;
+        i2s.st = core::String(core::randomize(i) % scope);
         int_seq.put(i2s);
     }
     core::int32 int_prev = 0;
@@ -637,11 +639,11 @@ inline void test_seq()
     // String index
     typedef core::Index<core::String> StringIndex;
     core::Seq<String2Int, StringIndex> st_seq;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         String2Int s2i;
-        s2i.i = core::randomize() % scope;
-        s2i.st = core::String(core::randomize() % scope);
+        s2i.i = core::randomize(i) % scope;
+        s2i.st = core::String(core::randomize(i) % scope);
         st_seq.put(s2i);
     }
     core::String st_prev;
@@ -681,9 +683,9 @@ inline void test_list()
     list.sort();
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String rand(core::randomize() % size);
+        core::String rand(core::randomize(i) % size);
         list.append() = rand;
         list.append() = rand;
         balance += 4 * rand.to_uint32();
@@ -746,7 +748,7 @@ inline void test_list()
     // search
     for(core::uint32 i = 0; i < list.size(); i++)
     {
-        core::uint32 pos = core::randomize() % list.size();
+        core::uint32 pos = core::randomize(i) % list.size();
         core::verify(list.lookup(list.at(pos))->equal(list.at(pos)));
         core::verify(list.at(list.search(list.at(pos))).equal(list.at(pos)));
     }
@@ -795,10 +797,10 @@ inline void test_list()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         list.put(put, scope & 1);
         core::uint32 erasing = 0;
         core::List<core::String>::Find find = list.find(erase);
@@ -832,11 +834,11 @@ inline void test_list()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::List<Int2String, IntIndex> int_list(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         Int2String i2s;
-        i2s.i = core::randomize() % scope;
-        i2s.st = core::String(core::randomize() % scope);
+        i2s.i = core::randomize(i) % scope;
+        i2s.st = core::String(core::randomize(i) % scope);
         int_list.put(i2s);
     }
     core::int32 int_prev = 0;
@@ -851,11 +853,11 @@ inline void test_list()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::List<String2Int, StringIndex> st_list(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         String2Int s2i;
-        s2i.i = core::randomize() % scope;
-        s2i.st = core::String(core::randomize() % scope);
+        s2i.i = core::randomize(i) % scope;
+        s2i.st = core::String(core::randomize(i) % scope);
         st_list.put(s2i);
     }
     core::String st_prev;
@@ -894,7 +896,7 @@ inline void test_hash_set()
     set.erase_all();
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += 2 * i;
         core::String value(i);
@@ -944,7 +946,7 @@ inline void test_hash_set()
     core::verify(!balance);
 
     // erase by key
-    for(core::uint32 i = 0; i < size / 2; i++)
+    for(auto i : core::range(0, size / 2))
         core::verify(set.erase(core::String(i)));
     core::verify(!set.is_empty());
     core::verify(size / 2 == set.size());
@@ -955,10 +957,10 @@ inline void test_hash_set()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         set.put(put, scope & 1);
         core::uint32 erasing = 0;
         core::HashSet<core::String>::Find find = set.find(erase);
@@ -971,11 +973,11 @@ inline void test_hash_set()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::HashSet<Int2String, IntIndex> int_set(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         Int2String i2s;
-        i2s.i = core::randomize() % scope;
-        i2s.st = core::String(core::randomize() % scope);
+        i2s.i = core::randomize(i) % scope;
+        i2s.st = core::String(core::randomize(i) % scope);
         int_set.put(i2s);
         core::verify(int_set.lookup(i2s)->i == i2s.i);
     }
@@ -983,11 +985,11 @@ inline void test_hash_set()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::HashSet<String2Int, StringIndex> st_set(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         String2Int s2i;
-        s2i.i = core::randomize() % scope;
-        s2i.st = core::String(core::randomize() % scope);
+        s2i.i = core::randomize(i) % scope;
+        s2i.st = core::String(core::randomize(i) % scope);
         st_set.put(s2i);
         core::verify(st_set.lookup(s2i)->st.equal(s2i.st));
     }
@@ -1019,7 +1021,7 @@ inline void test_hash_map()
     map.erase_all();
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1101,10 +1103,10 @@ inline void test_hash_map()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         map.put(put, put.to_uint32(), scope & 1);
         core::uint32 erasing = 0;
         core::HashMap<core::String, core::uint32>::Find find = map.find(erase);
@@ -1142,9 +1144,9 @@ inline void test_tree_set()
     set.erase_all();
 
     // random populated
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
-        core::String value(core::randomize() % variation);
+        core::String value(core::randomize(i) % variation);
         if(set.put(value))
         {
             balance += 2 * value.to_uint32();
@@ -1195,7 +1197,7 @@ inline void test_tree_set()
     core::verify(set.is_empty());
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += 2 * i;
         core::String value(i);
@@ -1221,7 +1223,7 @@ inline void test_tree_set()
     core::verify(!balance);
 
     // erase by key
-    for(core::uint32 i = 0; i < size / 2; i++)
+    for(auto i : core::range(0, size / 2))
         core::verify(set.erase(core::String(i)));
     core::verify(!set.is_empty());
     core::verify(size / 2 == set.size());
@@ -1234,8 +1236,8 @@ inline void test_tree_set()
     core::uint32 scope = 1 + core::randomize() % 20;
     for(core::uint32 i = 0; i < 10 * size; i++)
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         set.put(put, scope & 1);
         core::uint32 erasing = 0;
         core::TreeSet<core::String>::Find find = set.find(erase);
@@ -1248,11 +1250,11 @@ inline void test_tree_set()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::TreeSet<Int2String, IntIndex> int_set(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         Int2String i2s;
-        i2s.i = core::randomize() % scope;
-        i2s.st = core::String(core::randomize() % scope);
+        i2s.i = core::randomize(i) % scope;
+        i2s.st = core::String(core::randomize(i) % scope);
         int_set.put(i2s);
     }
     core::int32 int_prev = 0;
@@ -1267,11 +1269,11 @@ inline void test_tree_set()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::TreeSet<String2Int, StringIndex> st_set(0x5);
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         String2Int s2i;
-        s2i.i = core::randomize() % scope;
-        s2i.st = core::String(core::randomize() % scope);
+        s2i.i = core::randomize(i) % scope;
+        s2i.st = core::String(core::randomize(i) % scope);
         st_set.put(s2i);
     }
     core::String st_prev;
@@ -1311,9 +1313,9 @@ inline void test_tree_map()
     map.erase_all();
 
     // random populated
-    for(core::uint32 i = 0; i < size; i++)
+    for(core::uint32 i : core::range(0, size))
     {
-        core::String key(core::randomize() % variation);
+        core::String key(core::randomize(i) % variation);
         if(map.put(key, i))
         {
             balance += 2 * key.to_uint32();
@@ -1367,7 +1369,7 @@ inline void test_tree_map()
     core::verify(map.is_empty());
 
     // populate
-    for(core::uint32 i = 0; i < size; i++)
+    for(auto i : core::range(0, size))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1391,7 +1393,7 @@ inline void test_tree_map()
     core::verify(!balance);
 
     // erase by key
-    for(core::uint32 i = 0; i < size / 2; i++)
+    for(auto i : core::range(0, size / 2))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1408,8 +1410,8 @@ inline void test_tree_map()
     core::uint32 scope = 1 + core::randomize() % 20;
     for(core::uint32 i = 0; i < 10 * size; i++)
     {
-        core::String put(core::randomize() % scope);
-        core::String erase(core::randomize() % scope);
+        core::String put(core::randomize(i) % scope);
+        core::String erase(core::randomize(i) % scope);
         map.put(put, i, scope & 1);
         core::uint32 erasing = 0;
         core::TreeMap<core::String, core::uint32>::Find find = map.find(erase);

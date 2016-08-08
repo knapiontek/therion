@@ -136,9 +136,8 @@ public:
     }
     core::String core()
     {
-        core::String::Iterator it = the_name.tail();
-        core::uint32 dot = it.position();
-        while(it.prev())
+        core::uint32 dot = the_name.size();
+        for(auto it : core::reverse(the_name))
         {
             if('.' == it.value())
                 dot = it.position();
@@ -152,8 +151,7 @@ public:
     }
     core::String ext()
     {
-        core::String::Iterator it = the_name.tail();
-        while(it.prev())
+        for(auto it : core::reverse(the_name))
         {
             if('.' == it.value())
             {
@@ -169,8 +167,7 @@ public:
     }
     bool make_folders()
     {
-        core::String::Iterator it = the_name.head();
-        while(it.next())
+        for(auto it : the_name)
         {
             if('/' == it.value())
             {

@@ -37,7 +37,7 @@ public:
     class LoopIterator
     {
     public:
-        LoopIterator(int pos) : the_pos(pos)
+        LoopIterator(int32 pos) : the_pos(pos)
         {
 
         }
@@ -49,12 +49,12 @@ public:
         {
             the_pos++;
         }
-        int operator*()
+        int32 operator*()
         {
             return the_pos;
         }
     protected:
-        int the_pos;
+        int32 the_pos;
     };
     class ReverseLoopIterator : public LoopIterator
     {
@@ -69,7 +69,7 @@ public:
         }
     };
 public:
-    Range(int begin, int end) : the_begin(begin), the_end(end)
+    Range(int32 begin, int32 end) : the_begin(begin), the_end(end)
     {
 
     }
@@ -90,11 +90,11 @@ public:
         return ReverseLoopIterator(LoopIterator(the_begin - 1));
     }
 private:
-    int the_begin;
-    int the_end;
+    int32 the_begin;
+    int32 the_end;
 };
 
-Range range(int begin, int end)
+Range range(int32 begin, int32 end)
 {
     return Range(begin, end);
 }
