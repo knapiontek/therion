@@ -415,7 +415,7 @@ inline void test_queue()
     core::verify(core::nil == queue.peek());
 
     // push
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += i;
         queue.push(core::String(i));
@@ -423,7 +423,7 @@ inline void test_queue()
     core::verify(size == queue.size());
 
     // pop partly
-    for(auto i : core::range(0, size / 2))
+    for(auto i : core::range(size / 2))
     {
         core::String st;
         core::verify(queue.pop(st));
@@ -434,7 +434,7 @@ inline void test_queue()
     core::verify(size / 2 == queue.size());
 
     // push more
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += i;
         queue.push(core::String(i));
@@ -483,7 +483,7 @@ inline void test_seq()
     seq.size(size);
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String rand(core::randomize(i) % size);
         seq.at(i) = rand;
@@ -604,7 +604,7 @@ inline void test_seq()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -620,7 +620,7 @@ inline void test_seq()
     // int index
     typedef core::Index<core::int32> IntIndex;
     core::Seq<Int2String, IntIndex> int_seq;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         Int2String i2s;
         i2s.i = core::randomize(i) % scope;
@@ -639,7 +639,7 @@ inline void test_seq()
     // String index
     typedef core::Index<core::String> StringIndex;
     core::Seq<String2Int, StringIndex> st_seq;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         String2Int s2i;
         s2i.i = core::randomize(i) % scope;
@@ -683,7 +683,7 @@ inline void test_list()
     list.sort();
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String rand(core::randomize(i) % size);
         list.append() = rand;
@@ -797,7 +797,7 @@ inline void test_list()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -834,7 +834,7 @@ inline void test_list()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::List<Int2String, IntIndex> int_list(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         Int2String i2s;
         i2s.i = core::randomize(i) % scope;
@@ -853,7 +853,7 @@ inline void test_list()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::List<String2Int, StringIndex> st_list(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         String2Int s2i;
         s2i.i = core::randomize(i) % scope;
@@ -896,7 +896,7 @@ inline void test_hash_set()
     set.erase_all();
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += 2 * i;
         core::String value(i);
@@ -946,7 +946,7 @@ inline void test_hash_set()
     core::verify(!balance);
 
     // erase by key
-    for(auto i : core::range(0, size / 2))
+    for(auto i : core::range(size / 2))
         core::verify(set.erase(core::String(i)));
     core::verify(!set.is_empty());
     core::verify(size / 2 == set.size());
@@ -957,7 +957,7 @@ inline void test_hash_set()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -973,7 +973,7 @@ inline void test_hash_set()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::HashSet<Int2String, IntIndex> int_set(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         Int2String i2s;
         i2s.i = core::randomize(i) % scope;
@@ -985,7 +985,7 @@ inline void test_hash_set()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::HashSet<String2Int, StringIndex> st_set(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         String2Int s2i;
         s2i.i = core::randomize(i) % scope;
@@ -1021,7 +1021,7 @@ inline void test_hash_map()
     map.erase_all();
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1088,7 +1088,7 @@ inline void test_hash_map()
     core::verify(!balance);
 
     // erase by key
-    for(auto i : core::range(0, size / 2))
+    for(auto i : core::range(size / 2))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1103,7 +1103,7 @@ inline void test_hash_map()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -1144,7 +1144,7 @@ inline void test_tree_set()
     set.erase_all();
 
     // random populated
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         core::String value(core::randomize(i) % variation);
         if(set.put(value))
@@ -1197,7 +1197,7 @@ inline void test_tree_set()
     core::verify(set.is_empty());
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += 2 * i;
         core::String value(i);
@@ -1223,7 +1223,7 @@ inline void test_tree_set()
     core::verify(!balance);
 
     // erase by key
-    for(auto i : core::range(0, size / 2))
+    for(auto i : core::range(size / 2))
         core::verify(set.erase(core::String(i)));
     core::verify(!set.is_empty());
     core::verify(size / 2 == set.size());
@@ -1250,7 +1250,7 @@ inline void test_tree_set()
     // int index, first field of Int2String is int
     typedef core::Index<core::int32> IntIndex;
     core::TreeSet<Int2String, IntIndex> int_set(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         Int2String i2s;
         i2s.i = core::randomize(i) % scope;
@@ -1269,7 +1269,7 @@ inline void test_tree_set()
     // String index, first field of String2Int is String
     typedef core::Index<core::String> StringIndex;
     core::TreeSet<String2Int, StringIndex> st_set(0x5);
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         String2Int s2i;
         s2i.i = core::randomize(i) % scope;
@@ -1313,7 +1313,7 @@ inline void test_tree_map()
     map.erase_all();
 
     // random populated
-    for(core::uint32 i : core::range(0, size))
+    for(core::uint32 i : core::range(size))
     {
         core::String key(core::randomize(i) % variation);
         if(map.put(key, i))
@@ -1369,7 +1369,7 @@ inline void test_tree_map()
     core::verify(map.is_empty());
 
     // populate
-    for(auto i : core::range(0, size))
+    for(auto i : core::range(size))
     {
         balance += 2 * i;
         core::String key(balance);
@@ -1393,7 +1393,7 @@ inline void test_tree_map()
     core::verify(!balance);
 
     // erase by key
-    for(auto i : core::range(0, size / 2))
+    for(auto i : core::range(size / 2))
     {
         balance += 2 * i;
         core::String key(balance);

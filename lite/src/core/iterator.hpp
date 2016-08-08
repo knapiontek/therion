@@ -98,3 +98,8 @@ Range range(int32 begin, int32 end)
 {
     return Range(begin, end);
 }
+
+Range range(int32 end)
+{
+    return Range(0, end);
+}
