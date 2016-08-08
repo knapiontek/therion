@@ -25,7 +25,7 @@ public:
         while(frame_it.next())
         {
             Runtime::Frame& frame = frame_it.value();
-            core::String st_frame = core::Format("\n\t$1 [$2:$3]")
+            auto st_frame = core::Format("\n\t$1 [$2:$3]")
                 .arg(frame.function_name)
                 .arg(frame.file_name)
                 .arg(frame.line)

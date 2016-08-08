@@ -5,12 +5,12 @@ struct OS
     {
         if(core::nil == value)
         {
-            core::uint32 result = ::unsetenv(name.ascii());
+            auto result = ::unsetenv(name.ascii());
             core::assert(!result);
         }
         else
         {
-            core::uint32 result = ::setenv(name.ascii(), value.ascii(), true);
+            auto result = ::setenv(name.ascii(), value.ascii(), true);
             core::assert(!result);
         }
     }

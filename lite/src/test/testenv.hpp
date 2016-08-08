@@ -27,7 +27,7 @@ inline void test_utils()
 
     env::Time time;
     env::OS::var(cs_name, cs_value);
-    core::String result = env::OS::var(cs_name);
+    auto result = env::OS::var(cs_name);
     core::verify(result.equal(cs_value));
     env::OS::var(cs_name, core::nil);
     time.mark();

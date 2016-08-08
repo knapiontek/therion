@@ -13,7 +13,7 @@ public:
 public:
     static core::int32& code()
     {
-        static core::int32 code = 0;
+        static auto code = 0;
         return code;
     }
 };
@@ -79,7 +79,7 @@ public:
             if(Device::device().used())
                 Device::device().writeln();
             Device::device().write(the_type);
-            core::String& arg = core::FormatClass<Log>::end();
+            auto& arg = core::FormatClass<Log>::end();
             Device::device().write(arg);
             Device::device().flush();
         }
@@ -212,18 +212,18 @@ public:
     }
     void call_assert(const char* file_name, int line_no, const char* content)
     {
-        core::String message = core::Format("\nassert:\n\t$1 [$2:$3]\nbacktrace:")
+        auto message = core::Format("\nassert:\n\t$1 [$2:$3]\nbacktrace:")
             .arg(content)
             .arg(file_name)
             .arg(line_no)
             .end();
-        core::uint64 pos = message.size();
+        auto pos = message.size();
 
         Runtime::Iterator it = Runtime::backtrace();
         while(it.next())
         {
             Runtime::Frame& frame = it.value();
-            core::String st_frame = core::Format("\n\t$1 [$2:$3]")
+            auto st_frame = core::Format("\n\t$1 [$2:$3]")
                 .arg(frame.function_name)
                 .arg(frame.file_name)
                 .arg(frame.line)

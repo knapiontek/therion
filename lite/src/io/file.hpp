@@ -127,7 +127,7 @@ public:
         {
             if('/' == it.value())
             {
-                core::uint64 position = it.position() + 1;
+                auto position = it.position() + 1;
                 return core::String(the_name.data() + position, the_name.size() - position);
             }
         }
@@ -135,14 +135,14 @@ public:
     }
     core::String core()
     {
-        core::uint32 dot = the_name.size();
+        auto dot = the_name.size();
         for(auto it : core::reverse(the_name))
         {
             if('.' == it.value())
                 dot = it.position();
             else if('/' == it.value())
             {
-                core::uint64 position = it.position() + 1;
+                auto position = it.position() + 1;
                 return core::String(the_name.data() + position, dot - position);
             }
         }
@@ -154,7 +154,7 @@ public:
         {
             if('.' == it.value())
             {
-                core::uint64 position = it.position() + 1;
+                auto position = it.position() + 1;
                 return core::String(the_name.data() + position, the_name.size() - position);
             }
         }
@@ -206,7 +206,7 @@ private:
         friend class File;
         void input(core::uint8* data, core::uint64 size)
         {
-            core::uint32 read = ::read(the_file->the_handle, data, size);
+            core::uint64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
                 env::Fail("read data fail: block size: $1").arg(size).fire();
         }
@@ -217,7 +217,7 @@ private:
         friend class File;
         void output(core::uint8* data, core::uint64 size)
         {
-            core::uint32 written = ::write(the_file->the_handle, data, size);
+            core::uint64 written = ::write(the_file->the_handle, data, size);
             if(written != size)
                 env::Fail("write data fail: block size: $1").arg(size).fire();
         }

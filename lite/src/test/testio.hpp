@@ -6,7 +6,7 @@ inline void test_file()
     io::File file(cs_filetest_tmp);
 
     // assemble filename
-    core::String filename = core::Format("$1/$2.$3")
+    auto filename = core::Format("$1/$2.$3")
         .arg(file.path())
         .arg(file.core())
         .arg(file.ext())
