@@ -114,8 +114,7 @@ public:
     }
     core::String path()
     {
-        core::String::Iterator it = the_name.tail();
-        while(it.prev())
+        for(auto it : core::reverse(the_name))
         {
             if('/' == it.value())
                 return core::String(the_name.data(), it.position());
