@@ -1,7 +1,8 @@
 arg -> <<
 while -> for (auto& i: seq)
-uint,int types
+uint,int types -> auto
 at -> []
+Fail,Format might need const char* for format
 
 # check policy
 find . -name "*.hpp" -exec grep -sI "\"" {} +|grep -v include|grep -v static|grep -v test
