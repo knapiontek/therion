@@ -1431,8 +1431,7 @@ inline void test_core()
     test_string();
     test_acquire();
     test_queue();
-    auto i = 2;
-    while(i--)
+    for(auto i = 0; i < 2; i++)
     {
         test_seq();
         test_list();
