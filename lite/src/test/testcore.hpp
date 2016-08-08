@@ -546,7 +546,7 @@ inline void test_seq()
     core::verify(!balance);
 
     // search
-    for(core::uint32 i = 0; i < seq.size(); i++)
+    for(auto i : core::range(seq.size()))
     {
         core::uint32 pos = core::randomize(i) % seq.size();
         core::verify(seq.lookup(seq.at(pos))->equal(seq.at(pos)));
@@ -746,7 +746,7 @@ inline void test_list()
     core::verify(!balance);
 
     // search
-    for(core::uint32 i = 0; i < list.size(); i++)
+    for(auto i : core::range(list.size()))
     {
         core::uint32 pos = core::randomize(i) % list.size();
         core::verify(list.lookup(list.at(pos))->equal(list.at(pos)));
@@ -819,7 +819,7 @@ inline void test_list()
     core::TreeSet<core::String::share> share_tree_set(0x2);
     core::TreeMap<core::String, core::String::share> share_tree_map(0x2);
 
-    for(core::uint32 i = 0; i < 100; i++)
+    for(auto i : core::range(100))
     {
         // TODO: needs verification
         core::String st(i);
@@ -1234,7 +1234,7 @@ inline void test_tree_set()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < 10 * size; i++)
+    for(auto i : core::range(10 * size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -1408,7 +1408,7 @@ inline void test_tree_map()
 
     // stress
     core::uint32 scope = 1 + core::randomize() % 20;
-    for(core::uint32 i = 0; i < 10 * size; i++)
+    for(auto i : core::range(10 * size))
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
@@ -1431,7 +1431,8 @@ inline void test_core()
     test_string();
     test_acquire();
     test_queue();
-    for(core::uint32 i = 0; i < 2; i++)
+    auto i = 2;
+    while(i--)
     {
         test_seq();
         test_list();

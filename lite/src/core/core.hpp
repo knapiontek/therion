@@ -12,10 +12,10 @@
 namespace core
 {
 #include "core/util.hpp"
-#include "core/iterator.hpp"
 #include "core/convert.hpp"
 #include "core/share.hpp"
 #include "core/manage.hpp"
+#include "core/iterator.hpp"
 #include "core/string.hpp"
 #include "core/format.hpp"
 #include "core/index.hpp"

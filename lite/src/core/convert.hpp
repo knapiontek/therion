@@ -129,7 +129,7 @@ public:
         uint8* end = data;
         float64 ffixed = arg * ::pow(10, precision);
         int64 fixed = ::llround(ffixed);
-        for(uint32 i = 0; i < precision; i++)
+        while(precision--)
         {
             *--data = fixed % 10 + '0';
             fixed /= 10;
@@ -149,7 +149,7 @@ public:
         uint8* end = data;
         float128 ffixed = arg * ::pow(10, precision);
         int64 fixed = ::llroundl(ffixed);
-        for(uint32 i = 0; i < precision; i++)
+        while(precision--)
         {
             *--data = fixed % 10 + '0';
             fixed /= 10;
@@ -171,7 +171,7 @@ public:
         data += size;
         uint8* end = data;
         int64 fixed = ::llroundl(fraction);
-        for(uint32 i = 0; i < precision; i++)
+        while(precision--)
         {
             *--data = fixed % 10 + '0';
             fixed /= 10;
