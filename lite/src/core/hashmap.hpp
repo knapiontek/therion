@@ -70,11 +70,11 @@ public:
         Node* the_bond;
         HashMap* the_map;
     };
-    class LoopIterator : public Iterator
+    class Loop : public Iterator
     {
         friend class HashMap;
     public:
-        bool operator!=(LoopIterator& it)
+        bool operator!=(Loop& it)
         {
             return this->the_node != it.the_node;
         }
@@ -82,21 +82,21 @@ public:
         {
             this->next();
         }
-        LoopIterator& operator*()
+        Loop& operator*()
         {
             return *this;
         }
     private:
-        LoopIterator(Iterator& it) : Iterator(it)
+        Loop(Iterator& it) : Iterator(it)
         {
 
         }
-        LoopIterator(Iterator&& it) : Iterator(it)
+        Loop(Iterator&& it) : Iterator(it)
         {
 
         }
     };
-    class ReverseLoopIterator : public LoopIterator
+    class Reverse : public Loop
     {
         friend class HashMap;
     public:
@@ -105,11 +105,11 @@ public:
             this->prev();
         }
     private:
-        ReverseLoopIterator(Iterator& it) : LoopIterator(it)
+        Reverse(Iterator& it) : Loop(it)
         {
 
         }
-        ReverseLoopIterator(Iterator&& it) : LoopIterator(it)
+        Reverse(Iterator&& it) : Loop(it)
         {
 
         }
@@ -193,26 +193,26 @@ public:
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
-    LoopIterator begin()
+    Loop begin()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
-        return LoopIterator(Iterator(the_head_page, the_head_page->data, bond, this));
+        return Loop(Iterator(the_head_page, the_head_page->data, bond, this));
     }
-    LoopIterator end()
+    Loop end()
     {
-        return LoopIterator(tail());
+        return Loop(tail());
     }
-    ReverseLoopIterator rbegin()
+    Reverse rbegin()
     {
         assert(the_page_size);
-        return ReverseLoopIterator(Iterator(the_tail_page, the_tail - 1, the_tail, this));
+        return Reverse(Iterator(the_tail_page, the_tail - 1, the_tail, this));
     }
-    ReverseLoopIterator rend()
+    Reverse rend()
     {
-        return ReverseLoopIterator(head());
+        return Reverse(head());
     }
     Find find(const Key& key)
     {

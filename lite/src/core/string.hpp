@@ -45,11 +45,11 @@ public:
     private:
         Handle* the_handle;
     };
-    class LoopIterator : public Iterator
+    class Loop : public Iterator
     {
         friend class Mutable;
     public:
-        bool operator!=(LoopIterator& it)
+        bool operator!=(Loop& it)
         {
             return the_pos != it.the_pos;
         }
@@ -57,21 +57,21 @@ public:
         {
             the_pos++;
         }
-        LoopIterator& operator*()
+        Loop& operator*()
         {
             return *this;
         }
     private:
-        LoopIterator(Iterator& it) : Iterator(it)
+        Loop(Iterator& it) : Iterator(it)
         {
 
         }
-        LoopIterator(Iterator&& it) : Iterator(it)
+        Loop(Iterator&& it) : Iterator(it)
         {
 
         }
     };
-    class ReverseLoopIterator : public LoopIterator
+    class Reverse : public Loop
     {
         friend class Mutable;
     public:
@@ -80,11 +80,11 @@ public:
             the_pos--;
         }
     private:
-        ReverseLoopIterator(Iterator& it) : LoopIterator(it)
+        Reverse(Iterator& it) : Loop(it)
         {
 
         }
-        ReverseLoopIterator(Iterator&& it) : LoopIterator(it)
+        Reverse(Iterator&& it) : Loop(it)
         {
 
         }
@@ -223,21 +223,21 @@ public:
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }
-    LoopIterator begin() const
+    Loop begin() const
     {
-        return LoopIterator(Iterator(the_handle->data, the_handle));
+        return Loop(Iterator(the_handle->data, the_handle));
     }
-    LoopIterator end() const
+    Loop end() const
     {
-        return LoopIterator(tail());
+        return Loop(tail());
     }
-    ReverseLoopIterator rbegin() const
+    Reverse rbegin() const
     {
-        return ReverseLoopIterator(Iterator(the_handle->data + the_handle->size - 1, the_handle));
+        return Reverse(Iterator(the_handle->data + the_handle->size - 1, the_handle));
     }
-    ReverseLoopIterator rend() const
+    Reverse rend() const
     {
-        return ReverseLoopIterator(head());
+        return Reverse(head());
     }
     uint8* data() const
     {
