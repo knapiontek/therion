@@ -147,7 +147,7 @@ public:
     Runtime()
     {
         // Runtime is used in an error handling of ::malloc(), therefore cannot use ::malloc()!
-        const core::uint32 size = 64;
+        const core::uint64 size = 64;
         static __thread core::uint8 space[sizeof(Handle) + sizeof(void*) * size];
         the_handle = (Handle*)space;
         the_handle->size = ::backtrace(the_handle->path, size);
@@ -155,7 +155,7 @@ public:
 private:
     struct Handle
     {
-        core::uint32 size;
+        core::uint64 size;
         void* path[1];
     };
 private:

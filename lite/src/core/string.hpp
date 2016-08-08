@@ -26,7 +26,7 @@ public:
         {
             return the_pos-- > the_handle->data;
         }
-        uint32 position()
+        uint64 position()
         {
             return the_pos - the_handle->data;
         }
@@ -107,10 +107,10 @@ public:
     }
     Mutable(const char* arg)
     {
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         the_handle = clone((uint8*)arg, size);
     }
-    explicit Mutable(uint8* arg, uint32 size)
+    explicit Mutable(uint8* arg, uint64 size)
     {
         the_handle = clone(arg, size);
     }
@@ -118,7 +118,7 @@ public:
     {
         uint8 buffer[bool_max_digit];
         uint8* data = buffer;
-        uint32 size = bool_max_digit;
+        uint64 size = bool_max_digit;
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
@@ -126,7 +126,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
@@ -134,7 +134,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
@@ -142,7 +142,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
@@ -150,7 +150,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
@@ -158,7 +158,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
@@ -166,7 +166,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
@@ -174,7 +174,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
@@ -182,7 +182,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
@@ -190,7 +190,7 @@ public:
     {
         uint8 buffer[float32_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float32_max_digit + int8_max;
+        uint64 size = float32_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
@@ -198,7 +198,7 @@ public:
     {
         uint8 buffer[float64_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float64_max_digit + int8_max;
+        uint64 size = float64_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
@@ -206,7 +206,7 @@ public:
     {
         uint8 buffer[float128_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float128_max_digit + int8_max;
+        uint64 size = float128_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
@@ -247,20 +247,20 @@ public:
     {
         return (char*)the_handle->data;
     }
-    uint8& at(uint32 pos) const
+    uint8& at(uint64 pos) const
     {
         assert(pos < the_handle->size);
         return the_handle->data[pos];
     }
-    uint8& operator[](uint32 pos) const
+    uint8& operator[](uint64 pos) const
     {
         return at(pos);
     }
-    uint32 size() const
+    uint64 size() const
     {
         return the_handle->size;
     }
-    void size(uint32 size) const
+    void size(uint64 size) const
     {
         the_handle = --the_handle->cnt
             ? acquire<Handle>(sizeof(Handle) + sizeof(uint8) * size)
@@ -320,7 +320,7 @@ public:
     {
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         the_handle = clone((uint8*)arg, size);
         return *this;
     }
@@ -348,22 +348,22 @@ public:
     {
         return (the_handle != arg.the_handle);
     }
-    void copy_out(uint32& pos, uint8* arg, uint32 size) const
+    void copy_out(uint64& pos, uint8* arg, uint64 size) const
     {
         assert(the_handle->size >= pos + size);
         ::memcpy(arg, the_handle->data + pos, size);
         pos += size;
     }
-    void copy_in(uint32& pos, const Mutable& arg) const
+    void copy_in(uint64& pos, const Mutable& arg) const
     {
         copy_in(pos, arg.the_handle->data, arg.the_handle->size);
     }
-    void copy_in(uint32& pos, const char* arg) const
+    void copy_in(uint64& pos, const char* arg) const
     {
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         copy_in(pos, (uint8*)arg, size);
     }
-    void copy_in(uint32& pos, uint8* arg, uint32 size) const
+    void copy_in(uint64& pos, uint8* arg, uint64 size) const
     {
         if(pos + size > the_handle->size)
         {
@@ -377,99 +377,99 @@ public:
         ::memcpy(the_handle->data + pos, arg, size);
         pos += size;
     }
-    void copy_in(uint32& pos, bool arg) const
+    void copy_in(uint64& pos, bool arg) const
     {
         uint8 buffer[bool_max_digit];
         uint8* data = buffer;
-        uint32 size = bool_max_digit;
+        uint64 size = bool_max_digit;
         Convert::it(data, size, arg);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, int8 arg) const
+    void copy_in(uint64& pos, int8 arg) const
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, int16 arg) const
+    void copy_in(uint64& pos, int16 arg) const
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, int32 arg) const
+    void copy_in(uint64& pos, int32 arg) const
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, int64 arg) const
+    void copy_in(uint64& pos, int64 arg) const
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, uint8 arg, Base base = decimal) const
+    void copy_in(uint64& pos, uint8 arg, Base base = decimal) const
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg, base);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, uint16 arg, Base base = decimal) const
+    void copy_in(uint64& pos, uint16 arg, Base base = decimal) const
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg, base);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, uint32 arg, Base base = decimal) const
+    void copy_in(uint64& pos, uint32 arg, Base base = decimal) const
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg, base);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, uint64 arg, Base base = decimal) const
+    void copy_in(uint64& pos, uint64 arg, Base base = decimal) const
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg, base);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, float32 arg, uint8 precision = float32_precision) const
+    void copy_in(uint64& pos, float32 arg, uint8 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float32_max_digit + int8_max;
+        uint64 size = float32_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, float64 arg, uint8 precision = float64_precision) const
+    void copy_in(uint64& pos, float64 arg, uint8 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float64_max_digit + int8_max;
+        uint64 size = float64_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
-    void copy_in(uint32& pos, float128 arg, uint8 precision = float128_precision) const
+    void copy_in(uint64& pos, float128 arg, uint8 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float128_max_digit + int8_max;
+        uint64 size = float128_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
@@ -479,10 +479,10 @@ public:
     }
     const Mutable& prepend(const char* arg) const
     {
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         return prepend((uint8*)arg, size);
     }
-    const Mutable& prepend(uint8* arg, uint32 size) const
+    const Mutable& prepend(uint8* arg, uint64 size) const
     {
         uint32 total = the_handle->size + size;
         Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
@@ -500,7 +500,7 @@ public:
     {
         uint8 buffer[bool_max_digit];
         uint8* data = buffer;
-        uint32 size = bool_max_digit;
+        uint64 size = bool_max_digit;
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
@@ -508,7 +508,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
@@ -516,7 +516,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
@@ -524,7 +524,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
@@ -532,7 +532,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
@@ -540,7 +540,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
@@ -548,7 +548,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
@@ -556,7 +556,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
@@ -564,7 +564,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
@@ -572,7 +572,7 @@ public:
     {
         uint8 buffer[float32_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float32_max_digit + int8_max;
+        uint64 size = float32_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
@@ -580,7 +580,7 @@ public:
     {
         uint8 buffer[float64_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float64_max_digit + int8_max;
+        uint64 size = float64_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
@@ -588,7 +588,7 @@ public:
     {
         uint8 buffer[float128_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float128_max_digit + int8_max;
+        uint64 size = float128_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
@@ -606,11 +606,11 @@ public:
     }
     const Mutable& append(const char* arg) const
     {
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         append((uint8*)arg, size);
         return *this;
     }
-    const Mutable& append(uint8* arg, uint32 size) const
+    const Mutable& append(uint8* arg, uint64 size) const
     {
         uint32 total = the_handle->size + size;
         if(--the_handle->cnt)
@@ -634,7 +634,7 @@ public:
     {
         uint8 buffer[bool_max_digit];
         uint8* data = buffer;
-        uint32 size = bool_max_digit;
+        uint64 size = bool_max_digit;
         Convert::it(data, size, arg);
         return append(data, size);
     }
@@ -642,7 +642,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg);
         return append(data, size);
     }
@@ -650,7 +650,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg);
         return append(data, size);
     }
@@ -658,7 +658,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg);
         return append(data, size);
     }
@@ -666,7 +666,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg);
         return append(data, size);
     }
@@ -674,7 +674,7 @@ public:
     {
         uint8 buffer[int8_max_digit];
         uint8* data = buffer;
-        uint32 size = int8_max_digit;
+        uint64 size = int8_max_digit;
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
@@ -682,7 +682,7 @@ public:
     {
         uint8 buffer[int16_max_digit];
         uint8* data = buffer;
-        uint32 size = int16_max_digit;
+        uint64 size = int16_max_digit;
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
@@ -690,7 +690,7 @@ public:
     {
         uint8 buffer[int32_max_digit];
         uint8* data = buffer;
-        uint32 size = int32_max_digit;
+        uint64 size = int32_max_digit;
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
@@ -698,7 +698,7 @@ public:
     {
         uint8 buffer[int64_max_digit];
         uint8* data = buffer;
-        uint32 size = int64_max_digit;
+        uint64 size = int64_max_digit;
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
@@ -706,7 +706,7 @@ public:
     {
         uint8 buffer[float32_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float32_max_digit + int8_max;
+        uint64 size = float32_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
@@ -714,7 +714,7 @@ public:
     {
         uint8 buffer[float64_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float64_max_digit + int8_max;
+        uint64 size = float64_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
@@ -722,7 +722,7 @@ public:
     {
         uint8 buffer[float128_max_digit + int8_max];
         uint8* data = buffer;
-        uint32 size = float128_max_digit + int8_max;
+        uint64 size = float128_max_digit + int8_max;
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
@@ -800,7 +800,7 @@ private:
     struct Handle
     {
         uint32 cnt;
-        uint32 size;
+        uint64 size;
         uint8 data[1];
     };
 private:
@@ -809,7 +809,7 @@ private:
         static Handle nil = { 1, 0, { 0 } };
         return &nil;
     }
-    static Handle* clone(uint8* data, uint32 size)
+    static Handle* clone(uint8* data, uint64 size)
     {
         Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * size);
         handle->cnt = 1;

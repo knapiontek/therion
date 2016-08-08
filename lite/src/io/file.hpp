@@ -101,7 +101,7 @@ public:
             the_remove_on_close = false;
         }
     }
-    core::uint32 size()
+    core::uint64 size()
     {
         struct stat info;
         if(::stat(the_name.ascii(), &info))
@@ -127,7 +127,7 @@ public:
         {
             if('/' == it.value())
             {
-                core::uint32 position = it.position() + 1;
+                core::uint64 position = it.position() + 1;
                 return core::String(the_name.data() + position, the_name.size() - position);
             }
         }
@@ -142,7 +142,7 @@ public:
                 dot = it.position();
             else if('/' == it.value())
             {
-                core::uint32 position = it.position() + 1;
+                core::uint64 position = it.position() + 1;
                 return core::String(the_name.data() + position, dot - position);
             }
         }
@@ -154,7 +154,7 @@ public:
         {
             if('.' == it.value())
             {
-                core::uint32 position = it.position() + 1;
+                core::uint64 position = it.position() + 1;
                 return core::String(the_name.data() + position, the_name.size() - position);
             }
         }
@@ -204,7 +204,7 @@ private:
     class FileInput : Input
     {
         friend class File;
-        void input(core::uint8* data, core::uint32 size)
+        void input(core::uint8* data, core::uint64 size)
         {
             core::uint32 read = ::read(the_file->the_handle, data, size);
             if(read != size)
@@ -215,7 +215,7 @@ private:
     class FileOutput : Output
     {
         friend class File;
-        void output(core::uint8* data, core::uint32 size)
+        void output(core::uint8* data, core::uint64 size)
         {
             core::uint32 written = ::write(the_file->the_handle, data, size);
             if(written != size)

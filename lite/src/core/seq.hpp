@@ -26,7 +26,7 @@ public:
         {
             return the_elem-- > the_seq->the_head;
         }
-        uint32 position()
+        uint64 position()
         {
             return the_elem - the_seq->the_head;
         }
@@ -52,7 +52,7 @@ public:
         {
             return (++the_elem < the_high);
         }
-        uint32 position()
+        uint64 position()
         {
             return the_elem - the_seq->the_head;
         }
@@ -95,7 +95,7 @@ public:
     {
         init();
     }
-    Seq(uint32 size)
+    Seq(uint64 size)
     {
         init();
         Seq::size(size);
@@ -137,7 +137,7 @@ public:
                         xchange(*pos, *lbond);
                     else if(0 < the_index.compare(*pos, *hbond))
                         xchange(*pos, *hbond);
-                    uint32 size = sizeof(Element);
+                    uint64 size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos, size);
                     Element* l = lbond + 1;
@@ -186,7 +186,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
@@ -230,7 +230,7 @@ public:
             the_tail = the_bond = the_head + bond;
         }
     }
-    void size(uint32 size)
+    void size(uint64 size)
     {
         Element* elem = the_tail;
         while(elem > the_head + size)
@@ -253,7 +253,7 @@ public:
         }
         the_tail = the_head + size;
     }
-    uint32 size()
+    uint64 size()
     {
         return the_tail - the_head;
     }
@@ -303,12 +303,12 @@ public:
             the_tail -= h - l;
         }
     }
-    Element& at(uint32 pos)
+    Element& at(uint64 pos)
     {
         assert(pos < size());
         return the_head[pos];
     }
-    Element& put(uint32 pos, const Element& arg)
+    Element& put(uint64 pos, const Element& arg)
     {
         acquire_tail();
         assert(pos < size());
@@ -317,7 +317,7 @@ public:
         new((void*)elem) Element(arg);
         return *elem;
     }
-    void erase(uint32 pos)
+    void erase(uint64 pos)
     {
         assert(pos < size());
         Element* elem = the_head + pos;
@@ -325,7 +325,7 @@ public:
         the_tail--;
         ::memmove((void*)elem, elem + 1, sizeof(Element) * (the_tail - elem));
     }
-    void erase_by_tail(uint32 pos)
+    void erase_by_tail(uint64 pos)
     {
         assert(pos < size());
         Element* elem = the_head + pos;
@@ -351,7 +351,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
@@ -368,7 +368,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             Element& result = the_head[pos];
             int32 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
@@ -387,7 +387,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             Element& result = the_head[pos];
             int32 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
@@ -409,7 +409,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
@@ -435,7 +435,7 @@ public:
         int32 hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;

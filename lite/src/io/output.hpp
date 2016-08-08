@@ -6,7 +6,7 @@ public:
     {
 
     }
-    virtual void output(core::uint8* /*data*/, core::uint32 /*size*/)
+    virtual void output(core::uint8* /*data*/, core::uint64 /*size*/)
     {
         core::assert(false);
     }
@@ -25,7 +25,7 @@ public:
     }
     void write_st(core::String& arg)
     {
-        write(arg.size());
+        write(core::uint16(arg.size()));
         write(arg);
     }
     template<typename Type>
@@ -33,7 +33,7 @@ public:
     {
         the_output.output(arg.content(), sizeof(Type) * arg.size());
     }
-    void write(core::uint8* data, core::uint32 size)
+    void write(core::uint8* data, core::uint64 size)
     {
         the_output.output(data, size);
     }

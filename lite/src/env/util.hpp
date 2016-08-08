@@ -217,7 +217,7 @@ public:
             .arg(file_name)
             .arg(line_no)
             .end();
-        core::uint32 pos = message.size();
+        core::uint64 pos = message.size();
 
         Runtime::Iterator it = Runtime::backtrace();
         while(it.next())

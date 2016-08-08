@@ -264,7 +264,7 @@ inline void test_string()
     core::String st_float32(var_float32, 2);
     core::String st_float64(var_float64, 6);
     core::String st_float128(var_float128, 7);
-    core::uint32 size = st.size()
+    core::uint64 size = st.size()
             + st_data.size()
             + st_int8.size()
             + st_int16.size()
@@ -307,7 +307,7 @@ inline void test_string()
         .append(cs_and_the_end);
 
     // copy
-    core::uint32 pos = 0;
+    core::uint64 pos = 0;
     core::String st_copy;
     st_copy.size(st_append.size());
     st_copy.copy_in(pos, cs_string);
@@ -381,7 +381,7 @@ inline void test_string()
     core::verify(it.is_tail());
 
     // loop iterator
-    core::uint32 position = 0;
+    core::uint64 position = 0;
     for(auto it : cs_hardcoded_output)
     {
         core::verify(it.position() == position);
@@ -401,7 +401,7 @@ inline void test_string()
 inline void test_queue()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 2 * (core::randomize() % variation + 1);
+    core::uint64 size = 2 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::Queue<core::String> queue;
     queue.page_size(core::randomize() % variation + 1);
@@ -457,7 +457,7 @@ inline void test_queue()
 inline void test_seq()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 8 * (core::randomize() % variation + 1);
+    core::uint64 size = 8 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::Seq<core::String> seq;
     core::Seq<core::String>::share shared_seq = seq;
@@ -548,7 +548,7 @@ inline void test_seq()
     // search
     for(auto i : core::range(seq.size()))
     {
-        core::uint32 pos = core::randomize(i) % seq.size();
+        core::uint64 pos = core::randomize(i) % seq.size();
         core::verify(seq.lookup(seq.at(pos))->equal(seq.at(pos)));
         core::verify(seq.at(seq.search(seq.at(pos))).equal(seq.at(pos)));
     }
@@ -590,7 +590,7 @@ inline void test_seq()
     it = seq.head();
     while(it.next())
     {
-        core::uint32 pos = it.position();
+        core::uint64 pos = it.position();
         if(pos % 2)
             pos_seq.append(pos);
     }
@@ -659,7 +659,7 @@ inline void test_seq()
 inline void test_list()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 8 * (core::randomize() % variation + 1);
+    core::uint64 size = 8 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::List<core::String> list;
     core::List<core::String>::share shared_list = list;
@@ -748,7 +748,7 @@ inline void test_list()
     // search
     for(auto i : core::range(list.size()))
     {
-        core::uint32 pos = core::randomize(i) % list.size();
+        core::uint64 pos = core::randomize(i) % list.size();
         core::verify(list.lookup(list.at(pos))->equal(list.at(pos)));
         core::verify(list.at(list.search(list.at(pos))).equal(list.at(pos)));
     }
@@ -785,7 +785,7 @@ inline void test_list()
     it = list.head();
     while(it.next())
     {
-        core::uint32 pos = it.position();
+        core::uint64 pos = it.position();
         if(pos % 2) pos_list.append(pos);
     }
     list.erase_by_iterator(pos_list.head());
@@ -873,7 +873,7 @@ inline void test_list()
 inline void test_hash_set()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 2 * (core::randomize() % variation + 1);
+    core::uint64 size = 2 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::HashSet<core::String> set;
     core::HashSet<core::String>::share shared_set = set;
@@ -998,7 +998,7 @@ inline void test_hash_set()
 inline void test_hash_map()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 2 * (core::randomize() % variation + 1);
+    core::uint64 size = 2 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::HashMap<core::String, core::uint32> map;
     core::HashMap<core::String, core::uint32>::share shared_map = map;
@@ -1033,7 +1033,7 @@ inline void test_hash_map()
 
     // loop iterator
     /*
-    core::uint32 position = 0;
+    core::uint64 position = 0;
     for(auto it : map)
     {
         position++;
@@ -1120,7 +1120,7 @@ inline void test_hash_map()
 inline void test_tree_set()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 2 * (core::randomize() % variation + 1);
+    core::uint64 size = 2 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::TreeSet<core::String> set;
     core::TreeSet<core::String>::share shared_set = set;
@@ -1289,7 +1289,7 @@ inline void test_tree_set()
 inline void test_tree_map()
 {
     const core::uint32 variation = 100;
-    core::uint32 size = 2 * (core::randomize() % variation + 1);
+    core::uint64 size = 2 * (core::randomize() % variation + 1);
     core::uint32 balance = 0;
     core::TreeMap<core::String, core::uint32> map;
     core::TreeMap<core::String, core::uint32>::share shared_map = map;

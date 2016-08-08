@@ -90,7 +90,7 @@ inline Type& max(const Type& arg1, const Type& arg2)
 template <typename Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
-    const uint32 size = sizeof(Type);
+    const uint64 size = sizeof(Type);
     uint8 type[size];
     ::memcpy((void*)&type, &arg1, size);
     ::memcpy((void*)&arg1, &arg2, size);

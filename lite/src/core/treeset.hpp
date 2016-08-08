@@ -254,10 +254,10 @@ public:
     {
         return the_page_size;
     }
-    uint32 size()
+    uint64 size()
     {
         assert(the_page_size);
-        uint32 size = the_tail - the_tail_page->data;
+        uint64 size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {

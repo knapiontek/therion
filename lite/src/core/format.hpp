@@ -40,13 +40,13 @@ public:
     FormatReturn& arg(const char* arg)
     {
         assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
-        uint32 size = ::strlen(arg);
+        uint64 size = ::strlen(arg);
         Item& item = the_items[the_cnt++];
         item.pt = (uint8*)arg;
         item.size = size;
         return *(FormatReturn*)this;
     }
-    FormatReturn& arg(uint8* arg, uint32 size)
+    FormatReturn& arg(uint8* arg, uint64 size)
     {
         assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
         Item& item = the_items[the_cnt++];
@@ -174,7 +174,7 @@ private:
             0xA, 0xB, 0xC, 0xD, 0xE
         };
 
-        uint32 pos = 0;
+        uint64 pos = 0;
         uint32 last = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
@@ -205,12 +205,12 @@ private:
     String& join(bool new_line)
     {
         static String cs_line = "\n";
-        uint32 size = new_line;
+        uint64 size = new_line;
         for(auto i : range(the_cnt))
             size += the_items[i].size;
         the_result.size(size);
 
-        uint32 pos = 0;
+        uint64 pos = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
         for(auto i : range(the_cnt))
@@ -230,7 +230,7 @@ private:
     {
         uint8 data[int8_max];
         uint8* pt;
-        uint32 size;
+        uint64 size;
     } the_items[0xF]; // hex 1 - F
 };
 

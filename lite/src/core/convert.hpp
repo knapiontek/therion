@@ -1,15 +1,15 @@
 
-const uint8 bool_max_digit = 5;
-const uint8 int8_max_digit = 4;
-const uint8 int16_max_digit = 6;
-const uint8 int32_max_digit = 12;
-const uint8 int64_max_digit = 22;
-const uint8 float32_max_digit = 22;
-const uint8 float64_max_digit = 22;
-const uint8 float128_max_digit = 22;
-const uint8 float32_precision = 2;
-const uint8 float64_precision = 4;
-const uint8 float128_precision = 8;
+const uint64 bool_max_digit = 5;
+const uint64 int8_max_digit = 4;
+const uint64 int16_max_digit = 6;
+const uint64 int32_max_digit = 12;
+const uint64 int64_max_digit = 22;
+const uint64 float32_max_digit = 22;
+const uint64 float64_max_digit = 22;
+const uint64 float128_max_digit = 22;
+const uint64 float32_precision = 2;
+const uint64 float64_precision = 4;
+const uint64 float128_precision = 8;
 
 enum Base
 {
@@ -20,14 +20,14 @@ enum Base
 class Convert
 {
 public:
-    static void it(uint8*& data, uint32& size, bool arg)
+    static void it(uint8*& data, uint64& size, bool arg)
     {
-        static const uint32 sizes[] = { 5, 4 };
+        static const uint64 sizes[] = { 5, 4 };
         static const char* names[] = { "false", "true" };
         size = sizes[arg];
         ::memcpy(data, names[arg], size);
     }
-    static void it(uint8*& data, uint32& size, int8 arg)
+    static void it(uint8*& data, uint64& size, int8 arg)
     {
         data += size;
         uint8* end = data;
@@ -40,7 +40,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, int16 arg)
+    static void it(uint8*& data, uint64& size, int16 arg)
     {
         data += size;
         uint8* end = data;
@@ -53,7 +53,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, int32 arg)
+    static void it(uint8*& data, uint64& size, int32 arg)
     {
         data += size;
         uint8* end = data;
@@ -66,7 +66,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, int64 arg)
+    static void it(uint8*& data, uint64& size, int64 arg)
     {
         data += size;
         uint8* end = data;
@@ -79,7 +79,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, uint8 arg, Base base)
+    static void it(uint8*& data, uint64& size, uint8 arg, Base base)
     {
         data += size;
         uint8* end = data;
@@ -90,7 +90,7 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, uint16 arg, Base base)
+    static void it(uint8*& data, uint64& size, uint16 arg, Base base)
     {
         data += size;
         uint8* end = data;
@@ -101,7 +101,7 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, uint32 arg, Base base)
+    static void it(uint8*& data, uint64& size, uint32 arg, Base base)
     {
         data += size;
         uint8* end = data;
@@ -112,7 +112,7 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, uint64 arg, Base base)
+    static void it(uint8*& data, uint64& size, uint64 arg, Base base)
     {
         data += size;
         uint8* end = data;
@@ -123,7 +123,7 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, float32 arg, uint8 precision)
+    static void it(uint8*& data, uint64& size, float32 arg, uint8 precision)
     {
         data += size;
         uint8* end = data;
@@ -143,7 +143,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, float64 arg, uint8 precision)
+    static void it(uint8*& data, uint64& size, float64 arg, uint8 precision)
     {
         data += size;
         uint8* end = data;
@@ -163,7 +163,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint32& size, float128 arg, uint8 precision)
+    static void it(uint8*& data, uint64& size, float128 arg, uint8 precision)
     {
         float128 integer, fraction;
         fraction = ::modfl(::fabsl(arg), &integer);

@@ -12,7 +12,7 @@ public:
     }
     static void exception(Exception& exception)
     {
-        core::uint32 pos = 0;
+        core::uint64 pos = 0;
         core::String st_exception;
 
         // header

@@ -6,15 +6,15 @@ public:
     {
 
     }
-    virtual void input(core::uint8* /*data*/, core::uint32 /*size*/)
+    virtual void input(core::uint8* /*data*/, core::uint64 /*size*/)
     {
         core::assert(false);
     }
-    virtual void skip(core::uint32 /*size*/)
+    virtual void skip(core::uint64 /*size*/)
     {
         core::assert(false);
     }
-    virtual core::uint32 available()
+    virtual core::uint64 available()
     {
         core::assert(false);
         return 0;
@@ -30,7 +30,7 @@ public:
     }
     void read_st(core::String& arg)
     {
-        core::uint32 size;
+        core::uint16 size;
         read(size);
         arg.size(size);
         read(arg);
@@ -40,7 +40,7 @@ public:
     {
         the_input.input(arg.content(), sizeof(Type) * arg.size());
     }
-    void read(core::uint8* data, core::uint32 size)
+    void read(core::uint8* data, core::uint64 size)
     {
         the_input.input(data, size);
     }
@@ -92,7 +92,7 @@ public:
     {
         the_input.input((core::uint8*)&arg, sizeof(arg));
     }
-    void skip(core::uint32 size)
+    void skip(core::uint64 size)
     {
         the_input.skip(size);
     }

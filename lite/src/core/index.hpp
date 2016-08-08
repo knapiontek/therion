@@ -1,7 +1,7 @@
 
 struct PrivateIndex
 {
-    uint32 hash(uint8* key, uint32 size)
+    uint32 hash(uint8* key, uint64 size)
     {
         uint8* pos = (uint8*)key;
         uint8* tail = pos + size;
@@ -76,9 +76,9 @@ struct PrivateIndex
         }
         return hash;
     }
-    int32 compare(uint8* arg1, uint32 size1, uint8* arg2, uint32 size2)
+    int32 compare(uint8* arg1, uint64 size1, uint8* arg2, uint64 size2)
     {
-        uint32 size = min(size1, size2);
+        uint64 size = min(size1, size2);
         int32 result = ::memcmp(arg1, arg2, size);
         return result ? result : (size1 - size2);
     }

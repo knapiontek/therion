@@ -49,7 +49,7 @@ public:
             the_cr.elem--;
             return true;
         }
-        uint32 position()
+        uint64 position()
         {
             return the_list->the_page_size * (the_cr.page - the_list->the_head) + (the_cr.elem - the_lbond);
         }
@@ -92,7 +92,7 @@ public:
             }
             return true;
         }
-        uint32 position()
+        uint64 position()
         {
             return the_list->the_page_size * (the_cr.page - the_list->the_head) + (the_cr.elem - the_lbond);
         }
@@ -203,7 +203,7 @@ public:
                         xchange(*pos.elem, *lbond.elem);
                     else if(0 < the_index.compare(*pos.elem, *hbond.elem))
                         xchange(*pos.elem, *hbond.elem);
-                    uint32 size = sizeof(Element);
+                    uint64 size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos.elem, size);
                     low = lbond;
@@ -255,7 +255,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
@@ -288,7 +288,7 @@ public:
     {
         return the_page_size;
     }
-    uint32 size()
+    uint64 size()
     {
         assert(the_page_size);
         return the_page_size * (the_tail.page - the_head) + (the_tail.elem - *the_tail.page);
@@ -349,12 +349,12 @@ public:
             release_tail(to);
         }
     }
-    Element& at(uint32 pos)
+    Element& at(uint64 pos)
     {
         assert(the_page_size && pos < size());
         return the_head[pos / the_page_size][pos % the_page_size];
     }
-    Element& put(uint32 pos, const Element& arg)
+    Element& put(uint64 pos, const Element& arg)
     {
         assert(the_page_size);
         acquire_tail();
@@ -365,7 +365,7 @@ public:
         new((void*)cr.elem) Element(arg);
         return *cr.elem;
     }
-    void erase(uint32 pos)
+    void erase(uint64 pos)
     {
         assert(the_page_size && pos < size());
         Cursor to, from;
@@ -375,7 +375,7 @@ public:
         move_down(to, from, the_tail);
         release_tail();
     }
-    void erase_by_tail(uint32 pos)
+    void erase_by_tail(uint64 pos)
     {
         assert(the_page_size && pos < size());
         Element* elem = the_head[pos / the_page_size] + (pos % the_page_size);
@@ -404,7 +404,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
@@ -422,7 +422,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
             int32 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
@@ -442,7 +442,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
             int32 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
@@ -466,7 +466,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
@@ -494,7 +494,7 @@ public:
         int32 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint32 pos = (lbond + hbond) >> 1;
+            uint64 pos = (lbond + hbond) >> 1;
             int32 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
@@ -609,7 +609,7 @@ private:
             init();
         }
     }
-    void convert(Cursor& cr, uint32 pos)
+    void convert(Cursor& cr, uint64 pos)
     {
         cr.page = the_head + (pos / the_page_size);
         cr.elem = *cr.page + (pos % the_page_size);
