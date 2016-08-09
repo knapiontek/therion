@@ -31,33 +31,33 @@ public:
     }
     FormatReturn& arg(String& arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = arg.data();
         item.size = arg.size();
         return *(FormatReturn*)this;
     }
     FormatReturn& arg(const char* arg)
     {
-        assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
-        int64 size = ::strlen(arg);
-        Item& item = the_items[the_cnt++];
+        assert(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
+        auto size = ::strlen(arg);
+        auto& item = the_items[the_cnt++];
         item.pt = (uint8*)arg;
         item.size = size;
         return *(FormatReturn*)this;
     }
     FormatReturn& arg(uint8* arg, int64 size)
     {
-        assert(arg && (the_cnt < (sizeof(the_items) / sizeof(Item))));
-        Item& item = the_items[the_cnt++];
+        assert(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
+        auto& item = the_items[the_cnt++];
         item.pt = arg;
         item.size = size;
         return *(FormatReturn*)this;
     }
     FormatReturn& arg(bool arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
@@ -65,8 +65,8 @@ public:
     }
     FormatReturn& arg(int8 arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
@@ -74,8 +74,8 @@ public:
     }
     FormatReturn& arg(int16 arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
@@ -83,8 +83,8 @@ public:
     }
     FormatReturn& arg(int32 arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
@@ -92,8 +92,8 @@ public:
     }
     FormatReturn& arg(int64 arg)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
@@ -101,8 +101,8 @@ public:
     }
     FormatReturn& arg(uint8 arg, Base base = decimal)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
@@ -110,8 +110,8 @@ public:
     }
     FormatReturn& arg(uint16 arg, Base base = decimal)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
@@ -119,8 +119,8 @@ public:
     }
     FormatReturn& arg(uint32 arg, Base base = decimal)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
@@ -128,35 +128,35 @@ public:
     }
     FormatReturn& arg(uint64 arg, Base base = decimal)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
         return *(FormatReturn*)this;
     }
-    FormatReturn& arg(float32 arg, uint8 precision = float32_precision)
+    FormatReturn& arg(float32 arg, int64 precision = float32_precision)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
         return *(FormatReturn*)this;
     }
-    FormatReturn& arg(float64 arg, uint8 precision = float64_precision)
+    FormatReturn& arg(float64 arg, int64 precision = float64_precision)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
         return *(FormatReturn*)this;
     }
-    FormatReturn& arg(float128 arg, uint8 precision = float128_precision)
+    FormatReturn& arg(float128 arg, int64 precision = float128_precision)
     {
-        assert(the_cnt < (sizeof(the_items) / sizeof(Item)));
-        Item& item = the_items[the_cnt++];
+        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
@@ -175,10 +175,10 @@ private:
         };
 
         int64 pos = 0;
-        uint32 last = 0;
+        auto last = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
-        String::Iterator it = the_format.head();
+        auto it = the_format.head();
         while(it.next())
         {
             if('$' == it.value())
@@ -188,11 +188,11 @@ private:
                 if(it.next() && '$' != it.value())
                 {
                     last++; // skip digit
-                    uint32 index = it.value() - '1';
-                    verify(index < sizeof(hex2index));
+                    auto index = it.value() - '1';
+                    verify(index < int64(sizeof(hex2index)));
                     index = hex2index[index];
                     assert(index < the_cnt);
-                    Item& item = the_items[index];
+                    auto& item = the_items[index];
                     the_result.copy_in(pos, item.pt, item.size);
                 }
             }
@@ -215,7 +215,7 @@ private:
             the_result.copy_in(pos, cs_line);
         for(auto i : range(the_cnt))
         {
-            Item& item = the_items[i];
+            auto& item = the_items[i];
             the_result.copy_in(pos, item.pt, item.size);
         }
 
@@ -225,7 +225,7 @@ private:
 private:
     String the_format;
     String the_result;
-    uint32 the_cnt;
+    int64 the_cnt;
     struct Item
     {
         uint8 data[int8_max];

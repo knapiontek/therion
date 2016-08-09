@@ -123,7 +123,7 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, int64& size, float32 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float32 arg, int64 precision)
     {
         data += size;
         auto end = data;
@@ -143,7 +143,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, int64& size, float64 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float64 arg, int64 precision)
     {
         data += size;
         auto end = data;
@@ -163,7 +163,7 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, int64& size, float128 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float128 arg, int64 precision)
     {
         float128 integer, fraction;
         fraction = ::modfl(::fabsl(arg), &integer);

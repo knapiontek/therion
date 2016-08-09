@@ -185,7 +185,7 @@ public:
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float32 arg, uint8 precision = float32_precision)
+    explicit Mutable(float32 arg, int64 precision = float32_precision)
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -193,7 +193,7 @@ public:
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float64 arg, uint8 precision = float64_precision)
+    explicit Mutable(float64 arg, int64 precision = float64_precision)
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -201,7 +201,7 @@ public:
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float128 arg, uint8 precision = float128_precision)
+    explicit Mutable(float128 arg, int64 precision = float128_precision)
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -448,7 +448,7 @@ public:
         Convert::it(data, size, arg, base);
         copy_in(pos, data, size);
     }
-    void copy_in(int64& pos, float32 arg, uint8 precision = float32_precision) const
+    void copy_in(int64& pos, float32 arg, int64 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -456,7 +456,7 @@ public:
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
-    void copy_in(int64& pos, float64 arg, uint8 precision = float64_precision) const
+    void copy_in(int64& pos, float64 arg, int64 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -464,7 +464,7 @@ public:
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
-    void copy_in(int64& pos, float128 arg, uint8 precision = float128_precision) const
+    void copy_in(int64& pos, float128 arg, int64 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -567,7 +567,7 @@ public:
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
-    const Mutable& prepend(float32 arg, uint8 precision = float32_precision) const
+    const Mutable& prepend(float32 arg, int64 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -575,7 +575,7 @@ public:
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
-    const Mutable& prepend(float64 arg, uint8 precision = float64_precision) const
+    const Mutable& prepend(float64 arg, int64 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -583,7 +583,7 @@ public:
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
-    const Mutable& prepend(float128 arg, uint8 precision = float128_precision) const
+    const Mutable& prepend(float128 arg, int64 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -701,7 +701,7 @@ public:
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
-    const Mutable& append(float32 arg, uint8 precision = float32_precision) const
+    const Mutable& append(float32 arg, int64 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -709,7 +709,7 @@ public:
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
-    const Mutable& append(float64 arg, uint8 precision = float64_precision) const
+    const Mutable& append(float64 arg, int64 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -717,7 +717,7 @@ public:
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
-    const Mutable& append(float128 arg, uint8 precision = float128_precision) const
+    const Mutable& append(float128 arg, int64 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -798,8 +798,8 @@ public:
 private:
     struct Handle
     {
-        uint32 cnt;
-        int64 size;
+        int16 cnt;
+        int32 size;
         uint8 data[1];
     };
 private:
@@ -810,7 +810,7 @@ private:
     }
     static Handle* clone(uint8* data, int64 size)
     {
-        Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * size);
+        auto handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * size);
         handle->cnt = 1;
         handle->size = size;
         ::memcpy(handle->data, data, size);
