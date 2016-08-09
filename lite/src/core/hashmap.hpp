@@ -64,7 +64,7 @@ public:
             the_bond = bond;
             the_map = map;
         }
-    protected:
+    private:
         Page* the_page;
         Node* the_node;
         Node* the_bond;

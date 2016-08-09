@@ -628,7 +628,7 @@ inline void test_seq()
         int_seq.put(i2s);
     }
     auto int_prev = 0;
-    core::Seq<Int2String, IntIndex>::Iterator int_seq_it = int_seq.head();
+    auto int_seq_it = int_seq.head();
     while(int_seq_it.next())
     {
         auto int_next = (core::int64&)int_seq_it.value();
@@ -647,7 +647,7 @@ inline void test_seq()
         st_seq.put(s2i);
     }
     core::String st_prev;
-    core::Seq<String2Int, StringIndex>::Iterator st_seq_it = st_seq.head();
+    auto st_seq_it = st_seq.head();
     while(st_seq_it.next())
     {
         auto st_next = (core::String&)st_seq_it.value();
@@ -842,7 +842,7 @@ inline void test_list()
         int_list.put(i2s);
     }
     auto int_prev = 0;
-    core::List<Int2String, IntIndex>::Iterator int_list_it = int_list.head();
+    auto int_list_it = int_list.head();
     while(int_list_it.next())
     {
         auto int_next = (core::int64&)int_list_it.value();
@@ -861,7 +861,7 @@ inline void test_list()
         st_list.put(s2i);
     }
     core::String st_prev;
-    core::List<String2Int, StringIndex>::Iterator st_list_it = st_list.head();
+    auto st_list_it = st_list.head();
     while(st_list_it.next())
     {
         auto st_next = (core::String&)st_list_it.value();
