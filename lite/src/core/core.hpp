@@ -3,6 +3,7 @@
 #define CORE_HPP
 
 #include <new>
+#include <limits>
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>

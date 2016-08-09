@@ -27,36 +27,36 @@ const Nil nil;
 
 // range of basic types
 
-const int8 int8_max = 127;
-const int8 int8_min = (-int8_max - 1);
-const int8 int8_nil = int8_max;
-const int16 int16_max = 32767;
-const int16 int16_min = (-int16_max - 1);
-const int16 int16_nil = int16_max;
-const int32 int32_max = 2147483647L;
-const int32 int32_min = (-int32_max - 1L);
-const int32 int32_nil = int32_max;
-const int64 int64_max = 9223372036854775807LL;
-const int64 int64_min = (-int64_max - 1LL);
-const int64 int64_nil = int64_max;
-const uint8 uint8_min = 0;
-const uint8 uint8_max = 255;
-const uint8 uint8_nil = uint8_max;
-const uint16 uint16_min = 0;
-const uint16 uint16_max = 65535;
-const uint16 uint16_nil = uint16_max;
-const uint32 uint32_min = 0UL;
-const uint32 uint32_max = 4294967295UL;
-const uint32 uint32_nil = uint32_max;
-const uint64 uint64_min = 0ULL;
-const uint64 uint64_max = 18446744073709551615ULL;
-const uint64 uint64_nil = uint64_max;
-const float32 float32_nil = NAN;
-const float32 float32_inf = INFINITY;
-const float64 float64_nil = NAN;
-const float64 float64_inf = INFINITY;
-const float128 float128_nil = NAN;
-const float128 float128_inf = INFINITY;
+const int8 int8_min = -std::numeric_limits<int8>::min();
+const int8 int8_max = std::numeric_limits<int8>::max();
+const int8 int8_nil = std::numeric_limits<int8>::max();
+const int16 int16_min = -std::numeric_limits<int16>::min();
+const int16 int16_max = std::numeric_limits<int16>::max();
+const int16 int16_nil = std::numeric_limits<int16>::max();
+const int32 int32_min = -std::numeric_limits<int32>::min();
+const int32 int32_max = std::numeric_limits<int32>::max();
+const int32 int32_nil = std::numeric_limits<int32>::max();
+const int64 int64_min = -std::numeric_limits<int64>::min();
+const int64 int64_max = std::numeric_limits<int64>::max();
+const int64 int64_nil = std::numeric_limits<int64>::max();
+const uint8 uint8_min = -std::numeric_limits<uint8>::min();
+const uint8 uint8_max = std::numeric_limits<uint8>::max();
+const uint8 uint8_nil = std::numeric_limits<uint8>::max();
+const uint16 uint16_min = -std::numeric_limits<uint16>::min();
+const uint16 uint16_max = std::numeric_limits<uint16>::max();
+const uint16 uint16_nil = std::numeric_limits<uint16>::max();
+const uint32 uint32_min = -std::numeric_limits<uint32>::min();
+const uint32 uint32_max = std::numeric_limits<uint32>::max();
+const uint32 uint32_nil = std::numeric_limits<uint32>::max();
+const uint64 uint64_min = -std::numeric_limits<uint64>::min();
+const uint64 uint64_max = std::numeric_limits<uint64>::max();
+const uint64 uint64_nil = std::numeric_limits<uint64>::max();
+const float32 float32_nil = std::numeric_limits<float32>::signaling_NaN();
+const float32 float32_inf = std::numeric_limits<float32>::infinity();
+const float64 float64_nil = std::numeric_limits<float64>::signaling_NaN();
+const float64 float64_inf = std::numeric_limits<float64>::infinity();
+const float128 float128_nil = std::numeric_limits<float128>::signaling_NaN();
+const float128 float128_inf = std::numeric_limits<float128>::infinity();
 
 // cross-dependancy resolver
 
