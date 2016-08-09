@@ -134,13 +134,13 @@ public:
 private:
     struct Handle
     {
-        uint32 cnt;
+        uint16 cnt;
         Type type[1];
     };
 private:
     static Handle* nil_handle()
     {
-        static uint32 nil[1] = { 1 };
+        static uint16 nil[1] = { 1 };
         return (Handle*)&nil;
     }
 private:

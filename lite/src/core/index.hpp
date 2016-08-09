@@ -65,11 +65,11 @@ struct InternalIndex
     {
         uint8* pos = key.data();
         uint8* tail = pos + key.size();
-        uint32 top, hash = 0;
+        uint64 top, hash = 0;
         while(pos < tail)
         {
             hash = (hash << 4) + *pos++;
-            top = hash & 0xF0000000;
+            top = hash & 0xF000000000000000;
             if(top)
                 hash ^= top >> 23;
             hash &= ~top;
@@ -138,7 +138,7 @@ struct Index : InternalIndex
     template<typename Type>
     uint64 hash(Type* key)
     {
-        return (uint32)key;
+        return (uint64)key;
     }
     template<typename Type>
     uint64 hash(Type& key)
