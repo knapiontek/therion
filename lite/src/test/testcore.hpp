@@ -20,7 +20,7 @@ inline void test_acquire()
 {
     try
     {
-        core::acquire<core::float128>(core::uint64_max);
+        core::acquire<core::float128>(core::int64_max);
         core::verify(false);
     }
     catch(...)
@@ -1032,13 +1032,14 @@ inline void test_hash_map()
     core::verify(size == map.size());
 
     // loop iterator
-    /*
     core::int64 position = 0;
     for(auto it : map)
     {
+        (void)it;
         position++;
     }
     core::verify(position == map.size());
+    /*
     for(auto it : core::reverse(map))
     {
         position--;
