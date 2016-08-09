@@ -1,5 +1,5 @@
 
-const int64 the_treemap_path_size = 32;
+const auto the_treemap_path_size = 32;
 
 template< typename Key, typename Value, class TreeIndex = Index<Key> >
 class TreeMap
@@ -249,7 +249,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -269,7 +269,7 @@ public:
     int64 size()
     {
         assert(the_page_size);
-        int64 size = the_tail - the_tail_page->data;
+        auto size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {
@@ -294,7 +294,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -308,7 +308,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -333,7 +333,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
             {
                 i++;
@@ -371,7 +371,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
             {
                 i++;
@@ -410,7 +410,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
             {
                 i++;
@@ -448,7 +448,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int64 dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare((Key&)key, pos->key);
             if(dir)
             {
                 i++;
@@ -491,7 +491,7 @@ public:
     {
         assert(the_page_size);
         int64 cnt;
-        int64 erased = 0;
+        auto erased = 0;
         do
         {
             cnt = erased;
@@ -504,7 +504,7 @@ public:
             Node* pos = the_root;
             while(pos)
             {
-                int64 dir = the_index.compare((Key&)key, pos->key);
+                auto dir = the_index.compare((Key&)key, pos->key);
                 if(dir)
                 {
                     i++;
@@ -572,7 +572,7 @@ public:
                         Node* tail_pos = the_root;
                         while(tail_pos != tail)
                         {
-                            int64 dir = the_index.compare(tail->key, tail_pos->key);
+                            auto dir = the_index.compare(tail->key, tail_pos->key);
                             if(dir)
                             {
                                 parent = &tail_pos->leaves[0 < dir];

@@ -31,7 +31,7 @@ public:
     int64 size()
     {
         assert(the_page_size);
-        int64 size = the_tail - the_tail_page->data;
+        auto size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {

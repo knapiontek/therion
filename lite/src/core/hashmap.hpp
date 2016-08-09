@@ -232,7 +232,7 @@ public:
     int64 size()
     {
         assert(the_page_size);
-        int64 size = the_tail - the_tail_page->data;
+        auto size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {
@@ -369,7 +369,7 @@ public:
     int64 erase(const Key& key, bool unique = true)
     {
         assert(the_page_size);
-        int64 erased = 0;
+        auto erased = 0;
         Node** prev = &the_plexer[the_index.hash((Key&)key) % the_page_size];
         Node* pos = *prev;
         while(pos)
@@ -447,9 +447,9 @@ private:
     {
         assert(page_size);
         the_page_size = page_size + 1;
-        int64 mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
-        int64 mem_plexer_size = sizeof(Node*) * the_page_size;
-        uint8* mem = core::acquire<uint8>(mem_page_size + mem_plexer_size);
+        auto mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
+        auto mem_plexer_size = sizeof(Node*) * the_page_size;
+        auto mem = core::acquire<uint8>(mem_page_size + mem_plexer_size);
         the_head_page = (Page*)mem;
         the_head_page->next = 0;
         the_head_page->prev = 0;

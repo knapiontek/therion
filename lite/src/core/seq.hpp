@@ -116,15 +116,15 @@ public:
     {
         if(the_head)
         {
-            const int64 heap_size = 32; // limited to 4294967296 elements
-            int64 i = 1;
+            const auto heap_size = 32; // limited to 4294967296 elements
+            auto i = 1;
             Element* lheap[heap_size];
             Element* hheap[heap_size];
             Element* lbond = the_head;
             Element* hbond = the_tail - 1;
             while(i)
             {
-                int64 bond = hbond - lbond;
+                auto bond = hbond - lbond;
                 if(2 <= bond)
                 {
                     // find middle as a pivot
@@ -137,7 +137,7 @@ public:
                         xchange(*pos, *lbond);
                     else if(0 < the_index.compare(*pos, *hbond))
                         xchange(*pos, *hbond);
-                    int64 size = sizeof(Element);
+                    auto size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos, size);
                     Element* l = lbond + 1;
@@ -182,12 +182,12 @@ public:
     }
     Find find(const Element& arg)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -211,7 +211,7 @@ public:
     }
     void capacity(int64 bond)
     {
-        int64 tail = the_tail - the_head;
+        auto tail = the_tail - the_head;
         assert(bond > tail);
         the_head = core::acquire<Element>(the_head, sizeof(Element) * bond);
         the_tail = the_head + tail;
@@ -225,7 +225,7 @@ public:
     {
         if(the_bond > the_tail)
         {
-            int64 bond = the_tail - the_head;
+            auto bond = the_tail - the_head;
             the_head = core::acquire<Element>(the_head, sizeof(Element) * bond);
             the_tail = the_bond = the_head + bond;
         }
@@ -238,8 +238,8 @@ public:
             elem--;
             elem->~Element();
         }
-        int64 tail = the_tail - the_head;
-        int64 bond = the_bond - the_head;
+        auto tail = the_tail - the_head;
+        auto bond = the_bond - the_head;
         if(size > bond)
         {
             the_head = core::acquire<Element>(the_head, sizeof(Element) * size);
@@ -347,12 +347,12 @@ public:
     }
     int64 search(const Element& arg)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -364,13 +364,13 @@ public:
     }
     Shared<Element> lookup(const Element& arg)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
+            auto pos = (lbond + hbond) >> 1;
             Element& result = the_head[pos];
-            int64 dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -383,13 +383,13 @@ public:
     template<class Pager>
     Element& acquire(const Element& arg, Pager& pager)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
+            auto pos = (lbond + hbond) >> 1;
             Element& result = the_head[pos];
-            int64 dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -405,12 +405,12 @@ public:
     }
     bool put(const Element& arg, bool unique = true)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -431,12 +431,12 @@ public:
     }
     int64 erase(const Element& arg, bool unique = true)
     {
-        int64 lbond = 0;
-        int64 hbond = the_tail - 1 - the_head;
+        auto lbond = 0;
+        auto hbond = the_tail - 1 - the_head;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -451,7 +451,7 @@ public:
                     high++;
                 low++;
                 high--;
-                int64 erased = high - low + 1;
+                auto erased = high - low + 1;
                 Element* it = low;
                 while(it <= high)
                 {
@@ -478,8 +478,8 @@ private:
     {
         if(the_tail == the_bond)
         {
-            int64 tail = the_tail - the_head;
-            int64 bond = the_bond - the_head;
+            auto tail = the_tail - the_head;
+            auto bond = the_bond - the_head;
             bond = bond * 15 / 10 + 5;
             the_head = core::acquire<Element>(the_head, sizeof(Element) * bond);
             the_tail = the_head + tail;
