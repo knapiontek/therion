@@ -31,14 +31,14 @@ inline void test_acquire()
 
 struct Int2String
 {
-    core::int32 i;
+    core::int64 i;
     core::String st;
 };
 
 struct String2Int
 {
     core::String st;
-    core::int32 i;
+    core::int64 i;
 };
 
 class Flower
@@ -47,7 +47,7 @@ public:
     typedef core::Shared<Flower> share;
     typedef core::Managed<Flower> manage;
 public:
-    void init(core::uint32& cnt)
+    void init(core::int64& cnt)
     {
         the_cnt = cnt;
         the_flower = "flower";
@@ -61,7 +61,7 @@ public:
         the_cnt++;
     }
 protected:
-    core::share::uint32 the_cnt;
+    core::share::int64 the_cnt;
 private:
     core::String the_flower;
 };
@@ -72,7 +72,7 @@ public:
     typedef core::Shared<Poppy> share;
     typedef core::Managed<Poppy> manage;
 public:
-    void init(core::uint32& cnt)
+    void init(core::int64& cnt)
     {
         Flower::init(cnt);
         the_poppy = "poppy";
@@ -96,8 +96,8 @@ core::String cs_notnil = "notnil";
 inline void test_share()
 {
     // trivial
-    core::share::uint32 share_one = 1;
-    core::share::uint32 share_two = share_one;
+    core::share::int64 share_one = 1;
+    core::share::int64 share_two = share_one;
     core::assert(share_two != core::nil);
     share_one = 0;
 
@@ -118,7 +118,7 @@ inline void test_share()
     core::verify(core::nil != share_st);
 
     // extending
-    core::uint32 cnt = 3; // 2 * Flower + 1 * Poppy dtors
+    core::int64 cnt = 3; // 2 * Flower + 1 * Poppy dtors
     {
         Flower local_flower;
         Poppy local_poppy;
@@ -142,8 +142,8 @@ inline void test_share()
 inline void test_manage()
 {
     // trivial
-    core::manage::uint32 manage_one = 1;
-    core::manage::uint32 manage_two = manage_one;
+    core::manage::int64 manage_one = 1;
+    core::manage::int64 manage_two = manage_one;
     manage_one = 0;
 
     // complex
@@ -162,7 +162,7 @@ inline void test_manage()
     core::assert(core::nil == manage_st);
 
     // extending
-    core::uint32 cnt = 3; // 2 * Flower + 1 * Poppy dtors
+    core::int64 cnt = 3; // 2 * Flower + 1 * Poppy dtors
     {
         Flower::manage flower;
         flower->init(cnt);
@@ -427,7 +427,7 @@ inline void test_queue()
     {
         core::String st;
         core::verify(queue.pop(st));
-        auto value = st.to_int32();
+        auto value = st.to_int64();
         core::verify(i == value);
         balance -= value;
     }
@@ -448,7 +448,7 @@ inline void test_queue()
     // pop everything
     core::Managed<core::String> st;
     while(queue.pop(st))
-        balance -= st->to_uint32();
+        balance -= st->to_int64();
 
     core::verify(queue.is_empty());
     core::verify(!balance);
@@ -488,7 +488,7 @@ inline void test_seq()
         core::String rand(core::randomize(i) % size);
         seq.at(i) = rand;
         seq.append() = rand;
-        balance += 4 * rand.to_uint32();
+        balance += 4 * rand.to_int64();
         balance += 2 * i + size;
     }
 
@@ -498,7 +498,7 @@ inline void test_seq()
     core::verify(it.is_tail());
     while(it.prev())
     {
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
         balance -= it.position();
     }
     core::verify(it.is_head());
@@ -510,15 +510,15 @@ inline void test_seq()
     // modify sorted
     core::String put(core::randomize() % size);
     if(seq.put(put))
-        balance += put.to_uint32();
+        balance += put.to_int64();
     core::verify(seq.put(put, false));
-    balance += put.to_uint32();
+    balance += put.to_int64();
     auto erased = 0;
     while(!erased)
     {
         core::String erase(core::randomize() % size);
         erased = seq.erase(erase, false);
-        balance -= erased * erase.to_uint32();
+        balance -= erased * erase.to_int64();
         core::verify(!seq.erase(erase));
     }
 
@@ -539,7 +539,7 @@ inline void test_seq()
         auto& next = it.value();
         core::verify(0 >= prev.compare(next));
         prev = next;
-        balance -= next.to_uint32();
+        balance -= next.to_int64();
         if(findy.equal(next))
             balance--;
     }
@@ -585,7 +585,7 @@ inline void test_seq()
     core::verify(size / 4 == seq.size());
 
     // erase driven by sequence of positions
-    core::Seq<core::uint32> pos_seq;
+    core::Seq<core::int64> pos_seq;
     pos_seq.capacity(seq.size() / 2);
     it = seq.head();
     while(it.next())
@@ -609,7 +609,7 @@ inline void test_seq()
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
         seq.put(put, scope & 1);
-        core::uint32 erasing = 0;
+        auto erasing = 0;
         auto find = seq.find(erase);
         while(find.next())
             erasing++;
@@ -618,7 +618,7 @@ inline void test_seq()
     }
 
     // int index
-    typedef core::Index<core::int32> IntIndex;
+    typedef core::Index<core::int64> IntIndex;
     core::Seq<Int2String, IntIndex> int_seq;
     for(auto i : core::range(size))
     {
@@ -631,7 +631,7 @@ inline void test_seq()
     core::Seq<Int2String, IntIndex>::Iterator int_seq_it = int_seq.head();
     while(int_seq_it.next())
     {
-        auto int_next = (core::int32&)int_seq_it.value();
+        auto int_next = (core::int64&)int_seq_it.value();
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -688,7 +688,7 @@ inline void test_list()
         core::String rand(core::randomize(i) % size);
         list.append() = rand;
         list.append() = rand;
-        balance += 4 * rand.to_uint32();
+        balance += 4 * rand.to_int64();
         balance += 2 * i + size;
     }
 
@@ -698,7 +698,7 @@ inline void test_list()
     core::verify(it.is_tail());
     while(it.prev())
     {
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
         balance -= it.position();
     }
     core::verify(it.is_head());
@@ -710,15 +710,15 @@ inline void test_list()
     // modify sorted
     core::String put(core::randomize() % size);
     if(list.put(put))
-        balance += put.to_uint32();
+        balance += put.to_int64();
     core::verify(list.put(put, false));
-    balance += put.to_uint32();
+    balance += put.to_int64();
     auto erased = 0;
     while(!erased)
     {
         core::String erase(core::randomize() % size);
         erased = list.erase(erase, false);
-        balance -= erased * erase.to_uint32();
+        balance -= erased * erase.to_int64();
         core::verify(!list.erase(erase));
     }
 
@@ -739,7 +739,7 @@ inline void test_list()
         auto& next = it.value();
         core::verify(0 >= prev.compare(next));
         prev = next;
-        balance -= next.to_uint32();
+        balance -= next.to_int64();
         if(findy.equal(next))
             balance--;
     }
@@ -781,7 +781,7 @@ inline void test_list()
     core::verify(size / 4 == list.size());
 
     // erase driven by list of positions
-    core::List<core::uint32> pos_list(list.size() / 2);
+    core::List<core::int64> pos_list(list.size() / 2);
     it = list.head();
     while(it.next())
     {
@@ -802,7 +802,7 @@ inline void test_list()
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
         list.put(put, scope & 1);
-        core::uint32 erasing = 0;;
+        auto erasing = 0;;
         auto find = list.find(erase);
         while(find.next())
             erasing++;
@@ -832,7 +832,7 @@ inline void test_list()
     }
 
     // int index, first field of Int2String is int
-    typedef core::Index<core::int32> IntIndex;
+    typedef core::Index<core::int64> IntIndex;
     core::List<Int2String, IntIndex> int_list(0x5);
     for(auto i : core::range(size))
     {
@@ -845,7 +845,7 @@ inline void test_list()
     core::List<Int2String, IntIndex>::Iterator int_list_it = int_list.head();
     while(int_list_it.next())
     {
-        auto int_next = (core::int32&)int_list_it.value();
+        auto int_next = (core::int64&)int_list_it.value();
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -932,7 +932,7 @@ inline void test_hash_set()
     auto it = set.head();
     while(it.next())
     {
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
         if(findy.equal(it.value()))
             balance--;
     }
@@ -940,7 +940,7 @@ inline void test_hash_set()
     core::verify(!it.is_head());
     core::verify(it.is_tail());
     while(it.prev())
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
     core::verify(it.is_head());
     core::verify(!it.is_tail());
     core::verify(!balance);
@@ -962,7 +962,7 @@ inline void test_hash_set()
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
         set.put(put, scope & 1);
-        core::uint32 erasing = 0;;
+        auto erasing = 0;;
         auto find = set.find(erase);
         while(find.next())
             erasing++;
@@ -971,7 +971,7 @@ inline void test_hash_set()
     }
 
     // int index, first field of Int2String is int
-    typedef core::Index<core::int32> IntIndex;
+    typedef core::Index<core::int64> IntIndex;
     core::HashSet<Int2String, IntIndex> int_set(0x5);
     for(auto i : core::range(size))
     {
@@ -1000,9 +1000,9 @@ inline void test_hash_map()
     const auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
-    core::HashMap<core::String, core::uint32> map;
-    core::HashMap<core::String, core::uint32>::share shared_map = map;
-    core::HashMap<core::String, core::uint32>::manage managed_map;
+    core::HashMap<core::String, core::int64> map;
+    core::HashMap<core::String, core::int64>::share shared_map = map;
+    core::HashMap<core::String, core::int64>::manage managed_map;
     core::assert(shared_map != core::nil);
     core::assert(managed_map != core::nil);
 
@@ -1052,9 +1052,9 @@ inline void test_hash_map()
     {
         core::String key(core::randomize() % size);
         auto value = core::nil != map.lookup(key)
-            ? core::uint32(map.lookup(key))
+            ? core::int64(map.lookup(key))
             : 0;
-        core::verify(map.put(key, key.to_uint32(), false));
+        core::verify(map.put(key, key.to_int64(), false));
         core::verify(erased = map.erase(key, false));
         core::verify(!map.erase(key));
         for(auto i = 1; i < erased; i++)
@@ -1107,8 +1107,8 @@ inline void test_hash_map()
     {
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
-        map.put(put, put.to_uint32(), scope & 1);
-        core::uint32 erasing = 0;;
+        map.put(put, put.to_int64(), scope & 1);
+        auto erasing = 0;;
         auto find = map.find(erase);
         while(find.next())
             erasing++;
@@ -1149,7 +1149,7 @@ inline void test_tree_set()
         core::String value(core::randomize(i) % variation);
         if(set.put(value))
         {
-            balance += 2 * value.to_uint32();
+            balance += 2 * value.to_int64();
             core::verify(set.set(value));
             core::verify(core::nil != set.lookup(value));
             core::verify(set.lookup(value)->equal(value));
@@ -1163,7 +1163,7 @@ inline void test_tree_set()
     auto erased = set.erase(rand, false);
     core::verify(erased);
     core::verify(!set.erase(rand));
-    for(core::uint32 i = 2; i < erased; i++)
+    for(auto i = 2; i < erased; i++)
         core::verify(set.put(rand, false));
 
     // find
@@ -1181,7 +1181,7 @@ inline void test_tree_set()
     while(sort.next())
     {
         auto& next = sort.value();
-        balance -= next.to_uint32();
+        balance -= next.to_int64();
         core::verify(0 >= prev.compare(next)); // verify value order
         prev = next;
         if(findy.equal(next))
@@ -1189,7 +1189,7 @@ inline void test_tree_set()
     }
     sort = set.sort();
     while(sort.prev())
-        balance -= sort.value().to_uint32();
+        balance -= sort.value().to_int64();
     core::verify(!balance);
 
     // erase all
@@ -1212,12 +1212,12 @@ inline void test_tree_set()
     // read in put order
     auto it = set.head();
     while(it.next())
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
     it = set.tail();
     core::verify(!it.is_head());
     core::verify(it.is_tail());
     while(it.prev())
-        balance -= it.value().to_uint32();
+        balance -= it.value().to_int64();
     core::verify(it.is_head());
     core::verify(!it.is_tail());
     core::verify(!balance);
@@ -1239,7 +1239,7 @@ inline void test_tree_set()
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
         set.put(put, scope & 1);
-        core::uint32 erasing = 0;;
+        auto erasing = 0;;
         auto find = set.find(erase);
         while(find.next())
             erasing++;
@@ -1248,7 +1248,7 @@ inline void test_tree_set()
     }
 
     // int index, first field of Int2String is int
-    typedef core::Index<core::int32> IntIndex;
+    typedef core::Index<core::int64> IntIndex;
     core::TreeSet<Int2String, IntIndex> int_set(0x5);
     for(auto i : core::range(size))
     {
@@ -1261,7 +1261,7 @@ inline void test_tree_set()
     core::TreeSet<Int2String, IntIndex>::Sort int_set_sort = int_set.sort();
     while(int_set_sort.next())
     {
-        auto int_next = (core::int32&)int_set_sort.value();
+        auto int_next = (core::int64&)int_set_sort.value();
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -1291,9 +1291,9 @@ inline void test_tree_map()
     const auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
-    core::TreeMap<core::String, core::uint32> map;
-    core::TreeMap<core::String, core::uint32>::share shared_map = map;
-    core::TreeMap<core::String, core::uint32>::manage managed_map;
+    core::TreeMap<core::String, core::int64> map;
+    core::TreeMap<core::String, core::int64>::share shared_map = map;
+    core::TreeMap<core::String, core::int64>::manage managed_map;
     core::assert(shared_map != core::nil);
     core::assert(managed_map != core::nil);
 
@@ -1313,12 +1313,12 @@ inline void test_tree_map()
     map.erase_all();
 
     // random populated
-    for(core::uint32 i : core::range(size))
+    for(auto i : core::range(size))
     {
         core::String key(core::randomize(i) % variation);
         if(map.put(key, i))
         {
-            balance += 2 * key.to_uint32();
+            balance += 2 * key.to_int64();
             core::verify(map.set(key, i));
             core::verify(core::nil != map.lookup(key));
             core::verify(i == map.lookup(key));
@@ -1328,14 +1328,14 @@ inline void test_tree_map()
     // put/erase multi-value
     core::String key(core::randomize() % size);
     auto value = core::nil != map.lookup(key)
-        ? core::uint32(map.lookup(key))
+        ? core::int64(map.lookup(key))
         : 0;
-    core::verify(map.put(key, key.to_uint32(), false));
-    core::verify(map.put(key, key.to_uint32(), false));
+    core::verify(map.put(key, key.to_int64(), false));
+    core::verify(map.put(key, key.to_int64(), false));
     auto erased = map.erase(key, false);
     core::verify(erased);
     core::verify(!map.erase(key));
-    for(core::uint32 i = 2; i < erased; i++)
+    for(auto i = 2; i < erased; i++)
         core::verify(map.put(key, value, false));
 
     // find
@@ -1353,7 +1353,7 @@ inline void test_tree_map()
     while(sort.next())
     {
         auto& next = sort.key();
-        balance -= next.to_uint32();
+        balance -= next.to_int64();
         core::verify(0 >= prev.compare(next)); // verify key order
         prev = next;
         if(findy.equal(next))
@@ -1361,7 +1361,7 @@ inline void test_tree_map()
     }
     sort = map.sort();
     while(sort.prev())
-        balance -= sort.key().to_uint32();
+        balance -= sort.key().to_int64();
     core::verify(!balance);
 
     // erase all
@@ -1413,7 +1413,7 @@ inline void test_tree_map()
         core::String put(core::randomize(i) % scope);
         core::String erase(core::randomize(i) % scope);
         map.put(put, i, scope & 1);
-        core::uint32 erasing = 0;;
+        auto erasing = 0;;
         auto find = map.find(erase);
         while(find.next())
             erasing++;
