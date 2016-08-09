@@ -178,8 +178,8 @@ public:
         assert(the_page_size);
         if(the_bond)
         {
-            const int64 heap_size = 32; // limited to 4294967296 elements
-            int64 i = 1;
+            const auto heap_size = 32; // limited to 4294967296 elements
+            auto i = 1;
             Cursor lheap[heap_size], hheap[heap_size];
             Cursor lbond, hbond, low, pos, high;
             lbond.page = the_head;
@@ -188,7 +188,7 @@ public:
             prev(hbond);
             while(i)
             {
-                int64 bond = distance(hbond, lbond);
+                auto bond = distance(hbond, lbond);
                 if(2 <= bond)
                 {
                     // find middle as a pivot
@@ -203,7 +203,7 @@ public:
                         xchange(*pos.elem, *lbond.elem);
                     else if(0 < the_index.compare(*pos.elem, *hbond.elem))
                         xchange(*pos.elem, *hbond.elem);
-                    int64 size = sizeof(Element);
+                    auto size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos.elem, size);
                     low = lbond;
@@ -251,12 +251,12 @@ public:
     Find find(const Element& arg)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, at(pos));
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -400,12 +400,12 @@ public:
     int64 search(const Element& arg)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, at(pos));
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -418,13 +418,13 @@ public:
     Shared<Element> lookup(const Element& arg)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
+            auto pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
-            int64 dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -438,13 +438,13 @@ public:
     Element& acquire(const Element& arg, Pager& pager)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
+            auto pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
-            int64 dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -462,12 +462,12 @@ public:
     bool put(const Element& arg, bool unique = true)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, at(pos));
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -490,12 +490,12 @@ public:
     int64 erase(const Element& arg, bool unique = true)
     {
         assert(the_page_size);
-        int64 lbond = 0;
-        int64 hbond = size() - 1;
+        auto lbond = 0;
+        auto hbond = size() - 1;
         while(lbond <= hbond)
         {
-            int64 pos = (lbond + hbond) >> 1;
-            int64 dir = the_index.compare((Element&)arg, at(pos));
+            auto pos = (lbond + hbond) >> 1;
+            auto dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -513,7 +513,7 @@ public:
                     next(to);
                 if(the_index.compare((Element&)arg, *from.elem))
                     prev(from);
-                int64 erased = distance(from, to) + 1;
+                auto erased = distance(from, to) + 1;
                 Cursor it = to;
                 while(it.elem != from.elem)
                 {
@@ -551,7 +551,7 @@ private:
         {
             if(the_bond)
             {
-                int64 tail_page = the_tail.page - the_head + 1;
+                auto tail_page = the_tail.page - the_head + 1;
                 the_head = core::acquire<Element*>(the_head, sizeof(Element*) * (tail_page + 1));
                 the_tail.page = the_head + tail_page;
             }
@@ -653,7 +653,7 @@ private:
                 to.page--;
                 to.elem = *to.page + the_page_size;
             }
-            int64 sh = (from.page > bond.page)
+            auto sh = (from.page > bond.page)
                 ? min(from.elem - *from.page, to.elem - *to.page)
                 : min(from.elem - bond.elem, to.elem - *to.page);
             from.elem -= sh;
@@ -671,7 +671,7 @@ private:
         }
         while(from.elem != bond.elem)
         {
-            int64 sh = (from.page < bond.page)
+            auto sh = (from.page < bond.page)
                 ? the_page_size - max(to.elem - *to.page, from.elem - *from.page)
                 : min(*to.page + the_page_size - to.elem, bond.elem - from.elem);
             ::memmove((void*)to.elem, from.elem, sizeof(Element) * sh);
