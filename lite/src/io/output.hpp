@@ -6,7 +6,7 @@ public:
     {
 
     }
-    virtual void output(core::uint8* /*data*/, core::uint64 /*size*/)
+    virtual void output(core::uint8* /*data*/, core::int64 /*size*/)
     {
         core::assert(false);
     }
@@ -33,7 +33,7 @@ public:
     {
         the_output.output(arg.content(), sizeof(Type) * arg.size());
     }
-    void write(core::uint8* data, core::uint64 size)
+    void write(core::uint8* data, core::int64 size)
     {
         the_output.output(data, size);
     }

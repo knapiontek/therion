@@ -10,7 +10,7 @@ public:
     {
         the_page_size = 0;
     }
-    Queue(uint32 page_size)
+    Queue(int64 page_size)
     {
         init(page_size);
     }
@@ -19,19 +19,19 @@ public:
         if(the_page_size)
             erase_all(true);
     }
-    void page_size(uint32 page_size)
+    void page_size(int64 page_size)
     {
         assert(!the_page_size);
         init(page_size);
     }
-    uint32 page_size()
+    int64 page_size()
     {
         return the_page_size;
     }
-    uint64 size()
+    int64 size()
     {
         assert(the_page_size);
-        uint64 size = the_tail - the_tail_page->data;
+        int64 size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {
@@ -129,7 +129,7 @@ private:
         Element data[1];
     };
 private:
-    void init(uint32 page_size)
+    void init(int64 page_size)
     {
         assert(page_size);
         the_page_size = page_size;
@@ -174,5 +174,5 @@ private:
     Page* the_head_page;
     Element* the_tail;
     Element* the_head;
-    uint32 the_page_size;
+    int64 the_page_size;
 };

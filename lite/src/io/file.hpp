@@ -33,7 +33,7 @@ public:
         }
         return !::mkdir(name.ascii(), S_IRWXU);
     }
-    static bool status(core::String& name, core::uint32 status)
+    static bool status(core::String& name, core::int64 status)
     {
         return !::access(name.ascii(), status);
     }
@@ -101,7 +101,7 @@ public:
             the_remove_on_close = false;
         }
     }
-    core::uint64 size()
+    core::int64 size()
     {
         struct stat info;
         if(::stat(the_name.ascii(), &info))
@@ -177,7 +177,7 @@ public:
         }
         return !::mkdir(the_name.ascii(), S_IRWXU);
     }
-    bool status(core::uint32 status)
+    bool status(core::int64 status)
     {
         return !::access(the_name.ascii(), status);
     }
@@ -204,9 +204,9 @@ private:
     class FileInput : Input
     {
         friend class File;
-        void input(core::uint8* data, core::uint64 size)
+        void input(core::uint8* data, core::int64 size)
         {
-            core::uint64 read = ::read(the_file->the_handle, data, size);
+            core::int64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
                 env::Fail("read data fail: block size: $1").arg(size).fire();
         }
@@ -215,16 +215,16 @@ private:
     class FileOutput : Output
     {
         friend class File;
-        void output(core::uint8* data, core::uint64 size)
+        void output(core::uint8* data, core::int64 size)
         {
-            core::uint64 written = ::write(the_file->the_handle, data, size);
+            core::int64 written = ::write(the_file->the_handle, data, size);
             if(written != size)
                 env::Fail("write data fail: block size: $1").arg(size).fire();
         }
         File* the_file;
     };
 private:
-    core::int32 the_handle;
+    core::int64 the_handle;
     FileInput the_input;
     FileOutput the_output;
     core::String the_name;

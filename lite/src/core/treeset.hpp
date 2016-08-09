@@ -1,5 +1,5 @@
 
-const uint32 the_treeset_path_size = 32;
+const int64 the_treeset_path_size = 32;
 
 template< typename Value, class TreeIndex = Index<Value> >
 class TreeSet
@@ -204,7 +204,7 @@ public:
     {
         the_page_size = 0;
     }
-    TreeSet(uint32 page_size)
+    TreeSet(int64 page_size)
     {
         init(page_size);
     }
@@ -237,7 +237,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -245,19 +245,19 @@ public:
         }
         return Find();
     }
-    void page_size(uint32 page_size)
+    void page_size(int64 page_size)
     {
         assert(!the_page_size);
         init(page_size);
     }
-    uint32 page_size()
+    int64 page_size()
     {
         return the_page_size;
     }
-    uint64 size()
+    int64 size()
     {
         assert(the_page_size);
-        uint64 size = the_tail - the_tail_page->data;
+        int64 size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {
@@ -282,7 +282,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -296,7 +296,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -321,7 +321,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
             {
                 i++;
@@ -359,7 +359,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
             {
                 i++;
@@ -396,7 +396,7 @@ public:
         Node* pos = the_root;
         while(pos)
         {
-            int32 dir = the_index.compare((Value&)value, pos->value);
+            int64 dir = the_index.compare((Value&)value, pos->value);
             if(dir)
             {
                 i++;
@@ -434,11 +434,11 @@ public:
         assert(-1 != self_test(the_root));
         return true;
     }
-    uint32 erase(const Value& value, bool unique = true)
+    int64 erase(const Value& value, bool unique = true)
     {
         assert(the_page_size);
-        uint32 cnt;
-        uint32 erased = 0;
+        int64 cnt;
+        int64 erased = 0;
         do
         {
             cnt = erased;
@@ -451,7 +451,7 @@ public:
             Node* pos = the_root;
             while(pos)
             {
-                int32 dir = the_index.compare((Value&)value, pos->value);
+                int64 dir = the_index.compare((Value&)value, pos->value);
                 if(dir)
                 {
                     i++;
@@ -518,7 +518,7 @@ public:
                         Node* tail_pos = the_root;
                         while(tail_pos != tail)
                         {
-                            int32 dir = the_index.compare(tail->value, tail_pos->value);
+                            int64 dir = the_index.compare(tail->value, tail_pos->value);
                             if(dir)
                             {
                                 parent = &tail_pos->leaves[0 < dir];
@@ -711,7 +711,7 @@ private:
             }
         }
     }
-    void init(uint32 page_size)
+    void init(int64 page_size)
     {
         assert(page_size);
         the_page_size = page_size + 1;
@@ -787,6 +787,6 @@ private:
     Page* the_tail_page;
     Node* the_tail;
     Node* the_root;
-    uint32 the_page_size;
+    int64 the_page_size;
     TreeIndex the_index;
 };

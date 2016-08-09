@@ -49,7 +49,7 @@ public:
             the_cr.elem--;
             return true;
         }
-        uint64 position()
+        int64 position()
         {
             return the_list->the_page_size * (the_cr.page - the_list->the_head) + (the_cr.elem - the_lbond);
         }
@@ -92,7 +92,7 @@ public:
             }
             return true;
         }
-        uint64 position()
+        int64 position()
         {
             return the_list->the_page_size * (the_cr.page - the_list->the_head) + (the_cr.elem - the_lbond);
         }
@@ -149,7 +149,7 @@ public:
         the_page_size = 0;
         init();
     }
-    List(uint32 page_size)
+    List(int64 page_size)
     {
         assert(page_size);
         the_page_size = page_size;
@@ -178,8 +178,8 @@ public:
         assert(the_page_size);
         if(the_bond)
         {
-            const uint32 heap_size = 32; // limited to 4294967296 elements
-            uint32 i = 1;
+            const int64 heap_size = 32; // limited to 4294967296 elements
+            int64 i = 1;
             Cursor lheap[heap_size], hheap[heap_size];
             Cursor lbond, hbond, low, pos, high;
             lbond.page = the_head;
@@ -188,7 +188,7 @@ public:
             prev(hbond);
             while(i)
             {
-                uint32 bond = distance(hbond, lbond);
+                int64 bond = distance(hbond, lbond);
                 if(2 <= bond)
                 {
                     // find middle as a pivot
@@ -203,7 +203,7 @@ public:
                         xchange(*pos.elem, *lbond.elem);
                     else if(0 < the_index.compare(*pos.elem, *hbond.elem))
                         xchange(*pos.elem, *hbond.elem);
-                    uint64 size = sizeof(Element);
+                    int64 size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos.elem, size);
                     low = lbond;
@@ -251,12 +251,12 @@ public:
     Find find(const Element& arg)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
-            int32 dir = the_index.compare((Element&)arg, at(pos));
+            int64 pos = (lbond + hbond) >> 1;
+            int64 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -279,16 +279,16 @@ public:
         }
         return Find();
     }
-    void page_size(uint32 page_size)
+    void page_size(int64 page_size)
     {
         assert(!the_page_size && page_size);
         the_page_size = page_size;
     }
-    uint32 page_size()
+    int64 page_size()
     {
         return the_page_size;
     }
-    uint64 size()
+    int64 size()
     {
         assert(the_page_size);
         return the_page_size * (the_tail.page - the_head) + (the_tail.elem - *the_tail.page);
@@ -349,12 +349,12 @@ public:
             release_tail(to);
         }
     }
-    Element& at(uint64 pos)
+    Element& at(int64 pos)
     {
         assert(the_page_size && pos < size());
         return the_head[pos / the_page_size][pos % the_page_size];
     }
-    Element& put(uint64 pos, const Element& arg)
+    Element& put(int64 pos, const Element& arg)
     {
         assert(the_page_size);
         acquire_tail();
@@ -365,7 +365,7 @@ public:
         new((void*)cr.elem) Element(arg);
         return *cr.elem;
     }
-    void erase(uint64 pos)
+    void erase(int64 pos)
     {
         assert(the_page_size && pos < size());
         Cursor to, from;
@@ -375,7 +375,7 @@ public:
         move_down(to, from, the_tail);
         release_tail();
     }
-    void erase_by_tail(uint64 pos)
+    void erase_by_tail(int64 pos)
     {
         assert(the_page_size && pos < size());
         Element* elem = the_head[pos / the_page_size] + (pos % the_page_size);
@@ -397,15 +397,15 @@ public:
         new((void*)elem) Element(arg);
         return *elem;
     }
-    uint32 search(const Element& arg)
+    int64 search(const Element& arg)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
-            int32 dir = the_index.compare((Element&)arg, at(pos));
+            int64 pos = (lbond + hbond) >> 1;
+            int64 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -413,18 +413,18 @@ public:
             else
                 return pos;
         }
-        return uint32_nil;
+        return int64_nil;
     }
     Shared<Element> lookup(const Element& arg)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
+            int64 pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
-            int32 dir = the_index.compare((Element&)arg, result);
+            int64 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -438,13 +438,13 @@ public:
     Element& acquire(const Element& arg, Pager& pager)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
+            int64 pos = (lbond + hbond) >> 1;
             Element& result = at(pos);
-            int32 dir = the_index.compare((Element&)arg, result);
+            int64 dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -462,12 +462,12 @@ public:
     bool put(const Element& arg, bool unique = true)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
-            int32 dir = the_index.compare((Element&)arg, at(pos));
+            int64 pos = (lbond + hbond) >> 1;
+            int64 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -487,15 +487,15 @@ public:
         new((void*)cr.elem) Element(arg);
         return true;
     }
-    uint32 erase(const Element& arg, bool unique = true)
+    int64 erase(const Element& arg, bool unique = true)
     {
         assert(the_page_size);
-        int32 lbond = 0;
-        int32 hbond = size() - 1;
+        int64 lbond = 0;
+        int64 hbond = size() - 1;
         while(lbond <= hbond)
         {
-            uint64 pos = (lbond + hbond) >> 1;
-            int32 dir = the_index.compare((Element&)arg, at(pos));
+            int64 pos = (lbond + hbond) >> 1;
+            int64 dir = the_index.compare((Element&)arg, at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -513,7 +513,7 @@ public:
                     next(to);
                 if(the_index.compare((Element&)arg, *from.elem))
                     prev(from);
-                uint32 erased = distance(from, to) + 1;
+                int64 erased = distance(from, to) + 1;
                 Cursor it = to;
                 while(it.elem != from.elem)
                 {
@@ -551,7 +551,7 @@ private:
         {
             if(the_bond)
             {
-                uint32 tail_page = the_tail.page - the_head + 1;
+                int64 tail_page = the_tail.page - the_head + 1;
                 the_head = core::acquire<Element*>(the_head, sizeof(Element*) * (tail_page + 1));
                 the_tail.page = the_head + tail_page;
             }
@@ -609,7 +609,7 @@ private:
             init();
         }
     }
-    void convert(Cursor& cr, uint64 pos)
+    void convert(Cursor& cr, int64 pos)
     {
         cr.page = the_head + (pos / the_page_size);
         cr.elem = *cr.page + (pos % the_page_size);
@@ -632,7 +632,7 @@ private:
         }
         cr.elem--;
     }
-    uint32 distance(Cursor& high, Cursor& low)
+    int64 distance(Cursor& high, Cursor& low)
     {
         return the_page_size * (high.page - low.page) + (high.elem - *high.page) - (low.elem - *low.page);
     }
@@ -653,7 +653,7 @@ private:
                 to.page--;
                 to.elem = *to.page + the_page_size;
             }
-            uint32 sh = (from.page > bond.page)
+            int64 sh = (from.page > bond.page)
                 ? min(from.elem - *from.page, to.elem - *to.page)
                 : min(from.elem - bond.elem, to.elem - *to.page);
             from.elem -= sh;
@@ -671,7 +671,7 @@ private:
         }
         while(from.elem != bond.elem)
         {
-            uint32 sh = (from.page < bond.page)
+            int64 sh = (from.page < bond.page)
                 ? the_page_size - max(to.elem - *to.page, from.elem - *from.page)
                 : min(*to.page + the_page_size - to.elem, bond.elem - from.elem);
             ::memmove((void*)to.elem, from.elem, sizeof(Element) * sh);
@@ -698,6 +698,6 @@ private:
     Element** the_head;
     Element* the_bond;
     Cursor the_tail;
-    uint32 the_page_size;
+    int64 the_page_size;
     ListIndex the_index;
 };

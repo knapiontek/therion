@@ -37,7 +37,7 @@ public:
     class Loop
     {
     public:
-        Loop(int32 pos) : the_pos(pos)
+        Loop(int64 pos) : the_pos(pos)
         {
 
         }
@@ -49,12 +49,12 @@ public:
         {
             the_pos++;
         }
-        int32 operator*()
+        int64 operator*()
         {
             return the_pos;
         }
     protected:
-        int32 the_pos;
+        int64 the_pos;
     };
     class Reverse : public Loop
     {
@@ -69,7 +69,7 @@ public:
         }
     };
 public:
-    Range(int32 begin, int32 end) : the_begin(begin), the_end(end)
+    Range(int64 begin, int64 end) : the_begin(begin), the_end(end)
     {
 
     }
@@ -90,16 +90,16 @@ public:
         return Reverse(Loop(the_begin - 1));
     }
 private:
-    int32 the_begin;
-    int32 the_end;
+    int64 the_begin;
+    int64 the_end;
 };
 
-Range range(int32 begin, int32 end)
+Range range(int64 begin, int64 end)
 {
     return Range(begin, end);
 }
 
-Range range(int32 end)
+Range range(int64 end)
 {
     return Range(0, end);
 }

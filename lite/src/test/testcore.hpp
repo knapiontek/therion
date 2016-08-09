@@ -307,7 +307,7 @@ inline void test_string()
         .append(cs_and_the_end);
 
     // copy
-    core::uint64 pos = 0;
+    core::int64 pos = 0;
     core::String st_copy;
     st_copy.size(st_append.size());
     st_copy.copy_in(pos, cs_string);
@@ -381,7 +381,7 @@ inline void test_string()
     core::verify(it.is_tail());
 
     // loop iterator
-    core::uint64 position = 0;
+    core::int64 position = 0;
     for(auto it : cs_hardcoded_output)
     {
         core::verify(it.position() == position);
@@ -476,7 +476,7 @@ inline void test_seq()
     seq.erase_all();
     core::verify(core::nil == seq.find(core::nil));
     core::verify(seq.find(core::nil) == core::nil);
-    core::verify(core::uint32_nil == seq.search(core::nil));
+    core::verify(core::int64_nil == seq.search(core::nil));
     seq.sort();
 
     // init
@@ -679,7 +679,7 @@ inline void test_list()
     list.erase_all();
     core::verify(core::nil == list.find(core::nil));
     core::verify(list.find(core::nil) == core::nil);
-    core::verify(core::uint32_nil == list.search(core::nil));
+    core::verify(core::int64_nil == list.search(core::nil));
     list.sort();
 
     // populate
@@ -1033,7 +1033,7 @@ inline void test_hash_map()
 
     // loop iterator
     /*
-    core::uint64 position = 0;
+    core::int64 position = 0;
     for(auto it : map)
     {
         position++;

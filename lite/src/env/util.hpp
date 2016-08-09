@@ -11,9 +11,9 @@ public:
         signal = 0x10
     };
 public:
-    static core::int32& code()
+    static core::int64& code()
     {
-        static auto code = 0;
+        static core::int64 code = 0;
         return code;
     }
 };
@@ -91,7 +91,7 @@ private:
     }
 private:
     core::String the_type;
-    core::uint32 the_size;
+    core::int64 the_size;
 };
 
 class Fail : public core::FormatClass<Fail>
@@ -242,7 +242,7 @@ inline void init(int /*argc*/, char* /*argv*/[])
     Handler::handler();
 }
 
-inline core::int32 final()
+inline core::int64 final()
 {
     if(Device::device().used())
         Device::device().writeln();

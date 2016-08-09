@@ -23,7 +23,7 @@ struct Nil
     }
 };
 
-const Nil nil;
+Nil nil;
 
 // range of basic types
 
@@ -90,14 +90,14 @@ inline Type& max(const Type& arg1, const Type& arg2)
 template <typename Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
-    const uint64 size = sizeof(Type);
+    const auto size = sizeof(Type);
     uint8 type[size];
     ::memcpy((void*)&type, &arg1, size);
     ::memcpy((void*)&arg1, &arg2, size);
     ::memcpy((void*)&arg2, &type, size);
 }
 
-inline uint32 randomize(uint32 seed = 0)
+inline int64 randomize(uint32 seed = 0)
 {
     static bool init = true;
     if(init)
@@ -113,7 +113,7 @@ inline uint32 randomize(uint32 seed = 0)
 // memory management
 
 template<class Type>
-inline Type* acquire(uint64 size)
+inline Type* acquire(int64 size)
 {
     Type* type = (Type*)::malloc(size);
     if(!type)
@@ -122,7 +122,7 @@ inline Type* acquire(uint64 size)
 }
 
 template<class Type>
-inline Type* acquire(Type* type, uint64 size)
+inline Type* acquire(Type* type, int64 size)
 {
     type = (Type*)::realloc((void*)type, size);
     if(!type)

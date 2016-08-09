@@ -119,7 +119,7 @@ public:
     {
         the_page_size = 0;
     }
-    HashSet(uint32 page_size)
+    HashSet(int64 page_size)
     {
         init(page_size);
     }
@@ -147,19 +147,19 @@ public:
         Node* pos = the_plexer[the_index.hash((Value&)value) % the_page_size];
         return Find(pos, (Value&)value, this);
     }
-    void page_size(uint32 page_size)
+    void page_size(int64 page_size)
     {
         assert(!the_page_size);
         init(page_size);
     }
-    uint32 page_size()
+    int64 page_size()
     {
         return the_page_size;
     }
-    uint64 size()
+    int64 size()
     {
         assert(the_page_size);
-        uint64 size = the_tail - the_tail_page->data;
+        int64 size = the_tail - the_tail_page->data;
         Page* page = the_head_page;
         while(page->next)
         {
@@ -266,10 +266,10 @@ public:
         new((void*)&head->value) Value(value);
         return true;
     }
-    uint32 erase(const Value& value, bool unique = true)
+    int64 erase(const Value& value, bool unique = true)
     {
         assert(the_page_size);
-        uint32 erased = 0;
+        int64 erased = 0;
         Node** prev = &the_plexer[the_index.hash((Value&)value) % the_page_size];
         Node* pos = *prev;
         while(pos)
@@ -340,12 +340,12 @@ private:
         Node data[1];
     };
 private:
-    void init(uint32 page_size)
+    void init(int64 page_size)
     {
         assert(page_size);
         the_page_size = page_size + 1;
-        uint32 mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
-        uint32 mem_plexer_size = sizeof(Node*) * the_page_size;
+        int64 mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
+        int64 mem_plexer_size = sizeof(Node*) * the_page_size;
         uint8* mem = core::acquire<uint8>(mem_page_size + mem_plexer_size);
         the_head_page = (Page*)mem;
         the_head_page->next = 0;
@@ -409,6 +409,6 @@ private:
     Page* the_tail_page;
     Node* the_tail;
     Node** the_plexer;
-    uint32 the_page_size;
+    int64 the_page_size;
     HashIndex the_index;
 };

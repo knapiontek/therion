@@ -134,7 +134,7 @@ public:
         bfd_vma the_pc;
         char* the_demangled;
         bool the_init;
-        core::uint32 the_index;
+        core::int64 the_index;
         Frame the_frame;
         Handle* the_handle;
     };
@@ -147,7 +147,7 @@ public:
     Runtime()
     {
         // Runtime is used in an error handling of ::malloc(), therefore cannot use ::malloc()!
-        const core::uint64 size = 64;
+        const core::int64 size = 64;
         static __thread core::uint8 space[sizeof(Handle) + sizeof(void*) * size];
         the_handle = (Handle*)space;
         the_handle->size = ::backtrace(the_handle->path, size);
@@ -155,7 +155,7 @@ public:
 private:
     struct Handle
     {
-        core::uint64 size;
+        core::int64 size;
         void* path[1];
     };
 private:

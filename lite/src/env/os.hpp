@@ -25,11 +25,11 @@ struct OS
     {
         ::abort();
     }
-    static void exit(core::uint32 code)
+    static void exit(core::int64 code)
     {
         ::exit(code);
     }
-    static core::uint32 execute(core::String& command)
+    static core::int64 execute(core::String& command)
     {
         return ::system(command.ascii());
     }

@@ -16,7 +16,7 @@ public:
     {
         the_start = ::clock();
     }
-    core::uint32 mark()
+    core::int64 mark()
     {
         ::clock_t stop = ::clock();
         ::clock_t result = stop - the_start;

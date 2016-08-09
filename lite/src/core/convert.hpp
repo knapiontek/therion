@@ -1,15 +1,15 @@
 
-const uint64 bool_max_digit = 5;
-const uint64 int8_max_digit = 4;
-const uint64 int16_max_digit = 6;
-const uint64 int32_max_digit = 12;
-const uint64 int64_max_digit = 22;
-const uint64 float32_max_digit = 22;
-const uint64 float64_max_digit = 22;
-const uint64 float128_max_digit = 22;
-const uint64 float32_precision = 2;
-const uint64 float64_precision = 4;
-const uint64 float128_precision = 8;
+auto bool_max_digit = 5;
+auto int8_max_digit = 4;
+auto int16_max_digit = 6;
+auto int32_max_digit = 12;
+auto int64_max_digit = 22;
+auto float32_max_digit = 22;
+auto float64_max_digit = 22;
+auto float128_max_digit = 22;
+auto float32_precision = 2;
+auto float64_precision = 4;
+auto float128_precision = 8;
 
 enum Base
 {
@@ -20,17 +20,17 @@ enum Base
 class Convert
 {
 public:
-    static void it(uint8*& data, uint64& size, bool arg)
+    static void it(uint8*& data, int64& size, bool arg)
     {
-        static const uint64 sizes[] = { 5, 4 };
+        static const int64 sizes[] = { 5, 4 };
         static const char* names[] = { "false", "true" };
         size = sizes[arg];
         ::memcpy(data, names[arg], size);
     }
-    static void it(uint8*& data, uint64& size, int8 arg)
+    static void it(uint8*& data, int64& size, int8 arg)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         int8 fixed = ::abs(arg);
         do
         {
@@ -40,10 +40,10 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, int16 arg)
+    static void it(uint8*& data, int64& size, int16 arg)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         int16 fixed = ::abs(arg);
         do
         {
@@ -53,10 +53,10 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, int32 arg)
+    static void it(uint8*& data, int64& size, int32 arg)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         int32 fixed = ::abs(arg);
         do
         {
@@ -66,10 +66,10 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, int64 arg)
+    static void it(uint8*& data, int64& size, int64 arg)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         int64 fixed = ::llabs(arg);
         do
         {
@@ -79,10 +79,10 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, uint8 arg, Base base)
+    static void it(uint8*& data, int64& size, uint8 arg, Base base)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         uint8 fixed = arg;
         do
         {
@@ -90,10 +90,10 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, uint16 arg, Base base)
+    static void it(uint8*& data, int64& size, uint16 arg, Base base)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         uint16 fixed = arg;
         do
         {
@@ -101,10 +101,10 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, uint32 arg, Base base)
+    static void it(uint8*& data, int64& size, uint32 arg, Base base)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         uint32 fixed = arg;
         do
         {
@@ -112,10 +112,10 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, uint64 arg, Base base)
+    static void it(uint8*& data, int64& size, uint64 arg, Base base)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         uint64 fixed = arg;
         do
         {
@@ -123,10 +123,10 @@ public:
         } while(fixed /= base);
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, float32 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float32 arg, uint8 precision)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         float64 ffixed = arg * ::pow(10, precision);
         int64 fixed = ::llround(ffixed);
         while(precision--)
@@ -143,10 +143,10 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, float64 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float64 arg, uint8 precision)
     {
         data += size;
-        uint8* end = data;
+        auto end = data;
         float128 ffixed = arg * ::pow(10, precision);
         int64 fixed = ::llroundl(ffixed);
         while(precision--)
@@ -163,13 +163,13 @@ public:
             *--data = '-';
         size = end - data;
     }
-    static void it(uint8*& data, uint64& size, float128 arg, uint8 precision)
+    static void it(uint8*& data, int64& size, float128 arg, uint8 precision)
     {
         float128 integer, fraction;
         fraction = ::modfl(::fabsl(arg), &integer);
         fraction *= ::pow(10, precision);
         data += size;
-        uint8* end = data;
+        auto end = data;
         int64 fixed = ::llroundl(fraction);
         while(precision--)
         {
