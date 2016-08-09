@@ -1,19 +1,19 @@
 
 inline void test_types()
 {
-    core::verify(1 == sizeof(core::int8));
-    core::verify(2 == sizeof(core::int16));
-    core::verify(4 == sizeof(core::int32));
-    core::verify(8 == sizeof(core::int64));
+    core::verify((1 << 0) == sizeof(core::int8));
+    core::verify((1 << 1) == sizeof(core::int16));
+    core::verify((1 << 2) == sizeof(core::int32));
+    core::verify((1 << 3) == sizeof(core::int64));
 
-    core::verify(1 == sizeof(core::uint8));
-    core::verify(2 == sizeof(core::uint16));
-    core::verify(4 == sizeof(core::uint32));
-    core::verify(8 == sizeof(core::uint64));
+    core::verify((1 << 0) == sizeof(core::uint8));
+    core::verify((1 << 1) == sizeof(core::uint16));
+    core::verify((1 << 2) == sizeof(core::uint32));
+    core::verify((1 << 3) == sizeof(core::uint64));
 
-    core::verify(4 == sizeof(core::float32));
-    core::verify(8 == sizeof(core::float64));
-    core::verify(16 == sizeof(core::float128));
+    core::verify((1 << 2) == sizeof(core::float32));
+    core::verify((1 << 3) == sizeof(core::float64));
+    core::verify((1 << 4) == sizeof(core::float128));
 }
 
 inline void test_acquire()
@@ -183,7 +183,7 @@ inline void test_manage()
 
 inline void test_iterator()
 {
-    int sum = 0;
+    auto sum = 0;
     for(auto it : core::range(-1, 5))
     {
         sum += it;

@@ -40,9 +40,8 @@ public:
             the_pos = pos;
             the_handle = handle;
         }
-    protected:
-        uint8* the_pos;
     private:
+        uint8* the_pos;
         Handle* the_handle;
     };
     class Loop : public Iterator
