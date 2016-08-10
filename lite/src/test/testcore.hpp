@@ -184,14 +184,14 @@ inline void test_manage()
 inline void test_iterator()
 {
     auto sum = 0;
-    for(auto it : core::range(-1, 5))
+    for(auto i : core::range(-1, 5))
     {
-        sum += it;
+        sum += i;
     }
     core::verify(9 == sum);
-    for(auto it : core::reverse(core::range(-1, 5)))
+    for(auto i : core::reverse(core::range(-1, 5)))
     {
-        sum += it;
+        sum += i;
     }
     core::verify(18 == sum);
 }
@@ -382,14 +382,14 @@ inline void test_string()
 
     // loop iterator
     core::int64 position = 0;
-    for(auto it : cs_hardcoded_output)
+    for(auto& it : cs_hardcoded_output)
     {
         core::verify(it.position() == position);
         core::verify(it.value() == cs_hardcoded_output[position]);
         position++;
     }
     core::verify(position == cs_hardcoded_output.size());
-    for(auto it : core::reverse(cs_hardcoded_output))
+    for(auto& it : core::reverse(cs_hardcoded_output))
     {
         position--;
         core::verify(it.position() == position);
@@ -631,7 +631,7 @@ inline void test_seq()
     auto int_seq_it = int_seq.head();
     while(int_seq_it.next())
     {
-        auto int_next = (core::int64&)int_seq_it.value();
+        auto int_next = int_seq_it.value().i;
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -650,7 +650,7 @@ inline void test_seq()
     auto st_seq_it = st_seq.head();
     while(st_seq_it.next())
     {
-        auto st_next = (core::String&)st_seq_it.value();
+        auto st_next = st_seq_it.value().st;
         core::verify(0 >= st_prev.compare(st_next));
         st_prev = st_next;
     }
@@ -845,7 +845,7 @@ inline void test_list()
     auto int_list_it = int_list.head();
     while(int_list_it.next())
     {
-        auto int_next = (core::int64&)int_list_it.value();
+        auto int_next = int_list_it.value().i;
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -864,7 +864,7 @@ inline void test_list()
     auto st_list_it = st_list.head();
     while(st_list_it.next())
     {
-        auto st_next = (core::String&)st_list_it.value();
+        auto st_next = st_list_it.value().st;
         core::verify(0 >= st_prev.compare(st_next));
         st_prev = st_next;
     }
@@ -1033,14 +1033,14 @@ inline void test_hash_map()
 
     // loop iterator
     core::int64 position = 0;
-    for(auto it : map)
+    for(auto& it : map)
     {
         (void)it;
         position++;
     }
     core::verify(position == map.size());
     /*
-    for(auto it : core::reverse(map))
+    for(auto& it : core::reverse(map))
     {
         position--;
     }
@@ -1262,7 +1262,7 @@ inline void test_tree_set()
     core::TreeSet<Int2String, IntIndex>::Sort int_set_sort = int_set.sort();
     while(int_set_sort.next())
     {
-        auto int_next = (core::int64&)int_set_sort.value();
+        auto int_next = int_set_sort.value().i;
         core::verify(int_prev <= int_next);
         int_prev = int_next;
     }
@@ -1281,7 +1281,7 @@ inline void test_tree_set()
     core::TreeSet<String2Int, StringIndex>::Sort st_set_sort = st_set.sort();
     while(st_set_sort.next())
     {
-        auto st_next = (core::String&)st_set_sort.value();
+        auto st_next = st_set_sort.value().st;
         core::verify(0 >= st_prev.compare(st_next));
         st_prev = st_next;
     }

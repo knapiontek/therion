@@ -18,7 +18,7 @@ public:
             the_init = false;
             the_found = false;
             the_demangled = 0;
-            the_index = 0;
+            the_index = 2;
             the_bfd = 0;
             the_syms = 0;
 

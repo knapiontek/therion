@@ -178,13 +178,12 @@ private:
         auto last = 0;
         if(new_line)
             the_result.copy_in(pos, cs_line);
-        auto it = the_format.head();
-        while(it.next())
+        for(auto& it : the_format)
         {
             if('$' == it.value())
             {
                 the_result.copy_in(pos, the_format.data() + last, it.position() - last);
-                last = it.position() + 1; // skip %
+                last = it.position() + 1; // skip $
                 if(it.next() && '$' != it.value())
                 {
                     last++; // skip digit
@@ -198,7 +197,7 @@ private:
             }
         }
 
-        the_result.copy_in(pos, the_format.data() + last, it.position() - last);
+        the_result.copy_in(pos, the_format.data() + last, the_format.size() - last);
         the_result.size(pos);
         return the_result;
     }

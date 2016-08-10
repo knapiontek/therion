@@ -22,7 +22,7 @@ public:
     }
     static bool make_folders(core::String& name)
     {
-        for(auto it : name)
+        for(auto& it : name)
         {
             if('/' == it.value())
             {
@@ -114,7 +114,7 @@ public:
     }
     core::String path()
     {
-        for(auto it : core::reverse(the_name))
+        for(auto& it : core::reverse(the_name))
         {
             if('/' == it.value())
                 return core::String(the_name.data(), it.position());
@@ -123,7 +123,7 @@ public:
     }
     core::String local()
     {
-        for(auto it : core::reverse(the_name))
+        for(auto& it : core::reverse(the_name))
         {
             if('/' == it.value())
             {
@@ -136,7 +136,7 @@ public:
     core::String core()
     {
         auto dot = the_name.size();
-        for(auto it : core::reverse(the_name))
+        for(auto& it : core::reverse(the_name))
         {
             if('.' == it.value())
                 dot = it.position();
@@ -150,7 +150,7 @@ public:
     }
     core::String ext()
     {
-        for(auto it : core::reverse(the_name))
+        for(auto& it : core::reverse(the_name))
         {
             if('.' == it.value())
             {
@@ -166,7 +166,7 @@ public:
     }
     bool make_folders()
     {
-        for(auto it : the_name)
+        for(auto& it : the_name)
         {
             if('/' == it.value())
             {
