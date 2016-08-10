@@ -224,19 +224,19 @@ public:
     }
     Loop begin() const
     {
-        return Loop(Iterator(the_handle->data, the_handle));
+        return Iterator(the_handle->data, the_handle);
     }
     Loop end() const
     {
-        return Loop(tail());
+        return Iterator(the_handle->data + the_handle->size, the_handle);
     }
     Reverse rbegin() const
     {
-        return Reverse(Iterator(the_handle->data + the_handle->size - 1, the_handle));
+        return Iterator(the_handle->data + the_handle->size - 1, the_handle);
     }
     Reverse rend() const
     {
-        return Reverse(head());
+        return Iterator(the_handle->data - 1, the_handle);
     }
     uint8* data() const
     {

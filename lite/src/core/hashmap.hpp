@@ -199,20 +199,25 @@ public:
         Node* bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
-        return Loop(Iterator(the_head_page, the_head_page->data, bond, this));
+        return Iterator(the_head_page, the_head_page->data, bond, this);
     }
     Loop end()
     {
-        return Loop(tail());
+        assert(the_page_size);
+        return Iterator(the_tail_page, the_tail, the_tail, this);
     }
     Reverse rbegin()
     {
         assert(the_page_size);
-        return Reverse(Iterator(the_tail_page, the_tail - 1, the_tail, this));
+        return Iterator(the_tail_page, the_tail - 1, the_tail, this);
     }
     Reverse rend()
     {
-        return Reverse(head());
+        assert(the_page_size);
+        Node* bond = (the_head_page != the_tail_page)
+            ? the_head_page->data + the_page_size
+            : the_tail;
+        return Iterator(the_head_page, the_head_page->data - 1, bond, this);
     }
     Find find(const Key& key)
     {
