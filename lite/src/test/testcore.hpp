@@ -1035,13 +1035,14 @@ inline void test_hash_map()
     core::int64 position = 0;
     for(auto& it : map)
     {
-        (void)it;
+        core::verify(it.value() == map[it.key()]);
         position++;
     }
     core::verify(position == map.size());
     /*
     for(auto& it : core::reverse(map))
     {
+        core::verify(it.value() == map[it.key()]);
         position--;
     }
     core::verify(position == 0);
@@ -1259,7 +1260,7 @@ inline void test_tree_set()
         int_set.put(i2s);
     }
     auto int_prev = 0;
-    core::TreeSet<Int2String, IntIndex>::Sort int_set_sort = int_set.sort();
+    auto int_set_sort = int_set.sort();
     while(int_set_sort.next())
     {
         auto int_next = int_set_sort.value().i;
@@ -1278,7 +1279,7 @@ inline void test_tree_set()
         st_set.put(s2i);
     }
     core::String st_prev;
-    core::TreeSet<String2Int, StringIndex>::Sort st_set_sort = st_set.sort();
+    auto st_set_sort = st_set.sort();
     while(st_set_sort.next())
     {
         auto st_next = st_set_sort.value().st;
