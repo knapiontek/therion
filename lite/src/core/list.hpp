@@ -1,5 +1,5 @@
 
-template< typename Element, class ListIndex = Index<Element> >
+template< typename Element, class ListIndex = Index<Element>>
 class List
 {
     struct Cursor;
@@ -71,6 +71,66 @@ public:
         Element* the_lbond;
         Element* the_hbond;
         List* the_list;
+    };
+    class Range : public Iterator
+    {
+        friend class List;
+    public:
+        bool operator!=(Range& it)
+        {
+            return this->the_cr.elem != it.the_cr.elem;
+        }
+        void operator++()
+        {
+            this->the_cr.elem++;
+            if(this->the_cr.elem == this->the_hbond && this->the_cr.elem != this->the_list->the_tail.elem)
+            {
+                this->the_cr.page++;
+                this->the_cr.elem = *this->the_cr.page;
+                this->the_lbond = this->the_cr.elem;
+                this->the_hbond = (this->the_cr.page != this->the_list->the_tail.page)
+                    ? *this->the_cr.page + this->the_list->the_page_size
+                    : this->the_list->the_tail.elem;
+            }
+        }
+        Range& operator*()
+        {
+            return *this;
+        }
+    private:
+        Range(Iterator& it) : Iterator(it)
+        {
+
+        }
+        Range(Iterator&& it) : Iterator(it)
+        {
+
+        }
+    };
+    class Reverse : public Range
+    {
+        friend class List;
+    public:
+        void operator++()
+        {
+            if(this->the_cr.elem == this->the_lbond && this->the_cr.page != this->the_list->the_head)
+            {
+                this->the_cr.page--;
+                this->the_cr.elem = *this->the_cr.page + this->the_list->the_page_size;
+                this->the_lbond = *this->the_cr.page;
+                this->the_hbond = this->the_cr.elem;
+            }
+            this->the_cr.elem--;
+        }
+    private:
+        Reverse(Iterator& it) : Range(it)
+        {
+
+        }
+        Reverse(Iterator&& it) : Range(it)
+        {
+
+        }
     };
     class Find
     {
@@ -172,6 +232,27 @@ public:
     {
         assert(the_page_size);
         return Iterator(the_tail.page, the_tail.elem, *the_tail.page, the_tail.elem, this);
+    }
+    Range begin()
+    {
+        assert(the_page_size);
+        Element* hbond = (the_head != the_tail.page)
+            ? *the_head + the_page_size
+            : the_tail.elem;
+        return Iterator(the_head, *the_head, *the_head, hbond, this);
+    }
+    Range end()
+    {
+        return tail();
+    }
+    Reverse rbegin()
+    {
+        assert(the_page_size);
+        return Iterator(the_tail.page, the_tail.elem - 1, *the_tail.page, the_tail.elem, this);
+    }
+    Reverse rend()
+    {
+        return head();
     }
     void sort()
     {
@@ -353,6 +434,10 @@ public:
     {
         assert(the_page_size && pos < size());
         return the_head[pos / the_page_size][pos % the_page_size];
+    }
+    Element& operator[](int64 pos)
+    {
+        return at(pos);
     }
     Element& put(int64 pos, const Element& arg)
     {

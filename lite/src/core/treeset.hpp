@@ -1,7 +1,7 @@
 
 const auto the_treeset_path_size = 32;
 
-template< typename Value, class TreeIndex = Index<Value> >
+template< typename Value, class TreeIndex = Index<Value>>
 class TreeSet
 {
     struct Node;

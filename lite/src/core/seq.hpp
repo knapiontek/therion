@@ -1,5 +1,5 @@
 
-template< typename Element, class SeqIndex = Index<Element> >
+template< typename Element, class SeqIndex = Index<Element>>
 class Seq
 {
 public:
@@ -43,6 +43,50 @@ public:
     private:
         Element* the_elem;
         Seq* the_seq;
+    };
+    class Range : public Iterator
+    {
+        friend class Seq;
+    public:
+        bool operator!=(Range& it)
+        {
+            return this->the_elem != it.the_elem;
+        }
+        void operator++()
+        {
+            this->the_elem++;
+        }
+        Range& operator*()
+        {
+            return *this;
+        }
+    private:
+        Range(Iterator& it) : Iterator(it)
+        {
+
+        }
+        Range(Iterator&& it) : Iterator(it)
+        {
+
+        }
+    };
+    class Reverse : public Range
+    {
+        friend class Seq;
+    public:
+        void operator++()
+        {
+            this->the_elem--;
+        }
+    private:
+        Reverse(Iterator& it) : Range(it)
+        {
+
+        }
+        Reverse(Iterator&& it) : Range(it)
+        {
+
+        }
     };
     class Find
     {
@@ -111,6 +155,22 @@ public:
     Iterator tail()
     {
         return Iterator(the_tail, this);
+    }
+    Range begin()
+    {
+        return Iterator(the_head, this);
+    }
+    Range end()
+    {
+        return tail();
+    }
+    Reverse rbegin()
+    {
+        return Iterator(the_tail - 1, this);
+    }
+    Reverse rend()
+    {
+        return head();
     }
     void sort()
     {
@@ -307,6 +367,10 @@ public:
     {
         assert(pos < size());
         return the_head[pos];
+    }
+    Element& operator[](int64 pos)
+    {
+        return at(pos);
     }
     Element& put(int64 pos, const Element& arg)
     {

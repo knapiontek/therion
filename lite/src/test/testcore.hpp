@@ -381,7 +381,7 @@ inline void test_string()
     core::verify(it.is_tail());
 
     // loop iterator
-    core::int64 position = 0;
+    auto position = 0;
     for(auto& it : cs_hardcoded_output)
     {
         core::verify(it.position() == position);
@@ -491,6 +491,23 @@ inline void test_seq()
         balance += 4 * rand.to_int64();
         balance += 2 * i + size;
     }
+
+    // loop iterator
+    auto position = 0;
+    for(auto& it : seq)
+    {
+        core::verify(it.position() == position);
+        core::verify(it.value() == seq[position]);
+        position++;
+    }
+    core::verify(position == seq.size());
+    for(auto& it : core::reverse(seq))
+    {
+        position--;
+        core::verify(it.position() == position);
+        core::verify(it.value() == seq[position]);
+    }
+    core::verify(position == 0);
 
     // begin of verifying balance
     auto it = seq.tail();
@@ -691,6 +708,23 @@ inline void test_list()
         balance += 4 * rand.to_int64();
         balance += 2 * i + size;
     }
+
+    // loop iterator
+    auto position = 0;
+    for(auto& it : list)
+    {
+        core::verify(it.position() == position);
+        core::verify(it.value() == list[position]);
+        position++;
+    }
+    core::verify(position == list.size());
+    for(auto& it : core::reverse(list))
+    {
+        position--;
+        core::verify(it.position() == position);
+        core::verify(it.value() == list[position]);
+    }
+    core::verify(position == 0);
 
     // begin of verifying balance
     auto it = list.tail();
