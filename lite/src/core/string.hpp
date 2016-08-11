@@ -1,14 +1,16 @@
 
-class Mutable
+typedef const class StringClass String;
+
+class StringClass
 {
     struct Handle;
 public:
-    typedef Shared<const Mutable> share;
-    typedef Managed<const Mutable> manage;
+    typedef Shared<String> share;
+    typedef Managed<String> manage;
 public:
     class Iterator
     {
-        friend class Mutable;
+        friend class StringClass;
     public:
         bool is_head()
         {
@@ -44,11 +46,11 @@ public:
         uint8* the_pos;
         Handle* the_handle;
     };
-    class Loop : public Iterator
+    class Range : public Iterator
     {
-        friend class Mutable;
+        friend class StringClass;
     public:
-        bool operator!=(Loop& it)
+        bool operator!=(Range& it)
         {
             return the_pos != it.the_pos;
         }
@@ -56,64 +58,64 @@ public:
         {
             the_pos++;
         }
-        Loop& operator*()
+        Range& operator*()
         {
             return *this;
         }
     private:
-        Loop(Iterator& it) : Iterator(it)
+        Range(Iterator& it) : Iterator(it)
         {
 
         }
-        Loop(Iterator&& it) : Iterator(it)
+        Range(Iterator&& it) : Iterator(it)
         {
 
         }
     };
-    class Reverse : public Loop
+    class Reverse : public Range
     {
-        friend class Mutable;
+        friend class StringClass;
     public:
         void operator++()
         {
             the_pos--;
         }
     private:
-        Reverse(Iterator& it) : Loop(it)
+        Reverse(Iterator& it) : Range(it)
         {
 
         }
-        Reverse(Iterator&& it) : Loop(it)
+        Reverse(Iterator&& it) : Range(it)
         {
 
         }
     };
 public:
-    Mutable()
+    StringClass()
     {
         the_handle = nil_handle();
         the_handle->cnt++;
     }
-    Mutable(const Nil&)
+    StringClass(const Nil&)
     {
         the_handle = nil_handle();
         the_handle->cnt++;
     }
-    Mutable(const Mutable& arg)
+    StringClass(String& arg)
     {
         the_handle = arg.the_handle;
         the_handle->cnt++;
     }
-    Mutable(const char* arg)
+    StringClass(const char* arg)
     {
         auto size = ::strlen(arg);
         the_handle = clone((uint8*)arg, size);
     }
-    explicit Mutable(uint8* arg, int64 size)
+    explicit StringClass(uint8* arg, int64 size)
     {
         the_handle = clone(arg, size);
     }
-    explicit Mutable(bool arg)
+    explicit StringClass(bool arg)
     {
         uint8 buffer[bool_max_digit];
         auto data = buffer;
@@ -121,7 +123,7 @@ public:
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
-    explicit Mutable(int8 arg)
+    explicit StringClass(int8 arg)
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -129,7 +131,7 @@ public:
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
-    explicit Mutable(int16 arg)
+    explicit StringClass(int16 arg)
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -137,7 +139,7 @@ public:
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
-    explicit Mutable(int32 arg)
+    explicit StringClass(int32 arg)
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -145,7 +147,7 @@ public:
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
-    explicit Mutable(int64 arg)
+    explicit StringClass(int64 arg)
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -153,7 +155,7 @@ public:
         Convert::it(data, size, arg);
         the_handle = clone(data, size);
     }
-    explicit Mutable(uint8 arg, Base base = decimal)
+    explicit StringClass(uint8 arg, Base base = decimal)
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -161,7 +163,7 @@ public:
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
-    explicit Mutable(uint16 arg, Base base = decimal)
+    explicit StringClass(uint16 arg, Base base = decimal)
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -169,7 +171,7 @@ public:
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
-    explicit Mutable(uint32 arg, Base base = decimal)
+    explicit StringClass(uint32 arg, Base base = decimal)
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -177,7 +179,7 @@ public:
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
-    explicit Mutable(uint64 arg, Base base = decimal)
+    explicit StringClass(uint64 arg, Base base = decimal)
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -185,7 +187,7 @@ public:
         Convert::it(data, size, arg, base);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float32 arg, int64 precision = float32_precision)
+    explicit StringClass(float32 arg, int64 precision = float32_precision)
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -193,7 +195,7 @@ public:
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float64 arg, int64 precision = float64_precision)
+    explicit StringClass(float64 arg, int64 precision = float64_precision)
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -201,7 +203,7 @@ public:
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
-    explicit Mutable(float128 arg, int64 precision = float128_precision)
+    explicit StringClass(float128 arg, int64 precision = float128_precision)
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -209,7 +211,7 @@ public:
         Convert::it(data, size, arg, precision);
         the_handle = clone(data, size);
     }
-    ~Mutable()
+    ~StringClass()
     {
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
@@ -222,11 +224,11 @@ public:
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }
-    Loop begin() const
+    Range begin() const
     {
         return Iterator(the_handle->data, the_handle);
     }
-    Loop end() const
+    Range end() const
     {
         return tail();
     }
@@ -272,9 +274,9 @@ public:
     {
         return !the_handle->size;
     }
-    Mutable clone() const
+    StringClass clone() const
     {
-        return Mutable(the_handle->data, the_handle->size);
+        return StringClass(the_handle->data, the_handle->size);
     }
     void erase() const
     {
@@ -283,7 +285,7 @@ public:
         the_handle = nil_handle();
         the_handle->cnt++;
     }
-    int32 compare(const Mutable& arg) const
+    int32 compare(String& arg) const
     {
         return ::strverscmp((char*)the_handle->data, (char*)arg.the_handle->data);
     }
@@ -291,7 +293,7 @@ public:
     {
         return ::strverscmp((char*)the_handle->data, arg);
     }
-    bool equal(const Mutable& arg) const
+    bool equal(String& arg) const
     {
         return !compare(arg);
     }
@@ -299,7 +301,7 @@ public:
     {
         return !compare(arg);
     }
-    const Mutable& operator=(const Nil&) const
+    String& operator=(const Nil&) const
     {
         nil_handle()->cnt++;
         if(!--the_handle->cnt)
@@ -307,7 +309,7 @@ public:
         the_handle = nil_handle();
         return *this;
     }
-    const Mutable& operator=(const Mutable& arg) const
+    String& operator=(String& arg) const
     {
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
@@ -315,7 +317,7 @@ public:
         the_handle = arg.the_handle;
         return *this;
     }
-    const Mutable& operator=(const char* arg) const
+    String& operator=(const char* arg) const
     {
         if(!--the_handle->cnt)
             release<Handle>(the_handle);
@@ -323,11 +325,11 @@ public:
         the_handle = clone((uint8*)arg, size);
         return *this;
     }
-    friend bool operator==(const Nil&, const Mutable& arg)
+    friend bool operator==(const Nil&, String& arg)
     {
         return (nil_handle() == arg.the_handle);
     }
-    friend bool operator!=(const Nil&, const Mutable& arg)
+    friend bool operator!=(const Nil&, String& arg)
     {
         return (nil_handle() != arg.the_handle);
     }
@@ -339,11 +341,11 @@ public:
     {
         return (the_handle != nil_handle());
     }
-    bool operator==(const Mutable& arg) const
+    bool operator==(String& arg) const
     {
         return (the_handle == arg.the_handle);
     }
-    bool operator!=(const Mutable& arg) const
+    bool operator!=(String& arg) const
     {
         return (the_handle != arg.the_handle);
     }
@@ -353,7 +355,7 @@ public:
         ::memcpy(arg, the_handle->data + pos, size);
         pos += size;
     }
-    void copy_in(int64& pos, const Mutable& arg) const
+    void copy_in(int64& pos, String& arg) const
     {
         copy_in(pos, arg.the_handle->data, arg.the_handle->size);
     }
@@ -472,16 +474,16 @@ public:
         Convert::it(data, size, arg, precision);
         copy_in(pos, data, size);
     }
-    const Mutable& prepend(const Mutable& arg) const
+    String& prepend(String& arg) const
     {
         return prepend(arg.the_handle->data, arg.the_handle->size);
     }
-    const Mutable& prepend(const char* arg) const
+    String& prepend(const char* arg) const
     {
         auto size = ::strlen(arg);
         return prepend((uint8*)arg, size);
     }
-    const Mutable& prepend(uint8* arg, int64 size) const
+    String& prepend(uint8* arg, int64 size) const
     {
         auto total = the_handle->size + size;
         Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
@@ -495,7 +497,7 @@ public:
         the_handle = handle;
         return *this;
     }
-    const Mutable& prepend(bool arg) const
+    String& prepend(bool arg) const
     {
         uint8 buffer[bool_max_digit];
         auto data = buffer;
@@ -503,7 +505,7 @@ public:
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
-    const Mutable& prepend(int8 arg) const
+    String& prepend(int8 arg) const
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -511,7 +513,7 @@ public:
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
-    const Mutable& prepend(int16 arg) const
+    String& prepend(int16 arg) const
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -519,7 +521,7 @@ public:
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
-    const Mutable& prepend(int32 arg) const
+    String& prepend(int32 arg) const
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -527,7 +529,7 @@ public:
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
-    const Mutable& prepend(int64 arg) const
+    String& prepend(int64 arg) const
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -535,7 +537,7 @@ public:
         Convert::it(data, size, arg);
         return prepend(data, size);
     }
-    const Mutable& prepend(uint8 arg, Base base = decimal) const
+    String& prepend(uint8 arg, Base base = decimal) const
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -543,7 +545,7 @@ public:
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
-    const Mutable& prepend(uint16 arg, Base base = decimal) const
+    String& prepend(uint16 arg, Base base = decimal) const
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -551,7 +553,7 @@ public:
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
-    const Mutable& prepend(uint32 arg, Base base = decimal) const
+    String& prepend(uint32 arg, Base base = decimal) const
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -559,7 +561,7 @@ public:
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
-    const Mutable& prepend(uint64 arg, Base base = decimal) const
+    String& prepend(uint64 arg, Base base = decimal) const
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -567,7 +569,7 @@ public:
         Convert::it(data, size, arg, base);
         return prepend(data, size);
     }
-    const Mutable& prepend(float32 arg, int64 precision = float32_precision) const
+    String& prepend(float32 arg, int64 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -575,7 +577,7 @@ public:
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
-    const Mutable& prepend(float64 arg, int64 precision = float64_precision) const
+    String& prepend(float64 arg, int64 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -583,7 +585,7 @@ public:
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
-    const Mutable& prepend(float128 arg, int64 precision = float128_precision) const
+    String& prepend(float128 arg, int64 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -591,7 +593,7 @@ public:
         Convert::it(data, size, arg, precision);
         return prepend(data, size);
     }
-    const Mutable& append(const Mutable& arg) const
+    String& append(String& arg) const
     {
         if(the_handle == nil_handle())
         {
@@ -603,13 +605,13 @@ public:
             append(arg.the_handle->data, arg.the_handle->size);
         return *this;
     }
-    const Mutable& append(const char* arg) const
+    String& append(const char* arg) const
     {
         auto size = ::strlen(arg);
         append((uint8*)arg, size);
         return *this;
     }
-    const Mutable& append(uint8* arg, int64 size) const
+    String& append(uint8* arg, int64 size) const
     {
         auto total = the_handle->size + size;
         if(--the_handle->cnt)
@@ -629,7 +631,7 @@ public:
         the_handle->data[total] = '\0';
         return *this;
     }
-    const Mutable& append(bool arg) const
+    String& append(bool arg) const
     {
         uint8 buffer[bool_max_digit];
         auto data = buffer;
@@ -637,7 +639,7 @@ public:
         Convert::it(data, size, arg);
         return append(data, size);
     }
-    const Mutable& append(int8 arg) const
+    String& append(int8 arg) const
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -645,7 +647,7 @@ public:
         Convert::it(data, size, arg);
         return append(data, size);
     }
-    const Mutable& append(int16 arg) const
+    String& append(int16 arg) const
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -653,7 +655,7 @@ public:
         Convert::it(data, size, arg);
         return append(data, size);
     }
-    const Mutable& append(int32 arg) const
+    String& append(int32 arg) const
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -661,7 +663,7 @@ public:
         Convert::it(data, size, arg);
         return append(data, size);
     }
-    const Mutable& append(int64 arg) const
+    String& append(int64 arg) const
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -669,7 +671,7 @@ public:
         Convert::it(data, size, arg);
         return append(data, size);
     }
-    const Mutable& append(uint8 arg, Base base = decimal) const
+    String& append(uint8 arg, Base base = decimal) const
     {
         uint8 buffer[int8_max_digit];
         auto data = buffer;
@@ -677,7 +679,7 @@ public:
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
-    const Mutable& append(uint16 arg, Base base = decimal) const
+    String& append(uint16 arg, Base base = decimal) const
     {
         uint8 buffer[int16_max_digit];
         auto data = buffer;
@@ -685,7 +687,7 @@ public:
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
-    const Mutable& append(uint32 arg, Base base = decimal) const
+    String& append(uint32 arg, Base base = decimal) const
     {
         uint8 buffer[int32_max_digit];
         auto data = buffer;
@@ -693,7 +695,7 @@ public:
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
-    const Mutable& append(uint64 arg, Base base = decimal) const
+    String& append(uint64 arg, Base base = decimal) const
     {
         uint8 buffer[int64_max_digit];
         auto data = buffer;
@@ -701,7 +703,7 @@ public:
         Convert::it(data, size, arg, base);
         return append(data, size);
     }
-    const Mutable& append(float32 arg, int64 precision = float32_precision) const
+    String& append(float32 arg, int64 precision = float32_precision) const
     {
         uint8 buffer[float32_max_digit + int8_max];
         auto data = buffer;
@@ -709,7 +711,7 @@ public:
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
-    const Mutable& append(float64 arg, int64 precision = float64_precision) const
+    String& append(float64 arg, int64 precision = float64_precision) const
     {
         uint8 buffer[float64_max_digit + int8_max];
         auto data = buffer;
@@ -717,7 +719,7 @@ public:
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
-    const Mutable& append(float128 arg, int64 precision = float128_precision) const
+    String& append(float128 arg, int64 precision = float128_precision) const
     {
         uint8 buffer[float128_max_digit + int8_max];
         auto data = buffer;
@@ -725,7 +727,7 @@ public:
         Convert::it(data, size, arg, precision);
         return append(data, size);
     }
-    const Mutable& attach(uint8 arg) const
+    String& attach(uint8 arg) const
     {
         return append((uint8*)&arg, sizeof(arg));
     }
@@ -820,5 +822,3 @@ private:
 private:
     mutable Handle* the_handle;
 };
-
-typedef const Mutable String;

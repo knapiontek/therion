@@ -66,11 +66,11 @@ public:
         Node* the_bond;
         HashSet* the_set;
     };
-    class Loop : public Iterator
+    class Range : public Iterator
     {
         friend class HashSet;
     public:
-        bool operator!=(Loop& it)
+        bool operator!=(Range& it)
         {
             return this->the_node != it.the_node;
         }
@@ -86,21 +86,21 @@ public:
                     : this->the_set->the_tail;
             }
         }
-        Loop& operator*()
+        Range& operator*()
         {
             return *this;
         }
     private:
-        Loop(Iterator& it) : Iterator(it)
+        Range(Iterator& it) : Iterator(it)
         {
 
         }
-        Loop(Iterator&& it) : Iterator(it)
+        Range(Iterator&& it) : Iterator(it)
         {
 
         }
     };
-    class Reverse : public Loop
+    class Reverse : public Range
     {
         friend class HashSet;
     public:
@@ -115,11 +115,11 @@ public:
             this->the_node--;
         }
     private:
-        Reverse(Iterator& it) : Loop(it)
+        Reverse(Iterator& it) : Range(it)
         {
 
         }
-        Reverse(Iterator&& it) : Loop(it)
+        Reverse(Iterator&& it) : Range(it)
         {
 
         }
@@ -199,7 +199,7 @@ public:
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
-    Loop begin()
+    Range begin()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
@@ -207,7 +207,7 @@ public:
             : the_tail;
         return Iterator(the_head_page, the_head_page->data, bond, this);
     }
-    Loop end()
+    Range end()
     {
         return tail();
     }

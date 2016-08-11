@@ -1,9 +1,9 @@
 
 template<typename Forward>
-class Reverse
+class ReverseClass
 {
 public:
-    Reverse(Forward& forward): the_forward(forward)
+    ReverseClass(Forward& forward): the_forward(forward)
     {
 
     }
@@ -20,28 +20,28 @@ private:
 };
 
 template<typename Forward>
-Reverse<Forward> reverse(Forward& forward)
+ReverseClass<Forward> reverse(Forward& forward)
 {
-    return Reverse<Forward>(forward);
+    return ReverseClass<Forward>(forward);
 }
 
 template<typename Forward>
-Reverse<Forward> reverse(Forward&& forward)
+ReverseClass<Forward> reverse(Forward&& forward)
 {
-    return Reverse<Forward>(forward);
+    return ReverseClass<Forward>(forward);
 }
 
-class Range
+class RangeClass
 {
 public:
-    class Loop
+    class Range
     {
     public:
-        Loop(int64 pos) : the_pos(pos)
+        Range(int64 pos) : the_pos(pos)
         {
 
         }
-        bool operator!=(Loop& it)
+        bool operator!=(Range& it)
         {
             return the_pos != it.the_pos;
         }
@@ -56,10 +56,10 @@ public:
     protected:
         int64 the_pos;
     };
-    class Reverse : public Loop
+    class Reverse : public Range
     {
     public:
-        Reverse(Loop&& it) : Loop(it)
+        Reverse(Range&& it) : Range(it)
         {
 
         }
@@ -69,37 +69,37 @@ public:
         }
     };
 public:
-    Range(int64 begin, int64 end) : the_begin(begin), the_end(end)
+    RangeClass(int64 begin, int64 end) : the_begin(begin), the_end(end)
     {
 
     }
-    Loop begin()
+    Range begin()
     {
-        return Loop(the_begin);
+        return Range(the_begin);
     }
-    Loop end()
+    Range end()
     {
-        return Loop(the_end);
+        return Range(the_end);
     }
     Reverse rbegin()
     {
-        return Reverse(Loop(the_end - 1));
+        return Reverse(Range(the_end - 1));
     }
     Reverse rend()
     {
-        return Reverse(Loop(the_begin - 1));
+        return Reverse(Range(the_begin - 1));
     }
 private:
     int64 the_begin;
     int64 the_end;
 };
 
-Range range(int64 begin, int64 end)
+RangeClass range(int64 begin, int64 end)
 {
-    return Range(begin, end);
+    return RangeClass(begin, end);
 }
 
-Range range(int64 end)
+RangeClass range(int64 end)
 {
-    return Range(0, end);
+    return RangeClass(0, end);
 }
