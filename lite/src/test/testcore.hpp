@@ -1039,7 +1039,7 @@ inline void test_hash_map()
         env::Con("key: $1, value: $2").arg(i.key()).arg(i.value()).endln();
     }
     env::Con("--- size: $1").arg(m.size()).endln();
-    for(auto& i : map)
+    for(auto& i : core::reverse(m))
     {
         env::Con("key: $1, value: $2").arg(i.key()).arg(i.value()).endln();
     }
@@ -1053,14 +1053,12 @@ inline void test_hash_map()
         position++;
     }
     core::verify(position == map.size());
-    /*
     for(auto& it : core::reverse(map))
     {
         core::verify(it.value() == map[it.key()]);
         position--;
     }
     core::verify(position == 0);
-    */
 
     // put/erase multi-value
     auto erased = 0;

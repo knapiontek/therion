@@ -4,3 +4,17 @@ uint,int types -> auto
 at -> []
 throw Fail, Exception
 erase_by_iterator -> erase_by_collection
+
+
+
+
+begin
+end => tail
+!=
+*
+++
+!=
+*
+++
+!=
+*

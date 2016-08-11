@@ -102,7 +102,16 @@ public:
     public:
         void operator++()
         {
-            this->prev();
+            if(this->the_node == this->the_page->data)
+            {
+                if(this->the_page != this->the_map->the_head_page)
+                {
+                    this->the_page = this->the_page->prev;
+                    this->the_node = this->the_page->data + this->the_map->the_page_size;
+                    this->the_bond = this->the_node;
+                }
+            }
+            this->the_node--;
         }
     private:
         Reverse(Iterator& it) : Loop(it)
