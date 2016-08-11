@@ -14,7 +14,7 @@ public:
     public:
         bool is_head()
         {
-            return the_page == the_map->the_head_page && the_node == the_page->data;
+            return !the_page->prev && the_node == the_page->data;
         }
         bool is_tail()
         {
@@ -25,11 +25,11 @@ public:
             the_node++;
             if(the_node == the_bond)
             {
-                if(the_node == the_map->the_tail)
+                if(!the_page->next)
                     return false;
                 the_page = the_page->next;
                 the_node = the_page->data;
-                the_bond = (the_page != the_map->the_tail_page)
+                the_bond = the_page->next
                     ? the_page->data + the_map->the_page_size
                     : the_map->the_tail;
             }
@@ -39,7 +39,7 @@ public:
         {
             if(the_node == the_page->data)
             {
-                if(the_page == the_map->the_head_page)
+                if(!the_page->prev)
                     return false;
                 the_page = the_page->prev;
                 the_node = the_page->data + the_map->the_page_size;
@@ -80,7 +80,15 @@ public:
         }
         void operator++()
         {
-            this->next();
+            this->the_node++;
+            if(this->the_node == this->the_bond && this->the_page->next)
+            {
+                this->the_page = this->the_page->next;
+                this->the_node = this->the_page->data;
+                this->the_bond = this->the_page->next
+                    ? this->the_page->data + this->the_map->the_page_size
+                    : this->the_map->the_tail;
+            }
         }
         Loop& operator*()
         {
@@ -102,14 +110,11 @@ public:
     public:
         void operator++()
         {
-            if(this->the_node == this->the_page->data)
+            if(this->the_node == this->the_page->data && this->the_page->prev)
             {
-                if(this->the_page != this->the_map->the_head_page)
-                {
-                    this->the_page = this->the_page->prev;
-                    this->the_node = this->the_page->data + this->the_map->the_page_size;
-                    this->the_bond = this->the_node;
-                }
+                this->the_page = this->the_page->prev;
+                this->the_node = this->the_page->data + this->the_map->the_page_size;
+                this->the_bond = this->the_node;
             }
             this->the_node--;
         }

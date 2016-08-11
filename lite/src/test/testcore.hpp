@@ -1031,22 +1031,8 @@ inline void test_hash_map()
     }
     core::verify(size == map.size());
 
-    core::HashMap<int, int> m(3);
-    m[1] = 1;
-    m[2] = 2;
-    auto i = m.tail();
-    while (i.prev()) {
-        env::Con("key: $1, value: $2").arg(i.key()).arg(i.value()).endln();
-    }
-    env::Con("--- size: $1").arg(m.size()).endln();
-    for(auto& i : core::reverse(m))
-    {
-        env::Con("key: $1, value: $2").arg(i.key()).arg(i.value()).endln();
-    }
-    env::Con("--- size: $1").arg(m.size()).endln();
-
     // loop iterator
-    core::int64 position = 0;
+    auto position = 0;
     for(auto& it : map)
     {
         core::verify(it.value() == map[it.key()]);
