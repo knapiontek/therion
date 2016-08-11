@@ -203,8 +203,7 @@ public:
     }
     Loop end()
     {
-        assert(the_page_size);
-        return Iterator(the_tail_page, the_tail, the_tail, this);
+        return tail();
     }
     Reverse rbegin()
     {
@@ -213,11 +212,7 @@ public:
     }
     Reverse rend()
     {
-        assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
-            ? the_head_page->data + the_page_size
-            : the_tail;
-        return Iterator(the_head_page, the_head_page->data - 1, bond, this);
+        return head();
     }
     Find find(const Key& key)
     {

@@ -228,7 +228,7 @@ public:
     }
     Loop end() const
     {
-        return Iterator(the_handle->data + the_handle->size, the_handle);
+        return tail();
     }
     Reverse rbegin() const
     {
@@ -236,7 +236,7 @@ public:
     }
     Reverse rend() const
     {
-        return Iterator(the_handle->data - 1, the_handle);
+        return head();
     }
     uint8* data() const
     {
