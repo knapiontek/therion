@@ -34,6 +34,22 @@ public:
         {
             return *the_elem;
         }
+        bool operator!=(Iterator& it)
+        {
+            return the_elem != it.the_elem;
+        }
+        void operator++()
+        {
+            the_elem++;
+        }
+        void operator--()
+        {
+            the_elem--;
+        }
+        Iterator& operator*()
+        {
+            return *this;
+        }
     private:
         Iterator(Element* elem, Seq* seq)
         {
@@ -44,46 +60,16 @@ public:
         Element* the_elem;
         Seq* the_seq;
     };
-    class Range : public Iterator
-    {
-        friend class Seq;
-    public:
-        bool operator!=(Range& it)
-        {
-            return this->the_elem != it.the_elem;
-        }
-        void operator++()
-        {
-            this->the_elem++;
-        }
-        Range& operator*()
-        {
-            return *this;
-        }
-    private:
-        Range(Iterator& it) : Iterator(it)
-        {
-
-        }
-        Range(Iterator&& it) : Iterator(it)
-        {
-
-        }
-    };
-    class Reverse : public Range
+    class Reverse : public Iterator
     {
         friend class Seq;
     public:
         void operator++()
         {
-            this->the_elem--;
+            Iterator::operator--();
         }
     private:
-        Reverse(Iterator& it) : Range(it)
-        {
-
-        }
-        Reverse(Iterator&& it) : Range(it)
+        Reverse(Iterator&& it) : Iterator(it)
         {
 
         }
@@ -156,11 +142,11 @@ public:
     {
         return Iterator(the_tail, this);
     }
-    Range begin()
+    Iterator begin()
     {
         return Iterator(the_head, this);
     }
-    Range end()
+    Iterator end()
     {
         return tail();
     }

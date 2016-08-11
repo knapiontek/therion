@@ -57,6 +57,38 @@ public:
         {
             return *the_cr.elem;
         }
+        bool operator!=(Iterator& it)
+        {
+            return the_cr.elem != it.the_cr.elem;
+        }
+        void operator++()
+        {
+            the_cr.elem++;
+            if(the_cr.elem == the_hbond && the_cr.elem != the_list->the_tail.elem)
+            {
+                the_cr.page++;
+                the_cr.elem = *the_cr.page;
+                the_lbond = the_cr.elem;
+                the_hbond = (the_cr.page != the_list->the_tail.page)
+                    ? *the_cr.page + the_list->the_page_size
+                    : the_list->the_tail.elem;
+            }
+        }
+        void operator--()
+        {
+            if(the_cr.elem == the_lbond && the_cr.page != the_list->the_head)
+            {
+                the_cr.page--;
+                the_cr.elem = *the_cr.page + the_list->the_page_size;
+                the_lbond = *the_cr.page;
+                the_hbond = the_cr.elem;
+            }
+            the_cr.elem--;
+        }
+        Iterator& operator*()
+        {
+            return *this;
+        }
     private:
         Iterator(Element** page, Element* elem, Element* lbond, Element* hbond, List* list)
         {
@@ -72,62 +104,16 @@ public:
         Element* the_hbond;
         List* the_list;
     };
-    class Range : public Iterator
-    {
-        friend class List;
-    public:
-        bool operator!=(Range& it)
-        {
-            return this->the_cr.elem != it.the_cr.elem;
-        }
-        void operator++()
-        {
-            this->the_cr.elem++;
-            if(this->the_cr.elem == this->the_hbond && this->the_cr.elem != this->the_list->the_tail.elem)
-            {
-                this->the_cr.page++;
-                this->the_cr.elem = *this->the_cr.page;
-                this->the_lbond = this->the_cr.elem;
-                this->the_hbond = (this->the_cr.page != this->the_list->the_tail.page)
-                    ? *this->the_cr.page + this->the_list->the_page_size
-                    : this->the_list->the_tail.elem;
-            }
-        }
-        Range& operator*()
-        {
-            return *this;
-        }
-    private:
-        Range(Iterator& it) : Iterator(it)
-        {
-
-        }
-        Range(Iterator&& it) : Iterator(it)
-        {
-
-        }
-    };
-    class Reverse : public Range
+    class Reverse : public Iterator
     {
         friend class List;
     public:
         void operator++()
         {
-            if(this->the_cr.elem == this->the_lbond && this->the_cr.page != this->the_list->the_head)
-            {
-                this->the_cr.page--;
-                this->the_cr.elem = *this->the_cr.page + this->the_list->the_page_size;
-                this->the_lbond = *this->the_cr.page;
-                this->the_hbond = this->the_cr.elem;
-            }
-            this->the_cr.elem--;
+            Iterator::operator--();
         }
     private:
-        Reverse(Iterator& it) : Range(it)
-        {
-
-        }
-        Reverse(Iterator&& it) : Range(it)
+        Reverse(Iterator&& it) : Iterator(it)
         {
 
         }
@@ -233,7 +219,7 @@ public:
         assert(the_page_size);
         return Iterator(the_tail.page, the_tail.elem, *the_tail.page, the_tail.elem, this);
     }
-    Range begin()
+    Iterator begin()
     {
         assert(the_page_size);
         Element* hbond = (the_head != the_tail.page)
@@ -241,7 +227,7 @@ public:
             : the_tail.elem;
         return Iterator(the_head, *the_head, *the_head, hbond, this);
     }
-    Range end()
+    Iterator end()
     {
         return tail();
     }

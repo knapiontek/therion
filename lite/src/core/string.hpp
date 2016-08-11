@@ -36,6 +36,22 @@ public:
         {
             return *the_pos;
         }
+        bool operator!=(Iterator& it)
+        {
+            return the_pos != it.the_pos;
+        }
+        void operator++()
+        {
+            the_pos++;
+        }
+        void operator--()
+        {
+            the_pos--;
+        }
+        Iterator& operator*()
+        {
+            return *this;
+        }
     private:
         Iterator(uint8* pos, Handle* handle)
         {
@@ -46,46 +62,16 @@ public:
         uint8* the_pos;
         Handle* the_handle;
     };
-    class Range : public Iterator
-    {
-        friend class StringClass;
-    public:
-        bool operator!=(Range& it)
-        {
-            return the_pos != it.the_pos;
-        }
-        void operator++()
-        {
-            the_pos++;
-        }
-        Range& operator*()
-        {
-            return *this;
-        }
-    private:
-        Range(Iterator& it) : Iterator(it)
-        {
-
-        }
-        Range(Iterator&& it) : Iterator(it)
-        {
-
-        }
-    };
-    class Reverse : public Range
+    class Reverse : public Iterator
     {
         friend class StringClass;
     public:
         void operator++()
         {
-            the_pos--;
+            Iterator::operator--();
         }
     private:
-        Reverse(Iterator& it) : Range(it)
-        {
-
-        }
-        Reverse(Iterator&& it) : Range(it)
+        Reverse(Iterator&& it) : Iterator(it)
         {
 
         }
@@ -224,11 +210,11 @@ public:
     {
         return Iterator(the_handle->data + the_handle->size, the_handle);
     }
-    Range begin() const
+    Iterator begin() const
     {
         return Iterator(the_handle->data, the_handle);
     }
-    Range end() const
+    Iterator end() const
     {
         return tail();
     }

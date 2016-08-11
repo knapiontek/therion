@@ -52,6 +52,36 @@ public:
         {
             return the_node->value;
         }
+        bool operator!=(Iterator& it)
+        {
+            return the_node != it.the_node;
+        }
+        void operator++()
+        {
+            the_node++;
+            if(the_node == the_bond && the_page->next)
+            {
+                the_page = the_page->next;
+                the_node = the_page->data;
+                the_bond = the_page->next
+                    ? the_page->data + the_set->the_page_size
+                    : the_set->the_tail;
+            }
+        }
+        void operator--()
+        {
+            if(the_node == the_page->data && the_page->prev)
+            {
+                the_page = the_page->prev;
+                the_node = the_page->data + the_set->the_page_size;
+                the_bond = the_node;
+            }
+            the_node--;
+        }
+        Iterator& operator*()
+        {
+            return *this;
+        }
     private:
         Iterator(Page* page, Node* node, Node* bond, HashSet* set)
         {
@@ -66,60 +96,16 @@ public:
         Node* the_bond;
         HashSet* the_set;
     };
-    class Range : public Iterator
-    {
-        friend class HashSet;
-    public:
-        bool operator!=(Range& it)
-        {
-            return this->the_node != it.the_node;
-        }
-        void operator++()
-        {
-            this->the_node++;
-            if(this->the_node == this->the_bond && this->the_page->next)
-            {
-                this->the_page = this->the_page->next;
-                this->the_node = this->the_page->data;
-                this->the_bond = this->the_page->next
-                    ? this->the_page->data + this->the_set->the_page_size
-                    : this->the_set->the_tail;
-            }
-        }
-        Range& operator*()
-        {
-            return *this;
-        }
-    private:
-        Range(Iterator& it) : Iterator(it)
-        {
-
-        }
-        Range(Iterator&& it) : Iterator(it)
-        {
-
-        }
-    };
-    class Reverse : public Range
+    class Reverse : public Iterator
     {
         friend class HashSet;
     public:
         void operator++()
         {
-            if(this->the_node == this->the_page->data && this->the_page->prev)
-            {
-                this->the_page = this->the_page->prev;
-                this->the_node = this->the_page->data + this->the_set->the_page_size;
-                this->the_bond = this->the_node;
-            }
-            this->the_node--;
+            Iterator::operator--();
         }
     private:
-        Reverse(Iterator& it) : Range(it)
-        {
-
-        }
-        Reverse(Iterator&& it) : Range(it)
+        Reverse(Iterator&& it) : Iterator(it)
         {
 
         }
@@ -199,7 +185,7 @@ public:
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
-    Range begin()
+    Iterator begin()
     {
         assert(the_page_size);
         Node* bond = (the_head_page != the_tail_page)
@@ -207,7 +193,7 @@ public:
             : the_tail;
         return Iterator(the_head_page, the_head_page->data, bond, this);
     }
-    Range end()
+    Iterator end()
     {
         return tail();
     }
