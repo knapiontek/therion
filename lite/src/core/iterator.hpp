@@ -49,7 +49,7 @@ public:
         {
             the_pos++;
         }
-        int64 operator*()
+        int64& operator*()
         {
             return the_pos;
         }
