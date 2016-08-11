@@ -907,6 +907,21 @@ inline void test_hash_set()
     }
     core::verify(size == set.size());
 
+    // loop iterator
+    auto position = 0;
+    for(auto& it : set)
+    {
+        core::verify(it.value() == set[it.value()]);
+        position++;
+    }
+    core::verify(position == set.size());
+    for(auto& it : core::reverse(set))
+    {
+        core::verify(it.value() == set[it.value()]);
+        position--;
+    }
+    core::verify(position == 0);
+
     // put/erase multi-value
     auto erased = 0;
     while(erased < 2)
@@ -1143,7 +1158,7 @@ inline void test_tree_set()
     core::verify(!set.sort().next());
     set.erase_all();
 
-    // random populated
+    // randomly populated
     for(auto& i : core::range(size))
     {
         core::String value(core::randomize(i) % variation);
@@ -1155,6 +1170,21 @@ inline void test_tree_set()
             core::verify(set.lookup(value)->equal(value));
         }
     }
+
+    // loop iterator
+    auto position = 0;
+    for(auto& it : set)
+    {
+        core::verify(it.value() == set[it.value()]);
+        position++;
+    }
+    core::verify(position == set.size());
+    for(auto& it : core::reverse(set))
+    {
+        core::verify(it.value() == set[it.value()]);
+        position--;
+    }
+    core::verify(position == 0);
 
     // put/erase multi-value
     core::String rand(core::randomize() % size);
@@ -1312,7 +1342,7 @@ inline void test_tree_map()
     core::verify(!map.sort().next());
     map.erase_all();
 
-    // random populated
+    // randomly populated
     for(auto& i : core::range(size))
     {
         core::String key(core::randomize(i) % variation);
@@ -1324,6 +1354,21 @@ inline void test_tree_map()
             core::verify(i == map.lookup(key));
         }
     }
+
+    // loop iterator
+    auto position = 0;
+    for(auto& it : map)
+    {
+        core::verify(it.value() == map[it.key()]);
+        position++;
+    }
+    core::verify(position == map.size());
+    for(auto& it : core::reverse(map))
+    {
+        core::verify(it.value() == map[it.key()]);
+        position--;
+    }
+    core::verify(position == 0);
 
     // put/erase multi-value
     core::String key(core::randomize() % size);

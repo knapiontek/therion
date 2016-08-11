@@ -16,7 +16,7 @@ public:
     public:
         bool is_head()
         {
-            return the_page == the_set->the_head_page && the_node == the_page->data;
+            return !the_page->prev && the_node == the_page->data;
         }
         bool is_tail()
         {
@@ -27,11 +27,11 @@ public:
             the_node++;
             if(the_node == the_bond)
             {
-                if(the_node == the_set->the_tail)
+                if(!the_page->next)
                     return false;
                 the_page = the_page->next;
                 the_node = the_page->data;
-                the_bond = (the_page != the_set->the_tail_page)
+                the_bond = the_page->next
                     ? the_page->data + the_set->the_page_size
                     : the_set->the_tail;
             }
@@ -41,7 +41,7 @@ public:
         {
             if(the_node == the_page->data)
             {
-                if(the_page == the_set->the_head_page)
+                if(!the_page->prev)
                     return false;
                 the_page = the_page->prev;
                 the_node = the_page->data + the_set->the_page_size;
@@ -67,6 +67,64 @@ public:
         Node* the_node;
         Node* the_bond;
         TreeSet* the_set;
+    };
+    class Loop : public Iterator
+    {
+        friend class TreeSet;
+    public:
+        bool operator!=(Loop& it)
+        {
+            return this->the_node != it.the_node;
+        }
+        void operator++()
+        {
+            this->the_node++;
+            if(this->the_node == this->the_bond && this->the_page->next)
+            {
+                this->the_page = this->the_page->next;
+                this->the_node = this->the_page->data;
+                this->the_bond = this->the_page->next
+                    ? this->the_page->data + this->the_set->the_page_size
+                    : this->the_set->the_tail;
+            }
+        }
+        Loop& operator*()
+        {
+            return *this;
+        }
+    private:
+        Loop(Iterator& it) : Iterator(it)
+        {
+
+        }
+        Loop(Iterator&& it) : Iterator(it)
+        {
+
+        }
+    };
+    class Reverse : public Loop
+    {
+        friend class TreeSet;
+    public:
+        void operator++()
+        {
+            if(this->the_node == this->the_page->data && this->the_page->prev)
+            {
+                this->the_page = this->the_page->prev;
+                this->the_node = this->the_page->data + this->the_set->the_page_size;
+                this->the_bond = this->the_node;
+            }
+            this->the_node--;
+        }
+    private:
+        Reverse(Iterator& it) : Loop(it)
+        {
+
+        }
+        Reverse(Iterator&& it) : Loop(it)
+        {
+
+        }
     };
     class Sort
     {
@@ -226,6 +284,27 @@ public:
         assert(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
+    Loop begin()
+    {
+        assert(the_page_size);
+        Node* bond = (the_head_page != the_tail_page)
+            ? the_head_page->data + the_page_size
+            : the_tail;
+        return Iterator(the_head_page, the_head_page->data, bond, this);
+    }
+    Loop end()
+    {
+        return tail();
+    }
+    Reverse rbegin()
+    {
+        assert(the_page_size);
+        return Iterator(the_tail_page, the_tail - 1, the_tail, this);
+    }
+    Reverse rend()
+    {
+        return head();
+    }
     Sort sort()
     {
         assert(the_page_size);
@@ -343,6 +422,10 @@ public:
         insert_balance(i, path);
         assert(-1 != self_test(the_root));
         return pos->value;
+    }
+    Value& operator[](const Value& value)
+    {
+        return at(value);
     }
     template<class Pager>
     Value& acquire(const Value& value, Pager& pager)
