@@ -50,7 +50,6 @@ public:
     void init(core::int64& cnt)
     {
         the_cnt = cnt;
-        the_flower = "flower";
     }
     virtual ~Flower()
     {
@@ -62,8 +61,6 @@ public:
     }
 protected:
     core::share::int64 the_cnt;
-private:
-    core::String the_flower;
 };
 
 class Poppy : public Flower
@@ -75,7 +72,6 @@ public:
     void init(core::int64& cnt)
     {
         Flower::init(cnt);
-        the_poppy = "poppy";
     }
     virtual ~Poppy()
     {
@@ -85,8 +81,6 @@ public:
     {
         the_cnt--;
     }
-private:
-    core::String the_poppy;
 };
 
 core::String cs_first = "first";

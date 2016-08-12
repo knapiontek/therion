@@ -39,7 +39,7 @@ public:
         if(!--the_handle->cnt)
         {
             Type* type = the_handle->type;
-            type->~Type(); // gcc bug
+            type->~Type();
             release<Handle>(the_handle);
         }
     }
@@ -49,7 +49,7 @@ public:
         if(!--the_handle->cnt)
         {
             Type* type = the_handle->type;
-            type->~Type(); // gcc bug
+            type->~Type();
             release<Handle>(the_handle);
         }
         the_handle = nil_handle();
@@ -67,7 +67,7 @@ public:
         if(!--the_handle->cnt)
         {
             Type* type = the_handle->type;
-            type->~Type(); // gcc bug
+            type->~Type();
             release<Handle>(the_handle);
         }
         the_handle = arg.the_handle;
@@ -81,7 +81,7 @@ public:
         if(!--the_handle->cnt)
         {
             Type* type = the_handle->type;
-            type->~Type(); // gcc bug
+            type->~Type();
             release<Handle>(the_handle);
         }
         the_handle = (Handle*)arg.the_handle;
