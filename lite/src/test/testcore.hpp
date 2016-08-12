@@ -133,6 +133,17 @@ inline void test_share()
     core::verify(!cnt);
 }
 
+struct Triple
+{
+    Triple(core::int64 i, core::float64 f, core::String& st) : i(i), f(f), st(st)
+    {
+
+    }
+    core::int64 i;
+    core::float64 f;
+    core::String st;
+};
+
 inline void test_manage()
 {
     // trivial
@@ -173,6 +184,12 @@ inline void test_manage()
         flower->virtual_method();
     }
     core::verify(!cnt);
+
+    // variadic template constructor
+    core::Managed<Triple> variadic(1, 2.0, "3");
+    core::verify(1 == variadic->i);
+    core::verify(2.0 == variadic->f);
+    core::verify(variadic->st.equal("3"));
 }
 
 inline void test_iterator()

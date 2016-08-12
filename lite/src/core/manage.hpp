@@ -34,6 +34,13 @@ public:
         the_handle = (Handle*)arg.the_handle;
         the_handle->cnt++;
     }
+    template<typename... Args>
+    Managed(const Args&... args)
+    {
+        the_handle = acquire<Handle>(sizeof(Handle));
+        the_handle->cnt = 1;
+        new((void*)the_handle->type) Type(args...);
+    }
     ~Managed()
     {
         if(!--the_handle->cnt)
