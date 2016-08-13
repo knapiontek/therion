@@ -137,11 +137,13 @@ inline void test_manage()
     // trivial
     core::manage::int64 manage_one = 1;
     core::manage::int64 manage_two = manage_one;
+    core::assert(manage_two != core::nil);
     manage_one = 0;
 
     // complex
     core::String::manage manage_first = cs_first;
     core::String::manage manage_second = manage_first;
+    core::assert(manage_second != core::nil);
     manage_first = cs_third.clone();
     core::verify(manage_first->equal(cs_third));
     manage_first = cs_third;
