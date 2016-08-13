@@ -126,7 +126,7 @@ public:
         }
         bool next()
         {
-            Node* pos = (*the_node)->leaves[1];
+            auto pos = (*the_node)->leaves[1];
             the_node--;
             while(pos)
             {
@@ -137,7 +137,7 @@ public:
         }
         bool prev()
         {
-            Node* pos = (*the_node)->leaves[0];
+            auto pos = (*the_node)->leaves[0];
             the_node--;
             while(pos)
             {
@@ -260,7 +260,7 @@ public:
     Iterator head()
     {
         assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
+        auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
         return Iterator(the_head_page, the_head_page->data - 1, bond, this);
@@ -273,7 +273,7 @@ public:
     Iterator begin()
     {
         assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
+        auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
         return Iterator(the_head_page, the_head_page->data, bond, this);
@@ -299,7 +299,7 @@ public:
     Find find(const Value& value)
     {
         assert(the_page_size);
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -344,7 +344,7 @@ public:
     Shared<Value> lookup(const Value& value)
     {
         assert(the_page_size);
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -358,7 +358,7 @@ public:
     bool set(const Value& value)
     {
         assert(the_page_size);
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -383,7 +383,7 @@ public:
         i->dir = 0;
 
         // search/build path
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -425,7 +425,7 @@ public:
         i->dir = 0;
 
         // search/build path
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -462,7 +462,7 @@ public:
         i->dir = 0;
 
         // search/build path
-        Node* pos = the_root;
+        auto pos = the_root;
         while(pos)
         {
             auto dir = the_index.compare((Value&)value, pos->value);
@@ -517,7 +517,7 @@ public:
             i->dir = 0;
 
             // search value
-            Node* pos = the_root;
+            auto pos = the_root;
             while(pos)
             {
                 auto dir = the_index.compare((Value&)value, pos->value);
@@ -532,7 +532,7 @@ public:
                 {
                     // remove value and replace with the greatest lesser
                     pos->value.~Value();
-                    Node* lesser = pos->leaves[0];
+                    auto lesser = pos->leaves[0];
                     if(lesser)
                     {
                         if(lesser->leaves[1])
@@ -546,7 +546,7 @@ public:
                                 i->dir = 1;
                                 lesser = lesser->leaves[1];
                             } while(lesser);
-                            Node* detached = i->node->leaves[0];
+                            auto detached = i->node->leaves[0];
 
                             // replace pos with bottom leaf
                             parent->node->leaves[parent->dir] = i->node;
@@ -578,13 +578,13 @@ public:
                     assert(-1 != self_test(the_root));
 
                     // relocate tail to fill in a gap
-                    Node* tail = the_tail - 1;
+                    auto tail = the_tail - 1;
                     if(pos != tail)
                     {
                         Node* heap[the_treeset_path_size];
                         Node** hp = heap;
                         Node** parent = &the_root;
-                        Node* tail_pos = the_root;
+                        auto tail_pos = the_root;
                         while(tail_pos != tail)
                         {
                             auto dir = the_index.compare(tail->value, tail_pos->value);
@@ -654,8 +654,8 @@ private:
             case -2:
                 if(1 == i->node->leaves[0]->balance)
                 {
-                    Node* middle = i->node->leaves[0];
-                    Node* root = middle->leaves[1];
+                    auto middle = i->node->leaves[0];
+                    auto root = middle->leaves[1];
                     i->node->leaves[0] = root->leaves[1];
                     middle->leaves[1] = root->leaves[0];
                     root->leaves[1] = i->node;
@@ -669,7 +669,7 @@ private:
                 }
                 else
                 {
-                    Node* root = i->node->leaves[0];
+                    auto root = i->node->leaves[0];
                     i->node->leaves[0] = root->leaves[1];
                     root->leaves[1] = i->node;
                     (i - 1)->node->leaves[(i - 1)->dir] = root;
@@ -682,8 +682,8 @@ private:
             case 2:
                 if(-1 == i->node->leaves[1]->balance)
                 {
-                    Node* middle = i->node->leaves[1];
-                    Node* root = middle->leaves[0];
+                    auto middle = i->node->leaves[1];
+                    auto root = middle->leaves[0];
                     i->node->leaves[1] = root->leaves[0];
                     middle->leaves[0] = root->leaves[1];
                     root->leaves[0] = i->node;
@@ -697,7 +697,7 @@ private:
                 }
                 else
                 {
-                    Node* root = i->node->leaves[1];
+                    auto root = i->node->leaves[1];
                     i->node->leaves[1] = root->leaves[0];
                     root->leaves[0] = i->node;
                     (i - 1)->node->leaves[(i - 1)->dir] = root;
@@ -728,8 +728,8 @@ private:
             case -2:
                 if(1 == i->node->leaves[0]->balance)
                 {
-                    Node* middle = i->node->leaves[0];
-                    Node* root = middle->leaves[1];
+                    auto middle = i->node->leaves[0];
+                    auto root = middle->leaves[1];
                     i->node->leaves[0] = root->leaves[1];
                     middle->leaves[1] = root->leaves[0];
                     root->leaves[1] = i->node;
@@ -742,7 +742,7 @@ private:
                 }
                 else
                 {
-                    Node* root = i->node->leaves[0];
+                    auto root = i->node->leaves[0];
                     i->node->leaves[0] = root->leaves[1];
                     root->leaves[1] = i->node;
                     (i - 1)->node->leaves[(i - 1)->dir] = root;
@@ -754,8 +754,8 @@ private:
             case 2:
                 if(-1 == i->node->leaves[1]->balance)
                 {
-                    Node* middle = i->node->leaves[1];
-                    Node* root = middle->leaves[0];
+                    auto middle = i->node->leaves[1];
+                    auto root = middle->leaves[0];
                     i->node->leaves[1] = root->leaves[0];
                     middle->leaves[0] = root->leaves[1];
                     root->leaves[0] = i->node;
@@ -768,7 +768,7 @@ private:
                 }
                 else
                 {
-                    Node* root = i->node->leaves[1];
+                    auto root = i->node->leaves[1];
                     i->node->leaves[1] = root->leaves[0];
                     root->leaves[0] = i->node;
                     (i - 1)->node->leaves[(i - 1)->dir] = root;

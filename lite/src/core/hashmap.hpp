@@ -183,7 +183,7 @@ public:
     Iterator head()
     {
         assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
+        auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
         return Iterator(the_head_page, the_head_page->data - 1, bond, this);
@@ -196,7 +196,7 @@ public:
     Iterator begin()
     {
         assert(the_page_size);
-        Node* bond = (the_head_page != the_tail_page)
+        auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
         return Iterator(the_head_page, the_head_page->data, bond, this);
@@ -217,7 +217,7 @@ public:
     Find find(const Key& key)
     {
         assert(the_page_size);
-        Node* pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
         return Find(pos, (Key&)key, this);
     }
     void page_size(int64 page_size)
@@ -266,7 +266,7 @@ public:
     bool set(const Key& key, const Value& value)
     {
         assert(the_page_size);
-        Node* pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
@@ -307,7 +307,7 @@ public:
         assert(the_page_size);
         Node*& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
         // search
-        Node* pos = head;
+        auto pos = head;
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
@@ -328,7 +328,7 @@ public:
         assert(the_page_size);
         Node*& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
         // search
-        Node* pos = head;
+        auto pos = head;
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
@@ -350,7 +350,7 @@ public:
         // search
         if(unique)
         {
-            Node* pos = head;
+            auto pos = head;
             while(pos)
             {
                 if(!the_index.compare((Key&)key, pos->key))
@@ -359,7 +359,7 @@ public:
             }
         }
         // create new head
-        Node* pos = head;
+        auto pos = head;
         head = acquire_tail();
         head->next = pos;
         new((void*)&head->key) Key(key);
@@ -371,18 +371,18 @@ public:
         assert(the_page_size);
         auto erased = 0;
         Node** prev = &the_plexer[the_index.hash((Key&)key) % the_page_size];
-        Node* pos = *prev;
+        auto pos = *prev;
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
             {
                 // remove matching tail
-                Node* tail = the_tail - 1;
+                auto tail = the_tail - 1;
                 while(pos != tail && !the_index.compare((Key&)key, tail->key))
                 {
                     // remove tail from linked list
                     Node** tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
-                    Node* tail_pos = *tail_prev;
+                    auto tail_pos = *tail_prev;
                     while(tail_pos != tail)
                     {
                         tail_prev = &tail_pos->next;
