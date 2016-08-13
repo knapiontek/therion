@@ -209,7 +209,7 @@ public:
     Iterator head()
     {
         assert(the_page_size);
-        Element* hbond = (the_head != the_tail.page)
+        auto hbond = (the_head != the_tail.page)
             ? *the_head + the_page_size
             : the_tail.elem;
         return Iterator(the_head, *the_head - 1, *the_head, hbond, this);
@@ -222,7 +222,7 @@ public:
     Iterator begin()
     {
         assert(the_page_size);
-        Element* hbond = (the_head != the_tail.page)
+        auto hbond = (the_head != the_tail.page)
             ? *the_head + the_page_size
             : the_tail.elem;
         return Iterator(the_head, *the_head, *the_head, hbond, this);
@@ -449,7 +449,7 @@ public:
     void erase_by_tail(int64 pos)
     {
         assert(the_page_size && pos < size());
-        Element* elem = the_head[pos / the_page_size] + (pos % the_page_size);
+        auto elem = the_head[pos / the_page_size] + (pos % the_page_size);
         elem->~Element();
         ::memcpy((void*)elem, the_tail.elem - 1, sizeof(Element));
         release_tail();
@@ -457,14 +457,14 @@ public:
     Element& append()
     {
         assert(the_page_size);
-        Element* elem = acquire_tail();
+        auto elem = acquire_tail();
         new((void*)elem) Element();
         return *elem;
     }
     Element& append(const Element& arg)
     {
         assert(the_page_size);
-        Element* elem = acquire_tail();
+        auto elem = acquire_tail();
         new((void*)elem) Element(arg);
         return *elem;
     }

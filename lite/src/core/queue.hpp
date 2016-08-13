@@ -143,10 +143,10 @@ private:
         Page* page = the_head_page;
         while(page)
         {
-            Element* pos = (page != the_head_page)
+            auto pos = (page != the_head_page)
                 ? page->data
                 : the_head;
-            Element* tail = (page != the_tail_page)
+            auto tail = (page != the_tail_page)
                 ? page->data + the_page_size
                 : the_tail;
             while(pos < tail)

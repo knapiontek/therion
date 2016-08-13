@@ -166,8 +166,8 @@ public:
             auto i = 1;
             Element* lheap[heap_size];
             Element* hheap[heap_size];
-            Element* lbond = the_head;
-            Element* hbond = the_tail - 1;
+            auto lbond = the_head;
+            auto hbond = the_tail - 1;
             while(i)
             {
                 auto bond = hbond - lbond;
@@ -175,7 +175,7 @@ public:
                 {
                     // find middle as a pivot
                     bond >>= 1;
-                    Element* pos = lbond + bond;
+                    auto pos = lbond + bond;
                     // sort lbond, pos, hbond - prevent pathology
                     if(0 < the_index.compare(*lbond, *hbond))
                         xchange(*lbond, *hbond);
@@ -186,8 +186,8 @@ public:
                     auto size = sizeof(Element);
                     uint8 pivot[size];
                     ::memcpy(pivot, pos, size);
-                    Element* l = lbond + 1;
-                    Element* h = hbond - 1;
+                    auto l = lbond + 1;
+                    auto h = hbond - 1;
                     while(l < h)
                     {
                         while(0 > the_index.compare(*l, *(Element*)pivot))
@@ -240,8 +240,8 @@ public:
                 lbond = pos + 1;
             else
             {
-                Element* low = the_head + pos - 1;
-                Element* high = the_head + pos + 1;
+                auto low = the_head + pos - 1;
+                auto high = the_head + pos + 1;
                 while(low >= the_head && !the_index.compare((Element&)arg, *low))
                     low--;
                 while(high < the_tail && !the_index.compare((Element&)arg, *high))
@@ -278,7 +278,7 @@ public:
     }
     void size(int64 size)
     {
-        Element* elem = the_tail;
+        auto elem = the_tail;
         while(elem > the_head + size)
         {
             elem--;
@@ -311,7 +311,7 @@ public:
     {
         if(the_head)
         {
-            Element* elem = the_tail;
+            auto elem = the_tail;
             while(elem > the_head)
             {
                 elem--;
@@ -327,10 +327,10 @@ public:
         if(it.next())
         {
             assert(it.value() < size());
-            Element* elem = the_head + it.value();
+            auto elem = the_head + it.value();
             elem->~Element();
-            Element* l = elem;
-            Element* h = elem + 1;
+            auto l = elem;
+            auto h = elem + 1;
             while(it.next())
             {
                 assert(it.value() < size());
@@ -362,7 +362,7 @@ public:
     {
         acquire_tail();
         assert(pos < size());
-        Element* elem = the_head + pos;
+        auto elem = the_head + pos;
         ::memmove((void*)(elem + 1), elem, sizeof(Element) * (the_tail - 1 - elem));
         new((void*)elem) Element(arg);
         return *elem;
@@ -370,7 +370,7 @@ public:
     void erase(int64 pos)
     {
         assert(pos < size());
-        Element* elem = the_head + pos;
+        auto elem = the_head + pos;
         elem->~Element();
         the_tail--;
         ::memmove((void*)elem, elem + 1, sizeof(Element) * (the_tail - elem));
@@ -378,20 +378,20 @@ public:
     void erase_by_tail(int64 pos)
     {
         assert(pos < size());
-        Element* elem = the_head + pos;
+        auto elem = the_head + pos;
         elem->~Element();
         the_tail--;
         ::memcpy((void*)elem, the_tail, sizeof(Element));
     }
     Element& append()
     {
-        Element* elem = acquire_tail();
+        auto elem = acquire_tail();
         new((void*)elem) Element();
         return *elem;
     }
     Element& append(const Element& arg)
     {
-        Element* elem = acquire_tail();
+        auto elem = acquire_tail();
         new((void*)elem) Element(arg);
         return *elem;
     }
@@ -448,7 +448,7 @@ public:
                 return result;
         }
         acquire_tail();
-        Element* elem = the_head + lbond;
+        auto elem = the_head + lbond;
         ::memmove((void*)(elem + 1), elem, sizeof(Element) * (the_tail - 1 - elem));
         new((void*)elem) Element(pager.append());
         return *elem;
@@ -474,7 +474,7 @@ public:
                 return false;
         }
         acquire_tail();
-        Element* elem = the_head + lbond;
+        auto elem = the_head + lbond;
         ::memmove((void*)(elem + 1), elem, sizeof(Element) * (the_tail - 1 - elem));
         new((void*)elem) Element(arg);
         return true;
@@ -493,8 +493,8 @@ public:
                 lbond = pos + 1;
             else if(!unique)
             {
-                Element* low = the_head + pos - 1;
-                Element* high = the_head + pos + 1;
+                auto low = the_head + pos - 1;
+                auto high = the_head + pos + 1;
                 while(low >= the_head && !the_index.compare((Element&)arg, *low))
                     low--;
                 while(high < the_tail && !the_index.compare((Element&)arg, *high))
@@ -502,7 +502,7 @@ public:
                 low++;
                 high--;
                 auto erased = high - low + 1;
-                Element* it = low;
+                auto it = low;
                 while(it <= high)
                 {
                     it->~Element();
@@ -514,7 +514,7 @@ public:
             }
             else
             {
-                Element* elem = the_head + pos;
+                auto elem = the_head + pos;
                 elem->~Element();
                 the_tail--;
                 ::memmove((void*)elem, elem + 1, sizeof(Element) * (the_tail - elem));
