@@ -63,8 +63,8 @@ struct InternalIndex
     }
     uint64 hash(String& key)
     {
-        uint8* pos = key.data();
-        uint8* tail = pos + key.size();
+        auto pos = key.data();
+        auto tail = pos + key.size();
         uint64 top, hash = 0;
         while(pos < tail)
         {

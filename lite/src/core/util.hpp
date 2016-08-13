@@ -115,7 +115,7 @@ inline int64 randomize(uint32 seed = 0)
 template<class Type>
 inline Type* acquire(int64 size)
 {
-    Type* type = (Type*)::malloc(size);
+    auto type = (Type*)::malloc(size);
     if(!type)
         Handler::handler()->throw_alloc_exception();
     return type;

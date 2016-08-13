@@ -472,7 +472,7 @@ public:
     String& prepend(uint8* arg, int64 size) const
     {
         auto total = the_handle->size + size;
-        Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
+        auto handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
         handle->cnt = 1;
         handle->size = total;
         ::memcpy(handle->data, arg, size);
@@ -602,7 +602,7 @@ public:
         auto total = the_handle->size + size;
         if(--the_handle->cnt)
         {
-            Handle* handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
+            auto handle = acquire<Handle>(sizeof(Handle) + sizeof(uint8) * total);
             ::memcpy(handle->data, the_handle->data, the_handle->size);
             ::memcpy(handle->data + the_handle->size, arg, size);
             the_handle = handle;

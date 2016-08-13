@@ -45,7 +45,7 @@ public:
     {
         if(!--the_handle->cnt)
         {
-            Type* type = the_handle->type;
+            auto type = the_handle->type;
             type->~Type();
             release<Handle>(the_handle);
         }
@@ -55,7 +55,7 @@ public:
         nil_handle()->cnt++;
         if(!--the_handle->cnt)
         {
-            Type* type = the_handle->type;
+            auto type = the_handle->type;
             type->~Type();
             release<Handle>(the_handle);
         }
@@ -73,7 +73,7 @@ public:
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
         {
-            Type* type = the_handle->type;
+            auto type = the_handle->type;
             type->~Type();
             release<Handle>(the_handle);
         }
@@ -87,7 +87,7 @@ public:
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
         {
-            Type* type = the_handle->type;
+            auto type = the_handle->type;
             type->~Type();
             release<Handle>(the_handle);
         }

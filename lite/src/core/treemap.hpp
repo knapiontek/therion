@@ -390,7 +390,7 @@ public:
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treemap_path_size];
-        Path* i = path;
+        auto i = path;
         i->node = (Node*)&the_root;
         i->dir = 0;
 
@@ -432,7 +432,7 @@ public:
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treemap_path_size];
-        Path* i = path;
+        auto i = path;
         i->node = (Node*)&the_root;
         i->dir = 0;
 
@@ -471,7 +471,7 @@ public:
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treemap_path_size];
-        Path* i = path;
+        auto i = path;
         i->node = (Node*)&the_root;
         i->dir = 0;
 
@@ -509,7 +509,7 @@ public:
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treemap_path_size];
-        Path* i = path;
+        auto i = path;
         i->node = (Node*)&the_root;
         i->dir = 0;
 
@@ -565,7 +565,7 @@ public:
         {
             cnt = erased;
             Path path[the_treemap_path_size];
-            Path* i = path;
+            auto i = path;
             i->node = (Node*)&the_root;
             i->dir = 0;
 
@@ -591,8 +591,8 @@ public:
                     {
                         if(lesser->leaves[1])
                         {
-                            Path* parent = i;
-                            Path* holder = ++i; // holder for pos substitution
+                            auto parent = i;
+                            auto holder = ++i; // holder for pos substitution
                             do
                             {
                                 i++;
