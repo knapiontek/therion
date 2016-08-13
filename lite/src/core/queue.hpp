@@ -32,7 +32,7 @@ public:
     {
         assert(the_page_size);
         auto size = the_tail - the_tail_page->data;
-        Page* page = the_head_page;
+        auto page = the_head_page;
         while(page->next)
         {
             size += the_page_size;
@@ -76,7 +76,7 @@ public:
                 the_head = the_tail = the_head_page->data;
             else if(the_head == the_head_page->data + the_page_size)
             {
-                Page* page = the_head_page;
+                auto page = the_head_page;
                 the_head_page = the_head_page->next;
                 the_head = the_head_page->data;
                 release<Page>(page);
@@ -96,7 +96,7 @@ public:
                 the_head = the_tail = the_head_page->data;
             else if(the_head == the_head_page->data + the_page_size)
             {
-                Page* page = the_head_page;
+                auto page = the_head_page;
                 the_head_page = the_head_page->next;
                 the_head = the_head_page->data;
                 release<Page>(page);
@@ -140,7 +140,7 @@ private:
     }
     void erase_all(bool final)
     {
-        Page* page = the_head_page;
+        auto page = the_head_page;
         while(page)
         {
             auto pos = (page != the_head_page)
@@ -156,7 +156,7 @@ private:
             }
             if(final || page != the_tail_page)
             {
-                Page* free_page = page;
+                auto free_page = page;
                 page = page->next;
                 release<Page>(free_page);
             }

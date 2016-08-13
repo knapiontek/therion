@@ -470,7 +470,7 @@ private:
             }
             if(final || the_tail_page != the_head_page)
             {
-                Page* page = the_tail_page;
+                auto page = the_tail_page;
                 the_tail_page = the_tail_page->prev;
                 the_tail = the_tail_page->data + the_page_size; // 0x0->data is 0x8 and it is NOT a bug
                 release<Page>(page);
@@ -487,7 +487,7 @@ private:
     {
         if(the_tail == the_tail_page->data + the_page_size)
         {
-            Page* page = the_tail_page;
+            auto page = the_tail_page;
             the_tail_page = core::acquire<Page>(sizeof(Page) + sizeof(Node) * (the_page_size - 1));
             the_tail_page->next = 0;
             the_tail_page->prev = page;
@@ -501,7 +501,7 @@ private:
         the_tail--;
         if(the_tail == the_tail_page->data && the_tail_page != the_head_page)
         {
-            Page* page = the_tail_page;
+            auto page = the_tail_page;
             the_tail_page = the_tail_page->prev;
             the_tail_page->next = 0;
             the_tail = the_tail_page->data + the_page_size;
