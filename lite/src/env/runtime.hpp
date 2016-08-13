@@ -44,8 +44,8 @@ public:
             if((!bfd_get_file_flags(the_bfd) & HAS_SYMS))
                 return;
 
-            bfd_boolean dynamic = false;
-            long storage = bfd_get_symtab_upper_bound(the_bfd);
+            auto dynamic = false;
+            auto storage = bfd_get_symtab_upper_bound(the_bfd);
             if(storage)
             {
                 storage = bfd_get_dynamic_symtab_upper_bound(the_bfd);
@@ -55,7 +55,7 @@ public:
                 return;
 
             the_syms = (asymbol**)malloc(storage);
-            long sym_cnt = dynamic
+            auto sym_cnt = dynamic
                 ? bfd_canonicalize_dynamic_symtab(the_bfd, the_syms)
                 : bfd_canonicalize_symtab(the_bfd, the_syms);
             if(0 > sym_cnt)

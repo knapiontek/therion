@@ -1,20 +1,5 @@
 arg -> <<
-while -> for (auto& i: seq)
-uint,int types -> auto
-at -> []
 throw Fail, Exception
 erase_by_iterator -> erase_by_collection
-
-
-
-
-begin
-end => tail
-!=
-*
-++
-!=
-*
-++
-!=
-*
+backtrace -> add a for loop for iterator
+release mode replaces const char* with static String

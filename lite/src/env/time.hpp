@@ -7,7 +7,7 @@ public:
         time_t rawtime;
         ::time(&rawtime);
         char buffer[0x4F];
-        struct tm* timeinfo = ::localtime(&rawtime);
+        auto timeinfo = ::localtime(&rawtime);
         ::strftime(buffer, sizeof(buffer), "%Z.%y-%m-%d.%H:%M:%S", timeinfo);
         return buffer;
     }
@@ -18,8 +18,8 @@ public:
     }
     core::int64 mark()
     {
-        ::clock_t stop = ::clock();
-        ::clock_t result = stop - the_start;
+        auto stop = ::clock();
+        auto result = stop - the_start;
         the_start = stop;
         return 1000 * result / CLOCKS_PER_SEC; // miliseconds
     }
