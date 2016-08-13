@@ -1,7 +1,7 @@
 
 const auto the_treemap_path_size = 32;
 
-template< typename Key, typename Value, class TreeIndex = Index<Key>>
+template<typename Key, typename Value, class TreeIndex = Index<Key>>
 class TreeMap
 {
     struct Node;

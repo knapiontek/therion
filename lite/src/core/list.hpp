@@ -1,5 +1,5 @@
 
-template< typename Element, class ListIndex = Index<Element>>
+template<typename Element, class ListIndex = Index<Element>>
 class List
 {
     struct Cursor;

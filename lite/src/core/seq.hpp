@@ -1,5 +1,5 @@
 
-template< typename Element, class SeqIndex = Index<Element>>
+template<typename Element, class SeqIndex = Index<Element>>
 class Seq
 {
 public:

@@ -1,5 +1,5 @@
 
-template< typename Key, typename Value, class HashIndex = Index<Key>>
+template<typename Key, typename Value, class HashIndex = Index<Key>>
 class HashMap
 {
     struct Node;
