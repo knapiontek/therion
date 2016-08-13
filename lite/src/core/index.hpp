@@ -155,7 +155,7 @@ struct Index : InternalIndex
     template<typename Type>
     uint64 hash(Managed<Type>& key)
     {
-        auto& cast = static_cast<Cast&>(key);
+        auto& cast = (Cast&)key;
         return InternalIndex::hash(cast);
     }
     template<typename Type>
