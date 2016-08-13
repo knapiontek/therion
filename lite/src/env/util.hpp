@@ -222,7 +222,7 @@ public:
         Runtime::Iterator it = Runtime::backtrace();
         while(it.next())
         {
-            Runtime::Frame& frame = it.value();
+            auto& frame = it.value();
             auto st_frame = core::Format("\n\t$1 [$2:$3]")
                 .arg(frame.function_name)
                 .arg(frame.file_name)

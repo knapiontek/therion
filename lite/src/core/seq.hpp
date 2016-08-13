@@ -419,7 +419,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            Element& result = the_head[pos];
+            auto& result = the_head[pos];
             auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;
@@ -438,7 +438,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            Element& result = the_head[pos];
+            auto& result = the_head[pos];
             auto dir = the_index.compare((Element&)arg, result);
             if(0 > dir)
                 hbond = pos - 1;

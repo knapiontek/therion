@@ -277,7 +277,7 @@ public:
     Value& at(const Value& value)
     {
         assert(the_page_size);
-        Node*& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
         // search
         auto pos = head;
         while(pos)
@@ -297,7 +297,7 @@ public:
     Value& acquire(const Value& value, Pager& pager)
     {
         assert(the_page_size);
-        Node*& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
         // search
         auto pos = head;
         while(pos)
@@ -316,7 +316,7 @@ public:
     bool put(const Value& value, bool unique = true)
     {
         assert(the_page_size);
-        Node*& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
         // search
         if(unique)
         {

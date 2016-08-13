@@ -143,19 +143,19 @@ struct Index : InternalIndex
     template<typename Type>
     uint64 hash(Type& key)
     {
-        Cast& cast = (Cast&)key;
+        auto& cast = (Cast&)key;
         return InternalIndex::hash(cast);
     }
     template<typename Type>
     uint64 hash(Shared<Type>& key)
     {
-        Cast& cast = (Cast&)key;
+        auto& cast = (Cast&)key;
         return InternalIndex::hash(cast);
     }
     template<typename Type>
     uint64 hash(Managed<Type>& key)
     {
-        Cast& cast = static_cast<Cast&>(key);
+        auto& cast = static_cast<Cast&>(key);
         return InternalIndex::hash(cast);
     }
     template<typename Type>
@@ -166,22 +166,22 @@ struct Index : InternalIndex
     template<typename Type>
     int64 compare(Type& arg1, Type& arg2)
     {
-        Cast& cast1 = (Cast&)arg1;
-        Cast& cast2 = (Cast&)arg2;
+        auto& cast1 = (Cast&)arg1;
+        auto& cast2 = (Cast&)arg2;
         return InternalIndex::compare(cast1, cast2);
     }
     template<typename Type>
     int64 compare(Shared<Type>& arg1, Shared<Type>& arg2)
     {
-        Cast& cast1 = (Cast&)arg1;
-        Cast& cast2 = (Cast&)arg2;
+        auto& cast1 = (Cast&)arg1;
+        auto& cast2 = (Cast&)arg2;
         return InternalIndex::compare(cast1, cast2);
     }
     template<typename Type>
     int64 compare(Managed<Type>& arg1, Managed<Type>& arg2)
     {
-        Cast& cast1 = (Cast&)arg1;
-        Cast& cast2 = (Cast&)arg2;
+        auto& cast1 = (Cast&)arg1;
+        auto& cast2 = (Cast&)arg2;
         return InternalIndex::compare(cast1, cast2);
     }
 };
