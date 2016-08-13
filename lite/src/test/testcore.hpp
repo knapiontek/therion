@@ -29,18 +29,6 @@ inline void test_acquire()
     }
 }
 
-struct Int2String
-{
-    core::int64 i;
-    core::String st;
-};
-
-struct String2Int
-{
-    core::String st;
-    core::int64 i;
-};
-
 class Flower
 {
 public:
@@ -464,6 +452,18 @@ inline void test_queue()
     core::verify(queue.is_empty());
     core::verify(!balance);
 }
+
+struct Int2String
+{
+    core::int64 i;
+    core::String st;
+};
+
+struct String2Int
+{
+    core::String st;
+    core::int64 i;
+};
 
 inline void test_seq()
 {

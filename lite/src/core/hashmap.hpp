@@ -233,7 +233,7 @@ public:
     {
         assert(the_page_size);
         auto size = the_tail - the_tail_page->data;
-        Page* page = the_head_page;
+        auto page = the_head_page;
         while(page->next)
         {
             size += the_page_size;
@@ -254,7 +254,7 @@ public:
     Shared<Value> lookup(const Key& key)
     {
         assert(the_page_size);
-        Node* pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
@@ -281,9 +281,9 @@ public:
     Value& at(const Key& key)
     {
         assert(the_page_size);
-        Node*& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
         // search
-        Node* pos = head;
+        auto pos = head;
         while(pos)
         {
             if(!the_index.compare((Key&)key, pos->key))
@@ -403,8 +403,8 @@ public:
                 if(pos != tail)
                 {
                     // update tail/pos linked list
-                    Node** tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
-                    Node* tail_pos = *tail_prev;
+                    auto tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
+                    auto tail_pos = *tail_prev;
                     while(tail_pos != tail)
                     {
                         tail_prev = &tail_pos->next;
