@@ -636,8 +636,8 @@ public:
                     if(pos != tail)
                     {
                         Node* heap[the_treemap_path_size];
-                        Node** hp = heap;
-                        Node** parent = &the_root;
+                        auto hp = heap;
+                        auto parent = &the_root;
                         auto tail_pos = the_root;
                         while(tail_pos != tail)
                         {

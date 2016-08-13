@@ -370,7 +370,7 @@ public:
     {
         assert(the_page_size);
         auto erased = 0;
-        Node** prev = &the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto prev = &the_plexer[the_index.hash((Key&)key) % the_page_size];
         auto pos = *prev;
         while(pos)
         {
@@ -381,7 +381,7 @@ public:
                 while(pos != tail && !the_index.compare((Key&)key, tail->key))
                 {
                     // remove tail from linked list
-                    Node** tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
+                    auto tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
                     auto tail_pos = *tail_prev;
                     while(tail_pos != tail)
                     {
