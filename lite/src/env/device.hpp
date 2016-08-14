@@ -15,13 +15,13 @@ public:
     void write(core::String& arg)
     {
         the_used = true;
-        size_t result = ::fwrite(arg.ascii(), arg.size(), 1, stdout);
+        auto result = ::fwrite(arg.ascii(), arg.size(), 1, stdout);
         core::verify(1 == result || !arg.size());
     }
     void writeln(core::String& arg)
     {
         the_used = true;
-        size_t result = ::fwrite("\n", 1, 1, stdout);
+        auto result = ::fwrite("\n", 1, 1, stdout);
         core::verify(1 == result);
         result = ::fwrite(arg.ascii(), arg.size(), 1, stdout);
         core::verify(1 == result || !arg.size());
@@ -29,7 +29,7 @@ public:
     void writeln()
     {
         the_used = true;
-        size_t result = ::fwrite("\n", 1, 1, stdout);
+        auto result = ::fwrite("\n", 1, 1, stdout);
         core::verify(1 == result);
     }
     void flush()

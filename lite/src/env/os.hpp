@@ -16,7 +16,7 @@ struct OS
     }
     static core::String var(core::String& name)
     {
-        char* env = ::getenv(name.ascii());
+        auto env = ::getenv(name.ascii());
         return env
             ? core::String(env)
             : core::nil;
