@@ -146,9 +146,9 @@ private:
             return __sync_fetch_and_add(cnt(), 1);
         }
     private:
-        static core::uint16* cnt()
+        static core::int64* cnt()
         {
-            static __thread core::uint16 cnt = 0;
+            static __thread core::int64 cnt = 0;
             return &cnt;
         }
     };
