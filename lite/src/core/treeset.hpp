@@ -642,7 +642,7 @@ private:
     {
         while(i > path)
         {
-            const int8 context[] = { 1, -1 };
+            static const int8 context[] = { 1, -1 };
             i->node->balance += context[i->dir];
             switch(i->node->balance)
             {
@@ -715,7 +715,7 @@ private:
     {
         while(i > path)
         {
-            const int8 context[] = { -1, 1 };
+            static const int8 context[] = { -1, 1 };
             i->node->balance += context[i->dir];
             switch(i->node->balance)
             {

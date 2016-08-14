@@ -3,7 +3,7 @@ inline void test_exception()
 {
     try
     {
-        const core::float64 var_float64 = 9.999995;
+        core::float64 var_float64 = 9.999995;
         env::Exception exception;
         exception.message() = core::Format("exception test $1")
             .arg(var_float64, 5)

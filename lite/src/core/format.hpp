@@ -167,7 +167,7 @@ private:
     {
         static String cs_line = "\n";
         auto max = uint8_max;
-        static const uint8 hex2index[] =    {
+        static const uint8 hex2index[] = {
             0, 1, 2, 3, 4, 5, 6, 7, 8,
             max, max, max, max, max, max, max,
             9,
