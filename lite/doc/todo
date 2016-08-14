@@ -1,4 +1,4 @@
 arg -> <<
-throw Fail, Exception
 erase_by_iterator -> erase_by_collection
 release mode replaces const char* with static String
+test const char* for string append, prepend, arg, format etc

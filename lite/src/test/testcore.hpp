@@ -199,7 +199,6 @@ inline void test_iterator()
 
 inline void test_string()
 {
-    // TODO: test const char* for append, prepend, arg, format etc
     core::String cs_string = " string: $ $";
     core::String cs_data = " data: ";
     core::String cs_bool = " bool: ";
@@ -401,7 +400,7 @@ inline void test_string()
 
 inline void test_queue()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::Queue<core::String> queue;
@@ -469,7 +468,7 @@ struct String2Int
 
 inline void test_seq()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 8 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::Seq<core::String> seq;
@@ -688,7 +687,7 @@ inline void test_seq()
 
 inline void test_list()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 8 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::List<core::String> list;
@@ -919,7 +918,7 @@ inline void test_list()
 
 inline void test_hash_set()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::HashSet<core::String> set;
@@ -1059,7 +1058,7 @@ inline void test_hash_set()
 
 inline void test_hash_map()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::HashMap<core::String, core::int64> map;
@@ -1181,7 +1180,7 @@ inline void test_hash_map()
 
 inline void test_tree_set()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::TreeSet<core::String> set;
@@ -1365,7 +1364,7 @@ inline void test_tree_set()
 
 inline void test_tree_map()
 {
-    const auto variation = 100;
+    auto variation = 100;
     auto size = 2 * (core::randomize() % variation + 1);
     auto balance = 0;
     core::TreeMap<core::String, core::int64> map;
