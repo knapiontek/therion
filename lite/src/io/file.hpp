@@ -90,7 +90,7 @@ public:
     void open(Mode mode = read_only, bool remove_on_close = false)
     {
         if(!try_open(mode, remove_on_close))
-            env::Fail("open file fail: $1").arg(the_name.ascii()).fire();
+            env::Throw("open file fail: $1").arg(the_name).end();
     }
     void close()
     {
@@ -105,7 +105,7 @@ public:
     {
         struct stat info;
         if(::stat(the_name.ascii(), &info))
-            env::Fail("read file size fail: $1").arg(the_name.ascii()).fire();
+            env::Throw("read file size fail: $1").arg(the_name).end();
         return info.st_size;
     }
     core::String& name()
@@ -208,7 +208,7 @@ private:
         {
             core::int64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
-                env::Fail("read data fail: block size: $1").arg(size).fire();
+                env::Throw("read data fail: block size: $1").arg(size).end();
         }
         File* the_file;
     };
@@ -219,7 +219,7 @@ private:
         {
             core::int64 written = ::write(the_file->the_handle, data, size);
             if(written != size)
-                env::Fail("write data fail: block size: $1").arg(size).fire();
+                env::Throw("write data fail: block size: $1").arg(size).end();
         }
         File* the_file;
     };

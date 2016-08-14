@@ -42,12 +42,12 @@ public:
     {
 
     }
-    void tail()
+    void end()
     {
         Device::device().write(core::FormatClass<Con>::end());
     }
     void endln()
     {
-        Device::device().writeln(core::FormatClass<Con>::end());
+        Device::device().write(core::FormatClass<Con>::endln());
     }
 };

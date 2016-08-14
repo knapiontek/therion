@@ -72,7 +72,7 @@ public:
         the_type = cs_D;
         return *this;
     }
-    void tail()
+    void end()
     {
         if(verbose() || the_type != cs_D)
         {
@@ -84,20 +84,19 @@ public:
             Device::device().flush();
         }
     }
-private:
     void endln()
     {
-
+        core::assert(false);
     }
 private:
     core::String the_type;
     core::int64 the_size;
 };
 
-class Fail : public core::FormatClass<Fail>
+class Throw : public core::FormatClass<Throw>
 {
 public:
-    static void fire(core::String& message)
+    static void raise(core::String& message)
     {
         Return::code() |= Return::fail;
         Exception exception;
@@ -105,25 +104,20 @@ public:
         throw exception;
     }
 public:
-    Fail(core::String& format) : core::FormatClass<Fail>(format)
+    Throw(core::String& format) : core::FormatClass<Throw>(format)
     {
 
     }
-    void fire()
+    void end()
     {
         Return::code() |= Return::fail;
         Exception exception;
-        exception.message() = core::FormatClass<Fail>::end();
+        exception.message() = core::FormatClass<Throw>::end();
         throw exception;
-    }
-private:
-    void tail()
-    {
-
     }
     void endln()
     {
-
+        core::assert(false);
     }
 };
 

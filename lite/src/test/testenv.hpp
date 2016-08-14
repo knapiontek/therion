@@ -33,9 +33,9 @@ inline void test_utils()
     time.mark();
     return;
     env::Log log;
-    log.debug("test").tail();
+    log.debug("test").end();
     env::Con::write(result);
-    env::Fail::fire(result);
+    env::Throw::raise(result);
     env::OS::exit(0);
     env::OS::execute("sh");
     env::OS::abort();
