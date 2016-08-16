@@ -1,7 +1,18 @@
+
+# settings
 srcdir=`dirname $0`
 bindir=/tmp/bin
 printf "src: $srcdir\nbin: $bindir\n"
+
+# preparing directories
 rm -rf $bindir && mkdir $bindir
-clang++-3.6 -c -m64 -pipe -std=c++14 -g -Wall -W -fPIE -I$srcdir -o $bindir/test.o $srcdir/test/test.cpp
+cd $srcdir
+mkdir $bindir/lang
+
+# compile
+lemon lang/grammar.lem $bindir
+clang++-3.6 -c -m64 -pipe -std=c++14 -g -Wall -W -fPIE -I. -I$bindir -o $bindir/test.o test/test.cpp
 clang++-3.6 -m64 -o $bindir/test $bindir/test.o -lbfd && $bindir/test
+
+# finish
 printf "done\n"

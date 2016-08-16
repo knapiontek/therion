@@ -37,6 +37,13 @@ HEADERS += \
     io/file.hpp \
     io/input.hpp \
     io/output.hpp \
+    lang/grammar.hpp \
+    lang/grammar.cpp \
+    lang/lang.hpp \
+    lang/reader.hpp \
     test/testcore.hpp \
     test/testenv.hpp \
-    test/testio.hpp
+    test/testio.hpp \
+    test/testlang.hpp \
+    lang/tree.hpp \
+    lang/grammar.lem

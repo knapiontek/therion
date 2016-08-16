@@ -1,19 +1,13 @@
 
-#include "lang/grammar.hpp"
-#include "lang/lang.hpp"
-#include "io/file.hpp"
-#include "core/list.hpp"
-#include "core/out.hpp"
-
 class Parser
 {
 public:
 	/**
-	 * \param lang - used in grammar.lem to build lang
+	 * \param tree - used in grammar.lem to build tree
 	 */
-	Parser(Lang* lang)
+	Parser(Tree* tree)
 	{
-		the_lang = lang;
+		the_tree = tree;
 		void* ParseAlloc(void*(*malloc)(size_t));
 		the_parser = ParseAlloc(malloc);
 	}
@@ -29,11 +23,11 @@ public:
 	 */
 	void put(int token_id, Token* token = 0)
 	{
-		void Parse(void*, int, Token*, Lang*);
-		Parse(the_parser, token_id, token, the_lang);
+		void Parse(void*, int, Token*, Tree*);
+		Parse(the_parser, token_id, token, the_tree);
 	}
 private:
-	Lang* the_lang;
+	Tree* the_tree;
 	void* the_parser;
 };
 
@@ -42,55 +36,54 @@ class KeywordMap
 public:
 	KeywordMap()
 	{
-		the_map.at("fast") = TOK_FAST;
-		the_map.at("unique") = TOK_UNIQUE;
 		the_map.at("bool") = TOK_BOOL;
 		the_map.at("int8") = TOK_INT8;
 		the_map.at("int16") = TOK_INT16;
 		the_map.at("int32") = TOK_INT32;
 		the_map.at("int64") = TOK_INT64;
-		the_map.at("int128") = TOK_INT128;
 		the_map.at("uint8") = TOK_UINT8;
 		the_map.at("uint16") = TOK_UINT16;
 		the_map.at("uint32") = TOK_UINT32;
 		the_map.at("uint64") = TOK_UINT64;
-		the_map.at("uint128") = TOK_UINT128;
 		the_map.at("float32") = TOK_FLOAT32;
 		the_map.at("float64") = TOK_FLOAT64;
 		the_map.at("float128") = TOK_FLOAT128;
 	}
-	int token(core::String& key) const
+    int token(core::String& key)
 	{
-		return the_map.lookup(key, TOK_ID);
+        return the_map.at(key, TOK_ID);
 	}
 private:
-	core::Map<core::String, int> the_map;
+    core::HashMap<core::String, int> the_map;
 };
 
-class Reader : public ErrorHandler
+class Reader
 {
 public:
-	Reader(core::String& file_name) : the_lang(this)
+    Reader(core::String& file_name)
 	{
 		the_file_name = file_name;
 	}
-	Lang& lang()
+	Tree& tree()
 	{
-		return the_lang;
+		return the_tree;
 	}
 	core::String message()
 	{
 		the_success = false;
-		char ch;
+        core::uint8 ch = 0;
 		core::String line;
-		while(the_input.read(ch) && ch != '\n')
+        io::Decode decode = the_file.input();
+        while(ch != '\n')
 		{
+            decode.read(ch);
 			line.append(ch);
 		}
 		return core::Format("syntax error before: '%1'\n%2:%3:")
 			.arg(line)
 			.arg(the_file_name)
-			.arg(the_line_cnt);
+            .arg(the_line_cnt)
+            .end();
 	}
 	/**
 	 * Run an parse machine.
@@ -98,35 +91,26 @@ public:
 	bool run()
 	{
 		the_line_cnt = 1;
-		char ch = 0;
+        core::uint8 ch = 0;
 		bool valid_ch = false;
 		Token token;
-		Parser parser(&the_lang);
+		Parser parser(&the_tree);
 
-		the_success = the_input.open(the_file_name);
-		if(!the_success)
+        the_file.open();
+        io::Decode decode = the_file.input();
+        while(the_success && valid_ch)
 		{
-			core::out::print("cannot open file: %1")
-				.arg(the_file_name)
-				.endln();
-		}
-		while(the_success && (valid_ch || the_input.read(ch)))
-		{
+            decode.read(ch);
 			valid_ch = false;
-			token.empty();
+            token.is_empty();
 			switch(ch)
 			{
 			case '#':
-				while(the_input.read(ch) && ch != '\n');
+                while(ch != '\n')
+                    decode.read(ch);
 			case '\n':
 				the_line_cnt++;
 			case ' ': case '\t': case '\f': case '\r':
-				break;
-			case ';':
-				parser.put(TOK_SEMI);
-				break;
-			case '$':
-				parser.put(TOK_DOLLAR);
 				break;
 			case '{':
 				parser.put(TOK_LP);
@@ -159,7 +143,7 @@ public:
 				parser.put(TOK_NE);
 				break;
 			case '<':
-				the_input.read(ch);
+                decode.read(ch);
 				if(ch == '=')
 				{
 					parser.put(TOK_LE);
@@ -171,7 +155,7 @@ public:
 				}
 				break;
 			case '>':
-				the_input.read(ch);
+                decode.read(ch);
 				if(ch == '=')
 				{
 					parser.put(TOK_GE);
@@ -184,8 +168,9 @@ public:
 				break;
 			case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 				token.append(ch);
-				while(the_input.read(ch) && is_digit(ch))
+                while(is_digit(ch))
 				{
+                    decode.read(ch);
 					token.append(ch);
 				}
 				if(ch != '.')
@@ -195,7 +180,7 @@ public:
 					break;
 				}
 			case '.':
-				the_input.read(ch);
+                decode.read(ch);
 				if(!token.size() && !is_digit(ch))
 				{
 					valid_ch = true;
@@ -205,9 +190,10 @@ public:
 				{
 					token.append('.');
 					token.append(ch);
-					while(the_input.read(ch) && is_digit(ch))
+                    while(is_digit(ch))
 					{
-						token.append(ch);
+                        decode.read(ch);
+                        token.append(ch);
 					}
 					valid_ch = true;
 					parser.put(TOK_FLOAT, &the_token_list.append(token));
@@ -215,14 +201,15 @@ public:
 				break;
 			default:
 				if(!is_id_char(ch)) // lexical error
-					core::out::print(message()).endln();
-				token.append(ch);
-				while(the_input.read(ch) && is_id_char(ch))
+                    env::Con::writeln(message());
+                token.attach(ch);
+                while(is_id_char(ch))
 				{
-					token.append(ch);
+                    decode.read(ch);
+                    token.append(ch);
 				}
 				valid_ch = true;
-				int keyword_id = the_key_map.lookup(token);
+                int keyword_id = the_key_map.token(token);
 				if(keyword_id == TOK_ID)
 				{
 					parser.put(keyword_id, &the_token_list.append(token));
@@ -238,7 +225,7 @@ public:
 		{
 			parser.put(0);
 		}
-		the_input.close();
+        the_file.close();
 		return the_success;
 	}
 private:
@@ -281,11 +268,11 @@ private:
 		return ('0' <= ch && ch <= '9');
 	}
 private:
-	Lang the_lang;
+	Tree the_tree;
 	core::List<Token> the_token_list;
 	KeywordMap the_key_map;
 	core::String the_file_name;
-	io::FileInput the_input;
+    io::File the_file;
 	bool the_success;
 	int the_line_cnt;
 };
