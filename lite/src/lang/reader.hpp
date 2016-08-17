@@ -22,7 +22,7 @@ private:
 class KeywordMap
 {
 public:
-    KeywordMap()
+    KeywordMap() : the_map(12)
     {
         the_map["bool"] = TOK_BOOL;
         the_map["int8"] = TOK_INT8;
@@ -37,9 +37,12 @@ public:
         the_map["float64"] = TOK_FLOAT64;
         the_map["float128"] = TOK_FLOAT128;
     }
-    int token(core::String& key)
+    core::int64 token(core::String& key)
     {
-        return the_map.at(key, TOK_ID);
+        auto value = the_map.lookup(key);
+        return value != core::nil
+            ? core::int64(value)
+            : TOK_ID;
     }
 private:
     core::HashMap<core::String, core::int64> the_map;
@@ -48,20 +51,10 @@ private:
 class Reader
 {
 public:
-    Reader(core::String& file_name)
+    core::String message(io::Decode& decode, core::String& filename)
     {
-        the_file_name = file_name;
-    }
-    Tree& tree()
-    {
-        return the_tree;
-    }
-    core::String message()
-    {
-        the_success = false;
         core::uint8 ch = 0;
         core::String line;
-        io::Decode decode = the_file.input();
         while(ch != '\n')
         {
             decode.read(ch);
@@ -69,21 +62,19 @@ public:
         }
         return core::Format("syntax error before: '%1'\n%2:%3:")
             .arg(line)
-            .arg(the_file_name)
+            .arg(filename)
             .arg(the_line_cnt)
             .end();
     }
-    bool run()
+    bool execute(Tree& tree, io::Decode& decode)
     {
         the_line_cnt = 1;
         core::uint8 ch = 0;
         bool valid_ch = false;
         Token token;
-        Parser parser(the_tree);
+        Parser parser(tree);
 
-        the_file.open();
-        io::Decode decode = the_file.input();
-        while(the_success && valid_ch)
+        while(valid_ch)
         {
             decode.read(ch);
             valid_ch = false;
@@ -186,7 +177,7 @@ public:
                 break;
             default:
                 if(!is_id_char(ch)) // lexical error
-                    env::Con::writeln(message());
+                    return false;
                 token.attach(ch);
                 while(is_id_char(ch))
                 {
@@ -206,12 +197,8 @@ public:
                 break;
             }
         }
-        if(the_success)
-        {
-            parser.put(0);
-        }
-        the_file.close();
-        return the_success;
+        parser.put(0);
+        return true;
     }
 private:
     /**
@@ -253,11 +240,7 @@ private:
         return ('0' <= ch && ch <= '9');
     }
 private:
-    Tree the_tree;
     core::List<Token> the_token_list;
     KeywordMap the_key_map;
-    core::String the_file_name;
-    io::File the_file;
-    bool the_success;
     int the_line_cnt;
 };

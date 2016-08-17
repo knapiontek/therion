@@ -230,10 +230,20 @@ public:
     }
 };
 
-inline void init(int /*argc*/, char* /*argv*/[])
+inline core::Seq<core::String>& arg_seq()
+{
+    static core::Seq<core::String> arg_seq;
+    return arg_seq;
+}
+
+inline void init(int argc, char* argv[])
 {
     Signal::signal();
     Handler::handler();
+
+    arg_seq().size(argc);
+    for(auto i = 0; i < argc; i++)
+        arg_seq().at(i) = argv[i];
 }
 
 inline core::int64 final()

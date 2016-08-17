@@ -34,7 +34,7 @@ inline void test_utils()
     return;
     env::Log log;
     log.debug("test").end();
-    env::Con::write(result);
+    env::Con::print(result);
     env::Throw::raise(result);
     env::OS::exit(0);
     env::OS::execute("sh");

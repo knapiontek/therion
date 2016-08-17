@@ -2,11 +2,11 @@
 class Con : public core::FormatClass<Con>
 {
 public:
-    static void write(core::String& arg)
+    static void print(core::String& arg)
     {
         Device::device().write(arg);
     }
-    static void writeln(core::String& arg)
+    static void println(core::String& arg)
     {
         Device::device().writeln(arg);
     }
