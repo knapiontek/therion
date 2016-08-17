@@ -4,15 +4,14 @@ typedef core::String Token;
 class Type
 {
 public:
-    enum Enum
+    enum
     {
-        BOOL,
-        INT8, INT16, INT32, INT64,
-        UINT8, UINT16, UINT32, UINT64,
-        FLOAT32, FLOAT64, FLOAT128
+        boolean,
+        int8, int16, int32, int64,
+        uint8, uint16, uint32, uint64,
+        float32, float64, float128
     };
 };
-
 
 class Var
 {

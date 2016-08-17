@@ -4,8 +4,8 @@
 
 namespace lang
 {
-#include "lang/grammar.hpp"
 #include "lang/tree.hpp"
+#include "lang/grammar.hpp"
 #include "lang/grammar.cpp"
 #include "lang/reader.hpp"
 }

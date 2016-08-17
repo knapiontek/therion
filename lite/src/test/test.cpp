@@ -1,12 +1,14 @@
 
 #include "core/core.hpp"
-#include "env/env.hpp"
-#include "io/io.hpp"
-#include "lang/lang.hpp"
-
 #include "test/testcore.hpp"
+
+#include "env/env.hpp"
 #include "test/testenv.hpp"
+
+#include "io/io.hpp"
 #include "test/testio.hpp"
+
+#include "lang/lang.hpp"
 #include "test/testlang.hpp"
 
 int main(int argc, char* argv[])

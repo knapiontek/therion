@@ -5,9 +5,8 @@ bindir=/tmp/bin
 printf "src: $srcdir\nbin: $bindir\n"
 
 # preparing directories
-rm -rf $bindir && mkdir $bindir
+rm -rf $bindir && mkdir -p $bindir/lang
 cd $srcdir
-mkdir $bindir/lang
 
 # compile
 lemon lang/grammar.lem $bindir

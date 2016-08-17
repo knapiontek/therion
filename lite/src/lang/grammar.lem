@@ -1,28 +1,29 @@
 %token_prefix TOK_
 %token_type { Token* }
-%extra_argument { Tree *tree }
-%syntax_error { tree->syntax_error(); }
+%extra_argument { Tree& tree }
+%syntax_error { (void)yymajor; (void)yyminor; tree.syntax_error(); }
+%destructor input { (void)yypminor; }
 
 input ::= var_map.
 
-var_map ::= var_map var(c).
-var_map ::= var(c).
+var_map ::= var_map var.
+var_map ::= var.
 
 %type var { Var* }
-var(v) ::= ID(i) COLON type(t). { v = tree->var(i, t); }
+var(v) ::= ID(i) COLON type(t). { v = tree.var(i, t); }
 
 %type type { Type* }
-type(t) ::= BOOL. { t = tree->type(Type::BOOL); }
-type(t) ::= INT8. { t = tree->type(Type::INT8); }
-type(t) ::= INT16. { t = tree->type(Type::INT16); }
-type(t) ::= INT32. { t = tree->type(Type::INT32); }
-type(t) ::= INT64. { t = tree->type(Type::INT64); }
-type(t) ::= UINT8. { t = tree->type(Type::UINT8); }
-type(t) ::= UINT16. { t = tree->type(Type::UINT16); }
-type(t) ::= UINT32. { t = tree->type(Type::UINT32); }
-type(t) ::= UINT64. { t = tree->type(Type::UINT64); }
-type(t) ::= FLOAT32. { t = tree->type(Type::FLOAT32); }
-type(t) ::= FLOAT64. { t = tree->type(Type::FLOAT64); }
-type(t) ::= FLOAT128. { t = tree->type(Type::FLOAT128); }
-type(t) ::= ID(i). { t = tree->type(i); }
+type(t) ::= BOOL. { t = tree.type(Type::boolean); }
+type(t) ::= INT8. { t = tree.type(Type::int8); }
+type(t) ::= INT16. { t = tree.type(Type::int16); }
+type(t) ::= INT32. { t = tree.type(Type::int32); }
+type(t) ::= INT64. { t = tree.type(Type::int64); }
+type(t) ::= UINT8. { t = tree.type(Type::uint8); }
+type(t) ::= UINT16. { t = tree.type(Type::uint16); }
+type(t) ::= UINT32. { t = tree.type(Type::uint32); }
+type(t) ::= UINT64. { t = tree.type(Type::uint64); }
+type(t) ::= FLOAT32. { t = tree.type(Type::float32); }
+type(t) ::= FLOAT64. { t = tree.type(Type::float64); }
+type(t) ::= FLOAT128. { t = tree.type(Type::float128); }
+type(t) ::= ID(i). { t = tree.type(i); }
 type ::= LP RP LB RB LS RS AND OR EQ NE LE LT GE GT DECIMAL DOT FLOAT. {}
