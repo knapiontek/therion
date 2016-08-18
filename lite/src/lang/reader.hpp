@@ -70,15 +70,15 @@ public:
     {
         the_line_cnt = 1;
         core::uint8 ch = 0;
-        bool valid_ch = false;
         Token token;
         Parser parser(tree);
 
-        while(valid_ch)
+        auto available = decode.available();
+        while(available--)
         {
             decode.read(ch);
-            valid_ch = false;
-            token.is_empty();
+            token.erase();
+            start:
             switch(ch)
             {
             case '#':
@@ -87,6 +87,9 @@ public:
             case '\n':
                 the_line_cnt++;
             case ' ': case '\t': case '\f': case '\r':
+                break;
+            case ':':
+                parser.put(TOK_COLON);
                 break;
             case '{':
                 parser.put(TOK_LP);
@@ -126,8 +129,8 @@ public:
                 }
                 else
                 {
-                    valid_ch = true;
                     parser.put(TOK_LT);
+                    goto start;
                 }
                 break;
             case '>':
@@ -138,53 +141,46 @@ public:
                 }
                 else
                 {
-                    valid_ch = true;
                     parser.put(TOK_GT);
+                    goto start;
                 }
                 break;
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                token.append(ch);
                 while(is_digit(ch))
                 {
+                    token.attach(ch);
                     decode.read(ch);
-                    token.append(ch);
                 }
                 if(ch != '.')
                 {
-                    valid_ch = true;
                     parser.put(TOK_DECIMAL, ref(the_token_list.append(token)));
-                    break;
+                    goto start;
                 }
             case '.':
                 decode.read(ch);
                 if(!token.size() && !is_digit(ch))
                 {
-                    valid_ch = true;
                     parser.put(TOK_DOT);
+                    goto start;
                 }
                 else
                 {
-                    token.append('.');
-                    token.append(ch);
+                    token.attach('.');
                     while(is_digit(ch))
                     {
+                        token.attach(ch);
                         decode.read(ch);
-                        token.append(ch);
                     }
-                    valid_ch = true;
                     parser.put(TOK_FLOAT, ref(the_token_list.append(token)));
+                    goto start;
                 }
                 break;
             default:
-                if(!is_id_char(ch)) // lexical error
-                    return false;
-                token.attach(ch);
                 while(is_id_char(ch))
                 {
+                    token.attach(ch);
                     decode.read(ch);
-                    token.append(ch);
                 }
-                valid_ch = true;
                 int keyword_id = the_key_map.token(token);
                 if(keyword_id == TOK_ID)
                 {
@@ -194,7 +190,7 @@ public:
                 {
                     parser.put(keyword_id);
                 }
-                break;
+                goto start;
             }
         }
         parser.put(0);

@@ -8,6 +8,7 @@ inline void test_lang()
             .end();
     io::File lite_file(lite_filename);
     core::verify(lite_file.status(io::File::exist));
+    core::verify(lite_file.try_open());
 
     lang::Tree tree;
     io::Decode decode = lite_file.input();

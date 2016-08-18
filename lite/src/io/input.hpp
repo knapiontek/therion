@@ -96,6 +96,10 @@ public:
     {
         the_input.skip(size);
     }
+    core::int64 available()
+    {
+        return the_input.available();
+    }
 private:
     Input& the_input;
 };

@@ -210,6 +210,12 @@ private:
             if(read != size)
                 env::Throw("read data fail: block size: $1").arg(size).end();
         }
+        core::int64 available()
+        {
+            struct stat stat;
+            ::fstat(the_file->the_handle, &stat);
+            return stat.st_size - ::lseek(the_file->the_handle, 0, SEEK_CUR);
+        }
         File* the_file;
     };
     class FileOutput : Output
