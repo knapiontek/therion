@@ -1,5 +1,5 @@
 %token_prefix TOK_
-%token_type { Token* }
+%token_type { Ref<Token> }
 %extra_argument { Tree& tree }
 %syntax_error { (void)yymajor; (void)yyminor; tree.syntax_error(); }
 %destructor input { (void)yypminor; }
@@ -9,10 +9,10 @@ input ::= var_map.
 var_map ::= var_map var.
 var_map ::= var.
 
-%type var { Var* }
+%type var { Ref<Var> }
 var(v) ::= ID(i) COLON type(t). { v = tree.var(i, t); }
 
-%type type { Type* }
+%type type { Ref<Type> }
 type(t) ::= BOOL. { t = tree.type(Type::boolean); }
 type(t) ::= INT8. { t = tree.type(Type::int8); }
 type(t) ::= INT16. { t = tree.type(Type::int16); }

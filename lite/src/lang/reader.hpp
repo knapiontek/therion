@@ -10,7 +10,7 @@ public:
     {
         ParseFree(the_parser, ::free);
     }
-    void put(int token_id, Token* token = 0)
+    void put(int token_id, Ref<Token> token = {0})
     {
         Parse(the_parser, token_id, token, the_tree);
     }
@@ -152,7 +152,7 @@ public:
                 if(ch != '.')
                 {
                     valid_ch = true;
-                    parser.put(TOK_DECIMAL, &the_token_list.append(token));
+                    parser.put(TOK_DECIMAL, ref(the_token_list.append(token)));
                     break;
                 }
             case '.':
@@ -172,7 +172,7 @@ public:
                         token.append(ch);
                     }
                     valid_ch = true;
-                    parser.put(TOK_FLOAT, &the_token_list.append(token));
+                    parser.put(TOK_FLOAT, ref(the_token_list.append(token)));
                 }
                 break;
             default:
@@ -188,7 +188,7 @@ public:
                 int keyword_id = the_key_map.token(token);
                 if(keyword_id == TOK_ID)
                 {
-                    parser.put(keyword_id, &the_token_list.append(token));
+                    parser.put(keyword_id, ref(the_token_list.append(token)));
                 }
                 else
                 {

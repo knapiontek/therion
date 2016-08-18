@@ -18,20 +18,40 @@ class Var
 
 };
 
+template<typename Type>
+struct Ref
+{
+    Type* type;
+    operator Type&()
+    {
+        return *type;
+    }
+};
+
+template<typename Type>
+Ref<Type> ref(Type& type)
+{
+    Ref<Type> ref {&type};
+    return ref;
+}
+
+Var the_var;
+Type the_type;
+
 class Tree
 {
 public:
-    Var* var(Token*, Type*)
+    Ref<Var> var(Token&, Type&)
     {
-        return 0;
+        return ref(the_var);
     }
-    Type* type(Token*)
+    Ref<Type> type(Token&)
     {
-        return 0;
+        return ref(the_type);
     }
-    Type* type(int)
+    Ref<Type> type(int)
     {
-        return 0;
+        return ref(the_type);
     }
     void syntax_error()
     {
