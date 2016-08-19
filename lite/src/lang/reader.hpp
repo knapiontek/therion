@@ -22,17 +22,13 @@ private:
 class KeywordMap
 {
 public:
-    KeywordMap() : the_map(12)
+    KeywordMap() : the_map(0xf)
     {
         the_map["bool"] = TOK_BOOL;
         the_map["int8"] = TOK_INT8;
         the_map["int16"] = TOK_INT16;
         the_map["int32"] = TOK_INT32;
         the_map["int64"] = TOK_INT64;
-        the_map["uint8"] = TOK_UINT8;
-        the_map["uint16"] = TOK_UINT16;
-        the_map["uint32"] = TOK_UINT32;
-        the_map["uint64"] = TOK_UINT64;
         the_map["float32"] = TOK_FLOAT32;
         the_map["float64"] = TOK_FLOAT64;
         the_map["float128"] = TOK_FLOAT128;
@@ -51,34 +47,48 @@ private:
 class Reader
 {
 public:
-    core::String message(io::Decode& decode, core::String& filename)
+    Reader() : the_token_list(0x20)
     {
-        core::uint8 ch = 0;
-        core::String line;
-        while(ch != '\n')
-        {
-            decode.read(ch);
-            line.append(ch);
-        }
-        return core::Format("syntax error before: '%1'\n%2:%3:")
-            .arg(line)
-            .arg(filename)
-            .arg(the_line_cnt)
-            .end();
+
     }
-    bool execute(Tree& tree, io::Decode& decode)
+    bool execute(Tree& tree, io::Decode& decode, core::String filename)
+    {
+        try
+        {
+            execute(tree, decode);
+            return true;
+        }
+        catch(SyntaxException)
+        {
+            core::uint8 ch = 0;
+            core::String line;
+            while(decode.available())
+            {
+                decode.read(ch);
+                line.append(ch);
+            }
+            env::Con("syntax error before: '$1'\n$2:$3")
+                .arg(line)
+                .arg(filename)
+                .arg(the_line_cnt)
+                .end();
+            return false;
+        }
+    }
+private:
+    void execute(Tree& tree, io::Decode& decode)
     {
         the_line_cnt = 1;
+        the_token_list.erase_all();
         core::uint8 ch = 0;
         Token token;
         Parser parser(tree);
 
-        auto available = decode.available();
-        while(available--)
+        while(decode.available())
         {
             decode.read(ch);
-            token.erase();
             start:
+            token.erase();
             switch(ch)
             {
             case '#':
@@ -153,7 +163,7 @@ public:
                 }
                 if(ch != '.')
                 {
-                    parser.put(TOK_DECIMAL, ref(the_token_list.append(token)));
+                    parser.put(TOK_INT64, ref(the_token_list.append(token)));
                     goto start;
                 }
             case '.':
@@ -182,9 +192,9 @@ public:
                     decode.read(ch);
                 }
                 int keyword_id = the_key_map.token(token);
-                if(keyword_id == TOK_ID)
+                if(TOK_ID == keyword_id)
                 {
-                    parser.put(keyword_id, ref(the_token_list.append(token)));
+                    parser.put(TOK_ID, ref(the_token_list.append(token)));
                 }
                 else
                 {
@@ -194,9 +204,7 @@ public:
             }
         }
         parser.put(0);
-        return true;
     }
-private:
     /**
      * If X is a character that can be used in an identifier then
      * is_id_char[X] will be true. Otherwise is_id_char[X] will be false.

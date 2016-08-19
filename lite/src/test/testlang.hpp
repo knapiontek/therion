@@ -13,8 +13,5 @@ inline void test_lang()
     lang::Tree tree;
     io::Decode decode = lite_file.input();
     lang::Reader reader;
-    if(!reader.execute(tree, decode))
-    {
-        env::Con::println(reader.message(decode, lite_filename));
-    }
+    reader.execute(tree, decode, lite_filename);
 }

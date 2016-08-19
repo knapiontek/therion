@@ -18,12 +18,8 @@ type(t) ::= INT8. { t = tree.type(Type::int8); }
 type(t) ::= INT16. { t = tree.type(Type::int16); }
 type(t) ::= INT32. { t = tree.type(Type::int32); }
 type(t) ::= INT64. { t = tree.type(Type::int64); }
-type(t) ::= UINT8. { t = tree.type(Type::uint8); }
-type(t) ::= UINT16. { t = tree.type(Type::uint16); }
-type(t) ::= UINT32. { t = tree.type(Type::uint32); }
-type(t) ::= UINT64. { t = tree.type(Type::uint64); }
 type(t) ::= FLOAT32. { t = tree.type(Type::float32); }
 type(t) ::= FLOAT64. { t = tree.type(Type::float64); }
 type(t) ::= FLOAT128. { t = tree.type(Type::float128); }
 type(t) ::= ID(i). { t = tree.type(i); }
-type ::= LP RP LB RB LS RS AND OR EQ NE LE LT GE GT DECIMAL DOT FLOAT. {}
+type ::= LP RP LB RB LS RS AND OR EQ NE LE LT GE GT DOT FLOAT. {}

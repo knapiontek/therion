@@ -209,14 +209,20 @@ private:
             core::int64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
                 env::Throw("read data fail: block size: $1").arg(size).end();
+            the_available -= size;
         }
         core::int64 available()
         {
-            struct stat stat;
-            ::fstat(the_file->the_handle, &stat);
-            return stat.st_size - ::lseek(the_file->the_handle, 0, SEEK_CUR);
+            if(core::int64_nil == the_available)
+            {
+                struct stat stat;
+                ::fstat(the_file->the_handle, &stat);
+                the_available = stat.st_size - ::lseek(the_file->the_handle, 0, SEEK_CUR);
+            }
+            return the_available;
         }
         File* the_file;
+        core::int64 the_available = core::int64_nil;
     };
     class FileOutput : Output
     {
