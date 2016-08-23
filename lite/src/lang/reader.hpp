@@ -22,7 +22,7 @@ private:
 class KeywordMap
 {
 public:
-    KeywordMap() : the_map(0xf)
+    KeywordMap() : the_map(0xF)
     {
         the_map["bool"] = TOK_BOOL;
         the_map["int8"] = TOK_INT8;
