@@ -1,14 +1,21 @@
 
 srcdir=$(dir $(lastword $(MAKEFILE_LIST)))
 bindir=/tmp/bin
+
 cc=clang++-3.8
+cxxflags=-g -c -m64 -pipe -std=c++14 -Wall -Wextra
+linkflags=-g -m64 -lbfd
+
+llvm_cxxflags=$(shell llvm-config-3.8 --cxxflags)
+llvm_linkflags=$(shell llvm-config-3.8 --ldflags --system-libs --libs all) -lffi
 
 all:
 	@make -C $(srcdir) build
 
 build:
-	rm -rf $(bindir) && mkdir -p $(bindir)/lang
+	rm -rf $(bindir) && mkdir -p $(bindir)/lang && mkdir -p $(bindir)/test
 	lemon lang/grammar.lem $(bindir)
-	$(cc) -g -c -m64 -pipe -std=c++14 -Wall -Wextra -I. -I$(bindir) -o $(bindir)/test.o test/test.cpp
-	$(cc) -g -m64 -lbfd -o $(bindir)/test $(bindir)/test.o
-	$(bindir)/test ~/therion/lite
+	$(cc) test/test.cpp $(cxxflags) -I. -I$(bindir) -o $(bindir)/test/test.o
+	$(cc) lang/writer.cpp $(cxxflags) $(llvm_cxxflags) -o $(bindir)/lang/writer.o
+	$(cc) $(bindir)/lang/writer.o $(bindir)/test/test.o $(linkflags) $(llvm_linkflags) -o $(bindir)/test/test
+	$(bindir)/test/test ~/therion/lite

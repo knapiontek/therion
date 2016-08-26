@@ -8,6 +8,7 @@ namespace lang
 #include "lang/grammar.hpp"
 #include "lang/grammar.cpp"
 #include "lang/reader.hpp"
+#include "lang/writer.hpp"
 }
 
 #endif // LANG_HPP

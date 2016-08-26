@@ -14,4 +14,6 @@ inline void test_lang()
     io::Decode decode = lite_file.input();
     lang::Reader reader;
     reader.execute(tree, decode, lite_filename);
+
+    lang::writer_write();
 }
