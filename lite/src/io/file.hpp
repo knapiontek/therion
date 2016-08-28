@@ -204,14 +204,14 @@ private:
     class FileInput : Input
     {
         friend class File;
-        void input(core::uint8* data, core::int64 size)
+        void input(core::uint8* data, core::int64 size) override
         {
             core::int64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
                 env::Throw("read data fail: block size: $1").arg(size).end();
             the_available -= size;
         }
-        core::int64 available()
+        core::int64 available() override
         {
             if(core::int64_nil == the_available)
             {
@@ -221,17 +221,25 @@ private:
             }
             return the_available;
         }
+        void skip(core::int64) override
+        {
+
+        }
         File* the_file;
         core::int64 the_available = core::int64_nil;
     };
     class FileOutput : Output
     {
         friend class File;
-        void output(core::uint8* data, core::int64 size)
+        void output(core::uint8* data, core::int64 size) override
         {
             core::int64 written = ::write(the_file->the_handle, data, size);
             if(written != size)
                 env::Throw("write data fail: block size: $1").arg(size).end();
+        }
+        void flush() override
+        {
+            ::fsync(the_file->the_handle);
         }
         File* the_file;
     };

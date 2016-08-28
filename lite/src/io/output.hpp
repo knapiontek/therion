@@ -6,14 +6,8 @@ public:
     {
 
     }
-    virtual void output(core::uint8* /*data*/, core::int64 /*size*/)
-    {
-        core::assert(false);
-    }
-    virtual void flush()
-    {
-        core::assert(false);
-    }
+    virtual void output(core::uint8* /*data*/, core::int64 /*size*/) = 0;
+    virtual void flush() = 0;
 };
 
 class Encode
