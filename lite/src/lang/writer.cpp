@@ -12,58 +12,52 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
 
-using namespace llvm;
-
 namespace lang
 {
 void writer_write()
 {
-  
-  InitializeNativeTarget();
+    // initialize
+    llvm::InitializeNativeTarget();
+    llvm::LLVMContext context;
+    auto module = llvm::make_unique<llvm::Module>("test", context);
 
-  LLVMContext Context;
-  
-  auto module = make_unique<Module>("test", Context);
+    // add1
+    auto add1_func = llvm::cast<llvm::Function>(
+        module->getOrInsertFunction("add1",
+            llvm::Type::getInt32Ty(context),
+            llvm::Type::getInt32Ty(context),
+            nullptr)
+    );
+    auto bb = llvm::BasicBlock::Create(context, "entry", add1_func);
+    llvm::IRBuilder<> builder(bb);
 
-  auto add1_func = cast<Function>(module->getOrInsertFunction("add1",
-							      Type::getInt32Ty(Context),
-							      Type::getInt32Ty(Context),
-							      nullptr));
+    auto one_val = builder.getInt32(1);
+    auto x_arg = &*add1_func->arg_begin();
+    x_arg->setName("an_arg");
+    auto add_val = builder.CreateAdd(one_val, x_arg);
+    builder.CreateRet(add_val);
 
-  auto bb = BasicBlock::Create(Context, "entry", add1_func);
-  IRBuilder<> builder(bb);
+    // foo
+    auto foo_func = llvm::cast<llvm::Function>(module->getOrInsertFunction("foo", llvm::Type::getInt32Ty(context), nullptr));
+    bb = llvm::BasicBlock::Create(context, "entry", foo_func);
+    builder.SetInsertPoint(bb);
 
-  Value *one_val = builder.getInt32(1);
-  assert(add1_func->arg_begin() != add1_func->arg_end());
-  auto x_arg = &*add1_func->arg_begin();
-  x_arg->setName("an_arg");
+    auto ten_val = builder.getInt32(10);
+    auto add1_res = builder.CreateCall(add1_func, ten_val);
+    add1_res->setTailCall(true);
+    builder.CreateRet(add1_res);
 
-  auto add_val = builder.CreateAdd(one_val, x_arg);
+    // execution engine
+    llvm::outs() << "We just constructed this LLVM module:\n\n" << *module.get();
+    auto exec_engine = llvm::EngineBuilder(std::move(module)).create();
+    llvm::outs() << "\n\nRunning foo: ";
+    llvm::outs().flush();
+    std::vector<llvm::GenericValue> noargs;
+    auto val = exec_engine->runFunction(foo_func, noargs);
+    llvm::outs() << "Result: " << val.IntVal << "\n";
 
-  builder.CreateRet(add_val);
-  auto foo_func = cast<Function>(module->getOrInsertFunction("foo", Type::getInt32Ty(Context), nullptr));
-  bb = BasicBlock::Create(Context, "entry", foo_func);
-
-  builder.SetInsertPoint(bb);
-
-  auto ten_val = builder.getInt32(10);
-  auto add1_res = builder.CreateCall(add1_func, ten_val);
-  add1_res->setTailCall(true);
-
-  builder.CreateRet(add1_res);
-
-  outs() << "We just constructed this LLVM module:\n\n" << *module.get();
-
-  auto exec_engine = EngineBuilder(std::move(module)).create();
-
-  outs() << "\n\nRunning foo: ";
-  outs().flush();
-
-  std::vector<GenericValue> noargs;
-  auto val = exec_engine->runFunction(foo_func, noargs);
-  outs() << "Result: " << val.IntVal << "\n";
-
-  delete exec_engine;
-  llvm_shutdown();
+    // close
+    delete exec_engine;
+    llvm::llvm_shutdown();
 }
 }
