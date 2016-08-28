@@ -23,49 +23,47 @@ void writer_write()
 
   LLVMContext Context;
   
-  std::unique_ptr<Module> Owner = make_unique<Module>("test", Context);
-  Module *M = Owner.get();
+  auto module = make_unique<Module>("test", Context);
 
-  Function *Add1F =
-    cast<Function>(M->getOrInsertFunction("add1", Type::getInt32Ty(Context),
-                                          Type::getInt32Ty(Context),
-                                          nullptr));
+  auto add1_func = cast<Function>(module->getOrInsertFunction("add1",
+							      Type::getInt32Ty(Context),
+							      Type::getInt32Ty(Context),
+							      nullptr));
 
-  BasicBlock *BB = BasicBlock::Create(Context, "entry", Add1F);
-  IRBuilder<> builder(BB);
+  auto bb = BasicBlock::Create(Context, "entry", add1_func);
+  IRBuilder<> builder(bb);
 
-  Value *One = builder.getInt32(1);
-  assert(Add1F->arg_begin() != Add1F->arg_end()); // Make sure there's an arg
-  Argument *ArgX = &*Add1F->arg_begin();          // Get the arg
-  ArgX->setName("an_arg");            // Give it a nice symbolic name for fun.
+  Value *one_val = builder.getInt32(1);
+  assert(add1_func->arg_begin() != add1_func->arg_end());
+  auto x_arg = &*add1_func->arg_begin();
+  x_arg->setName("an_arg");
 
-  Value *Add = builder.CreateAdd(One, ArgX);
+  auto add_val = builder.CreateAdd(one_val, x_arg);
 
-  builder.CreateRet(Add);
-  Function *FooF =
-    cast<Function>(M->getOrInsertFunction("foo", Type::getInt32Ty(Context),
-                                          nullptr));
-  BB = BasicBlock::Create(Context, "entry", FooF);
+  builder.CreateRet(add_val);
+  auto foo_func = cast<Function>(module->getOrInsertFunction("foo", Type::getInt32Ty(Context), nullptr));
+  bb = BasicBlock::Create(Context, "entry", foo_func);
 
-  builder.SetInsertPoint(BB);
+  builder.SetInsertPoint(bb);
 
-  Value *Ten = builder.getInt32(10);
-  CallInst *Add1CallRes = builder.CreateCall(Add1F, Ten);
-  Add1CallRes->setTailCall(true);
+  auto ten_val = builder.getInt32(10);
+  auto add1_res = builder.CreateCall(add1_func, ten_val);
+  add1_res->setTailCall(true);
 
-  builder.CreateRet(Add1CallRes);
+  builder.CreateRet(add1_res);
 
-  ExecutionEngine* EE = EngineBuilder(std::move(Owner)).create();
+  outs() << "We just constructed this LLVM module:\n\n" << *module.get();
 
-  outs() << "We just constructed this LLVM module:\n\n" << *M;
+  auto exec_engine = EngineBuilder(std::move(module)).create();
+
   outs() << "\n\nRunning foo: ";
   outs().flush();
 
   std::vector<GenericValue> noargs;
-  GenericValue gv = EE->runFunction(FooF, noargs);
+  auto val = exec_engine->runFunction(foo_func, noargs);
+  outs() << "Result: " << val.IntVal << "\n";
 
-  outs() << "Result: " << gv.IntVal << "\n";
-  delete EE;
+  delete exec_engine;
   llvm_shutdown();
 }
 }
