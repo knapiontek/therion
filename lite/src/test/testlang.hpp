@@ -15,5 +15,5 @@ inline void test_lang()
     lang::Reader reader;
     reader.execute(tree, decode, lite_filename);
 
-    lang::writer_write();
+    core::assert(11 == lang::writer_write());
 }

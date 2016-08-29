@@ -12,4 +12,4 @@ public:
     }
 };
 
-void writer_write();
+int writer_write();

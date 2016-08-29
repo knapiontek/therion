@@ -18,7 +18,7 @@
 
 namespace lang
 {
-void writer_write()
+int writer_write()
 {
     // initialize
     llvm::InitializeNativeTarget();
@@ -52,16 +52,15 @@ void writer_write()
     builder.CreateRet(add1_res);
 
     // execution engine
-    llvm::outs() << "We just constructed this LLVM module:\n\n" << *module.get();
+    //llvm::outs() << "We just constructed this LLVM module:\n\n" << *module.get();
     auto exec_engine = llvm::EngineBuilder(std::move(module)).create();
-    llvm::outs() << "\n\nRunning foo: ";
-    llvm::outs().flush();
     std::vector<llvm::GenericValue> noargs;
     auto val = exec_engine->runFunction(foo_func, noargs);
-    llvm::outs() << "Result: " << val.IntVal << "\n";
+    int result = val.IntVal.getSExtValue();
 
     // close
     delete exec_engine;
     llvm::llvm_shutdown();
+    return result;
 }
 }
