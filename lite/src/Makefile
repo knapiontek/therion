@@ -7,7 +7,7 @@ cxxflags=-g -c -m64 -pipe -std=c++14 -Wall -Wextra
 linkflags=-g -m64 -lbfd
 
 llvm_cxxflags=-Wno-unused-parameter
-llvm_linkflags=$(shell llvm-config-3.8 --ldflags --system-libs --libs all) -lffi
+llvm_linkflags=$(shell llvm-config-3.8 --ldflags --system-libs --libs mcjit interpreter nativecodegen) -lffi
 
 all:
 	@make -C $(srcdir) build
