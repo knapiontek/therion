@@ -8,18 +8,47 @@ input ::= var_map.
 
 var_map ::= var_map var.
 var_map ::= var.
+var_map ::= LP RP LB RB.
 
 %type var { Ref<Var> }
-var(v) ::= ID(i) COLON type(t). { v = tree.var(i, t); }
+var(v) ::= ID(i) COLON exp(e). { v = tree.var(i, e); }
 
-%type type { Ref<Type> }
-type(t) ::= BOOL. { t = tree.type(Type::boolean); }
-type(t) ::= INT8. { t = tree.type(Type::int8); }
-type(t) ::= INT16. { t = tree.type(Type::int16); }
-type(t) ::= INT32. { t = tree.type(Type::int32); }
-type(t) ::= INT64. { t = tree.type(Type::int64); }
-type(t) ::= FLOAT32. { t = tree.type(Type::float32); }
-type(t) ::= FLOAT64. { t = tree.type(Type::float64); }
-type(t) ::= FLOAT128. { t = tree.type(Type::float128); }
-type(t) ::= ID(i). { t = tree.type(i); }
-type ::= LP RP LB RB LS RS AND OR EQ NE LE LT GE GT DOT FLOAT. {}
+%type exp { Ref<Exp> }
+exp ::= exp op loc. {}
+exp ::= loc. {}
+exp ::= type. {}
+
+%type loc { Ref<Loc> }
+loc ::= loc DOT ID LS exp RS.
+loc ::= loc DOT ID.
+loc ::= ID LS exp RS.
+loc ::= ID.
+
+%type type { Type }
+type(t) ::= BOOL. { t = Type::_bool; }
+type(t) ::= INT8. { t = Type::int8; }
+type(t) ::= INT16. { t = Type::int16; }
+type(t) ::= INT32. { t = Type::int32; }
+type(t) ::= INT64. { t = Type::int64; }
+type(t) ::= FLOAT32. { t = Type::float32; }
+type(t) ::= FLOAT64. { t = Type::float64; }
+type(t) ::= FLOAT128. { t = Type::float128; }
+
+%type op { Op }
+op(o) ::= MUL. { o = Op::mul; }
+op(o) ::= DIV. { o = Op::div; }
+op(o) ::= MOD. { o = Op::mod; }
+op(o) ::= ADD. { o = Op::add; }
+op(o) ::= SUB. { o = Op::sub; }
+op(o) ::= SHL. { o = Op::shl; }
+op(o) ::= SHR. { o = Op::shr; }
+op(o) ::= EQ. { o = Op::eq; }
+op(o) ::= NE. { o = Op::ne; }
+op(o) ::= LE. { o = Op::le; }
+op(o) ::= LT. { o = Op::lt; }
+op(o) ::= GE. { o = Op::ge; }
+op(o) ::= GT. { o = Op::gt; }
+op(o) ::= AND. { o = Op::_and; }
+op(o) ::= OR. { o = Op::_or; }
+op(o) ::= XOR. { o = Op::_xor; }
+op(o) ::= NOT. { o = Op::_not; }

@@ -1,15 +1,43 @@
 
 typedef core::String Token;
 
-class Type
+template<class Class>
+struct Ref
 {
-public:
-    enum
+    Class* clazz;
+    operator Class&()
     {
-        boolean,
-        int8, int16, int32, int64,
-        float32, float64, float128
-    };
+        return *clazz;
+    }
+};
+
+template<class Class>
+Ref<Class> ref(Class& clazz)
+{
+    Ref<Class> ref {&clazz};
+    return ref;
+}
+
+enum class Type
+{
+    _bool,
+    int8, int16, int32, int64,
+    float32, float64, float128
+};
+
+enum class Op
+{
+    mul, div, add, sub, shl, shr, eq, ne, lt, gt, le, ge, _and, _or, _xor, mod, _not
+};
+
+class Loc
+{
+
+};
+
+class Exp
+{
+
 };
 
 class Var
@@ -17,41 +45,25 @@ class Var
 
 };
 
-template<typename Type>
-struct Ref
-{
-    Type* type;
-    operator Type&()
-    {
-        return *type;
-    }
-};
-
-template<typename Type>
-Ref<Type> ref(Type& type)
-{
-    Ref<Type> ref {&type};
-    return ref;
-}
-
 Var the_var;
-Type the_type;
+Exp the_exp;
+Loc the_loc;
 class SyntaxException {};
 
 class Tree
 {
 public:
-    Ref<Var> var(Token&, Type&)
+    Ref<Var> var(Token&, Exp&)
     {
         return ref(the_var);
     }
-    Ref<Type> type(Token&)
+    Ref<Exp> exp(Exp&, Type&)
     {
-        return ref(the_type);
+        return ref(the_exp);
     }
-    Ref<Type> type(int)
+    Ref<Exp> exp(Type&)
     {
-        return ref(the_type);
+        return ref(the_exp);
     }
     void syntax_error()
     {

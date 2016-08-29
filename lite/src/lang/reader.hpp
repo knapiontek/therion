@@ -119,23 +119,37 @@ private:
             case ']':
                 parser.put(TOK_RS);
                 break;
-            case '&':
-                parser.put(TOK_AND);
+            case '*':
+                parser.put(TOK_MUL);
                 break;
-            case '|':
-                parser.put(TOK_OR);
+            case '/':
+                parser.put(TOK_DIV);
+                break;
+            case '%':
+                parser.put(TOK_MOD);
+                break;
+            case '+':
+                parser.put(TOK_ADD);
+                break;
+            case '-':
+                parser.put(TOK_SUB);
                 break;
             case '=':
                 parser.put(TOK_EQ);
-                break;
-            case '!':
-                parser.put(TOK_NE);
                 break;
             case '<':
                 decode.read(ch);
                 if(ch == '=')
                 {
                     parser.put(TOK_LE);
+                }
+                else if(ch == '>')
+                {
+                    parser.put(TOK_NE);
+                }
+                else if(ch == '<')
+                {
+                    parser.put(TOK_SHL);
                 }
                 else
                 {
@@ -149,11 +163,27 @@ private:
                 {
                     parser.put(TOK_GE);
                 }
+                else if(ch == '>')
+                {
+                    parser.put(TOK_SHR);
+                }
                 else
                 {
                     parser.put(TOK_GT);
                     goto start;
                 }
+                break;
+            case '&':
+                parser.put(TOK_AND);
+                break;
+            case '|':
+                parser.put(TOK_OR);
+                break;
+            case '^':
+                parser.put(TOK_XOR);
+                break;
+            case '!':
+                parser.put(TOK_NOT);
                 break;
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                 while(is_digit(ch))
@@ -181,7 +211,7 @@ private:
                         token.attach(ch);
                         decode.read(ch);
                     }
-                    parser.put(TOK_FLOAT, ref(the_token_list.append(token)));
+                    parser.put(TOK_FLOAT64, ref(the_token_list.append(token)));
                     goto start;
                 }
                 break;
