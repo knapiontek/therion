@@ -8,13 +8,16 @@ input ::= var_map.
 
 var_map ::= var_map var.
 var_map ::= var.
-var_map ::= LP RP LB RB.
+var_map ::= LP RP.
 
 %type var { Ref<Var> }
 var(v) ::= ID(i) COLON exp(e). { v = tree.var(i, e); }
 
 %type exp { Ref<Exp> }
+exp ::= exp op LB exp RB. {}
+exp ::= LB exp RB. {}
 exp ::= exp op loc. {}
+exp ::= exp op type. {}
 exp ::= loc. {}
 exp ::= type. {}
 

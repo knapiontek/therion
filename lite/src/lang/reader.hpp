@@ -65,7 +65,9 @@ public:
             while(decode.available())
             {
                 decode.read(ch);
-                line.append(ch);
+                if(ch == '\n')
+                    break;
+                line.attach(ch);
             }
             env::Con("syntax error before: '$1'\n$2:$3")
                 .arg(line)
