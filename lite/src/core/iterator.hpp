@@ -94,12 +94,12 @@ private:
     int64 the_end;
 };
 
-Range range(int64 begin, int64 end)
+inline Range range(int64 begin, int64 end)
 {
     return Range(begin, end);
 }
 
-Range range(int64 end)
+inline Range range(int64 end)
 {
     return Range(0, end);
 }

@@ -45,24 +45,27 @@ class Var
 
 };
 
-Var the_var;
-Exp the_exp;
-Loc the_loc;
-class SyntaxException {};
+class SyntaxException
+{
+
+};
 
 class Tree
 {
 public:
     Ref<Var> var(Token&, Exp&)
     {
+        static Var the_var;
         return ref(the_var);
     }
     Ref<Exp> exp(Exp&, Type&)
     {
+        static Exp the_exp;
         return ref(the_exp);
     }
     Ref<Exp> exp(Type&)
     {
+        static Exp the_exp;
         return ref(the_exp);
     }
     void syntax_error()

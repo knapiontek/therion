@@ -47,44 +47,29 @@ private:
 class Reader
 {
 public:
-    Reader() : the_token_list(0x20)
+    static bool execute(Tree& tree, io::Decode& decode, core::String& filename)
     {
-
-    }
-    bool execute(Tree& tree, io::Decode& decode, core::String filename)
-    {
+        core::int64 line_cnt;
         try
         {
-            execute(tree, decode);
+            execute(tree, decode, line_cnt);
             return true;
         }
         catch(SyntaxException)
         {
-            core::uint8 ch = 0;
-            core::String line;
-            while(decode.available())
-            {
-                decode.read(ch);
-                if(ch == '\n')
-                    break;
-                line.attach(ch);
-            }
-            env::Con("syntax error before: '$1'\n$2:$3")
-                .arg(line)
-                .arg(filename)
-                .arg(the_line_cnt)
-                .end();
+            message(decode, filename, line_cnt);
             return false;
         }
     }
 private:
-    void execute(Tree& tree, io::Decode& decode)
+    static void execute(Tree& tree, io::Decode& decode, core::int64& line_cnt)
     {
-        the_line_cnt = 1;
-        the_token_list.erase_all();
+        line_cnt = 1;
         core::uint8 ch = 0;
         Token token;
         Parser parser(tree);
+        KeywordMap key_map;
+        core::List<Token> token_list(0x20);
 
         while(decode.available())
         {
@@ -97,7 +82,7 @@ private:
                 while(ch != '\n')
                     decode.read(ch);
             case '\n':
-                the_line_cnt++;
+                line_cnt++;
             case ' ': case '\t': case '\f': case '\r':
                 break;
             case ':':
@@ -195,7 +180,7 @@ private:
                 }
                 if(ch != '.')
                 {
-                    parser.put(TOK_INT64, ref(the_token_list.append(token)));
+                    parser.put(TOK_INT64, ref(token_list.append(token)));
                     goto start;
                 }
             case '.':
@@ -213,7 +198,7 @@ private:
                         token.attach(ch);
                         decode.read(ch);
                     }
-                    parser.put(TOK_FLOAT64, ref(the_token_list.append(token)));
+                    parser.put(TOK_FLOAT64, ref(token_list.append(token)));
                     goto start;
                 }
                 break;
@@ -223,10 +208,10 @@ private:
                     token.attach(ch);
                     decode.read(ch);
                 }
-                int keyword_id = the_key_map.token(token);
+                int keyword_id = key_map.token(token);
                 if(TOK_ID == keyword_id)
                 {
-                    parser.put(TOK_ID, ref(the_token_list.append(token)));
+                    parser.put(TOK_ID, ref(token_list.append(token)));
                 }
                 else
                 {
@@ -236,6 +221,23 @@ private:
             }
         }
         parser.put(0);
+    }
+    static void message(io::Decode& decode, core::String& filename, core::int64 line_cnt)
+    {
+        core::uint8 ch = 0;
+        core::String line;
+        while(decode.available())
+        {
+            decode.read(ch);
+            if(ch == '\n')
+                break;
+            line.attach(ch);
+        }
+        env::Con("syntax error before: '$1'\n$2:$3")
+            .arg(line)
+            .arg(filename)
+            .arg(line_cnt)
+            .end();
     }
     /**
      * If X is a character that can be used in an identifier then
@@ -275,8 +277,4 @@ private:
     {
         return ('0' <= ch && ch <= '9');
     }
-private:
-    core::List<Token> the_token_list;
-    KeywordMap the_key_map;
-    int the_line_cnt;
 };

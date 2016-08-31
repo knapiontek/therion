@@ -1,15 +1,15 @@
 
-auto bool_max_digit = 5;
-auto int8_max_digit = 4;
-auto int16_max_digit = 6;
-auto int32_max_digit = 12;
-auto int64_max_digit = 22;
-auto float32_max_digit = 22;
-auto float64_max_digit = 22;
-auto float128_max_digit = 22;
-auto float32_precision = 2;
-auto float64_precision = 4;
-auto float128_precision = 8;
+const auto bool_max_digit = 5;
+const auto int8_max_digit = 4;
+const auto int16_max_digit = 6;
+const auto int32_max_digit = 12;
+const auto int64_max_digit = 22;
+const auto float32_max_digit = 22;
+const auto float64_max_digit = 22;
+const auto float128_max_digit = 22;
+const auto float32_precision = 2;
+const auto float64_precision = 4;
+const auto float128_precision = 8;
 
 enum Base
 {

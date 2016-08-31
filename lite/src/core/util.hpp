@@ -15,7 +15,8 @@ typedef float float32;
 typedef double float64;
 typedef long double float128;
 
-struct Nil { } nil;
+struct Nil { Nil() {}; };
+const Nil nil;
 
 // range of basic types
 

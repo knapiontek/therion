@@ -12,8 +12,6 @@ inline void test_lang()
 
     lang::Tree tree;
     io::Decode decode = lite_file.input();
-    lang::Reader reader;
-    reader.execute(tree, decode, lite_filename);
-
-    core::assert(11 == lang::writer_write());
+    lang::Reader::execute(tree, decode, lite_filename);
+    core::verify(11 == lang::Writer::execute(tree));
 }
