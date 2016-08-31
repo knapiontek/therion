@@ -6,8 +6,8 @@ public:
     {
 
     }
-    virtual void input(core::uint8* /*data*/, core::int64 /*size*/) = 0;
-    virtual void skip(core::int64 /*size*/) = 0;
+    virtual void input(core::uint8* data, core::int64 size) = 0;
+    virtual void skip(core::int64 size) = 0;
     virtual core::int64 available() = 0;
 };
 

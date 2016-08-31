@@ -6,7 +6,7 @@ public:
     {
 
     }
-    virtual void output(core::uint8* /*data*/, core::int64 /*size*/) = 0;
+    virtual void output(core::uint8* data, core::int64 size) = 0;
     virtual void flush() = 0;
 };
 

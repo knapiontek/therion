@@ -25,7 +25,7 @@ inline void test_acquire()
     }
     catch(...)
     {
-        core::assert(true);
+        core::verify(true);
     }
 }
 
@@ -80,21 +80,21 @@ inline void test_share()
     // trivial
     core::share::int64 share_one = 1;
     core::share::int64 share_two = share_one;
-    core::assert(share_two != core::nil);
+    core::verify(share_two != core::nil);
     share_one = 0;
 
     // complex
     core::String::share share_first = cs_first;
     core::String::share share_second = share_first;
-    core::assert(share_second != core::nil);
+    core::verify(share_second != core::nil);
     share_first = cs_third;
     core::verify(share_first->equal(cs_third));
     share_first = cs_third;
 
     // nil
     core::String::share share_st = core::nil;
-    core::assert(share_st == core::nil);
-    core::assert(core::nil == share_st);
+    core::verify(share_st == core::nil);
+    core::verify(core::nil == share_st);
     share_st = cs_notnil;
     core::verify(share_st != core::nil);
     core::verify(core::nil != share_st);
@@ -137,13 +137,13 @@ inline void test_manage()
     // trivial
     core::manage::int64 manage_one = 1;
     core::manage::int64 manage_two = manage_one;
-    core::assert(manage_two != core::nil);
+    core::verify(manage_two != core::nil);
     manage_one = 0;
 
     // complex
     core::String::manage manage_first = cs_first;
     core::String::manage manage_second = manage_first;
-    core::assert(manage_second != core::nil);
+    core::verify(manage_second != core::nil);
     manage_first = cs_third.clone();
     core::verify(manage_first->equal(cs_third));
     manage_first = cs_third;
@@ -153,8 +153,8 @@ inline void test_manage()
     core::verify(manage_st != core::nil);
     core::verify(core::nil != manage_st);
     manage_st = core::nil;
-    core::assert(manage_st == core::nil);
-    core::assert(core::nil == manage_st);
+    core::verify(manage_st == core::nil);
+    core::verify(core::nil == manage_st);
 
     // extending
     core::int64 cnt = 3; // 2 * Flower + 1 * Poppy dtors
@@ -474,8 +474,8 @@ inline void test_seq()
     core::Seq<core::String> seq;
     core::Seq<core::String>::share shared_seq = seq;
     core::Seq<core::String>::manage managed_seq;
-    core::assert(shared_seq != core::nil);
-    core::assert(managed_seq != core::nil);
+    core::verify(shared_seq != core::nil);
+    core::verify(managed_seq != core::nil);
 
     // empty
     core::verify(!seq.head().next());
@@ -693,8 +693,8 @@ inline void test_list()
     core::List<core::String> list;
     core::List<core::String>::share shared_list = list;
     core::List<core::String>::manage managed_list;
-    core::assert(shared_list != core::nil);
-    core::assert(managed_list != core::nil);
+    core::verify(shared_list != core::nil);
+    core::verify(managed_list != core::nil);
 
     // init
     list.page_size(core::randomize() % variation + 1);
@@ -924,8 +924,8 @@ inline void test_hash_set()
     core::HashSet<core::String> set;
     core::HashSet<core::String>::share shared_set = set;
     core::HashSet<core::String>::manage managed_set;
-    core::assert(shared_set != core::nil);
-    core::assert(managed_set != core::nil);
+    core::verify(shared_set != core::nil);
+    core::verify(managed_set != core::nil);
 
     // init
     set.page_size(core::randomize() % variation + 1);
@@ -1064,8 +1064,8 @@ inline void test_hash_map()
     core::HashMap<core::String, core::int64> map;
     core::HashMap<core::String, core::int64>::share shared_map = map;
     core::HashMap<core::String, core::int64>::manage managed_map;
-    core::assert(shared_map != core::nil);
-    core::assert(managed_map != core::nil);
+    core::verify(shared_map != core::nil);
+    core::verify(managed_map != core::nil);
 
     // init
     map.page_size(core::randomize() % variation + 1);
@@ -1186,8 +1186,8 @@ inline void test_tree_set()
     core::TreeSet<core::String> set;
     core::TreeSet<core::String>::share shared_set = set;
     core::TreeSet<core::String>::manage managed_set;
-    core::assert(shared_set != core::nil);
-    core::assert(managed_set != core::nil);
+    core::verify(shared_set != core::nil);
+    core::verify(managed_set != core::nil);
 
     // init
     set.page_size(core::randomize() % variation + 1);
@@ -1370,8 +1370,8 @@ inline void test_tree_map()
     core::TreeMap<core::String, core::int64> map;
     core::TreeMap<core::String, core::int64>::share shared_map = map;
     core::TreeMap<core::String, core::int64>::manage managed_map;
-    core::assert(shared_map != core::nil);
-    core::assert(managed_map != core::nil);
+    core::verify(shared_map != core::nil);
+    core::verify(managed_map != core::nil);
 
     // init
     map.page_size(core::randomize() % variation + 1);
