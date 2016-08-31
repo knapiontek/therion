@@ -20,14 +20,16 @@ Ref<Class> ref(Class& clazz)
 
 enum class Type
 {
-    _bool,
-    int8, int16, int32, int64,
-    float32, float64, float128
+    BOOL,
+    INT8, INT16, INT32, INT64,
+    FLOAT32, FLOAT64, FLOAT128
 };
 
 enum class Op
 {
-    mul, div, add, sub, shl, shr, eq, ne, lt, gt, le, ge, _and, _or, _xor, mod, _not
+    MUL, DIV, ADD, SUB,
+    SHL, SHR, EQ, NE, LT, GT, LE, GE,
+    AND, OR, XOR, MOD, NOT
 };
 
 class Loc

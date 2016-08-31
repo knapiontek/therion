@@ -28,30 +28,30 @@ loc ::= ID LS exp RS.
 loc ::= ID.
 
 %type type { Type }
-type(t) ::= BOOL. { t = Type::_bool; }
-type(t) ::= INT8. { t = Type::int8; }
-type(t) ::= INT16. { t = Type::int16; }
-type(t) ::= INT32. { t = Type::int32; }
-type(t) ::= INT64. { t = Type::int64; }
-type(t) ::= FLOAT32. { t = Type::float32; }
-type(t) ::= FLOAT64. { t = Type::float64; }
-type(t) ::= FLOAT128. { t = Type::float128; }
+type(t) ::= BOOL. { t = Type::BOOL; }
+type(t) ::= INT8. { t = Type::INT8; }
+type(t) ::= INT16. { t = Type::INT16; }
+type(t) ::= INT32. { t = Type::INT32; }
+type(t) ::= INT64. { t = Type::INT64; }
+type(t) ::= FLOAT32. { t = Type::FLOAT32; }
+type(t) ::= FLOAT64. { t = Type::FLOAT64; }
+type(t) ::= FLOAT128. { t = Type::FLOAT128; }
 
 %type op { Op }
-op(o) ::= MUL. { o = Op::mul; }
-op(o) ::= DIV. { o = Op::div; }
-op(o) ::= MOD. { o = Op::mod; }
-op(o) ::= ADD. { o = Op::add; }
-op(o) ::= SUB. { o = Op::sub; }
-op(o) ::= SHL. { o = Op::shl; }
-op(o) ::= SHR. { o = Op::shr; }
-op(o) ::= EQ. { o = Op::eq; }
-op(o) ::= NE. { o = Op::ne; }
-op(o) ::= LE. { o = Op::le; }
-op(o) ::= LT. { o = Op::lt; }
-op(o) ::= GE. { o = Op::ge; }
-op(o) ::= GT. { o = Op::gt; }
-op(o) ::= AND. { o = Op::_and; }
-op(o) ::= OR. { o = Op::_or; }
-op(o) ::= XOR. { o = Op::_xor; }
-op(o) ::= NOT. { o = Op::_not; }
+op(o) ::= MUL. { o = Op::MUL; }
+op(o) ::= DIV. { o = Op::DIV; }
+op(o) ::= MOD. { o = Op::MOD; }
+op(o) ::= ADD. { o = Op::ADD; }
+op(o) ::= SUB. { o = Op::SUB; }
+op(o) ::= SHL. { o = Op::SHL; }
+op(o) ::= SHR. { o = Op::SHR; }
+op(o) ::= EQ. { o = Op::EQ; }
+op(o) ::= NE. { o = Op::NE; }
+op(o) ::= LE. { o = Op::LE; }
+op(o) ::= LT. { o = Op::LT; }
+op(o) ::= GE. { o = Op::GE; }
+op(o) ::= GT. { o = Op::GT; }
+op(o) ::= AND. { o = Op::AND; }
+op(o) ::= OR. { o = Op::OR; }
+op(o) ::= XOR. { o = Op::XOR; }
+op(o) ::= NOT. { o = Op::NOT; }
