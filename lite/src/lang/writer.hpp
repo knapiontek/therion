@@ -2,7 +2,7 @@
 class Writer
 {
 public:
-    static core::int64 execute(Tree& tree)
+    static void execute(Tree& tree)
     {
         // initialize
         llvm::InitializeNativeTarget();
@@ -41,10 +41,22 @@ public:
         std::vector<llvm::GenericValue> noargs;
         auto val = exec_engine->runFunction(foo_func, noargs);
         int result = val.IntVal.getSExtValue();
+        core::verify(11 == result);
 
         // close
         delete exec_engine;
         llvm::llvm_shutdown();
-        return result;
+    }
+    void execute(Loc& loc)
+    {
+
+    }
+    void execute(Exp& exp)
+    {
+
+    }
+    void execute(Var& var)
+    {
+
     }
 };
