@@ -12,7 +12,7 @@ struct Ref
 };
 
 template<class Class>
-Ref<Class> ref(Class& clazz)
+inline Ref<Class> ref(Class& clazz)
 {
     Ref<Class> ref {&clazz};
     return ref;
@@ -32,19 +32,49 @@ enum class Op
     AND, OR, XOR, MOD, NOT
 };
 
-class Loc
+struct WriterClass
 {
-
+    virtual void execute(struct Loc&) = 0;
+    virtual void execute(struct Exp&) = 0;
+    virtual void execute(struct BinaryOpExp&) = 0;
+    virtual void execute(struct Var&) = 0;
 };
 
-class Exp
+struct Writable
 {
-
+    virtual void execute(WriterClass&) = 0;
 };
 
-class Var
+struct Loc : Writable
 {
+    void execute(WriterClass& writer) override
+    {
+        writer.execute(*this);
+    }
+};
 
+struct Exp : Writable
+{
+    void execute(WriterClass& writer) override
+    {
+        writer.execute(*this);
+    }
+};
+
+struct BinaryOpExp : Exp
+{
+    void execute(WriterClass& writer) override
+    {
+        writer.execute(*this);
+    }
+};
+
+struct Var : Writable
+{
+    void execute(WriterClass& writer) override
+    {
+        writer.execute(*this);
+    }
 };
 
 class SyntaxException
