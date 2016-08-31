@@ -1,5 +1,5 @@
 
-class Writer : public WriterClass
+class Writer
 {
 public:
     static void execute(Tree& tree)
@@ -46,25 +46,20 @@ public:
         // close
         delete exec_engine;
         llvm::llvm_shutdown();
-
-        BinaryOpExp binary_op_exp;
-        Exp& exp = binary_op_exp;
-        Writer writer;
-        exp.execute(writer);
     }
-    void execute(Loc& loc) override
+    void execute(Loc& loc)
     {
         (void)loc;
     }
-    void execute(Exp& exp) override
+    void execute(Exp& exp)
     {
         (void)exp;
     }
-    void execute(BinaryOpExp& binary_op_exp) override
+    void execute(BinaryOpExp& binary_op_exp)
     {
         (void)binary_op_exp;
     }
-    void execute(Var& var) override
+    void execute(Var& var)
     {
         (void)var;
     }

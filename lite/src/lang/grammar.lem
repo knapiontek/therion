@@ -14,18 +14,18 @@ var_map ::= LP RP.
 var(v) ::= ID(i) COLON exp(e). { v = tree.var(i, e); }
 
 %type exp { Ref<Exp> }
-exp ::= exp op LB exp RB. {}
-exp ::= LB exp RB. {}
-exp ::= exp op loc. {}
-exp ::= exp op type. {}
-exp ::= loc. {}
-exp ::= type. {}
+exp(e) ::= exp(e1) op(o) LB exp(e2) RB. { e = tree.exp(e1, o, e2); }
+exp(e) ::= LB exp(e1) RB. { e = e1; }
+exp(e) ::= exp(e1) op(o) loc(l). { e = tree.exp(e1, o, l); }
+exp(e) ::= exp(e1) op(o) type(t). { e = tree.exp(e1, o, t); }
+exp(e) ::= loc(l). { e = tree.exp(l); }
+exp(e) ::= type(t). { e = tree.exp(t); }
 
 %type loc { Ref<Loc> }
-loc ::= loc DOT ID LS exp RS.
-loc ::= loc DOT ID.
-loc ::= ID LS exp RS.
-loc ::= ID.
+loc(l) ::= loc(l1) DOT ID(i) LS exp(e) RS. { l = tree.loc(l1, i, e); }
+loc(l) ::= loc(l1) DOT ID(i). { l = tree.loc(l1, i); }
+loc(l) ::= ID(i) LS exp(e) RS. { l = tree.loc(i, e); }
+loc(l) ::= ID(i). { l = tree.loc(i); }
 
 %type type { Type }
 type(t) ::= BOOL. { t = Type::BOOL; }

@@ -32,49 +32,29 @@ enum class Op
     AND, OR, XOR, MOD, NOT
 };
 
-struct WriterClass
-{
-    virtual void execute(struct Loc&) = 0;
-    virtual void execute(struct Exp&) = 0;
-    virtual void execute(struct BinaryOpExp&) = 0;
-    virtual void execute(struct Var&) = 0;
-};
-
 struct Writable
 {
-    virtual void execute(WriterClass&) = 0;
+
 };
 
 struct Loc : Writable
 {
-    void execute(WriterClass& writer) override
-    {
-        writer.execute(*this);
-    }
+
 };
 
 struct Exp : Writable
 {
-    void execute(WriterClass& writer) override
-    {
-        writer.execute(*this);
-    }
+
 };
 
-struct BinaryOpExp : Exp
+struct BinaryOpExp : Writable
 {
-    void execute(WriterClass& writer) override
-    {
-        writer.execute(*this);
-    }
+
 };
 
 struct Var : Writable
 {
-    void execute(WriterClass& writer) override
-    {
-        writer.execute(*this);
-    }
+
 };
 
 class SyntaxException
@@ -85,20 +65,55 @@ class SyntaxException
 class Tree
 {
 public:
-    Ref<Var> var(Token&, Exp&)
+    Ref<Var> var(Token& id, Exp& exp)
     {
-        static Var the_var;
-        return ref(the_var);
+        static Var var;
+        return ref(var);
     }
-    Ref<Exp> exp(Exp&, Type&)
+    Ref<Exp> exp(Exp& exp1, Op o, Exp& exp2)
     {
-        static Exp the_exp;
-        return ref(the_exp);
+        static Exp exp;
+        return ref(exp);
     }
-    Ref<Exp> exp(Type&)
+    Ref<Exp> exp(Exp& exp1, Op o, Loc& loc)
     {
-        static Exp the_exp;
-        return ref(the_exp);
+        static Exp exp;
+        return ref(exp);
+    }
+    Ref<Exp> exp(Exp& exp1, Op o, Type& type)
+    {
+        static Exp exp;
+        return ref(exp);
+    }
+    Ref<Exp> exp(Loc& loc)
+    {
+        static Exp exp;
+        return ref(exp);
+    }
+    Ref<Exp> exp(Type& type)
+    {
+        static Exp exp;
+        return ref(exp);
+    }
+    Ref<Loc> loc(Loc& loc1, Token& id, Exp& exp)
+    {
+        static Loc loc;
+        return ref(loc);
+    }
+    Ref<Loc> loc(Loc& loc1, Token& id)
+    {
+        static Loc loc;
+        return ref(loc);
+    }
+    Ref<Loc> loc(Token& id, Exp& exp)
+    {
+        static Loc loc;
+        return ref(loc);
+    }
+    Ref<Loc> loc(Token& id)
+    {
+        static Loc loc;
+        return ref(loc);
     }
     void syntax_error()
     {
