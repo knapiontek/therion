@@ -32,29 +32,24 @@ enum class Op
     AND, OR, XOR, MOD, NOT
 };
 
-struct Writable
+struct Loc
 {
-
+    typedef core::Shared<Loc> share;
 };
 
-struct Loc : Writable
+struct Exp
 {
-
+    typedef core::Shared<Exp> share;
 };
 
-struct Exp : Writable
+struct BinaryOpExp
 {
-
+    typedef core::Shared<BinaryOpExp> share;
 };
 
-struct BinaryOpExp : Writable
+struct Var
 {
-
-};
-
-struct Var : Writable
-{
-
+    typedef core::Shared<Var> share;
 };
 
 class SyntaxException
@@ -65,6 +60,10 @@ class SyntaxException
 class Tree
 {
 public:
+    Tree() : var_list(0x40)
+    {
+
+    }
     Ref<Var> var(Token& id, Exp& exp)
     {
         static Var var;
@@ -115,8 +114,6 @@ public:
         static Loc loc;
         return ref(loc);
     }
-    void syntax_error()
-    {
-        throw SyntaxException();
-    }
+public:
+    core::List<Var::share> var_list;
 };

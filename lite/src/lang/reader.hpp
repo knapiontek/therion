@@ -12,7 +12,7 @@ public:
     }
     void put(int token_id, Ref<Token> token = {0})
     {
-        Parse(the_parser, token_id, token, the_tree);
+        Parse(the_parser, token_id, token, &the_tree);
     }
 private:
     Tree& the_tree;

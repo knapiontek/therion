@@ -3,7 +3,8 @@ class Writer
 {
 public:
     static void execute(Tree& tree)
-    {/*
+    {
+        /*
         // initialize
         llvm::InitializeNativeTarget();
         llvm::LLVMContext context;
@@ -45,7 +46,14 @@ public:
 
         // close
         delete exec_engine;
-        llvm::llvm_shutdown();*/
+        llvm::llvm_shutdown();
+        */
+
+        Writer writer;
+        for(auto& it : tree.var_list)
+        {
+            writer.execute(it.value());
+        }
     }
     void execute(Loc& loc)
     {
