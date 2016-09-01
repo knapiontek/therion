@@ -10,7 +10,7 @@ struct TypeFinal
 {
 	virtual void destroy()
 	{
-		auto type = (Type*)(this + 1);
+		auto type = reinterpret_cast<Type*>(this + 1);
 		type->~Type();
 	}
 	Final* prev;
@@ -21,8 +21,8 @@ struct SeqFinal
 {
 	virtual void destroy()
 	{
-		auto ptr_size = (int64*)(this + 1);
-		auto begin = (Type*)(ptr_size + 1);
+		auto ptr_size = reinterpret_cast<int64*>(this + 1);
+		auto begin = reinterpret_cast<Type*>(ptr_size + 1);
 		auto it = begin + *ptr_size;
 		while(it > begin)
 		{
@@ -56,12 +56,12 @@ public:
 		TypeFinal<Type> final;
 		final.prev = the_last_final;
 
-		auto tail = (Final*)acquire_tail(byte_size);
-		::memcpy((void*)tail, (void*)&final, sizeof(Final));
+		auto tail = reinterpret_cast<Final*>(acquire_tail(byte_size));
+		::memcpy(reinterpret_cast<void*>(tail), reinterpret_cast<void*>(&final), sizeof(Final));
 		the_last_final = tail;
 
 		auto type = (Type*)++tail;
-		new((void*)type) Type();
+		new(reinterpret_cast<void*>(type)) Type();
 		return *type;
 	}
 	template<class Type>
@@ -74,7 +74,7 @@ public:
 		final.prev = the_last_final;
 
 		auto tail = (Final*)acquire_tail(byte_size);
-		::memcpy((void*)tail, (void*)&final, sizeof(Final));
+		::memcpy(reinterpret_cast<void*>(tail), reinterpret_cast<void*>(&final), sizeof(Final));
 		the_last_final = tail;
 
 		auto ptr_size = (int64*)++tail;
@@ -85,7 +85,7 @@ public:
 		auto end = type + size;
 		while(it < end)
 		{
-			new((void*)it) Type();
+			new(reinterpret_cast<void*>(it)) Type();
 			it++;
 		}
 		return type;
