@@ -123,7 +123,7 @@ public:
             the_node = the_node->next;
             while(the_node)
             {
-                if(!the_map->the_index.compare((Key&)the_key, the_node->key))
+                if(!the_map->the_index.compare(const_cast<Key&>(the_key), the_node->key))
                     return true;
                 the_node = the_node->next;
             }

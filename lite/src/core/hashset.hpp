@@ -119,7 +119,7 @@ public:
             the_node = the_node->next;
             while(the_node)
             {
-                if(!the_set->the_index.compare((Value&)the_value, the_node->value))
+                if(!the_set->the_index.compare(const_cast<Value&>(the_value), the_node->value))
                     return true;
                 the_node = the_node->next;
             }
