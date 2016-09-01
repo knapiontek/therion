@@ -35,6 +35,7 @@ enum class Op
 struct Loc
 {
     typedef core::Shared<Loc> share;
+    Token id;
 };
 
 struct Exp
@@ -111,9 +112,10 @@ public:
     }
     Ref<Loc> loc(Token& id)
     {
-        static Loc loc;
+        auto& loc = pager.acquire<Loc>();
         return ref(loc);
     }
 public:
+    core::Pager pager;
     core::List<Var::share> var_list;
 };

@@ -13,6 +13,7 @@
 namespace core
 {
 #include "core/util.hpp"
+#include "core/pager.hpp"
 #include "core/convert.hpp"
 #include "core/share.hpp"
 #include "core/manage.hpp"
