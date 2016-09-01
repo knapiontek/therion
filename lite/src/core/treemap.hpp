@@ -314,7 +314,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -359,7 +359,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -373,7 +373,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -398,7 +398,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
             {
                 i++;
@@ -440,7 +440,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
             {
                 i++;
@@ -479,7 +479,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
             {
                 i++;
@@ -517,7 +517,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Key&)key, pos->key);
+            auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
             if(dir)
             {
                 i++;
@@ -573,7 +573,7 @@ public:
             auto pos = the_root;
             while(pos)
             {
-                auto dir = the_index.compare((Key&)key, pos->key);
+                auto dir = the_index.compare(const_cast<Key&>(key), pos->key);
                 if(dir)
                 {
                     i++;
