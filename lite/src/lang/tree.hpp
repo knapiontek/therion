@@ -1,4 +1,6 @@
 
+// util
+
 typedef core::String Token;
 
 template<class Class>
@@ -18,12 +20,7 @@ inline Ret<Class> ret(Class& clazz)
     return ret;
 }
 
-enum class Type
-{
-    BOOL,
-    INT8, INT16, INT32, INT64,
-    FLOAT32, FLOAT64, FLOAT128
-};
+// op
 
 enum class Op
 {
@@ -32,25 +29,81 @@ enum class Op
     AND, OR, XOR, MOD, NOT
 };
 
+// type
+
+enum class Type
+{
+    BOOL,
+    INT8, INT16, INT32, INT64,
+    FLOAT32, FLOAT64, FLOAT128
+};
+
+// loc
+
 struct Loc
 {
     typedef core::Shared<Loc> share;
     Token id;
 };
 
+struct LocExp : Loc
+{
+    core::Shared<struct Exp> exp;
+};
+
+struct LocNested : Loc
+{
+    Loc::share nest;
+};
+
+struct LocExpNested : LocExp
+{
+    Loc::share nest;
+};
+
+// exp
+
 struct Exp
 {
     typedef core::Shared<Exp> share;
 };
 
-struct BinaryOpExp
+struct ExpType : Exp
 {
-    typedef core::Shared<BinaryOpExp> share;
+    Type type;
+};
+
+struct ExpLoc : Exp
+{
+    Loc::share loc;
+};
+
+struct ExpOpType : Exp
+{
+    Exp::share exp1;
+    Op op;
+    Type type;
+};
+
+struct ExpOpLoc : Exp
+{
+    Exp::share exp1;
+    Op op;
+    Loc::share loc;
+};
+
+struct ExpOpExp : Exp
+{
+    Exp::share exp1;
+    Op op;
+    Exp::share exp2;
 };
 
 struct Var
 {
     typedef core::Shared<Var> share;
+    Token id;
+    Exp::share exp;
 };
 
 class SyntaxException
@@ -67,54 +120,78 @@ public:
     }
     Ret<Var> var(Token& id, Exp& exp)
     {
-        static Var var;
-        return ret(var);
+        auto& var = pager.acquire<Var>();
+        var.id = id;
+        var.exp = exp;
+        return ret<Var>(var);
     }
-    Ret<Exp> exp(Exp& exp1, Op o, Exp& exp2)
+    Ret<Exp> exp(Exp& exp1, Op op, Exp& exp2)
     {
-        static Exp exp;
-        return ret(exp);
+        auto& exp = pager.acquire<ExpOpExp>();
+        exp.exp1 = exp1;
+        exp.op = op;
+        exp.exp2 = exp2;
+        return ret<Exp>(exp);
     }
-    Ret<Exp> exp(Exp& exp1, Op o, Loc& loc)
+    Ret<Exp> exp(Exp& exp1, Op op, Loc& loc)
     {
-        static Exp exp;
-        return ret(exp);
+        auto& exp = pager.acquire<ExpOpLoc>();
+        exp.exp1 = exp1;
+        exp.op = op;
+        exp.loc = loc;
+        return ret<Exp>(exp);
     }
-    Ret<Exp> exp(Exp& exp1, Op o, Type& type)
+    Ret<Exp> exp(Exp& exp1, Op op, Type& type)
     {
-        static Exp exp;
-        return ret(exp);
+        auto& exp = pager.acquire<ExpOpType>();
+        exp.exp1 = exp1;
+        exp.op = op;
+        exp.type = type;
+        return ret<Exp>(exp);
     }
     Ret<Exp> exp(Loc& loc)
     {
-        static Exp exp;
-        return ret(exp);
+        auto& exp = pager.acquire<ExpLoc>();
+        exp.loc = loc;
+        return ret<Exp>(exp);
     }
     Ret<Exp> exp(Type& type)
     {
-        static Exp exp;
-        return ret(exp);
+        auto& exp = pager.acquire<ExpType>();
+        exp.type = type;
+        return ret<Exp>(exp);
+    }
+    Ret<Exp> exp(Exp& exp)
+    {
+        return ret<Exp>(exp);
     }
     Ret<Loc> loc(Loc& loc1, Token& id, Exp& exp)
     {
-        static Loc loc;
-        return ret(loc);
+        auto& loc = pager.acquire<LocExpNested>();
+        loc.nest = loc1;
+        loc.id = id;
+        loc.exp = exp;
+        return ret<Loc>(loc);
     }
     Ret<Loc> loc(Loc& loc1, Token& id)
     {
-        static Loc loc;
-        return ret(loc);
+        auto& loc = pager.acquire<LocNested>();
+        loc.nest = loc1;
+        loc.id = id;
+        return ret<Loc>(loc);
     }
     Ret<Loc> loc(Token& id, Exp& exp)
     {
-        static Loc loc;
-        return ret(loc);
+        auto& loc = pager.acquire<LocExp>();
+        loc.id = id;
+        loc.exp = exp;
+        return ret<Loc>(loc);
     }
     Ret<Loc> loc(Token& id)
     {
         auto& loc = pager.acquire<Loc>();
         loc.id = id;
-        return ret(loc);
+        return ret<Loc>(loc);
     }
 public:
     core::Pager pager;

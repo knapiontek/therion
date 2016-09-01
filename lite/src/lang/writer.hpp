@@ -63,10 +63,6 @@ public:
     {
         (void)exp;
     }
-    void execute(BinaryOpExp& binary_op_exp)
-    {
-        (void)binary_op_exp;
-    }
     void execute(Var& var)
     {
         (void)var;
