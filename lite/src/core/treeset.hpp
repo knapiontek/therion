@@ -302,7 +302,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -347,7 +347,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -361,7 +361,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
@@ -386,7 +386,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
             {
                 i++;
@@ -428,7 +428,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
             {
                 i++;
@@ -465,7 +465,7 @@ public:
         auto pos = the_root;
         while(pos)
         {
-            auto dir = the_index.compare((Value&)value, pos->value);
+            auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
             if(dir)
             {
                 i++;
@@ -520,7 +520,7 @@ public:
             auto pos = the_root;
             while(pos)
             {
-                auto dir = the_index.compare((Value&)value, pos->value);
+                auto dir = the_index.compare(const_cast<Value&>(value), pos->value);
                 if(dir)
                 {
                     i++;

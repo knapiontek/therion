@@ -209,8 +209,8 @@ public:
     Find find(const Value& value)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Value&)value) % the_page_size];
-        return Find(pos, (Value&)value, this);
+        auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
+        return Find(pos, const_cast<Value&>(value), this);
     }
     void page_size(int64 page_size)
     {
@@ -246,10 +246,10 @@ public:
     Shared<Value> lookup(const Value& value)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         while(pos)
         {
-            if(!the_index.compare((Value&)value, pos->value))
+            if(!the_index.compare(const_cast<Value&>(value), pos->value))
                 return pos->value;
             pos = pos->next;
         }
@@ -258,10 +258,10 @@ public:
     bool set(const Value& value)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         while(pos)
         {
-            if(!the_index.compare((Value&)value, pos->value))
+            if(!the_index.compare(const_cast<Value&>(value), pos->value))
             {
                 pos->value = value;
                 return true;
@@ -277,12 +277,12 @@ public:
     Value& at(const Value& value)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         auto pos = head;
         while(pos)
         {
-            if(!the_index.compare((Value&)value, pos->value))
+            if(!the_index.compare(const_cast<Value&>(value), pos->value))
                 return pos->value;
             pos = pos->next;
         }
@@ -297,12 +297,12 @@ public:
     Value& acquire(const Value& value, Pager& pager)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         auto pos = head;
         while(pos)
         {
-            if(!the_index.compare((Value&)value, pos->value))
+            if(!the_index.compare(const_cast<Value&>(value), pos->value))
                 return pos->value;
             pos = pos->next;
         }
@@ -316,14 +316,14 @@ public:
     bool put(const Value& value, bool unique = true)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         if(unique)
         {
             auto pos = head;
             while(pos)
             {
-                if(!the_index.compare((Value&)value, pos->value))
+                if(!the_index.compare(const_cast<Value&>(value), pos->value))
                     return false;
                 pos = pos->next;
             }
@@ -339,15 +339,15 @@ public:
     {
         assert(the_page_size);
         auto erased = 0;
-        auto prev = &the_plexer[the_index.hash((Value&)value) % the_page_size];
+        auto prev = &the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         auto pos = *prev;
         while(pos)
         {
-            if(!the_index.compare((Value&)value, pos->value))
+            if(!the_index.compare(const_cast<Value&>(value), pos->value))
             {
                 // remove matching tail
                 auto tail = the_tail - 1;
-                while(pos != tail && !the_index.compare((Value&)value, tail->value))
+                while(pos != tail && !the_index.compare(const_cast<Value&>(value), tail->value))
                 {
                     // remove tail from linked list
                     auto tail_prev = &the_plexer[the_index.hash(tail->value) % the_page_size];
