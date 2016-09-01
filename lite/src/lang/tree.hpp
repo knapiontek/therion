@@ -20,9 +20,14 @@ inline Ret<Class> ret(Class& clazz)
     return ret;
 }
 
+struct WriterClass
+{
+
+};
+
 // op
 
-enum class Op
+enum struct Op
 {
     MUL, DIV, ADD, SUB,
     SHL, SHR, EQ, NE, LT, GT, LE, GE,
@@ -31,7 +36,7 @@ enum class Op
 
 // type
 
-enum class Type
+enum struct Type
 {
     BOOL,
     INT8, INT16, INT32, INT64,

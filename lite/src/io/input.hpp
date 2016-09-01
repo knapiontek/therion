@@ -25,7 +25,7 @@ public:
         arg.size(size);
         read(arg);
     }
-    template<typename Type>
+    template<class Type>
     void read(core::Seq<Type>& arg)
     {
         the_input.input(arg.content(), sizeof(Type) * arg.size());

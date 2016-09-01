@@ -22,7 +22,7 @@ public:
         write(core::uint16(arg.size()));
         write(arg);
     }
-    template<typename Type>
+    template<class Type>
     void write(core::Seq<Type>& arg)
     {
         the_output.output(arg.content(), sizeof(Type) * arg.size());

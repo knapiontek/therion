@@ -1,5 +1,5 @@
 
-template<typename Value, class HashIndex = Index<Value>>
+template<class Value, class HashIndex = Index<Value>>
 class HashSet
 {
     struct Node;

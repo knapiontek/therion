@@ -68,19 +68,19 @@ public:
 
 // miscellaneous
 
-template <typename Type>
+template<class Type>
 inline Type& min(const Type& arg1, const Type& arg2)
 {
     return (arg1 < arg2) ? (Type&)arg1 : (Type&)arg2;
 }
 
-template <typename Type>
+template<class Type>
 inline Type& max(const Type& arg1, const Type& arg2)
 {
     return (arg1 > arg2) ? (Type&)arg1 : (Type&)arg2;
 }
 
-template <typename Type>
+template<class Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
     const auto size = sizeof(Type);

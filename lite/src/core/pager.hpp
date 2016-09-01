@@ -5,7 +5,7 @@ struct Final
 	Final* prev;
 };
 
-template<typename Type>
+template<class Type>
 struct TypeFinal
 {
 	virtual void destroy()
@@ -16,7 +16,7 @@ struct TypeFinal
 	Final* prev;
 };
 
-template<typename Type>
+template<class Type>
 struct SeqFinal
 {
 	virtual void destroy()
@@ -47,7 +47,7 @@ public:
 	{
 		release();
 	}
-	template<typename Type>
+	template<class Type>
 	Type& acquire()
 	{
 		auto byte_size = sizeof(Final) + sizeof(Type);
@@ -64,7 +64,7 @@ public:
 		new((void*)type) Type();
 		return *type;
 	}
-	template<typename Type>
+	template<class Type>
 	Type* acquire(int64 size)
 	{
 		auto byte_size = sizeof(Final) + sizeof(int64) + (sizeof(Type) * size);

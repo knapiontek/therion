@@ -1,5 +1,5 @@
 
-template<typename Forward>
+template<class Forward>
 class Reverse
 {
 public:
@@ -7,11 +7,11 @@ public:
     {
 
     }
-    typename Forward::Reverse begin()
+    class Forward::Reverse begin()
     {
         return the_forward.rbegin();
     }
-    typename Forward::Reverse end()
+    class Forward::Reverse end()
     {
         return the_forward.rend();
     }
@@ -19,13 +19,13 @@ private:
     Forward& the_forward;
 };
 
-template<typename Forward>
+template<class Forward>
 Reverse<Forward> reverse(Forward& forward)
 {
     return Reverse<Forward>(forward);
 }
 
-template<typename Forward>
+template<class Forward>
 Reverse<Forward> reverse(Forward&& forward)
 {
     return Reverse<Forward>(forward);

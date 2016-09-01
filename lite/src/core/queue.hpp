@@ -1,5 +1,5 @@
 
-template<typename Element>
+template<class Element>
 class Queue
 {
 public:

@@ -1,8 +1,8 @@
 
-template<typename Type>
+template<class Type>
 class Shared
 {
-    template<typename Other>
+    template<class Other>
     friend class Shared;
 public:
     Shared()

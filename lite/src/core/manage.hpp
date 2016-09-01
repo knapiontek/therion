@@ -1,8 +1,8 @@
 
-template<typename Type>
+template<class Type>
 class Managed
 {
-    template<typename Other>
+    template<class Other>
     friend class Managed;
 public:
     Managed()
@@ -34,7 +34,7 @@ public:
         the_handle = (Handle*)arg.the_handle;
         the_handle->cnt++;
     }
-    template<typename... Args>
+    template<class... Args>
     Managed(const Args&... args)
     {
         the_handle = acquire<Handle>(sizeof(Handle));
