@@ -50,7 +50,7 @@ public:
 	template<class Type>
 	Type& acquire()
 	{
-		auto byte_size = sizeof(Final) + sizeof(Type);
+		auto byte_size = int64(sizeof(Final) + sizeof(Type));
 		assert(byte_size < the_page_size);
 
 		TypeFinal<Type> final;
@@ -67,7 +67,7 @@ public:
 	template<class Type>
 	Type* acquire(int64 size)
 	{
-		auto byte_size = sizeof(Final) + sizeof(int64) + (sizeof(Type) * size);
+		auto byte_size = int64(sizeof(Final) + sizeof(int64) + (sizeof(Type) * size));
 		assert(byte_size < the_page_size);
 
 		SeqFinal<Type> final;

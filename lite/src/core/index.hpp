@@ -1,11 +1,11 @@
 
 struct InternalIndex
 {
-    uint64 hash(uint8* key, int64 size)
+    int64 hash(uint8* key, int64 size)
     {
         auto pos = (uint8*)key;
         auto tail = pos + size;
-        uint64 hash = 0;
+        int64 hash = 0;
         while(pos < tail)
         {
             hash += *pos++;
@@ -17,55 +17,55 @@ struct InternalIndex
         hash += (hash << 15);
         return hash;
     }
-    uint64 hash(int8 key)
+    int64 hash(int8 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(int16 key)
+    int64 hash(int16 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(int32 key)
+    int64 hash(int32 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(int64 key)
+    int64 hash(int64 key)
     {
-        return (uint64)(key >> 31 ^ key);
+        return (int64)(key >> 31 ^ key);
     }
-    uint64 hash(uint8 key)
+    int64 hash(uint8 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(uint16 key)
+    int64 hash(uint16 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(uint32 key)
+    int64 hash(uint32 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(uint64 key)
+    int64 hash(uint64 key)
     {
-        return (uint64)(key >> 31 ^ key);
+        return (int64)(key >> 31 ^ key);
     }
-    uint64 hash(float32 key)
+    int64 hash(float32 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(float64 key)
+    int64 hash(float64 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(float128 key)
+    int64 hash(float128 key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
-    uint64 hash(String& key)
+    int64 hash(String& key)
     {
         auto pos = key.data();
         auto tail = pos + key.size();
-        uint64 top, hash = 0;
+        int64 top, hash = 0;
         while(pos < tail)
         {
             hash = (hash << 4) + *pos++;
@@ -136,26 +136,26 @@ template<class Cast>
 struct Index : InternalIndex
 {
     template<class Type>
-    uint64 hash(Type* key)
+    int64 hash(Type* key)
     {
-        return (uint64)key;
+        return static_cast<int64>(key);
     }
     template<class Type>
-    uint64 hash(Type& key)
+    int64 hash(Type& key)
     {
-        auto& cast = (Cast&)key;
+        auto& cast = reinterpret_cast<Cast&>(key);
         return InternalIndex::hash(cast);
     }
     template<class Type>
-    uint64 hash(Shared<Type>& key)
+    int64 hash(Shared<Type>& key)
     {
-        auto& cast = (Cast&)key;
+        auto& cast = reinterpret_cast<Cast&>(key);
         return InternalIndex::hash(cast);
     }
     template<class Type>
-    uint64 hash(Managed<Type>& key)
+    int64 hash(Managed<Type>& key)
     {
-        auto& cast = (Cast&)key;
+        auto& cast = reinterpret_cast<Cast&>(key);
         return InternalIndex::hash(cast);
     }
     template<class Type>
@@ -166,22 +166,22 @@ struct Index : InternalIndex
     template<class Type>
     int64 compare(Type& arg1, Type& arg2)
     {
-        auto& cast1 = (Cast&)arg1;
-        auto& cast2 = (Cast&)arg2;
+        auto& cast1 = reinterpret_cast<Cast&>(arg1);
+        auto& cast2 = reinterpret_cast<Cast&>(arg2);
         return InternalIndex::compare(cast1, cast2);
     }
     template<class Type>
     int64 compare(Shared<Type>& arg1, Shared<Type>& arg2)
     {
-        auto& cast1 = (Cast&)arg1;
-        auto& cast2 = (Cast&)arg2;
+        auto& cast1 = reinterpret_cast<Cast&>(arg1);
+        auto& cast2 = reinterpret_cast<Cast&>(arg2);
         return InternalIndex::compare(cast1, cast2);
     }
     template<class Type>
     int64 compare(Managed<Type>& arg1, Managed<Type>& arg2)
     {
-        auto& cast1 = (Cast&)arg1;
-        auto& cast2 = (Cast&)arg2;
+        auto& cast1 = reinterpret_cast<Cast&>(arg1);
+        auto& cast2 = reinterpret_cast<Cast&>(arg2);
         return InternalIndex::compare(cast1, cast2);
     }
 };
