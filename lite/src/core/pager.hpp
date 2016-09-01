@@ -57,11 +57,11 @@ public:
 		final.prev = the_last_final;
 
 		auto tail = reinterpret_cast<Final*>(acquire_tail(byte_size));
-		::memcpy(reinterpret_cast<void*>(tail), reinterpret_cast<void*>(&final), sizeof(Final));
+		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
 		auto type = (Type*)++tail;
-		new(reinterpret_cast<void*>(type)) Type();
+		new((void*)type) Type();
 		return *type;
 	}
 	template<class Type>
@@ -74,7 +74,7 @@ public:
 		final.prev = the_last_final;
 
 		auto tail = (Final*)acquire_tail(byte_size);
-		::memcpy(reinterpret_cast<void*>(tail), reinterpret_cast<void*>(&final), sizeof(Final));
+		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
 		auto ptr_size = (int64*)++tail;
@@ -85,7 +85,7 @@ public:
 		auto end = type + size;
 		while(it < end)
 		{
-			new(reinterpret_cast<void*>(it)) Type();
+			new((void*)it) Type();
 			it++;
 		}
 		return type;
