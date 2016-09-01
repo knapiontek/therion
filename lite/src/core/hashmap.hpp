@@ -217,8 +217,8 @@ public:
     Find find(const Key& key)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
-        return Find(pos, (Key&)key, this);
+        auto pos = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
+        return Find(pos, const_cast<Key&>(key), this);
     }
     void page_size(int64 page_size)
     {
@@ -254,10 +254,10 @@ public:
     Shared<Value> lookup(const Key& key)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto pos = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
                 return pos->value;
             pos = pos->next;
         }
@@ -266,10 +266,10 @@ public:
     bool set(const Key& key, const Value& value)
     {
         assert(the_page_size);
-        auto pos = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto pos = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
             {
                 pos->value = value;
                 return true;
@@ -281,12 +281,12 @@ public:
     Value& at(const Key& key)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         // search
         auto pos = head;
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
                 return pos->value;
             pos = pos->next;
         }
@@ -305,12 +305,12 @@ public:
     Value& at(const Key& key, const Value& value)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         // search
         auto pos = head;
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
                 return pos->value;
             pos = pos->next;
         }
@@ -326,12 +326,12 @@ public:
     Value& acquire(const Key& key, Pager& pager)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         // search
         auto pos = head;
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
                 return pos->value;
             pos = pos->next;
         }
@@ -346,14 +346,14 @@ public:
     bool put(const Key& key, const Value& value, bool unique = true)
     {
         assert(the_page_size);
-        auto& head = the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto& head = the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         // search
         if(unique)
         {
             auto pos = head;
             while(pos)
             {
-                if(!the_index.compare((Key&)key, pos->key))
+                if(!the_index.compare(const_cast<Key&>(key), pos->key))
                     return false;
                 pos = pos->next;
             }
@@ -370,15 +370,15 @@ public:
     {
         assert(the_page_size);
         auto erased = 0;
-        auto prev = &the_plexer[the_index.hash((Key&)key) % the_page_size];
+        auto prev = &the_plexer[the_index.hash(const_cast<Key&>(key)) % the_page_size];
         auto pos = *prev;
         while(pos)
         {
-            if(!the_index.compare((Key&)key, pos->key))
+            if(!the_index.compare(const_cast<Key&>(key), pos->key))
             {
                 // remove matching tail
                 auto tail = the_tail - 1;
-                while(pos != tail && !the_index.compare((Key&)key, tail->key))
+                while(pos != tail && !the_index.compare(const_cast<Key&>(key), tail->key))
                 {
                     // remove tail from linked list
                     auto tail_prev = &the_plexer[the_index.hash(tail->key) % the_page_size];
