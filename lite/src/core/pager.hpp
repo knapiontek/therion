@@ -6,7 +6,7 @@ struct Final
 };
 
 template<typename Type>
-struct ObjectFinal
+struct TypeFinal
 {
 	virtual void destroy()
 	{
@@ -17,7 +17,7 @@ struct ObjectFinal
 };
 
 template<typename Type>
-struct SequenceFinal
+struct SeqFinal
 {
 	virtual void destroy()
 	{
@@ -48,68 +48,36 @@ public:
 		release();
 	}
 	template<typename Type>
-	Type& acquire()
-	{
-		auto byte_size = sizeof(Type);
-		assert(byte_size < the_page_size);
-		return *(Type*)acquire_tail(byte_size);
-	}
-	template<typename Type>
-	Type* acquire(int64 size)
-	{
-		auto byte_size = sizeof(Type) * size;
-		assert(byte_size < the_page_size);
-		return (Type*)acquire_tail(byte_size);
-	}
-	template<typename Type>
-	Type* acquire_nil()
-	{
-		auto byte_size = sizeof(Type);
-		assert(byte_size < the_page_size);
-		auto type = (Type*)acquire_tail(byte_size);
-		::bzero(type, byte_size);
-		return type;
-	}
-	template<typename Type>
-	Type* acquire_nil(int64 size)
-	{
-		auto byte_size = sizeof(Type) * size;
-		assert(byte_size < the_page_size);
-		auto type = (Type*)acquire_tail(byte_size);
-		::bzero(type, byte_size);
-		return type;
-	}
-	template<typename Type>
-	Type* acquire_class()
+	Type acquire()
 	{
 		auto byte_size = sizeof(Final) + sizeof(Type);
 		assert(byte_size < the_page_size);
 
-		ObjectFinal<Type> final;
+		TypeFinal<Type> final;
 		final.prev = the_last_final;
 
-		auto f = (Final*)acquire_tail(byte_size);
-		::memcpy(f, &final, sizeof(Final));
-		the_last_final = f;
+		auto tail = (Final*)acquire_tail(byte_size);
+		::memcpy((void*)tail, (void*)&final, sizeof(Final));
+		the_last_final = tail;
 
-		auto type = (Type*)++f;
+		auto type = (Type*)++tail;
 		new((void*)type) Type();
-		return type;
+		return *type;
 	}
 	template<typename Type>
-	Type* acquire_class(int64 size)
+	Type* acquire(int64 size)
 	{
 		auto byte_size = sizeof(Final) + sizeof(int64) + (sizeof(Type) * size);
 		assert(byte_size < the_page_size);
 
-		SequenceFinal<Type> final;
+		SeqFinal<Type> final;
 		final.prev = the_last_final;
 
-		auto f = (Final*)acquire_tail(byte_size);
-		::memcpy(f, &final, sizeof(Final));
-		the_last_final = f;
+		auto tail = (Final*)acquire_tail(byte_size);
+		::memcpy((void*)tail, (void*)&final, sizeof(Final));
+		the_last_final = tail;
 
-		auto ptr_size = (int64*)++f;
+		auto ptr_size = (int64*)++tail;
 		*ptr_size = size;
 
 		auto type = (Type*)++ptr_size;

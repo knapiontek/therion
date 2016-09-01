@@ -112,7 +112,8 @@ public:
     }
     Ref<Loc> loc(Token& id)
     {
-        auto& loc = pager.acquire<Loc>();
+        auto loc = pager.acquire<Loc>();
+        loc.id = id;
         return ref(loc);
     }
 public:
