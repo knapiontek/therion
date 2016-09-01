@@ -2,7 +2,7 @@
 typedef core::String Token;
 
 template<class Class>
-struct Ref
+struct Ret
 {
     Class* clazz;
     operator Class&()
@@ -12,10 +12,10 @@ struct Ref
 };
 
 template<class Class>
-inline Ref<Class> ref(Class& clazz)
+inline Ret<Class> ret(Class& clazz)
 {
-    Ref<Class> ref {&clazz};
-    return ref;
+    Ret<Class> ret {&clazz};
+    return ret;
 }
 
 enum class Type
@@ -65,56 +65,56 @@ public:
     {
 
     }
-    Ref<Var> var(Token& id, Exp& exp)
+    Ret<Var> var(Token& id, Exp& exp)
     {
         static Var var;
-        return ref(var);
+        return ret(var);
     }
-    Ref<Exp> exp(Exp& exp1, Op o, Exp& exp2)
+    Ret<Exp> exp(Exp& exp1, Op o, Exp& exp2)
     {
         static Exp exp;
-        return ref(exp);
+        return ret(exp);
     }
-    Ref<Exp> exp(Exp& exp1, Op o, Loc& loc)
+    Ret<Exp> exp(Exp& exp1, Op o, Loc& loc)
     {
         static Exp exp;
-        return ref(exp);
+        return ret(exp);
     }
-    Ref<Exp> exp(Exp& exp1, Op o, Type& type)
+    Ret<Exp> exp(Exp& exp1, Op o, Type& type)
     {
         static Exp exp;
-        return ref(exp);
+        return ret(exp);
     }
-    Ref<Exp> exp(Loc& loc)
+    Ret<Exp> exp(Loc& loc)
     {
         static Exp exp;
-        return ref(exp);
+        return ret(exp);
     }
-    Ref<Exp> exp(Type& type)
+    Ret<Exp> exp(Type& type)
     {
         static Exp exp;
-        return ref(exp);
+        return ret(exp);
     }
-    Ref<Loc> loc(Loc& loc1, Token& id, Exp& exp)
+    Ret<Loc> loc(Loc& loc1, Token& id, Exp& exp)
     {
         static Loc loc;
-        return ref(loc);
+        return ret(loc);
     }
-    Ref<Loc> loc(Loc& loc1, Token& id)
+    Ret<Loc> loc(Loc& loc1, Token& id)
     {
         static Loc loc;
-        return ref(loc);
+        return ret(loc);
     }
-    Ref<Loc> loc(Token& id, Exp& exp)
+    Ret<Loc> loc(Token& id, Exp& exp)
     {
         static Loc loc;
-        return ref(loc);
+        return ret(loc);
     }
-    Ref<Loc> loc(Token& id)
+    Ret<Loc> loc(Token& id)
     {
-        auto loc = pager.acquire<Loc>();
+        auto& loc = pager.acquire<Loc>();
         loc.id = id;
-        return ref(loc);
+        return ret(loc);
     }
 public:
     core::Pager pager;

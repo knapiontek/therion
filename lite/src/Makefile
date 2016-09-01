@@ -3,7 +3,7 @@ srcdir=$(dir $(lastword $(MAKEFILE_LIST)))
 bindir=/tmp/bin
 
 cc=clang++-3.8
-cxxflags=-g -c -m64 -pipe -std=c++14 -Wall -Wextra -Wno-unused-parameter -I. -I$(bindir) -I/usr/lib/llvm-3.8/include
+cxxflags=-g -c -m64 -O0 -pipe -std=c++14 -Wall -Wextra -Wno-unused-parameter -I. -I$(bindir) -I/usr/lib/llvm-3.8/include
 linkflags=-g -m64 -lbfd -lffi $(shell llvm-config-3.8 --ldflags --system-libs --libs mcjit interpreter nativecodegen)
 
 all:

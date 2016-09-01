@@ -48,7 +48,7 @@ public:
 		release();
 	}
 	template<typename Type>
-	Type acquire()
+	Type& acquire()
 	{
 		auto byte_size = sizeof(Final) + sizeof(Type);
 		assert(byte_size < the_page_size);
