@@ -182,7 +182,7 @@ public:
                     *++the_node = pos;
                     pos = pos->leaves[1];
                 }
-                if(the_node < the_path || the_set->the_index.compare((Value&)*the_value, (*the_node)->value)) // set on the root
+                if(the_node < the_path || the_set->the_index.compare(const_cast<Value&>(*the_value), (*the_node)->value)) // set on the root
                 {
                     the_node = the_path;
                     *the_node = the_root;
@@ -197,7 +197,7 @@ public:
                     *++the_node = pos;
                     pos = pos->leaves[0];
                 }
-                return the_node >= the_path && !the_set->the_index.compare((Value&)*the_value, (*the_node)->value);
+                return the_node >= the_path && !the_set->the_index.compare(const_cast<Value&>(*the_value), (*the_node)->value);
             }
             return false; // compiler cannot see that all states end by return statement
         }
