@@ -323,7 +323,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, at(pos));
+            auto dir = the_index.compare(const_cast<Element&>(arg), at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -333,13 +333,13 @@ public:
                 Cursor low, high;
                 convert(low, pos);
                 high = low;
-                while((low.elem != *the_head) && !the_index.compare((Element&)arg, *low.elem))
+                while((low.elem != *the_head) && !the_index.compare(const_cast<Element&>(arg), *low.elem))
                     prev(low);
-                while((high.elem != the_tail.elem - 1) && !the_index.compare((Element&)arg, *high.elem))
+                while((high.elem != the_tail.elem - 1) && !the_index.compare(const_cast<Element&>(arg), *high.elem))
                     next(high);
-                if(the_index.compare((Element&)arg, *low.elem))
+                if(the_index.compare(const_cast<Element&>(arg), *low.elem))
                     next(low);
-                if(the_index.compare((Element&)arg, *high.elem))
+                if(the_index.compare(const_cast<Element&>(arg), *high.elem))
                     prev(high);
                 return Find(low, high, this);
             }
@@ -476,7 +476,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, at(pos));
+            auto dir = the_index.compare(const_cast<Element&>(arg), at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -495,7 +495,7 @@ public:
         {
             auto pos = (lbond + hbond) >> 1;
             auto& result = at(pos);
-            auto dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare(const_cast<Element&>(arg), result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -515,7 +515,7 @@ public:
         {
             auto pos = (lbond + hbond) >> 1;
             auto& result = at(pos);
-            auto dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare(const_cast<Element&>(arg), result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -538,7 +538,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, at(pos));
+            auto dir = the_index.compare(const_cast<Element&>(arg), at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -566,7 +566,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, at(pos));
+            auto dir = the_index.compare(const_cast<Element&>(arg), at(pos));
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -576,13 +576,13 @@ public:
                 Cursor to, from;
                 convert(to, pos);
                 from = to;
-                while((to.elem != *the_head) && !the_index.compare((Element&)arg, *to.elem))
+                while((to.elem != *the_head) && !the_index.compare(const_cast<Element&>(arg), *to.elem))
                     prev(to);
-                while((from.elem != the_tail.elem - 1) && !the_index.compare((Element&)arg, *from.elem))
+                while((from.elem != the_tail.elem - 1) && !the_index.compare(const_cast<Element&>(arg), *from.elem))
                     next(from);
-                if(the_index.compare((Element&)arg, *to.elem))
+                if(the_index.compare(const_cast<Element&>(arg), *to.elem))
                     next(to);
-                if(the_index.compare((Element&)arg, *from.elem))
+                if(the_index.compare(const_cast<Element&>(arg), *from.elem))
                     prev(from);
                 auto erased = distance(from, to) + 1;
                 Cursor it = to;

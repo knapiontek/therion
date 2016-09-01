@@ -233,7 +233,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto dir = the_index.compare(const_cast<Element&>(arg), the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -242,9 +242,9 @@ public:
             {
                 auto low = the_head + pos - 1;
                 auto high = the_head + pos + 1;
-                while(low >= the_head && !the_index.compare((Element&)arg, *low))
+                while(low >= the_head && !the_index.compare(const_cast<Element&>(arg), *low))
                     low--;
-                while(high < the_tail && !the_index.compare((Element&)arg, *high))
+                while(high < the_tail && !the_index.compare(const_cast<Element&>(arg), *high))
                     high++;
                 return Find(low, high, this);
             }
@@ -402,7 +402,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto dir = the_index.compare(const_cast<Element&>(arg), the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -420,7 +420,7 @@ public:
         {
             auto pos = (lbond + hbond) >> 1;
             auto& result = the_head[pos];
-            auto dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare(const_cast<Element&>(arg), result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -439,7 +439,7 @@ public:
         {
             auto pos = (lbond + hbond) >> 1;
             auto& result = the_head[pos];
-            auto dir = the_index.compare((Element&)arg, result);
+            auto dir = the_index.compare(const_cast<Element&>(arg), result);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -460,7 +460,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto dir = the_index.compare(const_cast<Element&>(arg), the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -486,7 +486,7 @@ public:
         while(lbond <= hbond)
         {
             auto pos = (lbond + hbond) >> 1;
-            auto dir = the_index.compare((Element&)arg, the_head[pos]);
+            auto dir = the_index.compare(const_cast<Element&>(arg), the_head[pos]);
             if(0 > dir)
                 hbond = pos - 1;
             else if(0 < dir)
@@ -495,9 +495,9 @@ public:
             {
                 auto low = the_head + pos - 1;
                 auto high = the_head + pos + 1;
-                while(low >= the_head && !the_index.compare((Element&)arg, *low))
+                while(low >= the_head && !the_index.compare(const_cast<Element&>(arg), *low))
                     low--;
-                while(high < the_tail && !the_index.compare((Element&)arg, *high))
+                while(high < the_tail && !the_index.compare(const_cast<Element&>(arg), *high))
                     high++;
                 low++;
                 high--;
