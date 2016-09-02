@@ -1,6 +1,6 @@
 
 template<class Key, class Value, class HashIndex = Index<Key>>
-class HashMap
+class HashMap : Singleton
 {
     struct Node;
     struct Page;

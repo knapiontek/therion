@@ -1,6 +1,6 @@
 
 template<class Element>
-class Queue
+class Queue : Singleton
 {
 public:
     typedef Shared<Queue> share;

@@ -1,6 +1,6 @@
 
 template<class Element, class ListIndex = Index<Element>>
-class List
+class List : Singleton
 {
     struct Cursor;
 public:

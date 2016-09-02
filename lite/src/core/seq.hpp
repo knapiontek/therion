@@ -1,6 +1,6 @@
 
 template<class Element, class SeqIndex = Index<Element>>
-class Seq
+class Seq : Singleton
 {
 public:
     typedef Shared<Seq> share;

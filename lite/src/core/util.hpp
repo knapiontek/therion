@@ -68,6 +68,16 @@ public:
 
 // miscellaneous
 
+struct Singleton
+{
+    Singleton()
+    {
+
+    }
+    Singleton(Singleton const&) = delete;
+    Singleton& operator=(Singleton const&) = delete;
+};
+
 template<class Type>
 inline Type& min(const Type& arg1, const Type& arg2)
 {

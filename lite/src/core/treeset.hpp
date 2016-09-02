@@ -2,7 +2,7 @@
 const auto the_treeset_path_size = 32;
 
 template<class Value, class TreeIndex = Index<Value>>
-class TreeSet
+class TreeSet : Singleton
 {
     struct Node;
     struct Page;

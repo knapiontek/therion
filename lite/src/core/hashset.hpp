@@ -1,6 +1,6 @@
 
 template<class Value, class HashIndex = Index<Value>>
-class HashSet
+class HashSet : Singleton
 {
     struct Node;
     struct Page;

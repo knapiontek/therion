@@ -2,7 +2,7 @@
 const auto the_treemap_path_size = 32;
 
 template<class Key, class Value, class TreeIndex = Index<Key>>
-class TreeMap
+class TreeMap : Singleton
 {
     struct Node;
     struct Page;
