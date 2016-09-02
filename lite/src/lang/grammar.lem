@@ -4,14 +4,14 @@
 %syntax_error { (void)yymajor; (void)yyminor; throw SyntaxException(); }
 %destructor input { (void)yypminor; }
 
-input ::= var_map.
+input ::= var_list.
 
-var_map ::= var_map var.
-var_map ::= var.
-var_map ::= LP RP.
+var_list ::= var_list var.
+var_list ::= var.
+var_list ::= LP RP.
 
 %type var { Ret<Var> }
-var(v) ::= ID(i) COLON exp(e). { v = tree->var(i, e); }
+var ::= ID(i) COLON exp(e). { tree->var(i, e); }
 
 %type exp { Ret<Expression> }
 exp(e) ::= exp(e1) op(o) LB exp(e2) RB. { e = tree->exp(e1, o, e2); }

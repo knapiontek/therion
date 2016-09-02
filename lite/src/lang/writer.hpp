@@ -27,6 +27,7 @@ private:
     llvm::Value* execute(SimpleVar& var)
     {
         llvm::Value* value = 0;
+        execute(var.expression);
         return value;
     }
     llvm::Value* execute(ExtendedVar& var)
@@ -55,6 +56,8 @@ private:
     llvm::Value* execute(FinalExpression& exp)
     {
         llvm::Value* value = 0;
+        auto f = exp.final->value.to_float64();
+        (void)f;
         return value;
     }
     llvm::Value* execute(LocationExpression& exp)

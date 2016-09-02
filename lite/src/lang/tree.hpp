@@ -65,6 +65,7 @@ enum struct Type
 
 struct Final
 {
+    typedef core::Shared<Final> share;
     Token value;
     Type type;
 };
@@ -99,7 +100,7 @@ struct NestedSeqLocation : Location
 
 struct FinalExpression : Expression
 {
-    Final final;
+    Final::share final;
 };
 
 struct LocationExpression : Expression
@@ -148,16 +149,16 @@ public:
     {
 
     }
-    core::List<Var::share> var_list()
+    core::List<Var::share>& var_list()
     {
         return the_var_list;
     }
-    Ret<Var> var(Token& id, Expression& exp)
+    void var(Token& id, Expression& exp)
     {
         auto& var = pager.acquire<SimpleVar>();
         var.id = id;
         var.expression = exp;
-        return ret<Var>(var);
+        the_var_list.append(var);
     }
     Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
