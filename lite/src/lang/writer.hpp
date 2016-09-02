@@ -55,11 +55,11 @@ public:
             writer.execute(it.value());
         }
     }
-    void execute(Loc& loc)
+    void execute(Location& loc)
     {
         (void)loc;
     }
-    void execute(Exp& exp)
+    void execute(Expression& exp)
     {
         (void)exp;
     }

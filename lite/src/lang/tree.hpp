@@ -1,33 +1,50 @@
 
 // util
 
+class SyntaxException
+{
+
+};
+
 typedef core::String Token;
 
-template<class Class>
+template<class Type>
 struct Ret
 {
-    Class* clazz;
-    operator Class&()
+    Type* type;
+    operator Type&()
     {
-        return *clazz;
+        return *type;
     }
 };
 
-template<class Class>
-inline Ret<Class> ret(Class& clazz)
+template<class Type>
+inline Ret<Type> ret(Type& type)
 {
-    Ret<Class> ret {&clazz};
+    Ret<Type> ret {&type};
     return ret;
 }
 
-struct WriterClass
-{
+// interfaces
 
+struct Location
+{
+    typedef core::Shared<Location> share;
 };
 
-// op
+struct Expression
+{
+    typedef core::Shared<Expression> share;
+};
 
-enum struct Op
+struct Var
+{
+    typedef core::Shared<Var> share;
+};
+
+// operator
+
+enum struct Operator
 {
     MUL, DIV, ADD, SUB,
     SHL, SHR, EQ, NE, LT, GT, LE, GE,
@@ -43,77 +60,69 @@ enum struct Type
     FLOAT32, FLOAT64, FLOAT128
 };
 
-// loc
+// location
 
-struct Loc
+struct IdLocation : Location
 {
-    typedef core::Shared<Loc> share;
     Token id;
 };
 
-struct LocExp : Loc
+struct SeqLocation : Location
 {
-    core::Shared<struct Exp> exp;
+    Token id;
+    Expression::share filter;
 };
 
-struct LocNested : Loc
+struct NestedLocation : Location
 {
-    Loc::share nest;
+    Location::share nest;
+    Token id;
 };
 
-struct LocExpNested : LocExp
+struct NestedSeqLocation : Location
 {
-    Loc::share nest;
+    Location::share nest;
+    Token id;
+    Expression::share filter;
 };
 
-// exp
+// expression
 
-struct Exp
-{
-    typedef core::Shared<Exp> share;
-};
-
-struct ExpType : Exp
+struct TypeExpression : Expression
 {
     Type type;
 };
 
-struct ExpLoc : Exp
+struct LocationExpression : Expression
 {
-    Loc::share loc;
+    Location::share loc;
 };
 
-struct ExpOpType : Exp
+struct TypeNestedExpression : Expression
 {
-    Exp::share exp1;
-    Op op;
+    Expression::share nest;
+    Operator op;
     Type type;
 };
 
-struct ExpOpLoc : Exp
+struct LocationNestedExpression : Expression
 {
-    Exp::share exp1;
-    Op op;
-    Loc::share loc;
+    Expression::share nest;
+    Operator op;
+    Location::share loc;
 };
 
-struct ExpOpExp : Exp
+struct NestedExpression : Expression
 {
-    Exp::share exp1;
-    Op op;
-    Exp::share exp2;
+    Expression::share nest1;
+    Operator op;
+    Expression::share nest2;
 };
 
-struct Var
+struct VarImpl : Var
 {
-    typedef core::Shared<Var> share;
     Token id;
-    Exp::share exp;
-};
-
-class SyntaxException
-{
-
+    Expression::share expression;
 };
 
 class Tree
@@ -123,80 +132,80 @@ public:
     {
 
     }
-    Ret<Var> var(Token& id, Exp& exp)
+    Ret<Var> var(Token& id, Expression& exp)
     {
-        auto& var = pager.acquire<Var>();
+        auto& var = pager.acquire<VarImpl>();
         var.id = id;
-        var.exp = exp;
+        var.expression = exp;
         return ret<Var>(var);
     }
-    Ret<Exp> exp(Exp& exp1, Op op, Exp& exp2)
+    Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
-        auto& exp = pager.acquire<ExpOpExp>();
-        exp.exp1 = exp1;
+        auto& exp = pager.acquire<NestedExpression>();
+        exp.nest1 = exp1;
         exp.op = op;
-        exp.exp2 = exp2;
-        return ret<Exp>(exp);
+        exp.nest2 = exp2;
+        return ret<Expression>(exp);
     }
-    Ret<Exp> exp(Exp& exp1, Op op, Loc& loc)
+    Ret<Expression> exp(Expression& exp1, Operator op, Location& loc)
     {
-        auto& exp = pager.acquire<ExpOpLoc>();
-        exp.exp1 = exp1;
+        auto& exp = pager.acquire<LocationNestedExpression>();
+        exp.nest = exp1;
         exp.op = op;
         exp.loc = loc;
-        return ret<Exp>(exp);
+        return ret<Expression>(exp);
     }
-    Ret<Exp> exp(Exp& exp1, Op op, Type& type)
+    Ret<Expression> exp(Expression& exp1, Operator op, Type& type)
     {
-        auto& exp = pager.acquire<ExpOpType>();
-        exp.exp1 = exp1;
+        auto& exp = pager.acquire<TypeNestedExpression>();
+        exp.nest = exp1;
         exp.op = op;
         exp.type = type;
-        return ret<Exp>(exp);
+        return ret<Expression>(exp);
     }
-    Ret<Exp> exp(Loc& loc)
+    Ret<Expression> exp(Location& loc)
     {
-        auto& exp = pager.acquire<ExpLoc>();
+        auto& exp = pager.acquire<LocationExpression>();
         exp.loc = loc;
-        return ret<Exp>(exp);
+        return ret<Expression>(exp);
     }
-    Ret<Exp> exp(Type& type)
+    Ret<Expression> exp(Type& type)
     {
-        auto& exp = pager.acquire<ExpType>();
+        auto& exp = pager.acquire<TypeExpression>();
         exp.type = type;
-        return ret<Exp>(exp);
+        return ret<Expression>(exp);
     }
-    Ret<Exp> exp(Exp& exp)
+    Ret<Expression> exp(Expression& exp)
     {
-        return ret<Exp>(exp);
+        return ret<Expression>(exp);
     }
-    Ret<Loc> loc(Loc& loc1, Token& id, Exp& exp)
+    Ret<Location> loc(Location& loc1, Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<LocExpNested>();
+        auto& loc = pager.acquire<NestedSeqLocation>();
         loc.nest = loc1;
         loc.id = id;
-        loc.exp = exp;
-        return ret<Loc>(loc);
+        loc.filter = exp;
+        return ret<Location>(loc);
     }
-    Ret<Loc> loc(Loc& loc1, Token& id)
+    Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& loc = pager.acquire<LocNested>();
+        auto& loc = pager.acquire<NestedLocation>();
         loc.nest = loc1;
         loc.id = id;
-        return ret<Loc>(loc);
+        return ret<Location>(loc);
     }
-    Ret<Loc> loc(Token& id, Exp& exp)
+    Ret<Location> loc(Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<LocExp>();
+        auto& loc = pager.acquire<SeqLocation>();
         loc.id = id;
-        loc.exp = exp;
-        return ret<Loc>(loc);
+        loc.filter = exp;
+        return ret<Location>(loc);
     }
-    Ret<Loc> loc(Token& id)
+    Ret<Location> loc(Token& id)
     {
-        auto& loc = pager.acquire<Loc>();
+        auto& loc = pager.acquire<IdLocation>();
         loc.id = id;
-        return ret<Loc>(loc);
+        return ret<Location>(loc);
     }
 public:
     core::Pager pager;

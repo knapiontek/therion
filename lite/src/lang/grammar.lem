@@ -13,7 +13,7 @@ var_map ::= LP RP.
 %type var { Ret<Var> }
 var(v) ::= ID(i) COLON exp(e). { v = tree->var(i, e); }
 
-%type exp { Ret<Exp> }
+%type exp { Ret<Expression> }
 exp(e) ::= exp(e1) op(o) LB exp(e2) RB. { e = tree->exp(e1, o, e2); }
 exp(e) ::= LB exp(e1) RB. { e = tree->exp(e1); }
 exp(e) ::= exp(e1) op(o) loc(l). { e = tree->exp(e1, o, l); }
@@ -21,7 +21,7 @@ exp(e) ::= exp(e1) op(o) type(t). { e = tree->exp(e1, o, t); }
 exp(e) ::= loc(l). { e = tree->exp(l); }
 exp(e) ::= type(t). { e = tree->exp(t); }
 
-%type loc { Ret<Loc> }
+%type loc { Ret<Location> }
 loc(l) ::= loc(l1) DOT ID(i) LS exp(e) RS. { l = tree->loc(l1, i, e); }
 loc(l) ::= loc(l1) DOT ID(i). { l = tree->loc(l1, i); }
 loc(l) ::= ID(i) LS exp(e) RS. { l = tree->loc(i, e); }
@@ -37,21 +37,21 @@ type(t) ::= FLOAT32. { t = Type::FLOAT32; }
 type(t) ::= FLOAT64. { t = Type::FLOAT64; }
 type(t) ::= FLOAT128. { t = Type::FLOAT128; }
 
-%type op { Op }
-op(o) ::= MUL. { o = Op::MUL; }
-op(o) ::= DIV. { o = Op::DIV; }
-op(o) ::= MOD. { o = Op::MOD; }
-op(o) ::= ADD. { o = Op::ADD; }
-op(o) ::= SUB. { o = Op::SUB; }
-op(o) ::= SHL. { o = Op::SHL; }
-op(o) ::= SHR. { o = Op::SHR; }
-op(o) ::= EQ. { o = Op::EQ; }
-op(o) ::= NE. { o = Op::NE; }
-op(o) ::= LE. { o = Op::LE; }
-op(o) ::= LT. { o = Op::LT; }
-op(o) ::= GE. { o = Op::GE; }
-op(o) ::= GT. { o = Op::GT; }
-op(o) ::= AND. { o = Op::AND; }
-op(o) ::= OR. { o = Op::OR; }
-op(o) ::= XOR. { o = Op::XOR; }
-op(o) ::= NOT. { o = Op::NOT; }
+%type op { Operator }
+op(o) ::= MUL. { o = Operator::MUL; }
+op(o) ::= DIV. { o = Operator::DIV; }
+op(o) ::= MOD. { o = Operator::MOD; }
+op(o) ::= ADD. { o = Operator::ADD; }
+op(o) ::= SUB. { o = Operator::SUB; }
+op(o) ::= SHL. { o = Operator::SHL; }
+op(o) ::= SHR. { o = Operator::SHR; }
+op(o) ::= EQ. { o = Operator::EQ; }
+op(o) ::= NE. { o = Operator::NE; }
+op(o) ::= LE. { o = Operator::LE; }
+op(o) ::= LT. { o = Operator::LT; }
+op(o) ::= GE. { o = Operator::GE; }
+op(o) ::= GT. { o = Operator::GT; }
+op(o) ::= AND. { o = Operator::AND; }
+op(o) ::= OR. { o = Operator::OR; }
+op(o) ::= XOR. { o = Operator::XOR; }
+op(o) ::= NOT. { o = Operator::NOT; }
