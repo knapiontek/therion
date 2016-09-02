@@ -12,6 +12,14 @@ public:
         }
     }
 private:
+    Writer()
+    {
+        open_llvm();
+    }
+    ~Writer()
+    {
+        close_llvm();
+    }
     llvm::Value* execute(Var& var)
     {
         llvm::Value* value = 0;
@@ -116,21 +124,27 @@ private:
         llvm::Value* value = 0;
         return value;
     }
+    void open_llvm()
+    {
+        llvm::InitializeNativeTarget();
+        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), nullptr));
+        the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
+    }
+    void close_llvm()
+    {
+        llvm::llvm_shutdown();
+    }
     void llvm_test()
     {
-        // initialize
-        llvm::InitializeNativeTarget();
-        llvm::LLVMContext context;
-        auto module = llvm::make_unique<llvm::Module>("test", context);
-
         // add1
         auto add1_func = llvm::cast<llvm::Function>(
-            module->getOrInsertFunction("add1",
-                llvm::Type::getInt32Ty(context),
-                llvm::Type::getInt32Ty(context),
+            the_module->getOrInsertFunction("add1",
+                llvm::Type::getInt32Ty(the_context),
+                llvm::Type::getInt32Ty(the_context),
                 nullptr)
         );
-        auto bb = llvm::BasicBlock::Create(context, "entry", add1_func);
+        auto bb = llvm::BasicBlock::Create(the_context, "entry", add1_func);
         llvm::IRBuilder<> builder(bb);
 
         auto one_val = builder.getInt32(1);
@@ -140,8 +154,8 @@ private:
         builder.CreateRet(add_val);
 
         // foo
-        auto foo_func = llvm::cast<llvm::Function>(module->getOrInsertFunction("foo", llvm::Type::getInt32Ty(context), nullptr));
-        bb = llvm::BasicBlock::Create(context, "entry", foo_func);
+        auto foo_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("foo", llvm::Type::getInt32Ty(the_context), nullptr));
+        bb = llvm::BasicBlock::Create(the_context, "entry", foo_func);
         builder.SetInsertPoint(bb);
 
         auto ten_val = builder.getInt32(10);
@@ -149,17 +163,18 @@ private:
         add1_res->setTailCall(true);
         builder.CreateRet(add1_res);
 
-        // execution engine
-        //llvm::outs() << "We just constructed this LLVM module:\n\n" << *module.get();
-        auto exec_engine = llvm::EngineBuilder(std::move(module)).create();
-        std::vector<llvm::GenericValue> noargs;
-        auto val = exec_engine->runFunction(foo_func, noargs);
-        int result = val.IntVal.getSExtValue();
+        llvm::outs() << "We just constructed this LLVM module:\n\n" << *the_module.get();
+        auto result = run_function(foo_func);
         core::verify(11 == result);
-
-        // close
+    }
+    int run_function(llvm::Function* func)
+    {
+        auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
+        std::vector<llvm::GenericValue> noargs;
+        auto val = exec_engine->runFunction(func, noargs);
+        int result = val.IntVal.getSExtValue();
         delete exec_engine;
-        llvm::llvm_shutdown();
+        return result;
     }
     void throw_exception(const std::type_info& info)
     {
@@ -167,4 +182,9 @@ private:
             .arg(info.name())
             .end();
     }
+private:
+    llvm::LLVMContext the_context;
+    std::unique_ptr<llvm::Module> the_module;
+    llvm::Function* the_func;
+    llvm::BasicBlock* the_bb;
 };
