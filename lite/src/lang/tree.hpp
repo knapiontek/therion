@@ -27,24 +27,22 @@ inline Ret<Type> ret(Type& type)
 
 // interfaces
 
-struct Writable
-{
-    virtual ~Writable() {}
-};
-
-struct Location : Writable
+struct Location
 {
     typedef core::Shared<Location> share;
+    virtual ~Location() {}
 };
 
-struct Expression : Writable
+struct Expression
 {
     typedef core::Shared<Expression> share;
+    virtual ~Expression() {}
 };
 
-struct Var : Writable
+struct Var
 {
     typedef core::Shared<Var> share;
+    virtual ~Var() {}
 };
 
 // operator

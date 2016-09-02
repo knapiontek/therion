@@ -2,8 +2,6 @@
 #ifndef LANG_HPP
 #define LANG_HPP
 
-#include <typeinfo>
-/*
 #define __STDC_CONSTANT_MACROS
 #define __STDC_FORMAT_MACROS
 #define __STDC_LIMIT_MACROS
@@ -20,7 +18,7 @@
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
-*/
+
 namespace lang
 {
 #include "lang/tree.hpp"

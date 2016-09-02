@@ -4,7 +4,117 @@ class Writer
 public:
     static void execute(Tree& tree)
     {
-        /*
+        Writer writer;
+        writer.llvm_test();
+        for(auto& it : tree.var_list())
+        {
+            writer.execute(it.value());
+        }
+    }
+private:
+    llvm::Value* execute(Var& var)
+    {
+        llvm::Value* value = 0;
+        auto& type = typeid(var);
+        if(type == typeid(SimpleVar))
+            value = execute(dynamic_cast<SimpleVar&>(var));
+        else if(type == typeid(ExtendedVar))
+            value = execute(dynamic_cast<ExtendedVar&>(var));
+        else
+            throw_exception(type);
+        return value;
+    }
+    llvm::Value* execute(SimpleVar& var)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(ExtendedVar& var)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(Expression& exp)
+    {
+        llvm::Value* value = 0;
+        auto& type = typeid(exp);
+        if(type == typeid(TypeExpression))
+            value = execute(dynamic_cast<TypeExpression&>(exp));
+        else if(type == typeid(LocationExpression))
+            value = execute(dynamic_cast<LocationExpression&>(exp));
+        else if(type == typeid(TypeNestedExpression))
+            value = execute(dynamic_cast<TypeNestedExpression&>(exp));
+        else if(type == typeid(LocationNestedExpression))
+            value = execute(dynamic_cast<LocationNestedExpression&>(exp));
+        else if(type == typeid(NestedExpression))
+            value = execute(dynamic_cast<NestedExpression&>(exp));
+        else
+            throw_exception(type);
+        return value;
+    }
+    llvm::Value* execute(TypeExpression& exp)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(LocationExpression& exp)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(TypeNestedExpression& exp)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(LocationNestedExpression& exp)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(NestedExpression& exp)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(Location& loc)
+    {
+        llvm::Value* value = 0;
+        auto& type = typeid(loc);
+        if(type == typeid(IdLocation))
+            value = execute(dynamic_cast<IdLocation&>(loc));
+        else if(type == typeid(SeqLocation))
+            value = execute(dynamic_cast<SeqLocation&>(loc));
+        else if(type == typeid(NestedLocation))
+            value = execute(dynamic_cast<NestedLocation&>(loc));
+        else if(type == typeid(NestedSeqLocation))
+            value = execute(dynamic_cast<NestedSeqLocation&>(loc));
+        else
+            throw_exception(type);
+        return value;
+    }
+    llvm::Value* execute(IdLocation& loc)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(SeqLocation& loc)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(NestedLocation& loc)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    llvm::Value* execute(NestedSeqLocation& loc)
+    {
+        llvm::Value* value = 0;
+        return value;
+    }
+    void llvm_test()
+    {
         // initialize
         llvm::InitializeNativeTarget();
         llvm::LLVMContext context;
@@ -47,81 +157,11 @@ public:
         // close
         delete exec_engine;
         llvm::llvm_shutdown();
-        */
-
-        Writer writer;
-        for(auto& it : tree.var_list())
-        {
-            writer.execute(it.value());
-        }
     }
-    typedef int Return;
-    Return zero;
-    Return& execute(Writable& writable)
+    void throw_exception(const std::type_info& info)
     {
-        auto& type = typeid(writable);
-        if(type == typeid(IdLocation))
-            return execute(dynamic_cast<IdLocation&>(writable));
-        else if(type == typeid(SeqLocation))
-            return execute(dynamic_cast<SeqLocation&>(writable));
-        else if(type == typeid(NestedLocation))
-            return execute(dynamic_cast<NestedLocation&>(writable));
-        else if(type == typeid(NestedSeqLocation))
-            return execute(dynamic_cast<NestedSeqLocation&>(writable));
-        else if(type == typeid(TypeExpression))
-            return execute(dynamic_cast<TypeExpression&>(writable));
-        else if(type == typeid(LocationExpression))
-            return execute(dynamic_cast<LocationExpression&>(writable));
-        else if(type == typeid(TypeNestedExpression))
-            return execute(dynamic_cast<TypeNestedExpression&>(writable));
-        else if(type == typeid(LocationNestedExpression))
-            return execute(dynamic_cast<LocationNestedExpression&>(writable));
-        else if(type == typeid(NestedExpression))
-            return execute(dynamic_cast<NestedExpression&>(writable));
-        else if(type == typeid(SimpleVar))
-            return execute(dynamic_cast<SimpleVar&>(writable));
-        else
-            env::Throw("Writable: $1 not handled").arg(typeid(writable).name()).end();
-        return zero;
-    }
-    Return& execute(IdLocation& loc)
-    {
-        return zero;
-    }
-    Return& execute(SeqLocation& loc)
-    {
-        return zero;
-    }
-    Return& execute(NestedLocation& loc)
-    {
-        return zero;
-    }
-    Return& execute(NestedSeqLocation& loc)
-    {
-        return zero;
-    }
-    Return& execute(TypeExpression& exp)
-    {
-        return zero;
-    }
-    Return& execute(LocationExpression& exp)
-    {
-        return zero;
-    }
-    Return& execute(TypeNestedExpression& exp)
-    {
-        return zero;
-    }
-    Return& execute(LocationNestedExpression& exp)
-    {
-        return zero;
-    }
-    Return& execute(NestedExpression& exp)
-    {
-        return zero;
-    }
-    Return& execute(SimpleVar& var)
-    {
-        return zero;
+        env::Throw("Writable: $1 not handled")
+            .arg(info.name())
+            .end();
     }
 };
