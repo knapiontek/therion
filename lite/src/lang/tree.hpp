@@ -63,6 +63,12 @@ enum struct Type
     FLOAT32, FLOAT64, FLOAT128
 };
 
+struct Final
+{
+    Token value;
+    Type type;
+};
+
 // location
 
 struct IdLocation : Location
@@ -91,9 +97,9 @@ struct NestedSeqLocation : Location
 
 // expression
 
-struct TypeExpression : Expression
+struct FinalExpression : Expression
 {
-    Type type;
+    Final final;
 };
 
 struct LocationExpression : Expression
@@ -101,11 +107,11 @@ struct LocationExpression : Expression
     Location::share loc;
 };
 
-struct TypeNestedExpression : Expression
+struct FinalNestedExpression : Expression
 {
     Expression::share nest;
     Operator op;
-    Type type;
+    Final final;
 };
 
 struct LocationNestedExpression : Expression
@@ -169,12 +175,12 @@ public:
         exp.loc = loc;
         return ret<Expression>(exp);
     }
-    Ret<Expression> exp(Expression& exp1, Operator op, Type& type)
+    Ret<Expression> exp(Expression& exp1, Operator op, Final& final)
     {
-        auto& exp = pager.acquire<TypeNestedExpression>();
+        auto& exp = pager.acquire<FinalNestedExpression>();
         exp.nest = exp1;
         exp.op = op;
-        exp.type = type;
+        exp.final = final;
         return ret<Expression>(exp);
     }
     Ret<Expression> exp(Location& loc)
@@ -183,10 +189,10 @@ public:
         exp.loc = loc;
         return ret<Expression>(exp);
     }
-    Ret<Expression> exp(Type& type)
+    Ret<Expression> exp(Final& final)
     {
-        auto& exp = pager.acquire<TypeExpression>();
-        exp.type = type;
+        auto& exp = pager.acquire<FinalExpression>();
+        exp.final = final;
         return ret<Expression>(exp);
     }
     Ret<Expression> exp(Expression& exp)
@@ -220,6 +226,13 @@ public:
         auto& loc = pager.acquire<IdLocation>();
         loc.id = id;
         return ret<Location>(loc);
+    }
+    Ret<Final> final(Token& value, Type type)
+    {
+        auto& final = pager.acquire<Final>();
+        final.value = value;
+        final.type = type;
+        return ret<Final>(final);
     }
 private:
     core::List<Var::share> the_var_list;

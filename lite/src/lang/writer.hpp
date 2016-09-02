@@ -38,12 +38,12 @@ private:
     {
         llvm::Value* value = 0;
         auto& type = typeid(exp);
-        if(type == typeid(TypeExpression))
-            value = execute(dynamic_cast<TypeExpression&>(exp));
+        if(type == typeid(FinalExpression))
+            value = execute(dynamic_cast<FinalExpression&>(exp));
         else if(type == typeid(LocationExpression))
             value = execute(dynamic_cast<LocationExpression&>(exp));
-        else if(type == typeid(TypeNestedExpression))
-            value = execute(dynamic_cast<TypeNestedExpression&>(exp));
+        else if(type == typeid(FinalNestedExpression))
+            value = execute(dynamic_cast<FinalNestedExpression&>(exp));
         else if(type == typeid(LocationNestedExpression))
             value = execute(dynamic_cast<LocationNestedExpression&>(exp));
         else if(type == typeid(NestedExpression))
@@ -52,7 +52,7 @@ private:
             throw_exception(type);
         return value;
     }
-    llvm::Value* execute(TypeExpression& exp)
+    llvm::Value* execute(FinalExpression& exp)
     {
         llvm::Value* value = 0;
         return value;
@@ -62,7 +62,7 @@ private:
         llvm::Value* value = 0;
         return value;
     }
-    llvm::Value* execute(TypeNestedExpression& exp)
+    llvm::Value* execute(FinalNestedExpression& exp)
     {
         llvm::Value* value = 0;
         return value;
