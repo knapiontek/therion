@@ -78,8 +78,8 @@ public:
             return execute(dynamic_cast<LocationNestedExpression&>(writable));
         else if(type == typeid(NestedExpression))
             return execute(dynamic_cast<NestedExpression&>(writable));
-        else if(type == typeid(VarImpl))
-            return execute(dynamic_cast<VarImpl&>(writable));
+        else if(type == typeid(SimpleVar))
+            return execute(dynamic_cast<SimpleVar&>(writable));
         else
             env::Throw("Writable: $1 not handled").arg(typeid(writable).name()).end();
         return zero;
@@ -120,7 +120,7 @@ public:
     {
         return zero;
     }
-    Return& execute(VarImpl& var)
+    Return& execute(SimpleVar& var)
     {
         return zero;
     }

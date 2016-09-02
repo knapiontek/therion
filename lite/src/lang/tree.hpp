@@ -124,10 +124,17 @@ struct NestedExpression : Expression
     Expression::share nest2;
 };
 
-struct VarImpl : Var
+struct SimpleVar : Var
 {
     Token id;
     Expression::share expression;
+};
+
+struct ExtendedVar : Var
+{
+    Token id;
+    Expression::share expression;
+    core::List<Var::share> var_list;
 };
 
 class Tree
@@ -143,7 +150,7 @@ public:
     }
     Ret<Var> var(Token& id, Expression& exp)
     {
-        auto& var = pager.acquire<VarImpl>();
+        auto& var = pager.acquire<SimpleVar>();
         var.id = id;
         var.expression = exp;
         return ret<Var>(var);
