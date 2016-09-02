@@ -27,17 +27,22 @@ inline Ret<Type> ret(Type& type)
 
 // interfaces
 
-struct Location
+struct Writable
+{
+    virtual ~Writable() {}
+};
+
+struct Location : Writable
 {
     typedef core::Shared<Location> share;
 };
 
-struct Expression
+struct Expression : Writable
 {
     typedef core::Shared<Expression> share;
 };
 
-struct Var
+struct Var : Writable
 {
     typedef core::Shared<Var> share;
 };
@@ -128,9 +133,13 @@ struct VarImpl : Var
 class Tree
 {
 public:
-    Tree() : var_list(0x40)
+    Tree() : the_var_list(0x40)
     {
 
+    }
+    core::List<Var::share> var_list()
+    {
+        return the_var_list;
     }
     Ret<Var> var(Token& id, Expression& exp)
     {
@@ -207,7 +216,7 @@ public:
         loc.id = id;
         return ret<Location>(loc);
     }
-public:
+private:
+    core::List<Var::share> the_var_list;
     core::Pager pager;
-    core::List<Var::share> var_list;
 };

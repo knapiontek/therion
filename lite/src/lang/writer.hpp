@@ -50,21 +50,78 @@ public:
         */
 
         Writer writer;
-        for(auto& it : tree.var_list)
+        for(auto& it : tree.var_list())
         {
             writer.execute(it.value());
         }
     }
-    void execute(Location& loc)
+    typedef int Return;
+    Return zero;
+    Return& execute(Writable& writable)
     {
-        (void)loc;
+        auto& type = typeid(writable);
+        if(type == typeid(IdLocation))
+            return execute(dynamic_cast<IdLocation&>(writable));
+        else if(type == typeid(SeqLocation))
+            return execute(dynamic_cast<SeqLocation&>(writable));
+        else if(type == typeid(NestedLocation))
+            return execute(dynamic_cast<NestedLocation&>(writable));
+        else if(type == typeid(NestedSeqLocation))
+            return execute(dynamic_cast<NestedSeqLocation&>(writable));
+        else if(type == typeid(TypeExpression))
+            return execute(dynamic_cast<TypeExpression&>(writable));
+        else if(type == typeid(LocationExpression))
+            return execute(dynamic_cast<LocationExpression&>(writable));
+        else if(type == typeid(TypeNestedExpression))
+            return execute(dynamic_cast<TypeNestedExpression&>(writable));
+        else if(type == typeid(LocationNestedExpression))
+            return execute(dynamic_cast<LocationNestedExpression&>(writable));
+        else if(type == typeid(NestedExpression))
+            return execute(dynamic_cast<NestedExpression&>(writable));
+        else if(type == typeid(VarImpl))
+            return execute(dynamic_cast<VarImpl&>(writable));
+        else
+            env::Throw("Writable: $1 not handled").arg(typeid(writable).name()).end();
+        return zero;
     }
-    void execute(Expression& exp)
+    Return& execute(IdLocation& loc)
     {
-        (void)exp;
+        return zero;
     }
-    void execute(Var& var)
+    Return& execute(SeqLocation& loc)
     {
-        (void)var;
+        return zero;
+    }
+    Return& execute(NestedLocation& loc)
+    {
+        return zero;
+    }
+    Return& execute(NestedSeqLocation& loc)
+    {
+        return zero;
+    }
+    Return& execute(TypeExpression& exp)
+    {
+        return zero;
+    }
+    Return& execute(LocationExpression& exp)
+    {
+        return zero;
+    }
+    Return& execute(TypeNestedExpression& exp)
+    {
+        return zero;
+    }
+    Return& execute(LocationNestedExpression& exp)
+    {
+        return zero;
+    }
+    Return& execute(NestedExpression& exp)
+    {
+        return zero;
+    }
+    Return& execute(VarImpl& var)
+    {
+        return zero;
     }
 };
