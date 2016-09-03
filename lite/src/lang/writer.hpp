@@ -32,13 +32,13 @@ private:
         }
 
         // return var-last * arg-0
-        auto last_var = var_list[var_list.size() - 1];
         for(auto& arg : the_func->args())
         {
             arg.setName("arg");
             llvm::IRBuilder<> builder(the_bb);
-            auto ret = builder.CreateMul(last_var, &arg);
+            auto ret = builder.CreateMul(var_list[0], &arg, "return");
             builder.CreateRet(ret);
+            break;
         }
 
         // call generated main function
@@ -46,8 +46,8 @@ private:
         auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
         std::vector<llvm::GenericValue> args(1);
         args[0].IntVal = llvm::APInt(32, 1);
-        auto val = exec_engine->runFunction(the_func, args);
-        int result = val.IntVal.getSExtValue();
+        auto ret = exec_engine->runFunction(the_func, args);
+        int result = ret.IntVal.getSExtValue();
         delete exec_engine;
 
         core::verify(11 == result);
@@ -67,7 +67,11 @@ private:
     llvm::Value* execute(SimpleVar& var)
     {
         auto value = execute(var.expression);
-        value->setName(var.id.ascii());
+        for(auto& arg : the_func->args())
+        {
+            llvm::IRBuilder<> builder(the_bb);
+            return builder.CreateMul(value, &arg, var.id.ascii());
+        }
         return value;
     }
     llvm::Value* execute(ExtendedVar& var)
@@ -105,39 +109,7 @@ private:
     {
         auto nest = execute(exp.nest);
         auto final = execute(exp.final);
-        llvm::IRBuilder<> builder(the_bb);
-        switch(exp.op)
-        {
-            case Operator::MUL:
-                return builder.CreateMul(nest, final);
-            case Operator::DIV:
-                return builder.CreateUDiv(nest, final);
-            case Operator::ADD:
-                return builder.CreateAdd(nest, final);
-            case Operator::SUB:
-                return builder.CreateSub(nest, final);
-            case Operator::SHL:
-                return builder.CreateShl(nest, final);
-            case Operator::SHR:
-                return builder.CreateLShr(nest, final);
-            case Operator::EQ:
-            case Operator::NE:
-            case Operator::LT:
-            case Operator::GT:
-            case Operator::LE:
-            case Operator::GE:
-            case Operator::AND:
-                return builder.CreateAnd(nest, final);
-            case Operator::OR:
-                return builder.CreateOr(nest, final);
-            case Operator::XOR:
-                return builder.CreateXor(nest, final);
-            case Operator::MOD:
-            case Operator::NOT:
-            default:
-                env::Throw::raise("Unknown binary operator");
-        }
-        return 0;
+        return execute(nest, exp.op, final);
     }
     llvm::Value* execute(LocationNestedExpression& exp)
     {
@@ -146,8 +118,9 @@ private:
     }
     llvm::Value* execute(NestedExpression& exp)
     {
-        core::verify(false);
-        return 0;
+        auto v1 = execute(exp.nest1);
+        auto v2 = execute(exp.nest2);
+        return execute(v1, exp.op, v2);
     }
     llvm::Value* execute(Location& loc)
     {
@@ -196,6 +169,42 @@ private:
         auto i = final.value.to_int32();
         llvm::IRBuilder<> builder(the_bb);
         return builder.getInt32(i);
+    }
+    llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
+    {
+        llvm::IRBuilder<> builder(the_bb);
+        switch(op)
+        {
+            case Operator::MUL:
+                return builder.CreateMul(v1, v2);
+            case Operator::DIV:
+                return builder.CreateUDiv(v1, v2);
+            case Operator::ADD:
+                return builder.CreateAdd(v1, v2);
+            case Operator::SUB:
+                return builder.CreateSub(v1, v2);
+            case Operator::SHL:
+                return builder.CreateShl(v1, v2);
+            case Operator::SHR:
+                return builder.CreateLShr(v1, v2);
+            case Operator::EQ:
+            case Operator::NE:
+            case Operator::LT:
+            case Operator::GT:
+            case Operator::LE:
+            case Operator::GE:
+            case Operator::AND:
+                return builder.CreateAnd(v1, v2);
+            case Operator::OR:
+                return builder.CreateOr(v1, v2);
+            case Operator::XOR:
+                return builder.CreateXor(v1, v2);
+            case Operator::MOD:
+            case Operator::NOT:
+            default:
+                env::Throw::raise("Unknown binary operator");
+        }
+        return 0;
     }
     void throw_bas_class(const std::type_info& info)
     {

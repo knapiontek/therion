@@ -1,7 +1,7 @@
 
 inline void test_lang()
 {
-    core::verify(env::arg_seq().size() == 2);
+    core::verify(2 == env::arg_seq().size());
 
     auto lite_filename = core::Format("$1/sample/start.lite")
             .arg(env::arg_seq().at(1))
