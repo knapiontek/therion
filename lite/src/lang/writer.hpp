@@ -52,50 +52,46 @@ private:
 
         core::verify(11 == result);
     }
-    llvm::Value* execute(Var& var)
+    llvm::AllocaInst* execute(Var& var)
     {
-        llvm::Value* value = 0;
         auto& type = typeid(var);
         if(type == typeid(SimpleVar))
-            value = execute(dynamic_cast<SimpleVar&>(var));
+            return execute(dynamic_cast<SimpleVar&>(var));
         else if(type == typeid(ExtendedVar))
-            value = execute(dynamic_cast<ExtendedVar&>(var));
+            return execute(dynamic_cast<ExtendedVar&>(var));
         else
             throw_bas_class(type);
-        return value;
+        return 0;
     }
-    llvm::Value* execute(SimpleVar& var)
+    llvm::AllocaInst* execute(SimpleVar& var)
     {
         auto value = execute(var.expression);
-        for(auto& arg : the_func->args())
-        {
-            llvm::IRBuilder<> builder(the_bb);
-            return builder.CreateMul(value, &arg, var.id.ascii());
-        }
-        return value;
+        llvm::IRBuilder<> builder(the_bb);
+        auto alloca = builder.CreateAlloca(llvm::Type::getInt32Ty(the_context), nullptr, var.id.ascii());
+        builder.CreateStore(value, alloca);
+        return alloca;
     }
-    llvm::Value* execute(ExtendedVar& var)
+    llvm::AllocaInst* execute(ExtendedVar& var)
     {
         core::verify(false);
         return 0;
     }
     llvm::Value* execute(Expression& exp)
     {
-        llvm::Value* value = 0;
         auto& type = typeid(exp);
         if(type == typeid(FinalExpression))
-            value = execute(dynamic_cast<FinalExpression&>(exp));
+            return execute(dynamic_cast<FinalExpression&>(exp));
         else if(type == typeid(LocationExpression))
-            value = execute(dynamic_cast<LocationExpression&>(exp));
+            return execute(dynamic_cast<LocationExpression&>(exp));
         else if(type == typeid(FinalNestedExpression))
-            value = execute(dynamic_cast<FinalNestedExpression&>(exp));
+            return execute(dynamic_cast<FinalNestedExpression&>(exp));
         else if(type == typeid(LocationNestedExpression))
-            value = execute(dynamic_cast<LocationNestedExpression&>(exp));
+            return execute(dynamic_cast<LocationNestedExpression&>(exp));
         else if(type == typeid(NestedExpression))
-            value = execute(dynamic_cast<NestedExpression&>(exp));
+            return execute(dynamic_cast<NestedExpression&>(exp));
         else
             throw_bas_class(type);
-        return value;
+        return 0;
     }
     llvm::Value* execute(FinalExpression& exp)
     {
@@ -113,8 +109,9 @@ private:
     }
     llvm::Value* execute(LocationNestedExpression& exp)
     {
-        core::verify(false);
-        return 0;
+        auto nest = execute(exp.nest);
+        auto loc = execute(exp.loc);
+        return execute(nest, exp.op, loc);
     }
     llvm::Value* execute(NestedExpression& exp)
     {
@@ -124,19 +121,18 @@ private:
     }
     llvm::Value* execute(Location& loc)
     {
-        llvm::Value* value = 0;
         auto& type = typeid(loc);
         if(type == typeid(IdLocation))
-            value = execute(dynamic_cast<IdLocation&>(loc));
+            return execute(dynamic_cast<IdLocation&>(loc));
         else if(type == typeid(SeqLocation))
-            value = execute(dynamic_cast<SeqLocation&>(loc));
+            return execute(dynamic_cast<SeqLocation&>(loc));
         else if(type == typeid(NestedLocation))
-            value = execute(dynamic_cast<NestedLocation&>(loc));
+            return execute(dynamic_cast<NestedLocation&>(loc));
         else if(type == typeid(NestedSeqLocation))
-            value = execute(dynamic_cast<NestedSeqLocation&>(loc));
+            return execute(dynamic_cast<NestedSeqLocation&>(loc));
         else
             throw_bas_class(type);
-        return value;
+        return 0;
     }
     llvm::Value* execute(IdLocation& loc)
     {
@@ -217,5 +213,5 @@ private:
     std::unique_ptr<llvm::Module> the_module;
     llvm::Function* the_func;
     llvm::BasicBlock* the_bb;
-    core::List<llvm::Value*> var_list;
+    core::List<llvm::AllocaInst*> var_list;
 };
