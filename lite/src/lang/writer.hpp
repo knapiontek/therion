@@ -5,11 +5,11 @@ public:
     static void execute(Tree& tree)
     {
         Writer writer;
-        writer.llvm_test();
         for(auto& it : tree.var_list())
         {
             writer.execute(it.value());
         }
+        writer.run_llvm();
     }
 private:
     Writer()
@@ -29,13 +29,14 @@ private:
         else if(type == typeid(ExtendedVar))
             value = execute(dynamic_cast<ExtendedVar&>(var));
         else
-            throw_exception(type);
+            throw_bas_class(type);
         return value;
     }
     llvm::Value* execute(SimpleVar& var)
     {
-        llvm::Value* value = 0;
-        execute(var.expression);
+        auto value = execute(var.expression);
+        llvm::IRBuilder<> builder(the_bb);
+        builder.CreateRet(value);
         return value;
     }
     llvm::Value* execute(ExtendedVar& var)
@@ -58,15 +59,12 @@ private:
         else if(type == typeid(NestedExpression))
             value = execute(dynamic_cast<NestedExpression&>(exp));
         else
-            throw_exception(type);
+            throw_bas_class(type);
         return value;
     }
     llvm::Value* execute(FinalExpression& exp)
     {
-        llvm::Value* value = 0;
-        auto f = exp.final->value.to_float64();
-        (void)f;
-        return value;
+        return execute(exp.final);
     }
     llvm::Value* execute(LocationExpression& exp)
     {
@@ -75,8 +73,41 @@ private:
     }
     llvm::Value* execute(FinalNestedExpression& exp)
     {
-        llvm::Value* value = 0;
-        return value;
+        auto nest = execute(exp.nest);
+        auto final = execute(exp.final);
+        llvm::IRBuilder<> builder(the_bb);
+        switch(exp.op)
+        {
+            case Operator::MUL:
+                return builder.CreateMul(nest, final);
+            case Operator::DIV:
+                return builder.CreateUDiv(nest, final);
+            case Operator::ADD:
+                return builder.CreateAdd(nest, final);
+            case Operator::SUB:
+                return builder.CreateSub(nest, final);
+            case Operator::SHL:
+                return builder.CreateShl(nest, final);
+            case Operator::SHR:
+                return builder.CreateLShr(nest, final);
+            case Operator::EQ:
+            case Operator::NE:
+            case Operator::LT:
+            case Operator::GT:
+            case Operator::LE:
+            case Operator::GE:
+            case Operator::AND:
+                return builder.CreateAnd(nest, final);
+            case Operator::OR:
+                return builder.CreateOr(nest, final);
+            case Operator::XOR:
+                return builder.CreateXor(nest, final);
+            case Operator::MOD:
+            case Operator::NOT:
+            default:
+                env::Throw::raise("Unknown binary operator");
+        }
+        return 0;
     }
     llvm::Value* execute(LocationNestedExpression& exp)
     {
@@ -101,7 +132,7 @@ private:
         else if(type == typeid(NestedSeqLocation))
             value = execute(dynamic_cast<NestedSeqLocation&>(loc));
         else
-            throw_exception(type);
+            throw_bas_class(type);
         return value;
     }
     llvm::Value* execute(IdLocation& loc)
@@ -124,6 +155,12 @@ private:
         llvm::Value* value = 0;
         return value;
     }
+    llvm::Value* execute(Final& final)
+    {
+        auto i = final.value.to_int32();
+        llvm::IRBuilder<> builder(the_bb);
+        return builder.getInt32(i);
+    }
     void open_llvm()
     {
         llvm::InitializeNativeTarget();
@@ -135,36 +172,10 @@ private:
     {
         llvm::llvm_shutdown();
     }
-    void llvm_test()
+    void run_llvm()
     {
-        // add1
-        auto add1_func = llvm::cast<llvm::Function>(
-            the_module->getOrInsertFunction("add1",
-                llvm::Type::getInt32Ty(the_context),
-                llvm::Type::getInt32Ty(the_context),
-                nullptr)
-        );
-        auto bb = llvm::BasicBlock::Create(the_context, "entry", add1_func);
-        llvm::IRBuilder<> builder(bb);
-
-        auto one_val = builder.getInt32(1);
-        auto x_arg = &*add1_func->arg_begin();
-        x_arg->setName("an_arg");
-        auto add_val = builder.CreateAdd(one_val, x_arg);
-        builder.CreateRet(add_val);
-
-        // foo
-        auto foo_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("foo", llvm::Type::getInt32Ty(the_context), nullptr));
-        bb = llvm::BasicBlock::Create(the_context, "entry", foo_func);
-        builder.SetInsertPoint(bb);
-
-        auto ten_val = builder.getInt32(10);
-        auto add1_res = builder.CreateCall(add1_func, ten_val);
-        add1_res->setTailCall(true);
-        builder.CreateRet(add1_res);
-
-        llvm::outs() << "We just constructed this LLVM module:\n\n" << *the_module.get();
-        auto result = run_function(foo_func);
+        llvm::outs() << "LLVM module:\n" << *the_module.get();
+        auto result = run_function(the_func);
         core::verify(11 == result);
     }
     int run_function(llvm::Function* func)
@@ -176,7 +187,7 @@ private:
         delete exec_engine;
         return result;
     }
-    void throw_exception(const std::type_info& info)
+    void throw_bas_class(const std::type_info& info)
     {
         env::Throw("Writable: $1 not handled")
             .arg(info.name())
