@@ -5,20 +5,50 @@ public:
     static void execute(Tree& tree)
     {
         Writer writer;
-        for(auto& it : tree.var_list())
-        {
-            writer.execute(it.value());
-        }
-        writer.run_llvm();
+        writer.execute_tree(tree);
     }
 private:
-    Writer()
+    Writer() : var_list(0xA)
     {
-        open_llvm();
+        llvm::InitializeNativeTarget();
     }
     ~Writer()
     {
-        close_llvm();
+        llvm::llvm_shutdown();
+    }
+    void execute_tree(Tree& tree)
+    {
+        // start main function
+        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context), nullptr));
+        the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
+
+        // build body of main function
+        for(auto& it : tree.var_list())
+        {
+            execute(it.value());
+        }
+
+        // return var-last * arg-0
+        auto last_var = var_list[var_list.size() - 1];
+        for(auto& arg : the_func->args())
+        {
+            arg.setName("arg");
+            llvm::IRBuilder<> builder(the_bb);
+            auto ret = builder.CreateMul(last_var, &arg);
+            builder.CreateRet(ret);
+        }
+
+        // call generated main function
+        llvm::outs() << "LLVM module:\n" << *the_module.get();
+        auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
+        std::vector<llvm::GenericValue> args(1);
+        args[0].IntVal = llvm::APInt(32, 1);
+        auto val = exec_engine->runFunction(the_func, args);
+        int result = val.IntVal.getSExtValue();
+        delete exec_engine;
+
+        core::verify(11 == result);
     }
     llvm::Value* execute(Var& var)
     {
@@ -35,8 +65,8 @@ private:
     llvm::Value* execute(SimpleVar& var)
     {
         auto value = execute(var.expression);
-        llvm::IRBuilder<> builder(the_bb);
-        builder.CreateRet(value);
+        value->setName(var.id.ascii());
+        var_list.append(value);
         return value;
     }
     llvm::Value* execute(ExtendedVar& var)
@@ -161,33 +191,6 @@ private:
         llvm::IRBuilder<> builder(the_bb);
         return builder.getInt32(i);
     }
-    void open_llvm()
-    {
-        llvm::InitializeNativeTarget();
-        the_module = llvm::make_unique<llvm::Module>("test", the_context);
-        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context), nullptr));
-        the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
-    }
-    void close_llvm()
-    {
-        llvm::llvm_shutdown();
-    }
-    void run_llvm()
-    {
-        llvm::outs() << "LLVM module:\n" << *the_module.get();
-        auto result = run_function(the_func);
-        core::verify(11 == result);
-    }
-    int run_function(llvm::Function* func)
-    {
-        auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
-        std::vector<llvm::GenericValue> args(1);
-        args[0].IntVal = llvm::APInt(32, 13);
-        auto val = exec_engine->runFunction(func, args);
-        int result = val.IntVal.getSExtValue();
-        delete exec_engine;
-        return result;
-    }
     void throw_bas_class(const std::type_info& info)
     {
         env::Throw("Writable: $1 not handled")
@@ -199,4 +202,5 @@ private:
     std::unique_ptr<llvm::Module> the_module;
     llvm::Function* the_func;
     llvm::BasicBlock* the_bb;
+    core::List<llvm::Value*> var_list;
 };
