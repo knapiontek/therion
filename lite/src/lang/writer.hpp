@@ -165,7 +165,7 @@ private:
     {
         llvm::InitializeNativeTarget();
         the_module = llvm::make_unique<llvm::Module>("test", the_context);
-        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), nullptr));
+        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context), nullptr));
         the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
     }
     void close_llvm()
@@ -181,8 +181,9 @@ private:
     int run_function(llvm::Function* func)
     {
         auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
-        std::vector<llvm::GenericValue> noargs;
-        auto val = exec_engine->runFunction(func, noargs);
+        std::vector<llvm::GenericValue> args(1);
+        args[0].IntVal = llvm::APInt(32, 13);
+        auto val = exec_engine->runFunction(func, args);
         int result = val.IntVal.getSExtValue();
         delete exec_engine;
         return result;
