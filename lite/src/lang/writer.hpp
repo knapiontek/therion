@@ -26,7 +26,9 @@ private:
         // build body of main function
         for(auto& it : tree.var_list())
         {
-            execute(it.value());
+            auto value = execute(it.value());
+            var_list.append(value);
+
         }
 
         // return var-last * arg-0
@@ -66,13 +68,12 @@ private:
     {
         auto value = execute(var.expression);
         value->setName(var.id.ascii());
-        var_list.append(value);
         return value;
     }
     llvm::Value* execute(ExtendedVar& var)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(Expression& exp)
     {
@@ -98,8 +99,7 @@ private:
     }
     llvm::Value* execute(LocationExpression& exp)
     {
-        llvm::Value* value = 0;
-        return value;
+        return execute(exp.loc);
     }
     llvm::Value* execute(FinalNestedExpression& exp)
     {
@@ -141,13 +141,13 @@ private:
     }
     llvm::Value* execute(LocationNestedExpression& exp)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(NestedExpression& exp)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(Location& loc)
     {
@@ -167,23 +167,29 @@ private:
     }
     llvm::Value* execute(IdLocation& loc)
     {
-        llvm::Value* value = 0;
-        return value;
+        for(auto it : var_list)
+        {
+            auto value = it.value();
+            if(loc.id.equal(value->getName().data()))
+                return value;
+        }
+        env::Throw("Unknown variable: $1").arg(loc.id).end();
+        return 0;
     }
     llvm::Value* execute(SeqLocation& loc)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(NestedLocation& loc)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(NestedSeqLocation& loc)
     {
-        llvm::Value* value = 0;
-        return value;
+        core::verify(false);
+        return 0;
     }
     llvm::Value* execute(Final& final)
     {
