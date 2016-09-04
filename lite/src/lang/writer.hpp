@@ -36,8 +36,11 @@ private:
         {
             arg.setName("arg");
             llvm::IRBuilder<> builder(the_bb);
-            auto ret = builder.CreateMul(var_list[0], &arg, "return");
-            builder.CreateRet(ret);
+            auto var = var_list[var_list.size() - 1];
+            auto var_name = var->getName().data();
+            auto var_load = builder.CreateLoad(var, var_name);
+            auto ret_val = builder.CreateMul(var_load, &arg, "return");
+            builder.CreateRet(ret_val);
             break;
         }
 
@@ -50,7 +53,7 @@ private:
         int result = ret.IntVal.getSExtValue();
         delete exec_engine;
 
-        core::verify(11 == result);
+        core::verify(49 == result);
     }
     llvm::AllocaInst* execute(Var& var)
     {
@@ -139,8 +142,12 @@ private:
         for(auto it : var_list)
         {
             auto value = it.value();
-            if(loc.id.equal(value->getName().data()))
-                return value;
+            auto name = value->getName().data();
+            if(loc.id.equal(name))
+            {
+                llvm::IRBuilder<> builder(the_bb);
+                return builder.CreateLoad(value, name);
+            }
         }
         env::Throw("Unknown variable: $1").arg(loc.id).end();
         return 0;
