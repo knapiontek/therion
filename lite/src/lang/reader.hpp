@@ -129,15 +129,15 @@ private:
                 break;
             case '<':
                 decode.read(ch);
-                if(ch == '=')
+                if('=' == ch)
                 {
                     parser.put(TOK_LE);
                 }
-                else if(ch == '>')
+                else if('>' == ch)
                 {
                     parser.put(TOK_NE);
                 }
-                else if(ch == '<')
+                else if('<' == ch)
                 {
                     parser.put(TOK_SHL);
                 }
@@ -149,11 +149,11 @@ private:
                 break;
             case '>':
                 decode.read(ch);
-                if(ch == '=')
+                if('=' == ch)
                 {
                     parser.put(TOK_GE);
                 }
-                else if(ch == '>')
+                else if('>' == ch)
                 {
                     parser.put(TOK_SHR);
                 }
@@ -176,39 +176,92 @@ private:
                 parser.put(TOK_NOT);
                 break;
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                while(is_digit(ch))
+                do
                 {
                     token.attach(ch);
                     decode.read(ch);
                 }
-                if(ch != '.')
+                while(is_digit(ch));
+                if('i' == ch)
+                {
+                    core::String width;
+                    do
+                    {
+                        width.attach(ch);
+                        decode.read(ch);
+                    }
+                    while(is_digit(ch));
+                    if(width.equal("i8"))
+                        parser.put(TOK_INT8, ret(token_list.append(token)));
+                    else if(width.equal("i16"))
+                        parser.put(TOK_INT16, ret(token_list.append(token)));
+                    else if(width.equal("i32"))
+                        parser.put(TOK_INT32, ret(token_list.append(token)));
+                    else if(width.equal("i64"))
+                        parser.put(TOK_INT64, ret(token_list.append(token)));
+                    else
+                        throw SyntaxException();
+                    goto start;
+                }
+                if('.' != ch)
                 {
                     parser.put(TOK_INT64, ret(token_list.append(token)));
                     goto start;
                 }
             case '.':
                 decode.read(ch);
-                if(!token.size() && !is_digit(ch))
+                if(!is_digit(ch) && core::nil == token)
                 {
                     parser.put(TOK_DOT);
                     goto start;
                 }
-                else
+                token.attach('.');
+                do
                 {
-                    token.attach('.');
-                    while(is_digit(ch))
+                    token.attach(ch);
+                    decode.read(ch);
+                }
+                while(is_digit(ch));
+                if('e' == ch)
+                {
+                    token.attach(ch);
+                    decode.read(ch);
+                    if('-' == ch)
                     {
                         token.attach(ch);
                         decode.read(ch);
                     }
-                    parser.put(TOK_FLOAT64, ret(token_list.append(token)));
+                    do
+                    {
+                        token.attach(ch);
+                        decode.read(ch);
+                    } while(is_digit(ch));
+                }
+                if('f' == ch)
+                {
+                    core::String width;
+                    do
+                    {
+                        width.attach(ch);
+                        decode.read(ch);
+                    }
+                    while(is_digit(ch));
+                    if(width.equal("f32"))
+                        parser.put(TOK_FLOAT32, ret(token_list.append(token)));
+                    else if(width.equal("f64"))
+                        parser.put(TOK_FLOAT64, ret(token_list.append(token)));
+                    else if(width.equal("f128"))
+                        parser.put(TOK_FLOAT128, ret(token_list.append(token)));
+                    else
+                        throw SyntaxException();
                     goto start;
                 }
-                break;
+                parser.put(TOK_FLOAT64, ret(token_list.append(token)));
+                goto start;
             default:
-                if(!is_id_char(ch))
+                if(!is_id(ch))
                     throw SyntaxException();
-                while(is_id_char(ch))
+                while(is_id(ch))
                 {
                     token.attach(ch);
                     decode.read(ch);
@@ -234,7 +287,7 @@ private:
         while(decode.available())
         {
             decode.read(ch);
-            if(ch == '\n')
+            if('\n' == ch)
                 break;
             line.attach(ch);
         }
@@ -246,7 +299,7 @@ private:
     }
     /**
      * If X is a character that can be used in an identifier then
-     * is_id_char[X] will be true. Otherwise is_id_char[X] will be false.
+     * is_id[X] will be true. Otherwise is_id[X] will be false.
      *
      * In this implementation, an identifier can be a string of
      * alphabetic characters, digits, and "_" plus any character
@@ -254,7 +307,7 @@ private:
      * any sequence of UTF-8 characters or characters taken from
      * an extended ISO8859 character set can form an identifier.
      */
-    static bool is_id_char(int ch)
+    static bool is_id(core::uint8 ch)
     {
         static const bool chars[] =
         {
@@ -278,7 +331,7 @@ private:
         };
         return chars[ch];
     }
-    static bool is_digit(int ch)
+    static bool is_digit(core::uint8 ch)
     {
         return ('0' <= ch && ch <= '9');
     }
