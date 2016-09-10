@@ -8,7 +8,7 @@ input ::= var_list.
 
 var_list ::= var_list var.
 var_list ::= var.
-var_list ::= LP RP.
+var_list ::= LP RP THIS THAT IN OUT IF FOR REPEAT UNTIL.
 
 %type var { Ret<Var> }
 var ::= ID(i) COLON exp(e). { tree->var(i, e); }
@@ -28,7 +28,6 @@ loc(l) ::= ID(i) LS exp(e) RS. { l = tree->loc(i, e); }
 loc(l) ::= ID(i). { l = tree->loc(i); }
 
 %type final { Ret<Final> }
-final(f) ::= BOOL(v). { f = tree->final(v, Type::BOOL); }
 final(f) ::= INT8(v). { f = tree->final(v, Type::INT8); }
 final(f) ::= INT16(v). { f = tree->final(v, Type::INT16); }
 final(f) ::= INT32(v). { f = tree->final(v, Type::INT32); }

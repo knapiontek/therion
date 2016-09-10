@@ -24,14 +24,14 @@ class KeywordMap
 public:
     KeywordMap() : the_map(0xF)
     {
-        the_map["bool"] = TOK_BOOL;
-        the_map["int8"] = TOK_INT8;
-        the_map["int16"] = TOK_INT16;
-        the_map["int32"] = TOK_INT32;
-        the_map["int64"] = TOK_INT64;
-        the_map["float32"] = TOK_FLOAT32;
-        the_map["float64"] = TOK_FLOAT64;
-        the_map["float128"] = TOK_FLOAT128;
+        the_map["this"] = TOK_THIS;
+        the_map["that"] = TOK_THAT;
+        the_map["in"] = TOK_IN;
+        the_map["out"] = TOK_OUT;
+        the_map["if"] = TOK_IF;
+        the_map["for"] = TOK_FOR;
+        the_map["repeat"] = TOK_REPEAT;
+        the_map["until"] = TOK_UNTIL;
     }
     core::int64 token(core::String& key)
     {
@@ -65,6 +65,7 @@ private:
     static void execute(Tree& tree, io::Decode& decode, core::int64& line_cnt)
     {
         line_cnt = 1;
+        auto space_cnt = 0;
         core::uint8 ch = 0;
         Token token;
         Parser parser(tree);
@@ -83,7 +84,9 @@ private:
                     decode.read(ch);
             case '\n':
                 line_cnt++;
-            case ' ': case '\t': case '\f': case '\r':
+                break;
+            case ' ':
+                space_cnt++;
                 break;
             case ':':
                 parser.put(TOK_COLON);
@@ -203,6 +206,8 @@ private:
                 }
                 break;
             default:
+                if(!is_id_char(ch))
+                    throw SyntaxException();
                 while(is_id_char(ch))
                 {
                     token.attach(ch);
