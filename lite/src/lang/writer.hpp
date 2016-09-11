@@ -31,14 +31,13 @@ private:
         {
             auto value = execute(it.value());
             var_list.append(value);
-
         }
 
         // return var-last * arg-0
+        llvm::IRBuilder<> builder(the_bb);
         for(auto& arg : the_func->args())
         {
             arg.setName("arg");
-            llvm::IRBuilder<> builder(the_bb);
             auto var = var_list[var_list.size() - 1];
             auto var_name = var->getName().data();
             auto var_load = builder.CreateLoad(var, var_name);
@@ -172,23 +171,22 @@ private:
     }
     llvm::Value* execute(Final& final)
     {
-        llvm::IRBuilder<> builder(the_bb);
         switch(final.type)
         {
             case Type::INT8:
-                return builder.getInt8(final.value.to_int8());
+                return llvm::ConstantInt::get(llvm::Type::getInt8Ty(the_context), final.value.to_int8());
             case Type::INT16:
-                return builder.getInt16(final.value.to_int16());
+                return llvm::ConstantInt::get(llvm::Type::getInt16Ty(the_context), final.value.to_int16());
             case Type::INT32:
-                return builder.getInt32(final.value.to_int32());
+                return llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), final.value.to_int32());
             case Type::INT64:
-                return builder.getInt64(final.value.to_int64());
+                return llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), final.value.to_int64());
             case Type::INT128:
                 return llvm::ConstantInt::get(llvm::Type::getInt128Ty(the_context), final.value.to_int64()); // TODO: add int128 to String
             case Type::FLOAT32:
-                return llvm::ConstantFP::get(builder.getFloatTy(), final.value.to_float32());
+                return llvm::ConstantFP::get(llvm::Type::getFloatTy(the_context), final.value.to_float32());
             case Type::FLOAT64:
-                return llvm::ConstantFP::get(builder.getDoubleTy(), final.value.to_float64());
+                return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_context), final.value.to_float64());
             case Type::FLOAT128:
                 return llvm::ConstantFP::get(llvm::Type::getFP128Ty(the_context), final.value.to_float128());
         }
