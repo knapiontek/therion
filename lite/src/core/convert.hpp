@@ -32,7 +32,7 @@ public:
     {
         data += size;
         auto end = data;
-        int8 fixed = std::abs(arg);
+        auto fixed = ::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -45,7 +45,7 @@ public:
     {
         data += size;
         auto end = data;
-        int16 fixed = std::abs(arg);
+        auto fixed = ::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -58,7 +58,7 @@ public:
     {
         data += size;
         auto end = data;
-        int32 fixed = std::abs(arg);
+        auto fixed = ::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -71,7 +71,7 @@ public:
     {
         data += size;
         auto end = data;
-        int64 fixed = std::abs(arg);
+        auto fixed = ::labs(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -84,7 +84,7 @@ public:
     {
         data += size;
         auto end = data;
-        uint8 fixed = arg;
+        auto fixed = arg;
         do
         {
             *--data = byte2digit(fixed % base);
@@ -95,7 +95,7 @@ public:
     {
         data += size;
         auto end = data;
-        uint16 fixed = arg;
+        auto fixed = arg;
         do
         {
             *--data = byte2digit(fixed % base);
@@ -106,7 +106,7 @@ public:
     {
         data += size;
         auto end = data;
-        uint32 fixed = arg;
+        auto fixed = arg;
         do
         {
             *--data = byte2digit(fixed % base);
@@ -117,7 +117,7 @@ public:
     {
         data += size;
         auto end = data;
-        uint64 fixed = arg;
+        auto fixed = arg;
         do
         {
             *--data = byte2digit(fixed % base);

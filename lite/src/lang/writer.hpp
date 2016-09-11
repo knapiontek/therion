@@ -181,8 +181,6 @@ private:
                 return llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), final.value.to_int32());
             case Type::INT64:
                 return llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), final.value.to_int64());
-            case Type::INT128:
-                return llvm::ConstantInt::get(llvm::Type::getInt128Ty(the_context), final.value.to_int64()); // TODO: add int128 to String
             case Type::FLOAT32:
                 return llvm::ConstantFP::get(llvm::Type::getFloatTy(the_context), final.value.to_float32());
             case Type::FLOAT64:
