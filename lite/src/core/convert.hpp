@@ -4,6 +4,7 @@ const auto int8_max_digit = 4;
 const auto int16_max_digit = 6;
 const auto int32_max_digit = 12;
 const auto int64_max_digit = 22;
+const auto int128_max_digit = 41;
 const auto float32_max_digit = 22;
 const auto float64_max_digit = 22;
 const auto float128_max_digit = 22;
@@ -31,12 +32,12 @@ public:
     {
         data += size;
         auto end = data;
-        int8 fixed = ::abs(arg);
+        int8 fixed = std::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -44,12 +45,12 @@ public:
     {
         data += size;
         auto end = data;
-        int16 fixed = ::abs(arg);
+        int16 fixed = std::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -57,12 +58,12 @@ public:
     {
         data += size;
         auto end = data;
-        int32 fixed = ::abs(arg);
+        int32 fixed = std::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -70,12 +71,12 @@ public:
     {
         data += size;
         auto end = data;
-        int64 fixed = ::llabs(arg);
+        int64 fixed = std::abs(arg);
         do
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -139,7 +140,7 @@ public:
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -159,7 +160,7 @@ public:
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }
@@ -182,7 +183,7 @@ public:
         {
             *--data = fixed % 10 + '0';
         } while(fixed /= 10);
-        if(signbit(arg))
+        if(std::signbit(arg))
             *--data = '-';
         size = end - data;
     }

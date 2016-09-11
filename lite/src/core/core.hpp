@@ -4,10 +4,10 @@
 
 #include <new>
 #include <limits>
-#include <math.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <sys/time.h>
 
 namespace core
