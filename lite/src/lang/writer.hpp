@@ -20,7 +20,10 @@ private:
     {
         // start main function
         the_module = llvm::make_unique<llvm::Module>("test", the_context);
-        the_func = llvm::cast<llvm::Function>(the_module->getOrInsertFunction("main", llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context), nullptr));
+        auto func = the_module->getOrInsertFunction("main",
+            llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context),
+            nullptr);
+        the_func = llvm::cast<llvm::Function>(func);
         the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
 
         // build body of main function
@@ -63,7 +66,7 @@ private:
         else if(type == typeid(ExtendedVar))
             return execute(dynamic_cast<ExtendedVar&>(var));
         else
-            throw_bas_class(type);
+            throw_bad_class(type);
         return 0;
     }
     llvm::AllocaInst* execute(SimpleVar& var)
@@ -93,7 +96,7 @@ private:
         else if(type == typeid(NestedExpression))
             return execute(dynamic_cast<NestedExpression&>(exp));
         else
-            throw_bas_class(type);
+            throw_bad_class(type);
         return 0;
     }
     llvm::Value* execute(FinalExpression& exp)
@@ -134,7 +137,7 @@ private:
         else if(type == typeid(NestedSeqLocation))
             return execute(dynamic_cast<NestedSeqLocation&>(loc));
         else
-            throw_bas_class(type);
+            throw_bad_class(type);
         return 0;
     }
     llvm::Value* execute(IdLocation& loc)
@@ -169,9 +172,23 @@ private:
     }
     llvm::Value* execute(Final& final)
     {
-        auto i = final.value.to_int32();
         llvm::IRBuilder<> builder(the_bb);
-        return builder.getInt32(i);
+        switch(final.type)
+        {
+            case Type::INT8:
+                return builder.getInt8(final.value.to_int8());
+            case Type::INT16:
+                return builder.getInt16(final.value.to_int16());
+            case Type::INT32:
+                return builder.getInt32(final.value.to_int32());
+            case Type::INT64:
+                return builder.getInt64(final.value.to_int64());
+            case Type::FLOAT32:
+            case Type::FLOAT64:
+            case Type::FLOAT128:
+                return builder.getInt64(final.value.to_int64());
+                //return llvm::ConstantFP::get(the_context, llvm::APFloat(final.value.to_float64()));
+        }
     }
     llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
@@ -209,7 +226,7 @@ private:
         }
         return 0;
     }
-    void throw_bas_class(const std::type_info& info)
+    void throw_bad_class(const std::type_info& info)
     {
         env::Throw("Writable: $1 not handled")
             .arg(info.name())
