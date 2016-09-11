@@ -47,18 +47,16 @@ private:
 class Reader
 {
 public:
-    static bool execute(Tree& tree, io::Decode& decode, core::String& filename)
+    static void execute(Tree& tree, io::Decode& decode, core::String& filename)
     {
         core::int64 line_cnt;
         try
         {
             execute(tree, decode, line_cnt);
-            return true;
         }
         catch(SyntaxException)
         {
-            message(decode, filename, line_cnt);
-            return false;
+            throw_exception(decode, filename, line_cnt);
         }
     }
 private:
@@ -280,7 +278,7 @@ private:
         }
         parser.put(0);
     }
-    static void message(io::Decode& decode, core::String& filename, core::int64 line_cnt)
+    static void throw_exception(io::Decode& decode, core::String& filename, core::int64 line_cnt)
     {
         core::uint8 ch = 0;
         core::String line;
@@ -291,7 +289,7 @@ private:
                 break;
             line.attach(ch);
         }
-        env::Con("syntax error before: '$1'\n$2:$3")
+        env::Throw("syntax error before: '$1'\n\tlocation: $2:$3")
             .arg(line)
             .arg(filename)
             .arg(line_cnt)
