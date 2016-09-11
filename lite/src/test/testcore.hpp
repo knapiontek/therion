@@ -5,11 +5,13 @@ inline void test_types()
     core::verify((1 << 1) == sizeof(core::int16));
     core::verify((1 << 2) == sizeof(core::int32));
     core::verify((1 << 3) == sizeof(core::int64));
+    core::verify((1 << 4) == sizeof(core::int128));
 
     core::verify((1 << 0) == sizeof(core::uint8));
     core::verify((1 << 1) == sizeof(core::uint16));
     core::verify((1 << 2) == sizeof(core::uint32));
     core::verify((1 << 3) == sizeof(core::uint64));
+    core::verify((1 << 4) == sizeof(core::uint128));
 
     core::verify((1 << 2) == sizeof(core::float32));
     core::verify((1 << 3) == sizeof(core::float64));
