@@ -18,6 +18,12 @@ enum Base
     hexdecimal = 16
 };
 
+template<class Type>
+inline Type absolute_int(Type type)
+{
+    return type * (((type > 0) << 1) - 1);
+}
+
 class Convert
 {
 public:
@@ -32,7 +38,7 @@ public:
     {
         data += size;
         auto end = data;
-        auto fixed = ::abs(arg);
+        auto fixed = absolute_int(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -45,7 +51,7 @@ public:
     {
         data += size;
         auto end = data;
-        auto fixed = ::abs(arg);
+        auto fixed = absolute_int(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -58,7 +64,7 @@ public:
     {
         data += size;
         auto end = data;
-        auto fixed = ::abs(arg);
+        auto fixed = absolute_int(arg);
         do
         {
             *--data = fixed % 10 + '0';
@@ -71,7 +77,7 @@ public:
     {
         data += size;
         auto end = data;
-        auto fixed = ::labs(arg);
+        auto fixed = absolute_int(arg);
         do
         {
             *--data = fixed % 10 + '0';
