@@ -72,7 +72,7 @@ private:
     {
         auto value = execute(var.expression);
         llvm::IRBuilder<> builder(the_bb);
-        auto alloca = builder.CreateAlloca(llvm::Type::getInt32Ty(the_context), nullptr, var.id.ascii());
+        auto alloca = builder.CreateAlloca(value->getType(), nullptr, var.id.ascii());
         builder.CreateStore(value, alloca);
         return alloca;
     }
@@ -191,6 +191,21 @@ private:
     }
     llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
+        switch(v1->getType()->getTypeID())
+        {
+            case llvm::Type::IntegerTyID:
+                return execute_int(v1, op, v2);
+            case llvm::Type::FloatTyID:
+            case llvm::Type::DoubleTyID:
+            case llvm::Type::FP128TyID:
+                return execute_float(v1, op, v2);
+            default:
+                env::Throw::raise("Unknown type");
+        }
+        return 0;
+    }
+    llvm::Value* execute_int(llvm::Value* v1, Operator op, llvm::Value* v2)
+    {
         llvm::IRBuilder<> builder(the_bb);
         switch(op)
         {
@@ -221,7 +236,38 @@ private:
             case Operator::MOD:
             case Operator::NOT:
             default:
-                env::Throw::raise("Unknown binary operator");
+                env::Throw::raise("Unknown binary int operator");
+        }
+        return 0;
+    }
+    llvm::Value* execute_float(llvm::Value* v1, Operator op, llvm::Value* v2)
+    {
+        llvm::IRBuilder<> builder(the_bb);
+        switch(op)
+        {
+            case Operator::MUL:
+                return builder.CreateFMul(v1, v2);
+            case Operator::DIV:
+                return builder.CreateFDiv(v1, v2);
+            case Operator::ADD:
+                return builder.CreateFAdd(v1, v2);
+            case Operator::SUB:
+                return builder.CreateFSub(v1, v2);
+            case Operator::SHL:
+            case Operator::SHR:
+            case Operator::EQ:
+            case Operator::NE:
+            case Operator::LT:
+            case Operator::GT:
+            case Operator::LE:
+            case Operator::GE:
+            case Operator::AND:
+            case Operator::OR:
+            case Operator::XOR:
+            case Operator::MOD:
+            case Operator::NOT:
+            default:
+                env::Throw::raise("Unknown binary float operator");
         }
         return 0;
     }

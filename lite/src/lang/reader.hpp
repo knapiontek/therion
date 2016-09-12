@@ -73,8 +73,8 @@ private:
         while(decode.available())
         {
             decode.read(ch);
-            start:
             token.erase();
+            start:
             switch(ch)
             {
             case '#':
@@ -120,8 +120,19 @@ private:
                 parser.put(TOK_ADD);
                 break;
             case '-':
-                parser.put(TOK_SUB);
-                break;
+                decode.read(ch);
+                if(' ' == ch)
+                {
+                    parser.put(TOK_SUB);
+                    goto start;
+                }
+                else if(is_digit(ch))
+                {
+                    token.attach('-');
+                    goto start;
+                }
+                else
+                    throw SyntaxException();
             case '=':
                 parser.put(TOK_EQ);
                 break;

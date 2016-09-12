@@ -1,11 +1,6 @@
 
 // util
 
-class SyntaxException
-{
-
-};
-
 typedef core::String Token;
 
 template<class Type>
@@ -25,6 +20,33 @@ inline Ret<Type> ret(Type& type)
     return ret;
 }
 
+class SyntaxException
+{
+
+};
+
+// basic types
+
+enum struct Operator
+{
+    MUL, DIV, ADD, SUB,
+    SHL, SHR, EQ, NE, LT, GT, LE, GE,
+    AND, OR, XOR, MOD, NOT
+};
+
+enum struct Type
+{
+    INT8, INT16, INT32, INT64,
+    FLOAT32, FLOAT64, FLOAT128
+};
+
+struct Final
+{
+    typedef core::Shared<Final> share;
+    Token value;
+    Type type;
+};
+
 // interfaces
 
 struct Location
@@ -43,30 +65,6 @@ struct Var
 {
     typedef core::Shared<Var> share;
     virtual ~Var() {}
-};
-
-// operator
-
-enum struct Operator
-{
-    MUL, DIV, ADD, SUB,
-    SHL, SHR, EQ, NE, LT, GT, LE, GE,
-    AND, OR, XOR, MOD, NOT
-};
-
-// type
-
-enum struct Type
-{
-    INT8, INT16, INT32, INT64,
-    FLOAT32, FLOAT64, FLOAT128
-};
-
-struct Final
-{
-    typedef core::Shared<Final> share;
-    Token value;
-    Type type;
 };
 
 // location
@@ -140,6 +138,8 @@ struct ExtendedVar : Var
     Expression::share expression;
     core::List<Var::share> var_list;
 };
+
+// tree
 
 class Tree
 {
