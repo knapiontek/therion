@@ -48,6 +48,7 @@ private:
 
         // call generated main function
         llvm::outs() << "LLVM module:\n" << *the_module.get();
+        llvm::verifyModule(*the_module.get(), &llvm::outs());
         auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
         std::vector<llvm::GenericValue> args(1);
         args[0].IntVal = llvm::APInt(32, 1);
