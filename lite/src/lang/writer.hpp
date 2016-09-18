@@ -21,7 +21,7 @@ private:
         // start main function
         the_module = llvm::make_unique<llvm::Module>("test", the_context);
         auto func = the_module->getOrInsertFunction("main",
-            llvm::Type::getInt32Ty(the_context), llvm::Type::getInt32Ty(the_context),
+            llvm::Type::getInt64Ty(the_context), llvm::Type::getInt32Ty(the_context),
             nullptr);
         the_func = llvm::cast<llvm::Function>(func);
         the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
@@ -41,7 +41,7 @@ private:
             auto var = var_list[var_list.size() - 1];
             auto var_name = var->getName().data();
             auto var_load = builder.CreateLoad(var, var_name);
-            auto ret_val = builder.CreateMul(var_load, &arg, "return");
+            auto ret_val = execute(var_load, Operator::MUL, &arg);
             builder.CreateRet(ret_val);
             break;
         }
@@ -192,16 +192,31 @@ private:
     }
     llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
-        switch(v1->getType()->getTypeID())
+        llvm::IRBuilder<> builder(the_bb);
+
+        auto t1 = v1->getType();
+        auto t2 = v2->getType();
+
+        if(t1->isFloatingPointTy() || t2->isFloatingPointTy())
         {
-            case llvm::Type::IntegerTyID:
-                return execute_int(v1, op, v2);
-            case llvm::Type::FloatTyID:
-            case llvm::Type::DoubleTyID:
-            case llvm::Type::FP128TyID:
-                return execute_float(v1, op, v2);
-            default:
-                env::Throw::raise("Unknown type");
+            // TODO: convert int to float
+            if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
+                v2 = builder.CreateFPExt(v2, t1);
+            else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
+                v1 = builder.CreateFPExt(v1, t2);
+            return execute_float(v1, op, v2);
+        }
+        else if(t1->isIntegerTy() && t2->isIntegerTy())
+        {
+            if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
+                v2 = builder.CreateSExt(v2, t1);
+            else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
+                v1 = builder.CreateSExt(v1, t2);
+            return execute_int(v1, op, v2);
+        }
+        else
+        {
+            env::Throw::raise("Unknown type");
         }
         return 0;
     }
