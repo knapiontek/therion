@@ -225,26 +225,25 @@ private:
                     goto start;
                 }
                 token.attach('.');
-                do
+                while(is_digit(ch))
                 {
                     token.attach(ch);
                     decode.read(ch);
                 }
-                while(is_digit(ch));
                 if('e' == ch)
                 {
                     token.attach(ch);
                     decode.read(ch);
-                    if('-' == ch)
+                    if('-' == ch || '+' == ch)
                     {
                         token.attach(ch);
                         decode.read(ch);
                     }
-                    do
+                    while(is_digit(ch))
                     {
                         token.attach(ch);
                         decode.read(ch);
-                    } while(is_digit(ch));
+                    }
                 }
                 if('f' == ch)
                 {
