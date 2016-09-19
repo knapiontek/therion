@@ -259,8 +259,6 @@ private:
                         parser.put(TOK_FLOAT32, ret(token_list.append(token)));
                     else if(width.equal("f64"))
                         parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-                    else if(width.equal("f128"))
-                        parser.put(TOK_FLOAT128, ret(token_list.append(token)));
                     else
                         throw SyntaxException();
                     goto start;

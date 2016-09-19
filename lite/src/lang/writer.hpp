@@ -186,8 +186,6 @@ private:
                 return llvm::ConstantFP::get(llvm::Type::getFloatTy(the_context), final.value.to_float32());
             case Type::FLOAT64:
                 return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_context), final.value.to_float64());
-            case Type::FLOAT128:
-                return llvm::ConstantFP::get(llvm::Type::getFP128Ty(the_context), final.value.to_float128());
         }
     }
     llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
@@ -199,8 +197,11 @@ private:
 
         if(t1->isFloatingPointTy() || t2->isFloatingPointTy())
         {
-            // TODO: convert int to float
-            if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
+            if(t1->isIntegerTy())
+                v1 = builder.CreateSIToFP(v1, t2);
+            else if(t2->isIntegerTy())
+                v2 = builder.CreateSIToFP(v2, t1);
+            else if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
                 v2 = builder.CreateFPExt(v2, t1);
             else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
                 v1 = builder.CreateFPExt(v1, t2);

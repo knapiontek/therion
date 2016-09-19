@@ -37,7 +37,7 @@ enum struct Operator
 enum struct Type
 {
     INT8, INT16, INT32, INT64,
-    FLOAT32, FLOAT64, FLOAT128
+    FLOAT32, FLOAT64
 };
 
 struct Final

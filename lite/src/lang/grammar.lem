@@ -34,7 +34,6 @@ final(f) ::= INT32(v). { f = tree->final(v, Type::INT32); }
 final(f) ::= INT64(v). { f = tree->final(v, Type::INT64); }
 final(f) ::= FLOAT32(v). { f = tree->final(v, Type::FLOAT32); }
 final(f) ::= FLOAT64(v). { f = tree->final(v, Type::FLOAT64); }
-final(f) ::= FLOAT128(v). { f = tree->final(v, Type::FLOAT128); }
 
 %type op { Operator }
 op(o) ::= MUL. { o = Operator::MUL; }
