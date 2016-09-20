@@ -42,7 +42,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -55,7 +56,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -68,7 +70,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -81,7 +84,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -94,7 +98,8 @@ public:
         do
         {
             *--data = byte2digit(fixed % base);
-        } while(fixed /= base);
+        }
+        while(fixed /= base);
         size = end - data;
     }
     static void it(uint8*& data, int64& size, uint16 arg, Base base)
@@ -105,7 +110,8 @@ public:
         do
         {
             *--data = byte2digit(fixed % base);
-        } while(fixed /= base);
+        }
+        while(fixed /= base);
         size = end - data;
     }
     static void it(uint8*& data, int64& size, uint32 arg, Base base)
@@ -116,7 +122,8 @@ public:
         do
         {
             *--data = byte2digit(fixed % base);
-        } while(fixed /= base);
+        }
+        while(fixed /= base);
         size = end - data;
     }
     static void it(uint8*& data, int64& size, uint64 arg, Base base)
@@ -127,7 +134,8 @@ public:
         do
         {
             *--data = byte2digit(fixed % base);
-        } while(fixed /= base);
+        }
+        while(fixed /= base);
         size = end - data;
     }
     static void it(uint8*& data, int64& size, float32 arg, int64 precision)
@@ -145,7 +153,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -165,7 +174,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
@@ -188,7 +198,8 @@ public:
         do
         {
             *--data = fixed % 10 + '0';
-        } while(fixed /= 10);
+        }
+        while(fixed /= 10);
         if(std::signbit(arg))
             *--data = '-';
         size = end - data;
