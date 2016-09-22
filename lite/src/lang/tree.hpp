@@ -152,7 +152,7 @@ public:
     {
         return the_var_list;
     }
-    void var(Token& id, Expression& exp)
+    void var(Token& nl, Token& id, Expression& exp)
     {
         auto& var = pager.acquire<SimpleVar>();
         var.id = id;

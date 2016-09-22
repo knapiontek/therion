@@ -44,10 +44,28 @@ private:
     core::HashMap<core::String, core::int64> the_map;
 };
 
+class Decode
+{
+public:
+    Decode(io::Input& input) : the_input(input)
+    {
+
+    }
+    void read(core::uint8& arg)
+    {
+        if(the_input.available())
+            the_input.input((core::uint8*)&arg, sizeof(arg));
+        else
+            arg = 0;
+    }
+private:
+    io::Input& the_input;
+};
+
 class Reader
 {
 public:
-    static void execute(Tree& tree, io::Decode& decode, core::String& filename)
+    static void execute(Tree& tree, Decode& decode, core::String& filename)
     {
         core::int64 line_cnt;
         try
@@ -60,7 +78,7 @@ public:
         }
     }
 private:
-    static void execute(Tree& tree, io::Decode& decode, core::int64& line_cnt)
+    static void execute(Tree& tree, Decode& decode, core::int64& line_cnt)
     {
         line_cnt = 1;
         auto space_cnt = 0;
@@ -70,238 +88,248 @@ private:
         KeywordMap key_map;
         core::List<Token> token_list(0x20);
 
-        while(decode.available())
+        start:
+        decode.read(ch);
+        token.erase();
+        start_with_ch:
+        switch(ch)
         {
-            decode.read(ch);
-            token.erase();
-            start:
-            switch(ch)
-            {
-            case '#':
-                while(ch != '\n')
-                    decode.read(ch);
-            case '\n':
-                line_cnt++;
-                break;
-            case ' ':
-                space_cnt++;
-                break;
-            case ':':
-                parser.put(TOK_COLON);
-                break;
-            case '{':
-                parser.put(TOK_LP);
-                break;
-            case '}':
-                parser.put(TOK_RP);
-                break;
-            case '(':
-                parser.put(TOK_LB);
-                break;
-            case ')':
-                parser.put(TOK_RB);
-                break;
-            case '[':
-                parser.put(TOK_LS);
-                break;
-            case ']':
-                parser.put(TOK_RS);
-                break;
-            case '*':
-                parser.put(TOK_MUL);
-                break;
-            case '/':
-                parser.put(TOK_DIV);
-                break;
-            case '%':
-                parser.put(TOK_MOD);
-                break;
-            case '+':
-                parser.put(TOK_ADD);
-                break;
-            case '-':
+        case '\0':
+            parser.put(0);
+            return;
+        case '#':
+            while(ch != '\n')
                 decode.read(ch);
-                if(' ' == ch)
+        case '\n':
+            line_cnt++;
+            do
+            {
+                token.attach(ch);
+                decode.read(ch);
+            }
+            while(' ' == ch);
+            parser.put(TOK_NL, ret(token_list.append(token)));
+            token.erase();
+            goto start_with_ch;
+        case ' ':
+            space_cnt++;
+            goto start;
+        case ':':
+            parser.put(TOK_COLON);
+            goto start;
+        case '{':
+            parser.put(TOK_LP);
+            goto start;
+        case '}':
+            parser.put(TOK_RP);
+            goto start;
+        case '(':
+            parser.put(TOK_LB);
+            goto start;
+        case ')':
+            parser.put(TOK_RB);
+            goto start;
+        case '[':
+            parser.put(TOK_LS);
+            goto start;
+        case ']':
+            parser.put(TOK_RS);
+            goto start;
+        case '*':
+            parser.put(TOK_MUL);
+            goto start;
+        case '/':
+            parser.put(TOK_DIV);
+            goto start;
+        case '%':
+            parser.put(TOK_MOD);
+            goto start;
+        case '+':
+            parser.put(TOK_ADD);
+            goto start;
+        case '-':
+            decode.read(ch);
+            if(' ' == ch)
+            {
+                parser.put(TOK_SUB);
+                goto start_with_ch;
+            }
+            else if(is_digit(ch))
+            {
+                token.attach('-');
+                goto start_with_ch;
+            }
+            else
+                throw SyntaxException();
+        case '=':
+            parser.put(TOK_EQ);
+            goto start;
+        case '<':
+            decode.read(ch);
+            if('=' == ch)
+            {
+                parser.put(TOK_LE);
+            }
+            else if('>' == ch)
+            {
+                parser.put(TOK_NE);
+            }
+            else if('<' == ch)
+            {
+                parser.put(TOK_SHL);
+            }
+            else
+            {
+                parser.put(TOK_LT);
+                goto start_with_ch;
+            }
+            goto start;
+        case '>':
+            decode.read(ch);
+            if('=' == ch)
+            {
+                parser.put(TOK_GE);
+            }
+            else if('>' == ch)
+            {
+                parser.put(TOK_SHR);
+            }
+            else
+            {
+                parser.put(TOK_GT);
+                goto start_with_ch;
+            }
+            goto start;
+        case '&':
+            parser.put(TOK_AND);
+            goto start;
+        case '|':
+            parser.put(TOK_OR);
+            goto start;
+        case '^':
+            parser.put(TOK_XOR);
+            goto start;
+        case '!':
+            parser.put(TOK_NOT);
+            goto start;
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            do
+            {
+                token.attach(ch);
+                decode.read(ch);
+            }
+            while(is_digit(ch));
+            if('i' == ch)
+            {
+                core::String width;
+                do
                 {
-                    parser.put(TOK_SUB);
-                    goto start;
+                    width.attach(ch);
+                    decode.read(ch);
                 }
-                else if(is_digit(ch))
-                {
-                    token.attach('-');
-                    goto start;
-                }
+                while(is_digit(ch));
+                if(width.equal("i8"))
+                    parser.put(TOK_INT8, ret(token_list.append(token)));
+                else if(width.equal("i16"))
+                    parser.put(TOK_INT16, ret(token_list.append(token)));
+                else if(width.equal("i32"))
+                    parser.put(TOK_INT32, ret(token_list.append(token)));
+                else if(width.equal("i64"))
+                    parser.put(TOK_INT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-            case '=':
-                parser.put(TOK_EQ);
-                break;
-            case '<':
+                goto start_with_ch;
+            }
+            if('.' != ch)
+            {
+                parser.put(TOK_INT64, ret(token_list.append(token)));
+                goto start_with_ch;
+            }
+        case '.':
+            decode.read(ch);
+            if(!is_digit(ch) && core::nil == token)
+            {
+                parser.put(TOK_DOT);
+                goto start_with_ch;
+            }
+            token.attach('.');
+            while(is_digit(ch))
+            {
+                token.attach(ch);
                 decode.read(ch);
-                if('=' == ch)
-                {
-                    parser.put(TOK_LE);
-                }
-                else if('>' == ch)
-                {
-                    parser.put(TOK_NE);
-                }
-                else if('<' == ch)
-                {
-                    parser.put(TOK_SHL);
-                }
-                else
-                {
-                    parser.put(TOK_LT);
-                    goto start;
-                }
-                break;
-            case '>':
+            }
+            if('e' == ch)
+            {
+                token.attach(ch);
                 decode.read(ch);
-                if('=' == ch)
-                {
-                    parser.put(TOK_GE);
-                }
-                else if('>' == ch)
-                {
-                    parser.put(TOK_SHR);
-                }
-                else
-                {
-                    parser.put(TOK_GT);
-                    goto start;
-                }
-                break;
-            case '&':
-                parser.put(TOK_AND);
-                break;
-            case '|':
-                parser.put(TOK_OR);
-                break;
-            case '^':
-                parser.put(TOK_XOR);
-                break;
-            case '!':
-                parser.put(TOK_NOT);
-                break;
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                do
+                if('-' == ch || '+' == ch)
                 {
                     token.attach(ch);
                     decode.read(ch);
                 }
-                while(is_digit(ch));
-                if('i' == ch)
-                {
-                    core::String width;
-                    do
-                    {
-                        width.attach(ch);
-                        decode.read(ch);
-                    }
-                    while(is_digit(ch));
-                    if(width.equal("i8"))
-                        parser.put(TOK_INT8, ret(token_list.append(token)));
-                    else if(width.equal("i16"))
-                        parser.put(TOK_INT16, ret(token_list.append(token)));
-                    else if(width.equal("i32"))
-                        parser.put(TOK_INT32, ret(token_list.append(token)));
-                    else if(width.equal("i64"))
-                        parser.put(TOK_INT64, ret(token_list.append(token)));
-                    else
-                        throw SyntaxException();
-                    goto start;
-                }
-                if('.' != ch)
-                {
-                    parser.put(TOK_INT64, ret(token_list.append(token)));
-                    goto start;
-                }
-            case '.':
-                decode.read(ch);
-                if(!is_digit(ch) && core::nil == token)
-                {
-                    parser.put(TOK_DOT);
-                    goto start;
-                }
-                token.attach('.');
                 while(is_digit(ch))
                 {
                     token.attach(ch);
                     decode.read(ch);
                 }
-                if('e' == ch)
-                {
-                    token.attach(ch);
-                    decode.read(ch);
-                    if('-' == ch || '+' == ch)
-                    {
-                        token.attach(ch);
-                        decode.read(ch);
-                    }
-                    while(is_digit(ch))
-                    {
-                        token.attach(ch);
-                        decode.read(ch);
-                    }
-                }
-                if('f' == ch)
-                {
-                    core::String width;
-                    do
-                    {
-                        width.attach(ch);
-                        decode.read(ch);
-                    }
-                    while(is_digit(ch));
-                    if(width.equal("f32"))
-                        parser.put(TOK_FLOAT32, ret(token_list.append(token)));
-                    else if(width.equal("f64"))
-                        parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-                    else
-                        throw SyntaxException();
-                    goto start;
-                }
-                parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-                goto start;
-            default:
-                if(!is_id(ch))
-                    throw SyntaxException();
-                while(is_id(ch))
-                {
-                    token.attach(ch);
-                    decode.read(ch);
-                }
-                int keyword_id = key_map.token(token);
-                if(TOK_ID == keyword_id)
-                {
-                    parser.put(TOK_ID, ret(token_list.append(token)));
-                }
-                else
-                {
-                    parser.put(keyword_id);
-                }
-                goto start;
             }
+            if('f' == ch)
+            {
+                core::String width;
+                do
+                {
+                    width.attach(ch);
+                    decode.read(ch);
+                }
+                while(is_digit(ch));
+                if(width.equal("f32"))
+                    parser.put(TOK_FLOAT32, ret(token_list.append(token)));
+                else if(width.equal("f64"))
+                    parser.put(TOK_FLOAT64, ret(token_list.append(token)));
+                else
+                    throw SyntaxException();
+                goto start_with_ch;
+            }
+            parser.put(TOK_FLOAT64, ret(token_list.append(token)));
+            goto start_with_ch;
+        default:
+            if(!is_id(ch))
+                throw SyntaxException();
+            do
+            {
+                token.attach(ch);
+                decode.read(ch);
+            }
+            while(is_id(ch));
+            auto keyword_id = key_map.token(token);
+            if(TOK_ID == keyword_id)
+            {
+                parser.put(TOK_ID, ret(token_list.append(token)));
+            }
+            else
+            {
+                parser.put(keyword_id);
+            }
+            goto start_with_ch;
         }
-        parser.put(0);
     }
-    static void throw_exception(io::Decode& decode, core::String& filename, core::int64 line_cnt)
+    static void throw_exception(Decode& decode, core::String& filename, core::int64 line_cnt)
     {
         core::uint8 ch = 0;
         core::String line;
-        while(decode.available())
+        while(true)
         {
             decode.read(ch);
-            if('\n' == ch)
-                break;
+            if('\n' == ch || '\0' == ch)
+            {
+                env::Throw("syntax error before: '$1'\n\tlocation: $2:$3")
+                    .arg(line)
+                    .arg(filename)
+                    .arg(line_cnt)
+                    .end();
+            }
             line.attach(ch);
         }
-        env::Throw("syntax error before: '$1'\n\tlocation: $2:$3")
-            .arg(line)
-            .arg(filename)
-            .arg(line_cnt)
-            .end();
     }
     /**
      * If X is a character that can be used in an identifier then

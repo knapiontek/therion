@@ -11,7 +11,7 @@ inline void test_lang()
     core::verify(lite_file.try_open());
 
     lang::Tree tree;
-    io::Decode decode = lite_file.input();
+    lang::Decode decode = lite_file.input();
     lang::Reader::execute(tree, decode, lite_filename);
     lang::Writer::execute(tree);
 }

@@ -223,7 +223,7 @@ private:
         }
         void skip(core::int64) override
         {
-
+            core::assert(false);
         }
         File* the_file;
         core::int64 the_available = core::int64_nil;
