@@ -33,18 +33,26 @@ private:
             var_list.append(value);
         }
 
-        // return var-last * arg-0
         llvm::IRBuilder<> builder(the_bb);
+
+        // use function argument
         for(auto& arg : the_func->args())
         {
             arg.setName("arg");
-            auto var = var_list[var_list.size() - 1];
+            auto var = var_list[0];
             auto var_name = var->getName().data();
             auto var_load = builder.CreateLoad(var, var_name);
-            auto ret_val = execute(var_load, Operator::MUL, &arg);
-            builder.CreateRet(ret_val);
+            auto value = execute(var_load, Operator::MUL, &arg);
+            auto alloca = builder.CreateAlloca(value->getType(), nullptr, "mul_arg");
+            builder.CreateStore(value, alloca);
             break;
         }
+
+        // create function return
+        auto var = var_list[var_list.size() - 1];
+        auto var_name = var->getName().data();
+        auto var_load = builder.CreateLoad(var, var_name);
+        builder.CreateRet(var_load);
 
         // call generated main function
         llvm::outs() << "LLVM module:\n" << *the_module.get();
@@ -56,7 +64,7 @@ private:
         int result = ret.IntVal.getSExtValue();
         delete exec_engine;
 
-        core::verify(49 == result);
+        core::verify(0 == result);
     }
     llvm::AllocaInst* execute(Var& var)
     {
@@ -239,11 +247,17 @@ private:
             case Operator::SHR:
                 return builder.CreateLShr(v1, v2);
             case Operator::EQ:
+                return builder.CreateICmpEQ(v1, v2);
             case Operator::NE:
+                return builder.CreateICmpNE(v1, v2);
             case Operator::LT:
+                return builder.CreateICmpSLT(v1, v2);
             case Operator::GT:
+                return builder.CreateICmpSGT(v1, v2);
             case Operator::LE:
+                return builder.CreateICmpSLE(v1, v2);
             case Operator::GE:
+                return builder.CreateICmpSGE(v1, v2);
             case Operator::AND:
                 return builder.CreateAnd(v1, v2);
             case Operator::OR:
@@ -273,11 +287,17 @@ private:
             case Operator::SHL:
             case Operator::SHR:
             case Operator::EQ:
+                return builder.CreateFCmpUEQ(v1, v2);
             case Operator::NE:
+                return builder.CreateFCmpUNE(v1, v2);
             case Operator::LT:
+                return builder.CreateFCmpULT(v1, v2);
             case Operator::GT:
+                return builder.CreateFCmpUGT(v1, v2);
             case Operator::LE:
+                return builder.CreateFCmpULE(v1, v2);
             case Operator::GE:
+                return builder.CreateFCmpUGE(v1, v2);
             case Operator::AND:
             case Operator::OR:
             case Operator::XOR:
