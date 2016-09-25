@@ -11,7 +11,7 @@ var_list ::= var.
 var_list ::= LP RP THIS THAT IN OUT IF FOR REPEAT UNTIL ANY NONE.
 
 %type var { Ret<Var> }
-var ::= NL(n) ID(i) COLON exp(e). { tree->var(n, i, e); }
+var ::= IND(n) ID(i) COLON exp(e). { tree->var(n, i, e); }
 
 %type exp { Ret<Expression> }
 exp(e) ::= exp(e1) op(o) LB exp(e2) RB. { e = tree->exp(e1, o, e2); }

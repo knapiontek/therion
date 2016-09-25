@@ -48,47 +48,65 @@ function: (x: 0, y: 0) -> x + y
 
 item: {street: address.street, house-no: address.house-no, family.last-name}
 
-find-by-name (street: address.street, name: string) ->
+find-by-name(street: address.street, name: string) ->
     family-seq[.last-name = 'Smith' & first-name-seq[name]]
             .address-seq[.street = in.street]
         -> item {street, house-no, ..last-name}
 
-function (in: f64) -> (out: 2 * in)
-    if (out = false)
+function(in: f64) -> (out: 2 * in)
+    if(out = false)
         out << true
-    else if (in > 0.0)
+    else if(in > 0.0)
         return
 
     # group locals
     (a, b, c): (1, 2, 3)
     (a, b, c) << (1, 2, 3)
-    log.debug (a)
+    log.debug(a)
 
-    for (p: person-seq)
-        if (p.name.start-with ('K'))
-            log.debug (p.name)
+    for(p: person-seq)
+        if(p.name.start-with('K'))
+            log.debug(p.name)
     repeat
-        until (condition)
+        until(condition)
 
-    until (out > 100)
+    until(out > 100)
         out << (2 + in)
         repeat
 
-result: function (5)
-function (6) -> result
+result: function(5)
+function(6) -> result
 
 shade:
     var: 0i32
-    function (var: 1.0f32) -> {var: 1i64}
+    function(var: 1.0f32) -> {var: 1i64}
         var: 'local'
-        log.debug ('closure: %1, local: %2, arg: %3, result: %4', that.var, this.var, in.var, out.var)
+        log.debug('closure: %1, local: %2, arg: %3, result: %4', that.var, this.var, in.var, out.var)
 
-shade-result: shade.function (2.0)
+shade-result: shade.function(2.0)
 
 # reflection
-shade[name.start-with ('test') & class >= function.class]
-    (f: field) -> log.debug ('test: %1', f.name)
+shade[name.start-with('test') & class >= function.class]
+    (f: field) -> log.debug('test: %1', f.name)
 
 # lock-free event-driven programming
-file.write ('data', (rc: int) -> log.debug ('return-code: %1', rc))
-queue.post (sync: shade, data: 'data')
+file.write('data', (rc: int) -> log.debug('return-code: %1', rc))
+queue.post(sync: shade, data: 'data')
+
+# posponed code generation, template
+person:
+    name: unicode
+    match(iterable: iterable(person))
+        for(it: iterable)
+            if(that == it.value())
+                return true
+        return false
+
+seq(element: any)
+    find(e: element) -> iterable(element)
+    at(i: int) -> element
+    match(equal: (e: element) -> bool) -> iterable(e)
+
+people: seq(person)
+for(p: people.match('John' = e.name))
+    log.debug('person: $1', p)

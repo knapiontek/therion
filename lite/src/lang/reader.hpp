@@ -88,29 +88,32 @@ private:
         KeywordMap key_map;
         core::List<Token> token_list(0x20);
 
-        start:
+start:
         decode.read(ch);
+continue1:
         token.erase();
-        start_with_ch:
+continue2:
         switch(ch)
         {
         case '\0':
             parser.put(0);
             return;
         case '#':
-            while(ch != '\n')
+            while('\0' != ch && '\n' != ch)
                 decode.read(ch);
+            goto continue2;
         case '\n':
             line_cnt++;
-            do
+            decode.read(ch);
+            if('\0' == ch || '\n' == ch)
+                goto continue2;
+            while(' ' == ch)
             {
                 token.attach(ch);
                 decode.read(ch);
             }
-            while(' ' == ch);
-            parser.put(TOK_NL, ret(token_list.append(token)));
-            token.erase();
-            goto start_with_ch;
+            parser.put(TOK_IND, ret(token_list.append(token)));
+            goto continue1;
         case ' ':
             space_cnt++;
             goto start;
@@ -150,54 +153,39 @@ private:
         case '-':
             decode.read(ch);
             if(' ' == ch)
-            {
                 parser.put(TOK_SUB);
-                goto start_with_ch;
-            }
             else if(is_digit(ch))
-            {
                 token.attach('-');
-                goto start_with_ch;
-            }
             else
                 throw SyntaxException();
+            goto continue2;
         case '=':
             parser.put(TOK_EQ);
             goto start;
         case '<':
             decode.read(ch);
             if('=' == ch)
-            {
                 parser.put(TOK_LE);
-            }
             else if('>' == ch)
-            {
                 parser.put(TOK_NE);
-            }
             else if('<' == ch)
-            {
                 parser.put(TOK_SHL);
-            }
             else
             {
                 parser.put(TOK_LT);
-                goto start_with_ch;
+                goto continue2;
             }
             goto start;
         case '>':
             decode.read(ch);
             if('=' == ch)
-            {
                 parser.put(TOK_GE);
-            }
             else if('>' == ch)
-            {
                 parser.put(TOK_SHR);
-            }
             else
             {
                 parser.put(TOK_GT);
-                goto start_with_ch;
+                goto continue2;
             }
             goto start;
         case '&':
@@ -238,19 +226,19 @@ private:
                     parser.put(TOK_INT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto start_with_ch;
+                goto continue2;
             }
             if('.' != ch)
             {
                 parser.put(TOK_INT64, ret(token_list.append(token)));
-                goto start_with_ch;
+                goto continue2;
             }
         case '.':
             decode.read(ch);
             if(!is_digit(ch) && core::nil == token)
             {
                 parser.put(TOK_DOT);
-                goto start_with_ch;
+                goto continue2;
             }
             token.attach('.');
             while(is_digit(ch))
@@ -288,10 +276,10 @@ private:
                     parser.put(TOK_FLOAT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto start_with_ch;
+                goto continue2;
             }
             parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-            goto start_with_ch;
+            goto continue2;
         default:
             if(!is_id(ch))
                 throw SyntaxException();
@@ -310,7 +298,7 @@ private:
             {
                 parser.put(keyword_id);
             }
-            goto start_with_ch;
+            goto continue2;
         }
     }
     static void throw_exception(Decode& decode, core::String& filename, core::int64 line_cnt)
