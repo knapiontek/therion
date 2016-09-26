@@ -226,12 +226,12 @@ continue2:
                     parser.put(TOK_INT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto continue2;
+                goto continue1;
             }
             if('.' != ch)
             {
                 parser.put(TOK_INT64, ret(token_list.append(token)));
-                goto continue2;
+                goto continue1;
             }
         case '.':
             decode.read(ch);
@@ -276,10 +276,10 @@ continue2:
                     parser.put(TOK_FLOAT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto continue2;
+                goto continue1;
             }
             parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-            goto continue2;
+            goto continue1;
         default:
             if(!is_id(ch))
                 throw SyntaxException();
@@ -298,7 +298,7 @@ continue2:
             {
                 parser.put(keyword_id);
             }
-            goto continue2;
+            goto continue1;
         }
     }
     static void throw_exception(Decode& decode, core::String& filename, core::int64 line_cnt)

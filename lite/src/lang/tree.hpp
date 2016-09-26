@@ -144,7 +144,7 @@ struct ExtendedVar : Var
 class Tree
 {
 public:
-    Tree() : the_var_list(0x40)
+    Tree() : the_var_list(0x40), the_var_context(0x8)
     {
 
     }
@@ -152,12 +152,15 @@ public:
     {
         return the_var_list;
     }
-    void var(Token& nl, Token& id, Expression& exp)
+    void var(Token& ind, Token& id, Expression& exp)
     {
         auto& var = pager.acquire<SimpleVar>();
         var.id = id;
         var.expression = exp;
-        the_var_list.append(var);
+        if(ind.size())
+            ;
+        else
+            the_var_list.append(var);
     }
     Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
@@ -236,5 +239,6 @@ public:
     }
 private:
     core::List<Var::share> the_var_list;
+    core::List<Var::share> the_var_context;
     core::Pager pager;
 };
