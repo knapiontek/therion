@@ -54,7 +54,7 @@ public:
     void read(core::uint8& arg)
     {
         if(the_input.available())
-            the_input.input((core::uint8*)&arg, sizeof(arg));
+            the_input.input(reinterpret_cast<core::uint8*>(&arg), sizeof(arg));
         else
             arg = 0;
     }
@@ -90,9 +90,9 @@ private:
 
 start:
         decode.read(ch);
-continue1:
+start_erase:
         token.erase();
-continue2:
+start_switch:
         switch(ch)
         {
         case '\0':
@@ -101,19 +101,19 @@ continue2:
         case '#':
             while('\0' != ch && '\n' != ch)
                 decode.read(ch);
-            goto continue2;
+            goto start_switch;
         case '\n':
             line_cnt++;
             decode.read(ch);
             if('\0' == ch || '\n' == ch)
-                goto continue2;
+                goto start_switch;
             while(' ' == ch)
             {
                 token.attach(ch);
                 decode.read(ch);
             }
             parser.put(TOK_IND, ret(token_list.append(token)));
-            goto continue1;
+            goto start_erase;
         case ' ':
             space_cnt++;
             goto start;
@@ -158,7 +158,7 @@ continue2:
                 token.attach('-');
             else
                 throw SyntaxException();
-            goto continue2;
+            goto start_switch;
         case '=':
             parser.put(TOK_EQ);
             goto start;
@@ -173,7 +173,7 @@ continue2:
             else
             {
                 parser.put(TOK_LT);
-                goto continue2;
+                goto start_switch;
             }
             goto start;
         case '>':
@@ -185,7 +185,7 @@ continue2:
             else
             {
                 parser.put(TOK_GT);
-                goto continue2;
+                goto start_switch;
             }
             goto start;
         case '&':
@@ -226,19 +226,19 @@ continue2:
                     parser.put(TOK_INT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto continue1;
+                goto start_erase;
             }
             if('.' != ch)
             {
                 parser.put(TOK_INT64, ret(token_list.append(token)));
-                goto continue1;
+                goto start_erase;
             }
         case '.':
             decode.read(ch);
             if(!is_digit(ch) && core::nil == token)
             {
                 parser.put(TOK_DOT);
-                goto continue2;
+                goto start_switch;
             }
             token.attach('.');
             while(is_digit(ch))
@@ -276,10 +276,10 @@ continue2:
                     parser.put(TOK_FLOAT64, ret(token_list.append(token)));
                 else
                     throw SyntaxException();
-                goto continue1;
+                goto start_erase;
             }
             parser.put(TOK_FLOAT64, ret(token_list.append(token)));
-            goto continue1;
+            goto start_erase;
         default:
             if(!is_id(ch))
                 throw SyntaxException();
@@ -298,7 +298,7 @@ continue2:
             {
                 parser.put(keyword_id);
             }
-            goto continue1;
+            goto start_erase;
         }
     }
     static void throw_exception(Decode& decode, core::String& filename, core::int64 line_cnt)

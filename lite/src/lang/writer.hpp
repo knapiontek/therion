@@ -64,7 +64,7 @@ private:
         int result = ret.IntVal.getSExtValue();
         delete exec_engine;
 
-        core::verify(0 == result);
+        core::verify(!result);
     }
     llvm::AllocaInst* execute(Var& var)
     {
