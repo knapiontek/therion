@@ -144,7 +144,7 @@ struct ExtendedVar : Var
 class Tree
 {
 public:
-    Tree() : the_var_list(0x40), the_var_context(0x8)
+    Tree() : the_var_list(0x40)
     {
 
     }
@@ -157,10 +157,20 @@ public:
         auto& var = pager.acquire<SimpleVar>();
         var.id = id;
         var.expression = exp;
+
+        auto i = ind.size();
         if(ind.size())
-            ;
+        {
+            if(i % 4)
+                env::Throw::raise("Wrong indentation");
+            i /= 4;
+        }
         else
+        {
             the_var_list.append(var);
+            the_var_context.size(1);
+            the_var_context[0] = var;
+        }
     }
     Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
@@ -239,6 +249,6 @@ public:
     }
 private:
     core::List<Var::share> the_var_list;
-    core::List<Var::share> the_var_context;
+    core::Seq<Var::share> the_var_context;
     core::Pager pager;
 };
