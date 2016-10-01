@@ -134,8 +134,9 @@ struct SimpleVar : Var
 
 struct ExtendedVar : Var
 {
-    Token id;
-    Expression::share expression;
+    ExtendedVar() : var_list(0x8) {}
+
+    SimpleVar::share var;
     core::List<Var::share> var_list;
 };
 
@@ -144,13 +145,14 @@ struct ExtendedVar : Var
 class Tree
 {
 public:
-    Tree() : the_var_list(0x40)
+    Tree()
     {
-
+        the_context.size(1);
+        the_context[0] = the_var;
     }
     core::List<Var::share>& var_list()
     {
-        return the_var_list;
+        return the_var.var_list;
     }
     void var(Token& ind, Token& id, Expression& exp)
     {
@@ -158,19 +160,27 @@ public:
         var.id = id;
         var.expression = exp;
 
-        auto i = ind.size();
-        if(ind.size())
+        auto size = ind.size();
+        auto shift = size / 4;
+        if(size % 4 || shift > the_context.size() - 1)
+            env::Throw::raise("Wrong indentation");
+
+        Var& parent = the_context[shift];
+        if(typeid(parent) == typeid(SimpleVar))
         {
-            if(i % 4)
-                env::Throw::raise("Wrong indentation");
-            i /= 4;
+            auto& extended = pager.acquire<ExtendedVar>();
+            extended.var = parent;
+            extended.var_list.append(var);
+            the_context[shift] = extended;
         }
-        else
+        else if(typeid(parent) == typeid(ExtendedVar))
         {
-            the_var_list.append(var);
-            the_var_context.size(1);
-            the_var_context[0] = var;
+            auto& extended = dynamic_cast<ExtendedVar&>(parent);
+            extended.var_list.append(var);
         }
+
+        the_context.size(shift + 2);
+        the_context[shift + 1] = var;
     }
     Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
@@ -248,7 +258,7 @@ public:
         return ret<Final>(final);
     }
 private:
-    core::List<Var::share> the_var_list;
-    core::Seq<Var::share> the_var_context;
     core::Pager pager;
+    ExtendedVar the_var;
+    core::Seq<Var::share> the_context;
 };
