@@ -79,16 +79,24 @@ private:
     }
     llvm::AllocaInst* execute(SimpleVar& var)
     {
-        auto value = execute(var.expression);
         llvm::IRBuilder<> builder(the_bb);
+        auto value = execute(var.expression);
         auto alloca = builder.CreateAlloca(value->getType(), nullptr, var.id.ascii());
         builder.CreateStore(value, alloca);
         return alloca;
     }
     llvm::AllocaInst* execute(ExtendedVar& var)
     {
-        core::verify(false);
-        return 0;
+        Var& signature = var.var;
+        core::verify(typeid(signature) == typeid(SimpleVar));
+        auto& simple = dynamic_cast<SimpleVar&>(signature);
+        auto struct_type = llvm::StructType::create(the_context, simple.id.ascii());
+
+        llvm::IRBuilder<> builder(the_bb);
+        auto value = execute(simple.expression);
+        auto alloca = builder.CreateAlloca(struct_type, nullptr, simple.id.ascii());
+        builder.CreateStore(value, alloca);
+        return alloca;
     }
     llvm::Value* execute(Expression& exp)
     {

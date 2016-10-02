@@ -163,7 +163,9 @@ public:
         auto size = ind.size();
         auto shift = size / 4;
         if(size % 4 || shift > the_context.size() - 1)
-            env::Throw::raise("Wrong indentation");
+        {
+            throw SyntaxException();
+        }
 
         Var& parent = the_context[shift];
         if(typeid(parent) == typeid(SimpleVar))
