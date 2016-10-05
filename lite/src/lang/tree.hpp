@@ -174,6 +174,12 @@ public:
             extended.var = parent;
             extended.var_list.append(var);
             the_context[shift] = extended;
+
+            Var& grand_parent_var = the_context[shift - 1];
+            auto& grand_parent = dynamic_cast<ExtendedVar&>(grand_parent_var);
+            auto tail = grand_parent.var_list.tail();
+            if(tail.prev())
+                tail.value() = extended;
         }
         else if(typeid(parent) == typeid(ExtendedVar))
         {

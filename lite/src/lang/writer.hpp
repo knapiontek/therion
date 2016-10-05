@@ -1,4 +1,40 @@
 
+class VirtualMachine
+{
+public:
+    VirtualMachine()
+    {
+        llvm::InitializeNativeTarget();
+        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+
+        //the_main = function("main", llvm::Type::INT32, { llvm::Type::VOID });
+        the_entry = block("entry", the_main);
+    }
+    ~VirtualMachine()
+    {
+        llvm::llvm_shutdown();
+    }
+    llvm::Function* function(core::String name, llvm::Type* result, llvm::ArrayRef<llvm::Type*> args)
+    {
+        llvm::FunctionType* type = llvm::FunctionType::get(result, args, false);
+        auto function = the_module->getFunction(name.ascii());
+        if(!function)
+        {
+            function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, name.ascii(), the_module.get());
+        }
+        return function;
+    }
+    llvm::BasicBlock* block(core::String name, llvm::Function* function)
+    {
+        return llvm::BasicBlock::Create(the_context, name.ascii(), function);
+    }
+private:
+    llvm::LLVMContext the_context;
+    std::unique_ptr<llvm::Module> the_module;
+    llvm::Function* the_main;
+    llvm::BasicBlock* the_entry;
+};
+
 class Writer
 {
 public:
@@ -91,12 +127,8 @@ private:
         core::verify(typeid(signature) == typeid(SimpleVar));
         auto& simple = dynamic_cast<SimpleVar&>(signature);
         auto struct_type = llvm::StructType::create(the_context, simple.id.ascii());
-
-        llvm::IRBuilder<> builder(the_bb);
-        auto value = execute(simple.expression);
-        auto alloca = builder.CreateAlloca(struct_type, nullptr, simple.id.ascii());
-        builder.CreateStore(value, alloca);
-        return alloca;
+        (void)struct_type;
+        return execute(var.var);
     }
     llvm::Value* execute(Expression& exp)
     {
