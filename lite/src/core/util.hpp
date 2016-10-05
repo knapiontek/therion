@@ -78,6 +78,18 @@ struct Singleton
     Singleton& operator=(Singleton const&) = delete;
 };
 
+template<class Other, class Type>
+inline bool type_of(Type& type)
+{
+    return dynamic_cast<Other*>(&type);
+}
+
+template<class Other, class Type>
+inline Other& down_cast(Type& type)
+{
+    return dynamic_cast<Other&>(type);
+}
+
 template<class Type>
 inline Type& min(const Type& arg1, const Type& arg2)
 {

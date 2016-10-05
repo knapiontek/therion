@@ -104,10 +104,10 @@ private:
     }
     llvm::AllocaInst* execute(Var& var)
     {
-        if(type_of<SimpleVar>(var))
-            return execute(down_cast<SimpleVar>(var));
-        else if(type_of<ExtendedVar>(var))
-            return execute(down_cast<ExtendedVar>(var));
+        if(core::type_of<SimpleVar>(var))
+            return execute(core::down_cast<SimpleVar>(var));
+        else if(core::type_of<ExtendedVar>(var))
+            return execute(core::down_cast<ExtendedVar>(var));
         else
             throw_bad_class(var);
         return 0;
@@ -130,16 +130,16 @@ private:
     }
     llvm::Value* execute(Expression& exp)
     {
-        if(type_of<FinalExpression>(exp))
-            return execute(down_cast<FinalExpression>(exp));
-        else if(type_of<LocationExpression>(exp))
-            return execute(down_cast<LocationExpression>(exp));
-        else if(type_of<FinalNestedExpression>(exp))
-            return execute(down_cast<FinalNestedExpression>(exp));
-        else if(type_of<LocationNestedExpression>(exp))
-            return execute(down_cast<LocationNestedExpression>(exp));
-        else if(type_of<NestedExpression>(exp))
-            return execute(down_cast<NestedExpression>(exp));
+        if(core::type_of<FinalExpression>(exp))
+            return execute(core::down_cast<FinalExpression>(exp));
+        else if(core::type_of<LocationExpression>(exp))
+            return execute(core::down_cast<LocationExpression>(exp));
+        else if(core::type_of<FinalNestedExpression>(exp))
+            return execute(core::down_cast<FinalNestedExpression>(exp));
+        else if(core::type_of<LocationNestedExpression>(exp))
+            return execute(core::down_cast<LocationNestedExpression>(exp));
+        else if(core::type_of<NestedExpression>(exp))
+            return execute(core::down_cast<NestedExpression>(exp));
         else
             throw_bad_class(exp);
         return 0;
@@ -172,14 +172,14 @@ private:
     }
     llvm::Value* execute(Location& loc)
     {
-        if(type_of<IdLocation>(loc))
-            return execute(down_cast<IdLocation>(loc));
-        else if(type_of<SeqLocation>(loc))
-            return execute(down_cast<SeqLocation>(loc));
-        else if(type_of<NestedLocation>(loc))
-            return execute(down_cast<NestedLocation>(loc));
-        else if(type_of<NestedSeqLocation>(loc))
-            return execute(down_cast<NestedSeqLocation>(loc));
+        if(core::type_of<IdLocation>(loc))
+            return execute(core::down_cast<IdLocation>(loc));
+        else if(core::type_of<SeqLocation>(loc))
+            return execute(core::down_cast<SeqLocation>(loc));
+        else if(core::type_of<NestedLocation>(loc))
+            return execute(core::down_cast<NestedLocation>(loc));
+        else if(core::type_of<NestedSeqLocation>(loc))
+            return execute(core::down_cast<NestedSeqLocation>(loc));
         else
             throw_bad_class(loc);
         return 0;
@@ -350,16 +350,6 @@ private:
         env::Throw("Writable: $1 not handled")
             .arg(typeid(type).name())
             .end();
-    }
-    template<class Other, class Type>
-    static bool type_of(Type& type)
-    {
-        return dynamic_cast<Other*>(&type);
-    }
-    template<class Other, class Type>
-    static Other& down_cast(Type& type)
-    {
-        return dynamic_cast<Other&>(type);
     }
 private:
     llvm::LLVMContext the_context;
