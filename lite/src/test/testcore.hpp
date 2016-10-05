@@ -115,6 +115,8 @@ inline void test_share()
             flower = poppy;
             core::verify(flower == poppy);
             core::verify(poppy == flower);
+            core::verify(flower.type_of<Poppy>());
+            flower.down_cast<Poppy>();
         }
         flower->virtual_method();
     }
@@ -170,6 +172,8 @@ inline void test_manage()
             flower = poppy;
             core::verify(flower == poppy);
             core::verify(poppy == flower);
+            core::verify(flower.type_of<Poppy>());
+            flower.down_cast<Poppy>();
         }
         flower->virtual_method();
     }

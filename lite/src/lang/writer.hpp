@@ -104,13 +104,12 @@ private:
     }
     llvm::AllocaInst* execute(Var& var)
     {
-        auto& type = typeid(var);
-        if(type == typeid(SimpleVar))
-            return execute(dynamic_cast<SimpleVar&>(var));
-        else if(type == typeid(ExtendedVar))
-            return execute(dynamic_cast<ExtendedVar&>(var));
+        if(type_of<SimpleVar>(var))
+            return execute(down_cast<SimpleVar>(var));
+        else if(type_of<ExtendedVar>(var))
+            return execute(down_cast<ExtendedVar>(var));
         else
-            throw_bad_class(type);
+            throw_bad_class(var);
         return 0;
     }
     llvm::AllocaInst* execute(SimpleVar& var)
@@ -123,28 +122,26 @@ private:
     }
     llvm::AllocaInst* execute(ExtendedVar& var)
     {
-        Var& signature = var.var;
-        core::verify(typeid(signature) == typeid(SimpleVar));
-        auto& simple = dynamic_cast<SimpleVar&>(signature);
+        core::verify(var.var.type_of<SimpleVar>());
+        auto& simple = var.var.down_cast<SimpleVar>();
         auto struct_type = llvm::StructType::create(the_context, simple.id.ascii());
         (void)struct_type;
         return execute(var.var);
     }
     llvm::Value* execute(Expression& exp)
     {
-        auto& type = typeid(exp);
-        if(type == typeid(FinalExpression))
-            return execute(dynamic_cast<FinalExpression&>(exp));
-        else if(type == typeid(LocationExpression))
-            return execute(dynamic_cast<LocationExpression&>(exp));
-        else if(type == typeid(FinalNestedExpression))
-            return execute(dynamic_cast<FinalNestedExpression&>(exp));
-        else if(type == typeid(LocationNestedExpression))
-            return execute(dynamic_cast<LocationNestedExpression&>(exp));
-        else if(type == typeid(NestedExpression))
-            return execute(dynamic_cast<NestedExpression&>(exp));
+        if(type_of<FinalExpression>(exp))
+            return execute(down_cast<FinalExpression>(exp));
+        else if(type_of<LocationExpression>(exp))
+            return execute(down_cast<LocationExpression>(exp));
+        else if(type_of<FinalNestedExpression>(exp))
+            return execute(down_cast<FinalNestedExpression>(exp));
+        else if(type_of<LocationNestedExpression>(exp))
+            return execute(down_cast<LocationNestedExpression>(exp));
+        else if(type_of<NestedExpression>(exp))
+            return execute(down_cast<NestedExpression>(exp));
         else
-            throw_bad_class(type);
+            throw_bad_class(exp);
         return 0;
     }
     llvm::Value* execute(FinalExpression& exp)
@@ -175,17 +172,16 @@ private:
     }
     llvm::Value* execute(Location& loc)
     {
-        auto& type = typeid(loc);
-        if(type == typeid(IdLocation))
-            return execute(dynamic_cast<IdLocation&>(loc));
-        else if(type == typeid(SeqLocation))
-            return execute(dynamic_cast<SeqLocation&>(loc));
-        else if(type == typeid(NestedLocation))
-            return execute(dynamic_cast<NestedLocation&>(loc));
-        else if(type == typeid(NestedSeqLocation))
-            return execute(dynamic_cast<NestedSeqLocation&>(loc));
+        if(type_of<IdLocation>(loc))
+            return execute(down_cast<IdLocation>(loc));
+        else if(type_of<SeqLocation>(loc))
+            return execute(down_cast<SeqLocation>(loc));
+        else if(type_of<NestedLocation>(loc))
+            return execute(down_cast<NestedLocation>(loc));
+        else if(type_of<NestedSeqLocation>(loc))
+            return execute(down_cast<NestedSeqLocation>(loc));
         else
-            throw_bad_class(type);
+            throw_bad_class(loc);
         return 0;
     }
     llvm::Value* execute(IdLocation& loc)
@@ -348,11 +344,22 @@ private:
         }
         return 0;
     }
-    void throw_bad_class(const std::type_info& info)
+    template<class Type>
+    static void throw_bad_class(const Type& type)
     {
         env::Throw("Writable: $1 not handled")
-            .arg(info.name())
+            .arg(typeid(type).name())
             .end();
+    }
+    template<class Other, class Type>
+    static bool type_of(Type& type)
+    {
+        return dynamic_cast<Other*>(&type);
+    }
+    template<class Other, class Type>
+    static Other& down_cast(Type& type)
+    {
+        return dynamic_cast<Other&>(type);
     }
 private:
     llvm::LLVMContext the_context;

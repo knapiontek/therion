@@ -167,23 +167,22 @@ public:
             throw SyntaxException();
         }
 
-        Var& parent = the_context[shift];
-        if(typeid(parent) == typeid(SimpleVar))
+        auto parent = the_context[shift];
+        if(parent.type_of<SimpleVar>())
         {
             auto& extended = pager.acquire<ExtendedVar>();
             extended.var = parent;
             extended.var_list.append(var);
             the_context[shift] = extended;
 
-            Var& grand_parent_var = the_context[shift - 1];
-            auto& grand_parent = dynamic_cast<ExtendedVar&>(grand_parent_var);
+            auto& grand_parent = the_context[shift - 1].down_cast<ExtendedVar>();
             auto tail = grand_parent.var_list.tail();
             if(tail.prev())
                 tail.value() = extended;
         }
-        else if(typeid(parent) == typeid(ExtendedVar))
+        else if(parent.type_of<ExtendedVar>())
         {
-            auto& extended = dynamic_cast<ExtendedVar&>(parent);
+            auto& extended = parent.down_cast<ExtendedVar>();
             extended.var_list.append(var);
         }
 

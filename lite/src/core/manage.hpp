@@ -138,6 +138,18 @@ public:
         assert(the_handle != nil_handle());
         return *the_handle->type;
     }
+    template<class Other>
+    bool type_of() const
+    {
+        assert(the_handle != nil_handle());
+        return dynamic_cast<Other*>(the_handle->type);
+    }
+    template<class Other>
+    Other& down_cast() const
+    {
+        assert(the_handle != nil_handle());
+        return dynamic_cast<Other&>(*the_handle->type);
+    }
 private:
     struct Handle
     {

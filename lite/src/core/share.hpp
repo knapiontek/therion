@@ -91,6 +91,16 @@ public:
         assert(the_type);
         return *the_type;
     }
+    template<class Other>
+    bool type_of() const
+    {
+        return dynamic_cast<Other*>(the_type);
+    }
+    template<class Other>
+    Other& down_cast() const
+    {
+        return dynamic_cast<Other&>(*the_type);
+    }
 private:
     Type* the_type;
 };
