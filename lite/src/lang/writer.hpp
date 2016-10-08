@@ -18,11 +18,11 @@ private:
     }
     void execute_tree(Tree& tree)
     {
-        // start main function
+        // initialize
         the_module = llvm::make_unique<llvm::Module>("test", the_context);
         auto type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
-        the_main = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        the_entry = llvm::BasicBlock::Create(the_context, "entry", the_main);
+        auto function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        the_entry = llvm::BasicBlock::Create(the_context, "entry", function);
 
         // build body of main function
         for(auto& it : tree.var_list())
@@ -37,12 +37,12 @@ private:
         llvm::ReturnInst::Create(the_context, var_load, the_entry);
 
         // print and verify module
-        llvm::outs() << "LLVM module:\n" << *the_module.get();
-        llvm::verifyModule(*the_module.get(), &llvm::outs());
+        llvm::outs() << "LLVM module:\n" << *the_module;
+        llvm::verifyModule(*the_module, &llvm::outs());
 
         // call generated main function
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
-        auto ret = engine->runFunction(the_main, {});
+        auto ret = engine->runFunction(function, {});
         auto result = ret.IntVal.getSExtValue();
         delete engine;
 
@@ -281,9 +281,8 @@ private:
             .end();
     }
 private:
-    llvm::Function* the_main;
     llvm::BasicBlock* the_entry;
-    llvm::LLVMContext the_context;
     std::unique_ptr<llvm::Module> the_module;
+    llvm::LLVMContext the_context;
     core::List<llvm::AllocaInst*> var_list;
 };
