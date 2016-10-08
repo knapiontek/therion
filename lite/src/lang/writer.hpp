@@ -20,10 +20,8 @@ private:
     {
         // start main function
         the_module = llvm::make_unique<llvm::Module>("test", the_context);
-        auto func = the_module->getOrInsertFunction("main",
-            llvm::Type::getInt64Ty(the_context), llvm::Type::getInt32Ty(the_context),
-            nullptr);
-        the_main = llvm::cast<llvm::Function>(func);
+        auto type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
+        the_main = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         the_entry = llvm::BasicBlock::Create(the_context, "entry", the_main);
 
         // build body of main function
@@ -33,34 +31,20 @@ private:
             var_list.append(value);
         }
 
-        // use function argument
-        for(auto& arg : the_main->args())
-        {
-            arg.setName("arg");
-            auto var = var_list[0];
-            auto var_name = var->getName().data();
-            auto var_load = new llvm::LoadInst(var, var_name, false, the_entry);
-            auto value = execute(var_load, Operator::MUL, &arg);
-            auto alloca = new llvm::AllocaInst(value->getType(), "mul_arg", the_entry);
-            new llvm::StoreInst(value, alloca, false, the_entry);
-            break;
-        }
-
         // create function return
         auto var = var_list[var_list.size() - 1];
-        auto var_name = var->getName().data();
-        auto var_load = new llvm::LoadInst(var, var_name, false, the_entry);
+        auto var_load = new llvm::LoadInst(var, var->getName(), false, the_entry);
         llvm::ReturnInst::Create(the_context, var_load, the_entry);
 
-        // call generated main function
+        // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module.get();
         llvm::verifyModule(*the_module.get(), &llvm::outs());
-        auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
-        std::vector<llvm::GenericValue> args(1);
-        args[0].IntVal = llvm::APInt(32, 1);
-        auto ret = exec_engine->runFunction(the_main, args);
-        int result = ret.IntVal.getSExtValue();
-        delete exec_engine;
+
+        // call generated main function
+        auto engine = llvm::EngineBuilder(std::move(the_module)).create();
+        auto ret = engine->runFunction(the_main, {});
+        auto result = ret.IntVal.getSExtValue();
+        delete engine;
 
         core::verify(!result);
     }
@@ -221,6 +205,7 @@ private:
         {
             env::Throw::raise("Unknown type");
         }
+
         return 0;
     }
     llvm::Value* execute_int(llvm::Value* v1, Operator op, llvm::Value* v2)
