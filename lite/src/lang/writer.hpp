@@ -1,40 +1,4 @@
 
-class VirtualMachine
-{
-public:
-    VirtualMachine()
-    {
-        llvm::InitializeNativeTarget();
-        the_module = llvm::make_unique<llvm::Module>("test", the_context);
-
-        //the_main = function("main", llvm::Type::INT32, { llvm::Type::VOID });
-        the_entry = block("entry", the_main);
-    }
-    ~VirtualMachine()
-    {
-        llvm::llvm_shutdown();
-    }
-    llvm::Function* function(core::String name, llvm::Type* result, llvm::ArrayRef<llvm::Type*> args)
-    {
-        llvm::FunctionType* type = llvm::FunctionType::get(result, args, false);
-        auto function = the_module->getFunction(name.ascii());
-        if(!function)
-        {
-            function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, name.ascii(), the_module.get());
-        }
-        return function;
-    }
-    llvm::BasicBlock* block(core::String name, llvm::Function* function)
-    {
-        return llvm::BasicBlock::Create(the_context, name.ascii(), function);
-    }
-private:
-    llvm::LLVMContext the_context;
-    std::unique_ptr<llvm::Module> the_module;
-    llvm::Function* the_main;
-    llvm::BasicBlock* the_entry;
-};
-
 class Writer
 {
 public:
@@ -59,8 +23,8 @@ private:
         auto func = the_module->getOrInsertFunction("main",
             llvm::Type::getInt64Ty(the_context), llvm::Type::getInt32Ty(the_context),
             nullptr);
-        the_func = llvm::cast<llvm::Function>(func);
-        the_bb = llvm::BasicBlock::Create(the_context, "entry", the_func);
+        the_main = llvm::cast<llvm::Function>(func);
+        the_entry = llvm::BasicBlock::Create(the_context, "entry", the_main);
 
         // build body of main function
         for(auto& it : tree.var_list())
@@ -69,26 +33,24 @@ private:
             var_list.append(value);
         }
 
-        llvm::IRBuilder<> builder(the_bb);
-
         // use function argument
-        for(auto& arg : the_func->args())
+        for(auto& arg : the_main->args())
         {
             arg.setName("arg");
             auto var = var_list[0];
             auto var_name = var->getName().data();
-            auto var_load = builder.CreateLoad(var, var_name);
+            auto var_load = new llvm::LoadInst(var, var_name, false, the_entry);
             auto value = execute(var_load, Operator::MUL, &arg);
-            auto alloca = builder.CreateAlloca(value->getType(), nullptr, "mul_arg");
-            builder.CreateStore(value, alloca);
+            auto alloca = new llvm::AllocaInst(value->getType(), "mul_arg", the_entry);
+            new llvm::StoreInst(value, alloca, false, the_entry);
             break;
         }
 
         // create function return
         auto var = var_list[var_list.size() - 1];
         auto var_name = var->getName().data();
-        auto var_load = builder.CreateLoad(var, var_name);
-        builder.CreateRet(var_load);
+        auto var_load = new llvm::LoadInst(var, var_name, false, the_entry);
+        llvm::ReturnInst::Create(the_context, var_load, the_entry);
 
         // call generated main function
         llvm::outs() << "LLVM module:\n" << *the_module.get();
@@ -96,7 +58,7 @@ private:
         auto exec_engine = llvm::EngineBuilder(std::move(the_module)).create();
         std::vector<llvm::GenericValue> args(1);
         args[0].IntVal = llvm::APInt(32, 1);
-        auto ret = exec_engine->runFunction(the_func, args);
+        auto ret = exec_engine->runFunction(the_main, args);
         int result = ret.IntVal.getSExtValue();
         delete exec_engine;
 
@@ -114,10 +76,9 @@ private:
     }
     llvm::AllocaInst* execute(SimpleVar& var)
     {
-        llvm::IRBuilder<> builder(the_bb);
         auto value = execute(var.expression);
-        auto alloca = builder.CreateAlloca(value->getType(), nullptr, var.id.ascii());
-        builder.CreateStore(value, alloca);
+        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_entry);
+        new llvm::StoreInst(value, alloca, false, the_entry);
         return alloca;
     }
     llvm::AllocaInst* execute(ExtendedVar& var)
@@ -192,8 +153,7 @@ private:
             auto name = value->getName().data();
             if(loc.id.equal(name))
             {
-                llvm::IRBuilder<> builder(the_bb);
-                return builder.CreateLoad(value, name);
+                return new llvm::LoadInst(value, name, false, the_entry);
             }
         }
         env::Throw("Unknown variable: $1").arg(loc.id).end();
@@ -234,29 +194,27 @@ private:
     }
     llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
-        llvm::IRBuilder<> builder(the_bb);
-
         auto t1 = v1->getType();
         auto t2 = v2->getType();
 
         if(t1->isFloatingPointTy() || t2->isFloatingPointTy())
         {
             if(t1->isIntegerTy())
-                v1 = builder.CreateSIToFP(v1, t2);
+                v1 = new llvm::SIToFPInst(v1, t2, "sitofp", the_entry);
             else if(t2->isIntegerTy())
-                v2 = builder.CreateSIToFP(v2, t1);
+                v2 = new llvm::SIToFPInst(v2, t1, "sitofp", the_entry);
             else if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
-                v2 = builder.CreateFPExt(v2, t1);
+                v2 = new llvm::FPExtInst(v2, t1, "fpext", the_entry);
             else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
-                v1 = builder.CreateFPExt(v1, t2);
+                v1 = new llvm::FPExtInst(v1, t2, "fpext", the_entry);
             return execute_float(v1, op, v2);
         }
         else if(t1->isIntegerTy() && t2->isIntegerTy())
         {
             if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
-                v2 = builder.CreateSExt(v2, t1);
+                v2 = new llvm::SExtInst(v2, t1, "sext", the_entry);
             else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
-                v1 = builder.CreateSExt(v1, t2);
+                v1 = new llvm::SExtInst(v1, t2, "sext", the_entry);
             return execute_int(v1, op, v2);
         }
         else
@@ -267,39 +225,32 @@ private:
     }
     llvm::Value* execute_int(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
-        llvm::IRBuilder<> builder(the_bb);
         switch(op)
         {
             case Operator::MUL:
-                return builder.CreateMul(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, v1, v2, "mul", the_entry);
             case Operator::DIV:
-                return builder.CreateUDiv(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::UDiv, v1, v2, "udiv", the_entry);
             case Operator::ADD:
-                return builder.CreateAdd(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, v1, v2, "add", the_entry);
             case Operator::SUB:
-                return builder.CreateSub(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, v1, v2, "sub", the_entry);
             case Operator::SHL:
-                return builder.CreateShl(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, v1, v2, "shl", the_entry);
             case Operator::SHR:
-                return builder.CreateLShr(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::LShr, v1, v2, "lshr", the_entry);
             case Operator::EQ:
-                return builder.CreateICmpEQ(v1, v2);
             case Operator::NE:
-                return builder.CreateICmpNE(v1, v2);
             case Operator::LT:
-                return builder.CreateICmpSLT(v1, v2);
             case Operator::GT:
-                return builder.CreateICmpSGT(v1, v2);
             case Operator::LE:
-                return builder.CreateICmpSLE(v1, v2);
             case Operator::GE:
-                return builder.CreateICmpSGE(v1, v2);
             case Operator::AND:
-                return builder.CreateAnd(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, v1, v2, "and", the_entry);
             case Operator::OR:
-                return builder.CreateOr(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, v1, v2, "or", the_entry);
             case Operator::XOR:
-                return builder.CreateXor(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, v1, v2, "xor", the_entry);
             case Operator::MOD:
             case Operator::NOT:
             default:
@@ -309,31 +260,24 @@ private:
     }
     llvm::Value* execute_float(llvm::Value* v1, Operator op, llvm::Value* v2)
     {
-        llvm::IRBuilder<> builder(the_bb);
         switch(op)
         {
             case Operator::MUL:
-                return builder.CreateFMul(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, v1, v2, "fmul", the_entry);
             case Operator::DIV:
-                return builder.CreateFDiv(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, v1, v2, "fdiv", the_entry);
             case Operator::ADD:
-                return builder.CreateFAdd(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, v1, v2, "fadd", the_entry);
             case Operator::SUB:
-                return builder.CreateFSub(v1, v2);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, v1, v2, "fsub", the_entry);
             case Operator::SHL:
             case Operator::SHR:
             case Operator::EQ:
-                return builder.CreateFCmpUEQ(v1, v2);
             case Operator::NE:
-                return builder.CreateFCmpUNE(v1, v2);
             case Operator::LT:
-                return builder.CreateFCmpULT(v1, v2);
             case Operator::GT:
-                return builder.CreateFCmpUGT(v1, v2);
             case Operator::LE:
-                return builder.CreateFCmpULE(v1, v2);
             case Operator::GE:
-                return builder.CreateFCmpUGE(v1, v2);
             case Operator::AND:
             case Operator::OR:
             case Operator::XOR:
@@ -352,9 +296,9 @@ private:
             .end();
     }
 private:
+    llvm::Function* the_main;
+    llvm::BasicBlock* the_entry;
     llvm::LLVMContext the_context;
     std::unique_ptr<llvm::Module> the_module;
-    llvm::Function* the_func;
-    llvm::BasicBlock* the_bb;
     core::List<llvm::AllocaInst*> var_list;
 };

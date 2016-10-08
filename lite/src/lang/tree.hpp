@@ -162,7 +162,7 @@ public:
 
         auto size = ind.size();
         auto shift = size / 4;
-        if(size % 4 || shift > the_context.size() - 1)
+        if(size % 4 || (shift > the_context.size() - 1))
         {
             throw SyntaxException();
         }
