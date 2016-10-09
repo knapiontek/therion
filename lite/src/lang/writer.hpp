@@ -8,7 +8,7 @@ public:
         writer.execute_tree(tree);
     }
 private:
-    Writer() : var_list(0xA)
+    Writer() : the_var_list(0xA)
     {
         llvm::InitializeNativeTarget();
     }
@@ -19,29 +19,29 @@ private:
     void execute_tree(Tree& tree)
     {
         // initialize
-        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+        auto module = llvm::make_unique<llvm::Module>("test", the_context);
         auto type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
-        auto function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        auto function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", module.get());
         the_entry = llvm::BasicBlock::Create(the_context, "entry", function);
 
         // build body of main function
         for(auto& it : tree.var_list())
         {
             auto value = execute(it.value());
-            var_list.append(value);
+            the_var_list.append(value);
         }
 
         // create function return
-        auto var = var_list[var_list.size() - 1];
+        auto var = the_var_list[the_var_list.size() - 1];
         auto var_load = new llvm::LoadInst(var, var->getName(), false, the_entry);
         llvm::ReturnInst::Create(the_context, var_load, the_entry);
 
         // print and verify module
-        llvm::outs() << "LLVM module:\n" << *the_module;
-        llvm::verifyModule(*the_module, &llvm::outs());
+        llvm::outs() << "LLVM module:\n" << *module;
+        llvm::verifyModule(*module, &llvm::outs());
 
         // call generated main function
-        auto engine = llvm::EngineBuilder(std::move(the_module)).create();
+        auto engine = llvm::EngineBuilder(std::move(module)).create();
         auto ret = engine->runFunction(function, {});
         auto result = ret.IntVal.getSExtValue();
         delete engine;
@@ -131,7 +131,7 @@ private:
     }
     llvm::Value* execute(IdLocation& loc)
     {
-        for(auto it : var_list)
+        for(auto it : the_var_list)
         {
             auto value = it.value();
             auto name = value->getName().data();
@@ -282,7 +282,6 @@ private:
     }
 private:
     llvm::BasicBlock* the_entry;
-    std::unique_ptr<llvm::Module> the_module;
     llvm::LLVMContext the_context;
-    core::List<llvm::AllocaInst*> var_list;
+    core::List<llvm::AllocaInst*> the_var_list;
 };
