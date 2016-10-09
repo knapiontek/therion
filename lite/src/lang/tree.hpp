@@ -30,7 +30,8 @@ class SyntaxException
 enum struct Operator
 {
     MUL, DIV, ADD, SUB,
-    SHL, SHR, EQ, NE, LT, GT, LE, GE,
+    SHL, SHR,
+    EQ, NE, LT, GT, LE, GE,
     AND, OR, XOR, MOD, NOT
 };
 
@@ -77,20 +78,20 @@ struct IdLocation : Location
 struct SeqLocation : Location
 {
     Token id;
-    Expression::share filter;
+    Expression::share select;
 };
 
 struct NestedLocation : Location
 {
-    Location::share nest;
+    Location::share loc;
     Token id;
 };
 
 struct NestedSeqLocation : Location
 {
-    Location::share nest;
+    Location::share loc;
     Token id;
-    Expression::share filter;
+    Expression::share select;
 };
 
 // expression
@@ -107,29 +108,29 @@ struct LocationExpression : Expression
 
 struct FinalNestedExpression : Expression
 {
-    Expression::share nest;
+    Expression::share exp;
     Operator op;
     Final final;
 };
 
 struct LocationNestedExpression : Expression
 {
-    Expression::share nest;
+    Expression::share exp;
     Operator op;
     Location::share loc;
 };
 
 struct NestedExpression : Expression
 {
-    Expression::share nest1;
+    Expression::share exp1;
     Operator op;
-    Expression::share nest2;
+    Expression::share exp2;
 };
 
 struct SimpleVar : Var
 {
     Token id;
-    Expression::share expression;
+    Expression::share exp;
 };
 
 struct ExtendedVar : Var
@@ -154,13 +155,13 @@ public:
     {
         return the_var.var_list;
     }
-    void var(Token& ind, Token& id, Expression& exp)
+    void var(Token& indent, Token& id, Expression& exp)
     {
         auto& var = pager.acquire<SimpleVar>();
         var.id = id;
-        var.expression = exp;
+        var.exp = exp;
 
-        auto size = ind.size();
+        auto size = indent.size();
         auto shift = size / 4;
         if(size % 4 || (shift > the_context.size() - 1))
         {
@@ -192,15 +193,15 @@ public:
     Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
     {
         auto& exp = pager.acquire<NestedExpression>();
-        exp.nest1 = exp1;
+        exp.exp1 = exp1;
         exp.op = op;
-        exp.nest2 = exp2;
+        exp.exp2 = exp2;
         return ret<Expression>(exp);
     }
     Ret<Expression> exp(Expression& exp1, Operator op, Location& loc)
     {
         auto& exp = pager.acquire<LocationNestedExpression>();
-        exp.nest = exp1;
+        exp.exp = exp1;
         exp.op = op;
         exp.loc = loc;
         return ret<Expression>(exp);
@@ -208,7 +209,7 @@ public:
     Ret<Expression> exp(Expression& exp1, Operator op, Final& final)
     {
         auto& exp = pager.acquire<FinalNestedExpression>();
-        exp.nest = exp1;
+        exp.exp = exp1;
         exp.op = op;
         exp.final = final;
         return ret<Expression>(exp);
@@ -232,15 +233,15 @@ public:
     Ret<Location> loc(Location& loc1, Token& id, Expression& exp)
     {
         auto& loc = pager.acquire<NestedSeqLocation>();
-        loc.nest = loc1;
+        loc.loc = loc1;
         loc.id = id;
-        loc.filter = exp;
+        loc.select = exp;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
         auto& loc = pager.acquire<NestedLocation>();
-        loc.nest = loc1;
+        loc.loc = loc1;
         loc.id = id;
         return ret<Location>(loc);
     }
@@ -248,7 +249,7 @@ public:
     {
         auto& loc = pager.acquire<SeqLocation>();
         loc.id = id;
-        loc.filter = exp;
+        loc.select = exp;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Token& id)

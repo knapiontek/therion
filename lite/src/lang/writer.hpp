@@ -60,7 +60,7 @@ private:
     }
     llvm::AllocaInst* execute(SimpleVar& var)
     {
-        auto value = execute(var.expression);
+        auto value = execute(var.exp);
         auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_entry);
         new llvm::StoreInst(value, alloca, false, the_entry);
         return alloca;
@@ -99,21 +99,21 @@ private:
     }
     llvm::Value* execute(FinalNestedExpression& exp)
     {
-        auto nest = execute(exp.nest);
+        auto nest = execute(exp.exp);
         auto final = execute(exp.final);
         return execute(nest, exp.op, final);
     }
     llvm::Value* execute(LocationNestedExpression& exp)
     {
-        auto nest = execute(exp.nest);
-        auto loc = execute(exp.loc);
-        return execute(nest, exp.op, loc);
+        auto exp_val = execute(exp.exp);
+        auto loc_val = execute(exp.loc);
+        return execute(exp_val, exp.op, loc_val);
     }
     llvm::Value* execute(NestedExpression& exp)
     {
-        auto v1 = execute(exp.nest1);
-        auto v2 = execute(exp.nest2);
-        return execute(v1, exp.op, v2);
+        auto val1 = execute(exp.exp1);
+        auto val2 = execute(exp.exp2);
+        return execute(val1, exp.op, val2);
     }
     llvm::Value* execute(Location& loc)
     {
@@ -176,30 +176,30 @@ private:
                 return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_context), final.value.to_float64());
         }
     }
-    llvm::Value* execute(llvm::Value* v1, Operator op, llvm::Value* v2)
+    llvm::Value* execute(llvm::Value* val1, Operator op, llvm::Value* val2)
     {
-        auto t1 = v1->getType();
-        auto t2 = v2->getType();
+        auto type1 = val1->getType();
+        auto type2 = val2->getType();
 
-        if(t1->isFloatingPointTy() || t2->isFloatingPointTy())
+        if(type1->isFloatingPointTy() || type2->isFloatingPointTy())
         {
-            if(t1->isIntegerTy())
-                v1 = new llvm::SIToFPInst(v1, t2, "sitofp", the_entry);
-            else if(t2->isIntegerTy())
-                v2 = new llvm::SIToFPInst(v2, t1, "sitofp", the_entry);
-            else if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
-                v2 = new llvm::FPExtInst(v2, t1, "fpext", the_entry);
-            else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
-                v1 = new llvm::FPExtInst(v1, t2, "fpext", the_entry);
-            return execute_float(v1, op, v2);
+            if(type1->isIntegerTy())
+                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", the_entry);
+            else if(type2->isIntegerTy())
+                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", the_entry);
+            else if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
+                val2 = new llvm::FPExtInst(val2, type1, "fpext", the_entry);
+            else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
+                val1 = new llvm::FPExtInst(val1, type2, "fpext", the_entry);
+            return execute_float(val1, op, val2);
         }
-        else if(t1->isIntegerTy() && t2->isIntegerTy())
+        else if(type1->isIntegerTy() && type2->isIntegerTy())
         {
-            if(t1->getPrimitiveSizeInBits() > t2->getPrimitiveSizeInBits())
-                v2 = new llvm::SExtInst(v2, t1, "sext", the_entry);
-            else if(t2->getPrimitiveSizeInBits() > t1->getPrimitiveSizeInBits())
-                v1 = new llvm::SExtInst(v1, t2, "sext", the_entry);
-            return execute_int(v1, op, v2);
+            if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
+                val2 = new llvm::SExtInst(val2, type1, "sext", the_entry);
+            else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
+                val1 = new llvm::SExtInst(val1, type2, "sext", the_entry);
+            return execute_int(val1, op, val2);
         }
         else
         {
@@ -208,22 +208,22 @@ private:
 
         return 0;
     }
-    llvm::Value* execute_int(llvm::Value* v1, Operator op, llvm::Value* v2)
+    llvm::Value* execute_int(llvm::Value* val1, Operator op, llvm::Value* val2)
     {
         switch(op)
         {
             case Operator::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, v1, v2, "mul", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_entry);
             case Operator::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::UDiv, v1, v2, "udiv", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::UDiv, val1, val2, "udiv", the_entry);
             case Operator::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Add, v1, v2, "add", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_entry);
             case Operator::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, v1, v2, "sub", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", the_entry);
             case Operator::SHL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, v1, v2, "shl", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_entry);
             case Operator::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::LShr, v1, v2, "lshr", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::LShr, val1, val2, "lshr", the_entry);
             case Operator::EQ:
             case Operator::NE:
             case Operator::LT:
@@ -231,11 +231,11 @@ private:
             case Operator::LE:
             case Operator::GE:
             case Operator::AND:
-                return llvm::BinaryOperator::Create(llvm::Instruction::And, v1, v2, "and", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_entry);
             case Operator::OR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Or, v1, v2, "or", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", the_entry);
             case Operator::XOR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, v1, v2, "xor", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_entry);
             case Operator::MOD:
             case Operator::NOT:
             default:
@@ -243,18 +243,18 @@ private:
         }
         return 0;
     }
-    llvm::Value* execute_float(llvm::Value* v1, Operator op, llvm::Value* v2)
+    llvm::Value* execute_float(llvm::Value* val1, Operator op, llvm::Value* val2)
     {
         switch(op)
         {
             case Operator::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, v1, v2, "fmul", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", the_entry);
             case Operator::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, v1, v2, "fdiv", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", the_entry);
             case Operator::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, v1, v2, "fadd", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_entry);
             case Operator::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, v1, v2, "fsub", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_entry);
             case Operator::SHL:
             case Operator::SHR:
             case Operator::EQ:
