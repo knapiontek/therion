@@ -117,24 +117,24 @@ for(p: people.match('John' = e.name))
 
 person: {name: 'John',
          last-name: 'Smith',
-		 data-of-brith: date {1974, 1, 1}}
+         data-of-brith: date {1974, 1, 1}}
 
 john: person {name: 'John',
               last-name: 'Smith',
-		      data-of-brith: date {1974, 1, 1}}
+              data-of-brith: date {1974, 1, 1}}
 
 person(name: 'John',
        last-name: 'Smith',
-	   data-of-brith: date(1974, 1, 1))
+       data-of-brith: date(1974, 1, 1))
 
 john: person
 john: person()
 john: person {}
 
 person:
-	name: 'John'
+    name: 'John'
     last-name: 'Smith'
     data-of-brith: date
-		year: 1974
-		month: 1
-		day: 1
+        year: 1974
+        month: 1
+        day: 1
