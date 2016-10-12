@@ -35,21 +35,21 @@ final(f) ::= INT64(v). { f = tree->final(v, Type::INT64); }
 final(f) ::= FLOAT32(v). { f = tree->final(v, Type::FLOAT32); }
 final(f) ::= FLOAT64(v). { f = tree->final(v, Type::FLOAT64); }
 
-%type op { Operator }
-op(o) ::= MUL. { o = Operator::MUL; }
-op(o) ::= DIV. { o = Operator::DIV; }
-op(o) ::= MOD. { o = Operator::MOD; }
-op(o) ::= ADD. { o = Operator::ADD; }
-op(o) ::= SUB. { o = Operator::SUB; }
-op(o) ::= SHL. { o = Operator::SHL; }
-op(o) ::= SHR. { o = Operator::SHR; }
-op(o) ::= EQ. { o = Operator::EQ; }
-op(o) ::= NE. { o = Operator::NE; }
-op(o) ::= LE. { o = Operator::LE; }
-op(o) ::= LT. { o = Operator::LT; }
-op(o) ::= GE. { o = Operator::GE; }
-op(o) ::= GT. { o = Operator::GT; }
-op(o) ::= AND. { o = Operator::AND; }
-op(o) ::= OR. { o = Operator::OR; }
-op(o) ::= XOR. { o = Operator::XOR; }
-op(o) ::= NOT. { o = Operator::NOT; }
+%type op { BinaryOp }
+op(o) ::= MUL. { o = BinaryOp::MUL; }
+op(o) ::= DIV. { o = BinaryOp::DIV; }
+op(o) ::= MOD. { o = BinaryOp::MOD; }
+op(o) ::= ADD. { o = BinaryOp::ADD; }
+op(o) ::= SUB. { o = BinaryOp::SUB; }
+op(o) ::= SHL. { o = BinaryOp::SHL; }
+op(o) ::= SHR. { o = BinaryOp::SHR; }
+op(o) ::= EQ. { o = BinaryOp::EQ; }
+op(o) ::= NE. { o = BinaryOp::NE; }
+op(o) ::= LE. { o = BinaryOp::LE; }
+op(o) ::= LT. { o = BinaryOp::LT; }
+op(o) ::= GE. { o = BinaryOp::GE; }
+op(o) ::= GT. { o = BinaryOp::GT; }
+op(o) ::= AND. { o = BinaryOp::AND; }
+op(o) ::= OR. { o = BinaryOp::OR; }
+op(o) ::= XOR. { o = BinaryOp::XOR; }
+op(o) ::= NOT. { o = BinaryOp::NOT; }

@@ -27,7 +27,7 @@ class SyntaxException
 
 // basic types
 
-enum struct Operator
+enum struct BinaryOp
 {
     MUL, DIV, ADD, SUB,
     SHL, SHR,
@@ -81,13 +81,13 @@ struct SeqLocation : Location
     Expression::share select;
 };
 
-struct NestedLocation : Location
+struct NestLocation : Location
 {
     Location::share loc;
     Token id;
 };
 
-struct NestedSeqLocation : Location
+struct NestSeqLocation : Location
 {
     Location::share loc;
     Token id;
@@ -106,24 +106,24 @@ struct LocationExpression : Expression
     Location::share loc;
 };
 
-struct FinalNestedExpression : Expression
+struct NestFinalExpression : Expression
 {
     Expression::share exp;
-    Operator op;
+    BinaryOp op;
     Final final;
 };
 
-struct LocationNestedExpression : Expression
+struct NestLocationExpression : Expression
 {
     Expression::share exp;
-    Operator op;
+    BinaryOp op;
     Location::share loc;
 };
 
-struct NestedExpression : Expression
+struct NestExpression : Expression
 {
     Expression::share exp1;
-    Operator op;
+    BinaryOp op;
     Expression::share exp2;
 };
 
@@ -190,25 +190,25 @@ public:
         the_context.size(shift + 2);
         the_context[shift + 1] = var;
     }
-    Ret<Expression> exp(Expression& exp1, Operator op, Expression& exp2)
+    Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
-        auto& exp = pager.acquire<NestedExpression>();
+        auto& exp = pager.acquire<NestExpression>();
         exp.exp1 = exp1;
         exp.op = op;
         exp.exp2 = exp2;
         return ret<Expression>(exp);
     }
-    Ret<Expression> exp(Expression& exp1, Operator op, Location& loc)
+    Ret<Expression> exp(Expression& exp1, BinaryOp op, Location& loc)
     {
-        auto& exp = pager.acquire<LocationNestedExpression>();
+        auto& exp = pager.acquire<NestLocationExpression>();
         exp.exp = exp1;
         exp.op = op;
         exp.loc = loc;
         return ret<Expression>(exp);
     }
-    Ret<Expression> exp(Expression& exp1, Operator op, Final& final)
+    Ret<Expression> exp(Expression& exp1, BinaryOp op, Final& final)
     {
-        auto& exp = pager.acquire<FinalNestedExpression>();
+        auto& exp = pager.acquire<NestFinalExpression>();
         exp.exp = exp1;
         exp.op = op;
         exp.final = final;
@@ -232,7 +232,7 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<NestedSeqLocation>();
+        auto& loc = pager.acquire<NestSeqLocation>();
         loc.loc = loc1;
         loc.id = id;
         loc.select = exp;
@@ -240,7 +240,7 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& loc = pager.acquire<NestedLocation>();
+        auto& loc = pager.acquire<NestLocation>();
         loc.loc = loc1;
         loc.id = id;
         return ret<Location>(loc);

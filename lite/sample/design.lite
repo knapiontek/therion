@@ -98,7 +98,7 @@ person:
     name: unicode
     match(iterable: iterable(person))
         for(it: iterable)
-            if(that == it.value())
+            if(that = it.value())
                 return true
         return false
 

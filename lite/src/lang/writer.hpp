@@ -79,12 +79,12 @@ private:
             return execute(core::down_cast<FinalExpression>(exp));
         else if(core::type_of<LocationExpression>(exp))
             return execute(core::down_cast<LocationExpression>(exp));
-        else if(core::type_of<FinalNestedExpression>(exp))
-            return execute(core::down_cast<FinalNestedExpression>(exp));
-        else if(core::type_of<LocationNestedExpression>(exp))
-            return execute(core::down_cast<LocationNestedExpression>(exp));
-        else if(core::type_of<NestedExpression>(exp))
-            return execute(core::down_cast<NestedExpression>(exp));
+        else if(core::type_of<NestFinalExpression>(exp))
+            return execute(core::down_cast<NestFinalExpression>(exp));
+        else if(core::type_of<NestLocationExpression>(exp))
+            return execute(core::down_cast<NestLocationExpression>(exp));
+        else if(core::type_of<NestExpression>(exp))
+            return execute(core::down_cast<NestExpression>(exp));
         else
             throw_bad_class(exp);
         return 0;
@@ -97,19 +97,19 @@ private:
     {
         return execute(exp.loc);
     }
-    llvm::Value* execute(FinalNestedExpression& exp)
+    llvm::Value* execute(NestFinalExpression& exp)
     {
-        auto nest = execute(exp.exp);
-        auto final = execute(exp.final);
-        return execute(nest, exp.op, final);
+        auto exp_val = execute(exp.exp);
+        auto final_val = execute(exp.final);
+        return execute(exp_val, exp.op, final_val);
     }
-    llvm::Value* execute(LocationNestedExpression& exp)
+    llvm::Value* execute(NestLocationExpression& exp)
     {
         auto exp_val = execute(exp.exp);
         auto loc_val = execute(exp.loc);
         return execute(exp_val, exp.op, loc_val);
     }
-    llvm::Value* execute(NestedExpression& exp)
+    llvm::Value* execute(NestExpression& exp)
     {
         auto val1 = execute(exp.exp1);
         auto val2 = execute(exp.exp2);
@@ -121,10 +121,10 @@ private:
             return execute(core::down_cast<IdLocation>(loc));
         else if(core::type_of<SeqLocation>(loc))
             return execute(core::down_cast<SeqLocation>(loc));
-        else if(core::type_of<NestedLocation>(loc))
-            return execute(core::down_cast<NestedLocation>(loc));
-        else if(core::type_of<NestedSeqLocation>(loc))
-            return execute(core::down_cast<NestedSeqLocation>(loc));
+        else if(core::type_of<NestLocation>(loc))
+            return execute(core::down_cast<NestLocation>(loc));
+        else if(core::type_of<NestSeqLocation>(loc))
+            return execute(core::down_cast<NestSeqLocation>(loc));
         else
             throw_bad_class(loc);
         return 0;
@@ -148,12 +148,12 @@ private:
         core::verify(false);
         return 0;
     }
-    llvm::Value* execute(NestedLocation& loc)
+    llvm::Value* execute(NestLocation& loc)
     {
         core::verify(false);
         return 0;
     }
-    llvm::Value* execute(NestedSeqLocation& loc)
+    llvm::Value* execute(NestSeqLocation& loc)
     {
         core::verify(false);
         return 0;
@@ -176,7 +176,7 @@ private:
                 return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_context), final.value.to_float64());
         }
     }
-    llvm::Value* execute(llvm::Value* val1, Operator op, llvm::Value* val2)
+    llvm::Value* execute(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
     {
         auto type1 = val1->getType();
         auto type2 = val2->getType();
@@ -208,66 +208,66 @@ private:
 
         return 0;
     }
-    llvm::Value* execute_int(llvm::Value* val1, Operator op, llvm::Value* val2)
+    llvm::Value* execute_int(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
     {
         switch(op)
         {
-            case Operator::MUL:
+            case BinaryOp::MUL:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_entry);
-            case Operator::DIV:
+            case BinaryOp::DIV:
                 return llvm::BinaryOperator::Create(llvm::Instruction::UDiv, val1, val2, "udiv", the_entry);
-            case Operator::ADD:
+            case BinaryOp::ADD:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_entry);
-            case Operator::SUB:
+            case BinaryOp::SUB:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", the_entry);
-            case Operator::SHL:
+            case BinaryOp::SHL:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_entry);
-            case Operator::SHR:
+            case BinaryOp::SHR:
                 return llvm::BinaryOperator::Create(llvm::Instruction::LShr, val1, val2, "lshr", the_entry);
-            case Operator::EQ:
-            case Operator::NE:
-            case Operator::LT:
-            case Operator::GT:
-            case Operator::LE:
-            case Operator::GE:
-            case Operator::AND:
+            case BinaryOp::EQ:
+            case BinaryOp::NE:
+            case BinaryOp::LT:
+            case BinaryOp::GT:
+            case BinaryOp::LE:
+            case BinaryOp::GE:
+            case BinaryOp::AND:
                 return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_entry);
-            case Operator::OR:
+            case BinaryOp::OR:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", the_entry);
-            case Operator::XOR:
+            case BinaryOp::XOR:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_entry);
-            case Operator::MOD:
-            case Operator::NOT:
+            case BinaryOp::MOD:
+            case BinaryOp::NOT:
             default:
                 env::Throw::raise("Unknown binary int operator");
         }
         return 0;
     }
-    llvm::Value* execute_float(llvm::Value* val1, Operator op, llvm::Value* val2)
+    llvm::Value* execute_float(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
     {
         switch(op)
         {
-            case Operator::MUL:
+            case BinaryOp::MUL:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", the_entry);
-            case Operator::DIV:
+            case BinaryOp::DIV:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", the_entry);
-            case Operator::ADD:
+            case BinaryOp::ADD:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_entry);
-            case Operator::SUB:
+            case BinaryOp::SUB:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_entry);
-            case Operator::SHL:
-            case Operator::SHR:
-            case Operator::EQ:
-            case Operator::NE:
-            case Operator::LT:
-            case Operator::GT:
-            case Operator::LE:
-            case Operator::GE:
-            case Operator::AND:
-            case Operator::OR:
-            case Operator::XOR:
-            case Operator::MOD:
-            case Operator::NOT:
+            case BinaryOp::SHL:
+            case BinaryOp::SHR:
+            case BinaryOp::EQ:
+            case BinaryOp::NE:
+            case BinaryOp::LT:
+            case BinaryOp::GT:
+            case BinaryOp::LE:
+            case BinaryOp::GE:
+            case BinaryOp::AND:
+            case BinaryOp::OR:
+            case BinaryOp::XOR:
+            case BinaryOp::MOD:
+            case BinaryOp::NOT:
             default:
                 env::Throw::raise("Unknown binary float operator");
         }
