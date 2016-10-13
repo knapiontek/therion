@@ -19,10 +19,18 @@ private:
     void execute_tree(Tree& tree)
     {
         // initialize
-        auto module = llvm::make_unique<llvm::Module>("test", the_context);
-        auto type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
-        auto function = llvm::Function::Create(type, llvm::GlobalValue::ExternalLinkage, "main", module.get());
-        the_entry = llvm::BasicBlock::Create(the_context, "entry", function);
+        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+
+        // main
+        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
+        auto main = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        the_entry = llvm::BasicBlock::Create(the_context, "entry", main);
+
+        // malloc
+        auto malloc_result = llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0);
+        llvm::Type* malloc_args[] = { llvm::Type::getInt64Ty(the_context) };
+        auto malloc_type = llvm::FunctionType::get(malloc_result, malloc_args, false);
+        llvm::Function::Create(malloc_type, llvm::GlobalValue::ExternalLinkage, "malloc", the_module.get());
 
         // build body of main function
         for(auto& it : tree.var_list())
@@ -37,12 +45,12 @@ private:
         llvm::ReturnInst::Create(the_context, var_load, the_entry);
 
         // print and verify module
-        llvm::outs() << "LLVM module:\n" << *module;
-        llvm::verifyModule(*module, &llvm::outs());
+        llvm::outs() << "LLVM module:\n" << *the_module;
+        llvm::verifyModule(*the_module, &llvm::outs());
 
         // call generated main function
-        auto engine = llvm::EngineBuilder(std::move(module)).create();
-        auto ret = engine->runFunction(function, {});
+        auto engine = llvm::EngineBuilder(std::move(the_module)).create();
+        auto ret = engine->runFunction(main, {});
         auto result = ret.IntVal.getSExtValue();
         delete engine;
 
@@ -69,9 +77,36 @@ private:
     {
         core::verify(var.var.type_of<SimpleVar>());
         auto& simple = var.var.down_cast<SimpleVar>();
-        auto struct_type = llvm::StructType::create(the_context, simple.id.ascii());
-        (void)struct_type;
-        return execute(var.var);
+
+        // create struct
+        auto struct_name = core::Format("$1_struct").arg(simple.id).end();
+        auto struct_type = llvm::StructType::create(the_context, struct_name.ascii());
+        std::vector<llvm::Type*> fields;
+        for(auto& it : var.var_list)
+        {
+            auto field = it.value();
+            core::verify(field.type_of<SimpleVar>());
+            auto& simple = field.down_cast<SimpleVar>();
+            auto field_exp = execute(simple.exp);
+            fields.push_back(field_exp->getType());
+        }
+        struct_type->setBody(fields, false);
+
+        // alloca struct pointer
+        auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
+        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, simple.id.ascii(), the_entry);
+
+        // call malloc
+        auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
+        auto struct_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), struct_size);
+        auto malloc = the_module->getFunction("malloc");
+        auto call_malloc = llvm::CallInst::Create(malloc, struct_size_const, "", the_entry);
+
+        // store result
+        auto cast = new llvm::BitCastInst(call_malloc, struct_ptr_type, "", the_entry);
+        new llvm::StoreInst(cast, struct_ptr, false, the_entry);
+
+        return struct_ptr;
     }
     llvm::Value* execute(Expression& exp)
     {
@@ -283,5 +318,6 @@ private:
 private:
     llvm::BasicBlock* the_entry;
     llvm::LLVMContext the_context;
+    std::unique_ptr<llvm::Module> the_module;
     core::List<llvm::AllocaInst*> the_var_list;
 };

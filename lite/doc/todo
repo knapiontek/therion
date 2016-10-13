@@ -11,3 +11,6 @@ test const char* for string append, prepend, arg, format etc
 add full support for int128 and float128 when supported
 do {} while check consistency
 lang::reader more testing
+
+bugs:
+3f32 is recognized as int64
