@@ -44,7 +44,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -58,7 +58,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -72,7 +72,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -86,7 +86,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -155,7 +155,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -176,7 +176,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
@@ -200,7 +200,7 @@ public:
             *--data = fixed % 10 + '0';
         }
         while(fixed /= 10);
-        if(std::signbit(arg))
+        if(arg < 0)
             *--data = '-';
         size = end - data;
     }
