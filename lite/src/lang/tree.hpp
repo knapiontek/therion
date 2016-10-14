@@ -27,12 +27,17 @@ class SyntaxException
 
 // basic types
 
+enum struct UnaryOp
+{
+    NOT, NEG, INC, DEC
+};
+
 enum struct BinaryOp
 {
     MUL, DIV, ADD, SUB,
     SHL, SHR,
     EQ, NE, LT, GT, LE, GE,
-    AND, OR, XOR, MOD, NOT
+    AND, OR, XOR, MOD
 };
 
 enum struct Type
@@ -81,7 +86,7 @@ struct SeqLocation : Location
     Expression::share select;
 };
 
-struct NestLocation : Location
+struct NestIdLocation : Location
 {
     Location::share loc;
     Token id;
@@ -240,7 +245,7 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& loc = pager.acquire<NestLocation>();
+        auto& loc = pager.acquire<NestIdLocation>();
         loc.loc = loc1;
         loc.id = id;
         return ret<Location>(loc);

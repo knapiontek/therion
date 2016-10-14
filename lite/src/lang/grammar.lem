@@ -8,7 +8,7 @@ input ::= var_list.
 
 var_list ::= var_list var.
 var_list ::= var.
-var_list ::= LP RP THIS THAT IN OUT IF FOR REPEAT UNTIL ANY NONE.
+var_list ::= NOT NEG INC DEC LP RP THIS THAT IN OUT IF FOR REPEAT UNTIL ANY NONE.
 
 %type var { Ret<Var> }
 var ::= IND(n) ID(i) COLON exp(e). { tree->var(n, i, e); }
@@ -52,4 +52,3 @@ op(o) ::= GT. { o = BinaryOp::GT; }
 op(o) ::= AND. { o = BinaryOp::AND; }
 op(o) ::= OR. { o = BinaryOp::OR; }
 op(o) ::= XOR. { o = BinaryOp::XOR; }
-op(o) ::= NOT. { o = BinaryOp::NOT; }

@@ -156,8 +156,8 @@ private:
             return execute(core::down_cast<IdLocation>(loc));
         else if(core::type_of<SeqLocation>(loc))
             return execute(core::down_cast<SeqLocation>(loc));
-        else if(core::type_of<NestLocation>(loc))
-            return execute(core::down_cast<NestLocation>(loc));
+        else if(core::type_of<NestIdLocation>(loc))
+            return execute(core::down_cast<NestIdLocation>(loc));
         else if(core::type_of<NestSeqLocation>(loc))
             return execute(core::down_cast<NestSeqLocation>(loc));
         else
@@ -183,7 +183,7 @@ private:
         core::verify(false);
         return 0;
     }
-    llvm::Value* execute(NestLocation& loc)
+    llvm::Value* execute(NestIdLocation& loc)
     {
         core::verify(false);
         return 0;
@@ -272,7 +272,6 @@ private:
             case BinaryOp::XOR:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_entry);
             case BinaryOp::MOD:
-            case BinaryOp::NOT:
             default:
                 env::Throw::raise("Unknown binary int operator");
         }
@@ -302,7 +301,6 @@ private:
             case BinaryOp::OR:
             case BinaryOp::XOR:
             case BinaryOp::MOD:
-            case BinaryOp::NOT:
             default:
                 env::Throw::raise("Unknown binary float operator");
         }
