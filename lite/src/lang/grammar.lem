@@ -15,7 +15,7 @@ var ::= IND(n) ID(i) COLON exp(e). { tree->var(n, i, e); }
 
 %type exp { Ret<Expression> }
 exp(e) ::= exp(e1) op(o) LB exp(e2) RB. { e = tree->exp(e1, o, e2); }
-exp(e) ::= LB exp(e1) RB. { e = tree->exp(e1); }
+exp(e) ::= LB exp(e1) RB. { e = e1; }
 exp(e) ::= exp(e1) op(o) loc(l). { e = tree->exp(e1, o, l); }
 exp(e) ::= exp(e1) op(o) final(f). { e = tree->exp(e1, o, f); }
 exp(e) ::= loc(l). { e = tree->exp(l); }

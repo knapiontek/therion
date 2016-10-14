@@ -58,43 +58,43 @@ private:
     }
     llvm::AllocaInst* execute(Var& var)
     {
-        if(core::type_of<SimpleVar>(var))
-            return execute(core::down_cast<SimpleVar>(var));
-        else if(core::type_of<ExtendedVar>(var))
-            return execute(core::down_cast<ExtendedVar>(var));
+        if(core::type_of<SingleVar>(var))
+            return execute(core::down_cast<SingleVar>(var));
+        else if(core::type_of<CompositeVar>(var))
+            return execute(core::down_cast<CompositeVar>(var));
         else
             throw_bad_class(var);
         return 0;
     }
-    llvm::AllocaInst* execute(SimpleVar& var)
+    llvm::AllocaInst* execute(SingleVar& var)
     {
         auto value = execute(var.exp);
         auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_entry);
         new llvm::StoreInst(value, alloca, false, the_entry);
         return alloca;
     }
-    llvm::AllocaInst* execute(ExtendedVar& var)
+    llvm::AllocaInst* execute(CompositeVar& var)
     {
-        core::verify(var.var.type_of<SimpleVar>());
-        auto& simple = var.var.down_cast<SimpleVar>();
+        core::verify(var.var.type_of<SingleVar>());
+        auto& single = var.var.down_cast<SingleVar>();
 
         // create struct
-        auto struct_name = core::Format("$1_struct").arg(simple.id).end();
+        auto struct_name = core::Format("$1_struct").arg(single.id).end();
         auto struct_type = llvm::StructType::create(the_context, struct_name.ascii());
         std::vector<llvm::Type*> fields;
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            core::verify(field.type_of<SimpleVar>());
-            auto& simple = field.down_cast<SimpleVar>();
-            auto field_exp = execute(simple.exp);
+            core::verify(field.type_of<SingleVar>());
+            auto& single = field.down_cast<SingleVar>();
+            auto field_exp = execute(single.exp);
             fields.push_back(field_exp->getType());
         }
         struct_type->setBody(fields, false);
 
         // alloca struct pointer
         auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
-        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, simple.id.ascii(), the_entry);
+        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, single.id.ascii(), the_entry);
 
         // call malloc
         auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
@@ -154,12 +154,12 @@ private:
     {
         if(core::type_of<IdLocation>(loc))
             return execute(core::down_cast<IdLocation>(loc));
-        else if(core::type_of<SeqLocation>(loc))
-            return execute(core::down_cast<SeqLocation>(loc));
+        else if(core::type_of<FilterLocation>(loc))
+            return execute(core::down_cast<FilterLocation>(loc));
         else if(core::type_of<NestIdLocation>(loc))
             return execute(core::down_cast<NestIdLocation>(loc));
-        else if(core::type_of<NestSeqLocation>(loc))
-            return execute(core::down_cast<NestSeqLocation>(loc));
+        else if(core::type_of<NestFilterLocation>(loc))
+            return execute(core::down_cast<NestFilterLocation>(loc));
         else
             throw_bad_class(loc);
         return 0;
@@ -178,7 +178,7 @@ private:
         env::Throw("Unknown variable: $1").arg(loc.id).end();
         return 0;
     }
-    llvm::Value* execute(SeqLocation& loc)
+    llvm::Value* execute(FilterLocation& loc)
     {
         core::verify(false);
         return 0;
@@ -188,7 +188,7 @@ private:
         core::verify(false);
         return 0;
     }
-    llvm::Value* execute(NestSeqLocation& loc)
+    llvm::Value* execute(NestFilterLocation& loc)
     {
         core::verify(false);
         return 0;

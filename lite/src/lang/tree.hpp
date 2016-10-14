@@ -80,10 +80,10 @@ struct IdLocation : Location
     Token id;
 };
 
-struct SeqLocation : Location
+struct FilterLocation : Location
 {
     Token id;
-    Expression::share select;
+    Expression::share exp;
 };
 
 struct NestIdLocation : Location
@@ -92,7 +92,7 @@ struct NestIdLocation : Location
     Token id;
 };
 
-struct NestSeqLocation : Location
+struct NestFilterLocation : Location
 {
     Location::share loc;
     Token id;
@@ -132,17 +132,17 @@ struct NestExpression : Expression
     Expression::share exp2;
 };
 
-struct SimpleVar : Var
+struct SingleVar : Var
 {
     Token id;
     Expression::share exp;
 };
 
-struct ExtendedVar : Var
+struct CompositeVar : Var
 {
-    ExtendedVar() : var_list(0x8) {}
+    CompositeVar() : var_list(0x8) {}
 
-    SimpleVar::share var;
+    SingleVar::share var;
     core::List<Var::share> var_list;
 };
 
@@ -162,7 +162,7 @@ public:
     }
     void var(Token& indent, Token& id, Expression& exp)
     {
-        auto& var = pager.acquire<SimpleVar>();
+        auto& var = pager.acquire<SingleVar>();
         var.id = id;
         var.exp = exp;
 
@@ -174,22 +174,22 @@ public:
         }
 
         auto parent = the_context[shift];
-        if(parent.type_of<SimpleVar>())
+        if(parent.type_of<SingleVar>())
         {
-            auto& extended = pager.acquire<ExtendedVar>();
-            extended.var = parent;
-            extended.var_list.append(var);
-            the_context[shift] = extended;
+            auto& composite = pager.acquire<CompositeVar>();
+            composite.var = parent;
+            composite.var_list.append(var);
+            the_context[shift] = composite;
 
-            auto& grand_parent = the_context[shift - 1].down_cast<ExtendedVar>();
+            auto& grand_parent = the_context[shift - 1].down_cast<CompositeVar>();
             auto tail = grand_parent.var_list.tail();
             if(tail.prev())
-                tail.value() = extended;
+                tail.value() = composite;
         }
-        else if(parent.type_of<ExtendedVar>())
+        else if(parent.type_of<CompositeVar>())
         {
-            auto& extended = parent.down_cast<ExtendedVar>();
-            extended.var_list.append(var);
+            auto& composite = parent.down_cast<CompositeVar>();
+            composite.var_list.append(var);
         }
 
         the_context.size(shift + 2);
@@ -231,13 +231,9 @@ public:
         exp.final = final;
         return ret<Expression>(exp);
     }
-    Ret<Expression> exp(Expression& exp)
-    {
-        return ret<Expression>(exp);
-    }
     Ret<Location> loc(Location& loc1, Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<NestSeqLocation>();
+        auto& loc = pager.acquire<NestFilterLocation>();
         loc.loc = loc1;
         loc.id = id;
         loc.select = exp;
@@ -252,9 +248,9 @@ public:
     }
     Ret<Location> loc(Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<SeqLocation>();
+        auto& loc = pager.acquire<FilterLocation>();
         loc.id = id;
-        loc.select = exp;
+        loc.exp = exp;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Token& id)
@@ -272,6 +268,6 @@ public:
     }
 private:
     core::Pager pager;
-    ExtendedVar the_var;
+    CompositeVar the_var;
     core::Seq<Var::share> the_context;
 };
