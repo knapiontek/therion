@@ -238,7 +238,10 @@ private:
         }
         else
         {
-            env::Throw::raise("Unknown type");
+            env::Throw("Cannot handle llvm::Type::TypeID's: [$1, $2]")
+                .arg(type1->getTypeID())
+                .arg(type2->getTypeID())
+                .end();
         }
 
         return 0;
@@ -250,7 +253,7 @@ private:
             case BinaryOp::MUL:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::UDiv, val1, val2, "udiv", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", the_entry);
             case BinaryOp::ADD:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_entry);
             case BinaryOp::SUB:
@@ -258,13 +261,19 @@ private:
             case BinaryOp::SHL:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_entry);
             case BinaryOp::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::LShr, val1, val2, "lshr", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", the_entry);
             case BinaryOp::EQ:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
             case BinaryOp::NE:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
             case BinaryOp::LT:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
             case BinaryOp::GT:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
             case BinaryOp::LE:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
             case BinaryOp::GE:
+                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
             case BinaryOp::AND:
                 return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_entry);
             case BinaryOp::OR:
@@ -272,8 +281,7 @@ private:
             case BinaryOp::XOR:
                 return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_entry);
             case BinaryOp::MOD:
-            default:
-                env::Throw::raise("Unknown binary int operator");
+                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", the_entry);
         }
         return 0;
     }
@@ -289,20 +297,25 @@ private:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_entry);
             case BinaryOp::SUB:
                 return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_entry);
+            case BinaryOp::EQ:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
+            case BinaryOp::NE:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
+            case BinaryOp::LT:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
+            case BinaryOp::GT:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
+            case BinaryOp::LE:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
+            case BinaryOp::GE:
+                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
             case BinaryOp::SHL:
             case BinaryOp::SHR:
-            case BinaryOp::EQ:
-            case BinaryOp::NE:
-            case BinaryOp::LT:
-            case BinaryOp::GT:
-            case BinaryOp::LE:
-            case BinaryOp::GE:
             case BinaryOp::AND:
             case BinaryOp::OR:
             case BinaryOp::XOR:
             case BinaryOp::MOD:
-            default:
-                env::Throw::raise("Unknown binary float operator");
+                env::Throw("BinaryOp $1 not supported for floating point").arg(int(op)).end();
         }
         return 0;
     }
