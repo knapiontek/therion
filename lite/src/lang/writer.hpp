@@ -315,7 +315,7 @@ private:
             case BinaryOp::OR:
             case BinaryOp::XOR:
             case BinaryOp::MOD:
-                env::Throw("BinaryOp $1 not supported for floating point").arg(int(op)).end();
+                env::Throw("Binary operator '$1' not supported for floating point").arg(binary_op_name(op)).end();
         }
         return 0;
     }

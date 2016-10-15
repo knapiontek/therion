@@ -40,6 +40,16 @@ enum struct BinaryOp
     AND, OR, XOR, MOD
 };
 
+inline const char* binary_op_name(BinaryOp op)
+{
+    static const char* names[] = { "*", "/", "+", "-",
+                                   "<<", ">>",
+                                   "=", "<>", "<", ">", "<=", ">=",
+                                   "&", "|", "^", "%" };
+    core::verify(op < BinaryOp(sizeof(names)/sizeof(*names)));
+    return names[core::int64(op)];
+}
+
 enum struct Type
 {
     INT8, INT16, INT32, INT64,
