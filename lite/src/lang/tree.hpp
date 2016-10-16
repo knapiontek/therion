@@ -106,7 +106,7 @@ struct NestFilterLocation : Location
 {
     Location::share loc;
     Token id;
-    Expression::share select;
+    Expression::share exp;
 };
 
 // expression
@@ -142,7 +142,12 @@ struct NestExpression : Expression
     Expression::share exp2;
 };
 
-struct SingleVar : Var
+struct IdVar : Var
+{
+    Token id;
+};
+
+struct AssignVar : Var
 {
     Token id;
     Expression::share exp;
@@ -152,7 +157,7 @@ struct CompositeVar : Var
 {
     CompositeVar() : var_list(0x8) {}
 
-    SingleVar::share var;
+    Var::share var;
     core::List<Var::share> var_list;
 };
 
@@ -172,38 +177,16 @@ public:
     }
     void var(Token& indent, Token& id, Expression& exp)
     {
-        auto& var = pager.acquire<SingleVar>();
+        auto& var = pager.acquire<AssignVar>();
         var.id = id;
         var.exp = exp;
-
-        auto size = indent.size();
-        auto shift = size / 4;
-        if(size % 4 || (shift > the_context.size() - 1))
-        {
-            throw SyntaxException();
-        }
-
-        auto parent = the_context[shift];
-        if(parent.type_of<SingleVar>())
-        {
-            auto& composite = pager.acquire<CompositeVar>();
-            composite.var = parent;
-            composite.var_list.append(var);
-            the_context[shift] = composite;
-
-            auto& grand_parent = the_context[shift - 1].down_cast<CompositeVar>();
-            auto tail = grand_parent.var_list.tail();
-            if(tail.prev())
-                tail.value() = composite;
-        }
-        else if(parent.type_of<CompositeVar>())
-        {
-            auto& composite = parent.down_cast<CompositeVar>();
-            composite.var_list.append(var);
-        }
-
-        the_context.size(shift + 2);
-        the_context[shift + 1] = var;
+        update_context(indent, var);
+    }
+    void var(Token& indent, Token& id)
+    {
+        auto& var = pager.acquire<IdVar>();
+        var.id = id;
+        update_context(indent, var);
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
@@ -246,7 +229,7 @@ public:
         auto& loc = pager.acquire<NestFilterLocation>();
         loc.loc = loc1;
         loc.id = id;
-        loc.select = exp;
+        loc.exp = exp;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Location& loc1, Token& id)
@@ -275,6 +258,38 @@ public:
         final.value = value;
         final.type = type;
         return ret<Final>(final);
+    }
+private:
+    void update_context(Token& indent, Var& var)
+    {
+        auto size = indent.size();
+        auto shift = size / 4;
+        if(size % 4 || (shift > the_context.size() - 1))
+        {
+            throw SyntaxException();
+        }
+
+        auto parent = the_context[shift];
+        if(parent.type_of<CompositeVar>())
+        {
+            auto& composite = parent.down_cast<CompositeVar>();
+            composite.var_list.append(var);
+        }
+        else
+        {
+            auto& composite = pager.acquire<CompositeVar>();
+            composite.var = parent;
+            composite.var_list.append(var);
+            the_context[shift] = composite;
+
+            auto& grand_parent = the_context[shift - 1].down_cast<CompositeVar>();
+            auto tail = grand_parent.var_list.tail();
+            if(tail.prev())
+                tail.value() = composite;
+        }
+
+        the_context.size(shift + 2);
+        the_context[shift + 1] = var;
     }
 private:
     core::Pager pager;

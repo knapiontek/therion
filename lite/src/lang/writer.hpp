@@ -58,15 +58,15 @@ private:
     }
     llvm::AllocaInst* execute(Var& var)
     {
-        if(core::type_of<SingleVar>(var))
-            return execute(core::down_cast<SingleVar>(var));
+        if(core::type_of<AssignVar>(var))
+            return execute(core::down_cast<AssignVar>(var));
         else if(core::type_of<CompositeVar>(var))
             return execute(core::down_cast<CompositeVar>(var));
         else
             throw_bad_class(var);
         return 0;
     }
-    llvm::AllocaInst* execute(SingleVar& var)
+    llvm::AllocaInst* execute(AssignVar& var)
     {
         auto value = execute(var.exp);
         auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_entry);
@@ -75,8 +75,8 @@ private:
     }
     llvm::AllocaInst* execute(CompositeVar& var)
     {
-        core::verify(var.var.type_of<SingleVar>());
-        auto& single = var.var.down_cast<SingleVar>();
+        core::verify(var.var.type_of<AssignVar>());
+        auto& single = var.var.down_cast<AssignVar>();
 
         // create struct
         auto struct_name = core::Format("$1_struct").arg(single.id).end();
@@ -85,8 +85,8 @@ private:
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            core::verify(field.type_of<SingleVar>());
-            auto& single = field.down_cast<SingleVar>();
+            core::verify(field.type_of<AssignVar>());
+            auto& single = field.down_cast<AssignVar>();
             auto field_exp = execute(single.exp);
             fields.push_back(field_exp->getType());
         }
@@ -171,9 +171,7 @@ private:
             auto value = it.value();
             auto name = value->getName().data();
             if(loc.id.equal(name))
-            {
                 return new llvm::LoadInst(value, name, false, the_entry);
-            }
         }
         env::Throw("Unknown variable: $1").arg(loc.id).end();
         return 0;
