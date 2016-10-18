@@ -40,12 +40,12 @@ enum struct BinaryOp
     AND, OR, XOR, MOD
 };
 
-inline const char* binary_op_name(BinaryOp op)
+inline core::String& binary_op_name(BinaryOp op)
 {
-    static const char* names[] = { "*", "/", "+", "-",
-                                   "<<", ">>",
-                                   "=", "<>", "<", ">", "<=", ">=",
-                                   "&", "|", "^", "%" };
+    static core::String names[] = { "*", "/", "+", "-",
+                                    "<<", ">>",
+                                    "=", "<>", "<", ">", "<=", ">=",
+                                    "&", "|", "^", "%" };
     core::verify(op < BinaryOp(sizeof(names)/sizeof(*names)));
     return names[core::int64(op)];
 }
@@ -168,12 +168,11 @@ class Tree
 public:
     Tree()
     {
-        the_context.size(1);
-        the_context[0] = the_var;
+        the_context.append(the_var);
     }
-    core::List<Var::share>& var_list()
+    CompositeVar& var()
     {
-        return the_var.var_list;
+        return the_var;
     }
     void var(Token& indent, Token& id, Expression& exp)
     {

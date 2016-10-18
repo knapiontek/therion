@@ -8,7 +8,7 @@ public:
         writer.execute_tree(tree);
     }
 private:
-    Writer() : the_var_list(0xA)
+    Writer()
     {
         llvm::InitializeNativeTarget();
     }
@@ -19,30 +19,31 @@ private:
     void execute_tree(Tree& tree)
     {
         // initialize
-        the_module = llvm::make_unique<llvm::Module>("test", the_context);
+        the_module = llvm::make_unique<llvm::Module>("TODO:XXXXXXfilenameXXXXXXX", the_context);
 
-        // main
-        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
-        auto main = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        the_entry = llvm::BasicBlock::Create(the_context, "entry", main);
-
-        // malloc
+        // declare malloc function
         auto malloc_result = llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0);
         llvm::Type* malloc_args[] = { llvm::Type::getInt64Ty(the_context) };
         auto malloc_type = llvm::FunctionType::get(malloc_result, malloc_args, false);
         llvm::Function::Create(malloc_type, llvm::GlobalValue::ExternalLinkage, "malloc", the_module.get());
 
-        // build body of main function
-        for(auto& it : tree.var_list())
-        {
-            auto value = execute(it.value());
-            the_var_list.append(value);
-        }
+        // declare free function
+        auto free_result = llvm::Type::getVoidTy(the_context);
+        llvm::Type* free_args[] = { llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0) };
+        auto free_type = llvm::FunctionType::get(free_result, free_args, false);
+        llvm::Function::Create(free_type, llvm::GlobalValue::ExternalLinkage, "free", the_module.get());
 
-        // create function return
-        auto var = the_var_list[the_var_list.size() - 1];
-        auto var_load = new llvm::LoadInst(var, var->getName(), false, the_entry);
-        llvm::ReturnInst::Create(the_context, var_load, the_entry);
+        // declare main function
+        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
+        auto main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        the_entry = llvm::BasicBlock::Create(the_context, "entry", main_func);
+
+        // build body of main function
+        //auto value = execute(tree.var());
+
+        // create main function return
+        auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), 0);
+        llvm::ReturnInst::Create(the_context, main_return, the_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
@@ -50,7 +51,7 @@ private:
 
         // call generated main function
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
-        auto ret = engine->runFunction(main, {});
+        auto ret = engine->runFunction(main_func, {});
         auto result = ret.IntVal.getSExtValue();
         delete engine;
 
@@ -58,12 +59,18 @@ private:
     }
     llvm::AllocaInst* execute(Var& var)
     {
-        if(core::type_of<AssignVar>(var))
+        if(core::type_of<IdVar>(var))
+            return execute(core::down_cast<IdVar>(var));
+        else if(core::type_of<AssignVar>(var))
             return execute(core::down_cast<AssignVar>(var));
         else if(core::type_of<CompositeVar>(var))
             return execute(core::down_cast<CompositeVar>(var));
         else
             throw_bad_class(var);
+        return 0;
+    }
+    llvm::AllocaInst* execute(IdVar& var)
+    {
         return 0;
     }
     llvm::AllocaInst* execute(AssignVar& var)
@@ -75,11 +82,16 @@ private:
     }
     llvm::AllocaInst* execute(CompositeVar& var)
     {
-        core::verify(var.var.type_of<AssignVar>());
-        auto& single = var.var.down_cast<AssignVar>();
+        core::String struct_id;
+        if(core::type_of<IdVar>(var))
+            struct_id = core::down_cast<IdVar>(var).id;
+        else if(core::type_of<AssignVar>(var))
+            struct_id = core::down_cast<AssignVar>(var).id;
+        else
+            core::verify(false);
 
         // create struct
-        auto struct_name = core::Format("$1_struct").arg(single.id).end();
+        auto struct_name = core::Format("$1_struct").arg(struct_id).end();
         auto struct_type = llvm::StructType::create(the_context, struct_name.ascii());
         std::vector<llvm::Type*> fields;
         for(auto& it : var.var_list)
@@ -94,7 +106,7 @@ private:
 
         // alloca struct pointer
         auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
-        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, single.id.ascii(), the_entry);
+        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, struct_id.ascii(), the_entry);
 
         // call malloc
         auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
@@ -166,7 +178,8 @@ private:
     }
     llvm::Value* execute(IdLocation& loc)
     {
-        for(auto it : the_var_list)
+        core::List<llvm::AllocaInst*> list;
+        for(auto it : list)
         {
             auto value = it.value();
             auto name = value->getName().data();
@@ -328,5 +341,4 @@ private:
     llvm::BasicBlock* the_entry;
     llvm::LLVMContext the_context;
     std::unique_ptr<llvm::Module> the_module;
-    core::List<llvm::AllocaInst*> the_var_list;
 };
