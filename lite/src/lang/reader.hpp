@@ -54,7 +54,7 @@ public:
     void read(core::uint8& arg)
     {
         if(the_input.available())
-            the_input.input(reinterpret_cast<core::uint8*>(&arg), sizeof(arg));
+            the_input.input(&arg, sizeof(arg));
         else
             arg = 0;
     }

@@ -46,7 +46,7 @@ inline core::String& binary_op_name(BinaryOp op)
                                     "<<", ">>",
                                     "=", "<>", "<", ">", "<=", ">=",
                                     "&", "|", "^", "%" };
-    core::verify(op < BinaryOp(sizeof(names)/sizeof(*names)));
+    core::certify(op < BinaryOp(sizeof(names)/sizeof(*names)));
     return names[core::int64(op)];
 }
 

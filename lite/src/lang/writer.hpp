@@ -88,7 +88,7 @@ private:
         else if(core::type_of<AssignVar>(var))
             struct_id = core::down_cast<AssignVar>(var).id;
         else
-            core::verify(false);
+            core::certify(false);
 
         // create struct
         auto struct_name = core::Format("$1_struct").arg(struct_id).end();
@@ -97,7 +97,7 @@ private:
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            core::verify(field.type_of<AssignVar>());
+            core::certify(field.type_of<AssignVar>());
             auto& single = field.down_cast<AssignVar>();
             auto field_exp = execute(single.exp);
             fields.push_back(field_exp->getType());
@@ -191,17 +191,17 @@ private:
     }
     llvm::Value* execute(FilterLocation& loc)
     {
-        core::verify(false);
+        core::certify(false);
         return 0;
     }
     llvm::Value* execute(NestIdLocation& loc)
     {
-        core::verify(false);
+        core::certify(false);
         return 0;
     }
     llvm::Value* execute(NestFilterLocation& loc)
     {
-        core::verify(false);
+        core::certify(false);
         return 0;
     }
     llvm::Value* execute(Final& final)
