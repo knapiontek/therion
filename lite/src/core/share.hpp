@@ -83,12 +83,12 @@ public:
     }
     Type* operator->()
     {
-        assert(the_type);
+        certify(the_type);
         return the_type;
     }
     operator Type&()
     {
-        assert(the_type);
+        certify(the_type);
         return *the_type;
     }
     template<class Other>

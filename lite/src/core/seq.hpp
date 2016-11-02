@@ -258,7 +258,7 @@ public:
     void capacity(int64 bond)
     {
         auto tail = the_tail - the_head;
-        assert(bond > tail);
+        certify(bond > tail);
         the_head = core::acquire<Element>(the_head, sizeof(Element) * bond);
         the_tail = the_head + tail;
         the_bond = the_head + bond;
@@ -326,19 +326,19 @@ public:
     {
         if(it.next())
         {
-            assert(it.value() < size());
+            certify(it.value() < size());
             auto elem = the_head + it.value();
             elem->~Element();
             auto l = elem;
             auto h = elem + 1;
             while(it.next())
             {
-                assert(it.value() < size());
+                certify(it.value() < size());
                 elem = the_head + it.value();
                 elem->~Element();
                 if(elem != h)
                 {
-                    assert(l < h);
+                    certify(l < h);
                     ::memmove((void*)l, h, sizeof(Element) * (elem - h));
                     l += elem - h;
                     h = elem;
@@ -351,7 +351,7 @@ public:
     }
     Element& at(int64 pos)
     {
-        assert(pos < size());
+        certify(pos < size());
         return the_head[pos];
     }
     Element& operator[](int64 pos)
@@ -361,7 +361,7 @@ public:
     Element& put(int64 pos, const Element& arg)
     {
         acquire_tail();
-        assert(pos < size());
+        certify(pos < size());
         auto elem = the_head + pos;
         ::memmove((void*)(elem + 1), elem, sizeof(Element) * (the_tail - 1 - elem));
         new((void*)elem) Element(arg);
@@ -369,7 +369,7 @@ public:
     }
     void erase(int64 pos)
     {
-        assert(pos < size());
+        certify(pos < size());
         auto elem = the_head + pos;
         elem->~Element();
         the_tail--;
@@ -377,7 +377,7 @@ public:
     }
     void erase_by_tail(int64 pos)
     {
-        assert(pos < size());
+        certify(pos < size());
         auto elem = the_head + pos;
         elem->~Element();
         the_tail--;

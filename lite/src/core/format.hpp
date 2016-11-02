@@ -31,7 +31,7 @@ public:
     }
     FormatReturn& arg(String& arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = arg.data();
         item.size = arg.size();
@@ -39,7 +39,7 @@ public:
     }
     FormatReturn& arg(const char* arg)
     {
-        assert(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
+        certify(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
         auto size = ::strlen(arg);
         auto& item = the_items[the_cnt++];
         item.pt = (uint8*)arg;
@@ -48,7 +48,7 @@ public:
     }
     FormatReturn& arg(uint8* arg, int64 size)
     {
-        assert(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
+        certify(arg && (the_cnt < int64(sizeof(the_items) / sizeof(Item))));
         auto& item = the_items[the_cnt++];
         item.pt = arg;
         item.size = size;
@@ -56,7 +56,7 @@ public:
     }
     FormatReturn& arg(bool arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -65,7 +65,7 @@ public:
     }
     FormatReturn& arg(int8 arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -74,7 +74,7 @@ public:
     }
     FormatReturn& arg(int16 arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -83,7 +83,7 @@ public:
     }
     FormatReturn& arg(int32 arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -92,7 +92,7 @@ public:
     }
     FormatReturn& arg(int64 arg)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -101,7 +101,7 @@ public:
     }
     FormatReturn& arg(uint8 arg, Base base = decimal)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -110,7 +110,7 @@ public:
     }
     FormatReturn& arg(uint16 arg, Base base = decimal)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -119,7 +119,7 @@ public:
     }
     FormatReturn& arg(uint32 arg, Base base = decimal)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -128,7 +128,7 @@ public:
     }
     FormatReturn& arg(uint64 arg, Base base = decimal)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -137,7 +137,7 @@ public:
     }
     FormatReturn& arg(float32 arg, int64 precision = float32_precision)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -146,7 +146,7 @@ public:
     }
     FormatReturn& arg(float64 arg, int64 precision = float64_precision)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -155,7 +155,7 @@ public:
     }
     FormatReturn& arg(float128 arg, int64 precision = float128_precision)
     {
-        assert(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
+        certify(the_cnt < int64(sizeof(the_items) / sizeof(Item)));
         auto& item = the_items[the_cnt++];
         item.pt = item.data;
         item.size = sizeof(item.data);
@@ -190,7 +190,7 @@ private:
                     auto index = it.value() - '1';
                     verify(index < int64(sizeof(hex2index)));
                     index = hex2index[index];
-                    assert(index < the_cnt);
+                    certify(index < the_cnt);
                     auto& item = the_items[index];
                     the_result.copy_in(pos, item.pt, item.size);
                 }
@@ -218,7 +218,7 @@ private:
             the_result.copy_in(pos, item.pt, item.size);
         }
 
-        assert(size == pos);
+        certify(size == pos);
         return the_result;
     }
 private:

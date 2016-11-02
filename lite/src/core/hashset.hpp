@@ -174,7 +174,7 @@ public:
     }
     Iterator head()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
@@ -182,12 +182,12 @@ public:
     }
     Iterator tail()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
     Iterator begin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
@@ -199,7 +199,7 @@ public:
     }
     Reverse rbegin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail_page, the_tail - 1, the_tail, this);
     }
     Reverse rend()
@@ -208,13 +208,13 @@ public:
     }
     Find find(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         return Find(pos, const_cast<Value&>(value), this);
     }
     void page_size(int64 page_size)
     {
-        assert(!the_page_size);
+        certify(!the_page_size);
         init(page_size);
     }
     int64 page_size()
@@ -223,7 +223,7 @@ public:
     }
     int64 size()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto size = the_tail - the_tail_page->data;
         auto page = the_head_page;
         while(page->next)
@@ -235,17 +235,17 @@ public:
     }
     bool is_empty()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return the_tail == the_head_page->data;
     }
     void erase_all()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         erase_all(false);
     }
     Shared<Value> lookup(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         while(pos)
         {
@@ -257,7 +257,7 @@ public:
     }
     bool set(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         while(pos)
         {
@@ -276,7 +276,7 @@ public:
     }
     Value& at(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         auto pos = head;
@@ -296,7 +296,7 @@ public:
     template<class Pager>
     Value& acquire(const Value& value, Pager& pager)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         auto pos = head;
@@ -315,7 +315,7 @@ public:
     }
     bool put(const Value& value, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto& head = the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         // search
         if(unique)
@@ -337,7 +337,7 @@ public:
     }
     int64 erase(const Value& value, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto erased = 0;
         auto prev = &the_plexer[the_index.hash(const_cast<Value&>(value)) % the_page_size];
         auto pos = *prev;
@@ -411,7 +411,7 @@ private:
 private:
     void init(int64 page_size)
     {
-        assert(page_size);
+        certify(page_size);
         the_page_size = page_size + 1;
         auto mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
         auto mem_plexer_size = sizeof(Node*) * the_page_size;

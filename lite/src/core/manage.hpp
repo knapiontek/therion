@@ -30,7 +30,7 @@ public:
     template<class Other>
     Managed(const Managed<Other>& arg)
     {
-        assert(static_cast<Type*>(arg.the_handle->type));
+        certify(static_cast<Type*>(arg.the_handle->type));
         the_handle = (Handle*)arg.the_handle;
         the_handle->cnt++;
     }
@@ -64,7 +64,7 @@ public:
     }
     Managed& operator=(const Type& type)
     {
-        assert(the_handle != nil_handle());
+        certify(the_handle != nil_handle());
         *the_handle->type = type;
         return *this;
     }
@@ -83,7 +83,7 @@ public:
     template<class Other>
     Managed& operator=(const Managed<Other>& arg)
     {
-        assert(static_cast<Type*>(arg.the_handle->type));
+        certify(static_cast<Type*>(arg.the_handle->type));
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
         {
@@ -130,24 +130,24 @@ public:
     }
     Type* operator->()
     {
-        assert(the_handle != nil_handle());
+        certify(the_handle != nil_handle());
         return the_handle->type;
     }
     operator Type&()
     {
-        assert(the_handle != nil_handle());
+        certify(the_handle != nil_handle());
         return *the_handle->type;
     }
     template<class Other>
     bool type_of() const
     {
-        assert(the_handle != nil_handle());
+        certify(the_handle != nil_handle());
         return dynamic_cast<Other*>(the_handle->type);
     }
     template<class Other>
     Other& down_cast() const
     {
-        assert(the_handle != nil_handle());
+        certify(the_handle != nil_handle());
         return dynamic_cast<Other&>(*the_handle->type);
     }
 private:

@@ -86,7 +86,7 @@ public:
     }
     void endln()
     {
-        core::assert(false);
+        core::certify(false);
     }
 private:
     core::String the_type;
@@ -117,7 +117,7 @@ public:
     }
     void endln()
     {
-        core::assert(false);
+        core::certify(false);
     }
 };
 
@@ -181,7 +181,7 @@ private:
             exception.message() = "captured signal: Terminate";
             break;
         default:
-            core::assert(false);
+            core::certify(false);
         }
         throw exception;
     }
@@ -204,9 +204,9 @@ public:
         exception.message() = "allocation exception";
         throw exception;
     }
-    void call_assert(const char* file_name, int line_no, const char* content)
+    void call_certify(const char* file_name, int line_no, const char* content)
     {
-        auto message = core::Format("\nassert:\n\t$1 [$2:$3]\nbacktrace:")
+        auto message = core::Format("\nreport:\n\t$1 [$2:$3]\nbacktrace:")
             .arg(content)
             .arg(file_name)
             .arg(line_no)

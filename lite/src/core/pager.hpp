@@ -51,7 +51,7 @@ public:
 	Type& acquire()
 	{
 		auto byte_size = int64(sizeof(Final) + sizeof(Type));
-		assert(byte_size < the_page_size);
+		certify(byte_size < the_page_size);
 
 		TypeFinal<Type> final;
 		final.prev = the_last_final;
@@ -68,7 +68,7 @@ public:
 	Type* acquire(int64 size)
 	{
 		auto byte_size = int64(sizeof(Final) + sizeof(int64) + (sizeof(Type) * size));
-		assert(byte_size < the_page_size);
+		certify(byte_size < the_page_size);
 
 		SeqFinal<Type> final;
 		final.prev = the_last_final;

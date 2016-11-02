@@ -259,7 +259,7 @@ public:
     }
     Iterator head()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
@@ -267,12 +267,12 @@ public:
     }
     Iterator tail()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail_page, the_tail, the_tail, this);
     }
     Iterator begin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto bond = (the_head_page != the_tail_page)
             ? the_head_page->data + the_page_size
             : the_tail;
@@ -284,7 +284,7 @@ public:
     }
     Reverse rbegin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail_page, the_tail - 1, the_tail, this);
     }
     Reverse rend()
@@ -293,12 +293,12 @@ public:
     }
     Sort sort()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Sort(the_root);
     }
     Find find(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_root;
         while(pos)
         {
@@ -312,7 +312,7 @@ public:
     }
     void page_size(int64 page_size)
     {
-        assert(!the_page_size);
+        certify(!the_page_size);
         init(page_size);
     }
     int64 page_size()
@@ -321,7 +321,7 @@ public:
     }
     int64 size()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto size = the_tail - the_tail_page->data;
         auto page = the_head_page;
         while(page->next)
@@ -333,17 +333,17 @@ public:
     }
     bool is_empty()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return the_tail == the_head_page->data;
     }
     void erase_all()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         erase_all(false);
     }
     Shared<Value> lookup(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_root;
         while(pos)
         {
@@ -357,7 +357,7 @@ public:
     }
     bool set(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto pos = the_root;
         while(pos)
         {
@@ -374,7 +374,7 @@ public:
     }
     Value& at(const Value& value)
     {
-        assert(the_page_size);
+        certify(the_page_size);
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
@@ -406,7 +406,7 @@ public:
 
         // rebalance
         insert_balance(i, path);
-        assert(-1 != self_test(the_root));
+        certify(-1 != self_test(the_root));
         return pos->value;
     }
     Value& operator[](const Value& value)
@@ -416,7 +416,7 @@ public:
     template<class Pager>
     Value& acquire(const Value& value, Pager& pager)
     {
-        assert(the_page_size);
+        certify(the_page_size);
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
@@ -448,12 +448,12 @@ public:
 
         // rebalance
         insert_balance(i, path);
-        assert(-1 != self_test(the_root));
+        certify(-1 != self_test(the_root));
         return pos->value;
     }
     bool put(const Value& value, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
 
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
@@ -500,12 +500,12 @@ public:
 
         // rebalance
         insert_balance(i, path);
-        assert(-1 != self_test(the_root));
+        certify(-1 != self_test(the_root));
         return true;
     }
     int64 erase(const Value& value, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         int64 cnt;
         auto erased = 0;
         do
@@ -575,7 +575,7 @@ public:
 
                     // rebalance
                     erase_balance(i, path);
-                    assert(-1 != self_test(the_root));
+                    certify(-1 != self_test(the_root));
 
                     // relocate tail to fill in a gap
                     auto tail = the_tail - 1;
@@ -602,7 +602,7 @@ public:
                             while(!tail_pos)
                             {
                                 tail_pos = *(--hp);
-                                assert(hp >= heap);
+                                certify(hp >= heap);
                                 parent = &tail_pos->leaves[1];
                                 tail_pos = *parent;
                             }
@@ -782,7 +782,7 @@ private:
     }
     void init(int64 page_size)
     {
-        assert(page_size);
+        certify(page_size);
         the_page_size = page_size + 1;
         the_head_page = core::acquire<Page>(sizeof(Page) + sizeof(Node) * (the_page_size - 1));
         the_head_page->next = 0;
@@ -846,7 +846,7 @@ private:
         {
             auto h0 = self_test(root->leaves[0]);
             auto h1 = self_test(root->leaves[1]);
-            assert(h1 - h0 == root->balance);
+            certify(h1 - h0 == root->balance);
             return 1 + max(h0, h1);
         }
         return 0;

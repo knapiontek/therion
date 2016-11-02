@@ -236,7 +236,7 @@ public:
     }
     uint8& at(int64 pos) const
     {
-        assert(pos < the_handle->size);
+        certify(pos < the_handle->size);
         return the_handle->data[pos];
     }
     uint8& operator[](int64 pos) const
@@ -337,7 +337,7 @@ public:
     }
     void copy_out(int64& pos, uint8* arg, int64 size) const
     {
-        assert(the_handle->size >= pos + size);
+        certify(the_handle->size >= pos + size);
         ::memcpy(arg, the_handle->data + pos, size);
         pos += size;
     }

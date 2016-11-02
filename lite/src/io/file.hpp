@@ -82,7 +82,7 @@ public:
     }
     bool try_open(Mode mode = read_only, bool remove_on_close = false)
     {
-        core::assert(-1 == the_handle);
+        core::certify(-1 == the_handle);
         the_remove_on_close = remove_on_close;
         the_handle = ::open(the_name.ascii(), mode, S_IRWXU);
         return (-1 != the_handle);
@@ -223,7 +223,7 @@ private:
         }
         void skip(core::int64) override
         {
-            core::assert(false);
+            core::certify(false);
         }
         File* the_file;
         core::int64 the_available = core::int64_nil;

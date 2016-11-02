@@ -63,7 +63,7 @@ public:
     }
 public:
     virtual void throw_alloc_exception() = 0;
-    virtual void call_assert(const char* file_name, int line_no, const char* content) = 0;
+    virtual void call_certify(const char* file_name, int line_no, const char* content) = 0;
 };
 
 // miscellaneous
@@ -151,12 +151,12 @@ inline void release(Type* type)
     ::free((void*)type);
 }
 
-// assert/verify
+// certify/verify
 
-inline void call_assert(bool expr, const char* file_name, int line_no, const char* content)
+inline void call_certify(bool expr, const char* file_name, int line_no, const char* content)
 {
     if(!expr)
-        Handler::handler()->call_assert(file_name, line_no, content);
+        Handler::handler()->call_certify(file_name, line_no, content);
 }
 
 inline void call_nil()
@@ -165,9 +165,9 @@ inline void call_nil()
 }
 
 #ifndef ASSERT
-    #define assert(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
+    #define certify(expr) call_certify((expr), __FILE__, __LINE__, __STRING(expr))
 #else
-    #define assert(expr) call_nil()
+    #define certify(expr) call_nil()
 #endif
 
-#define verify(expr) call_assert((expr), __FILE__, __LINE__, __STRING(expr))
+#define verify(expr) call_certify((expr), __FILE__, __LINE__, __STRING(expr))

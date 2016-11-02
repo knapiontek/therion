@@ -6,12 +6,12 @@ struct OS
         if(core::nil == value)
         {
             auto result = ::unsetenv(name.ascii());
-            core::assert(!result);
+            core::certify(!result);
         }
         else
         {
             auto result = ::setenv(name.ascii(), value.ascii(), true);
-            core::assert(!result);
+            core::certify(!result);
         }
     }
     static core::String var(core::String& name)

@@ -197,7 +197,7 @@ public:
     }
     List(int64 page_size)
     {
-        assert(page_size);
+        certify(page_size);
         the_page_size = page_size;
         init();
     }
@@ -208,7 +208,7 @@ public:
     }
     Iterator head()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto hbond = (the_head != the_tail.page)
             ? *the_head + the_page_size
             : the_tail.elem;
@@ -216,12 +216,12 @@ public:
     }
     Iterator tail()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail.page, the_tail.elem, *the_tail.page, the_tail.elem, this);
     }
     Iterator begin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto hbond = (the_head != the_tail.page)
             ? *the_head + the_page_size
             : the_tail.elem;
@@ -233,7 +233,7 @@ public:
     }
     Reverse rbegin()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return Iterator(the_tail.page, the_tail.elem - 1, *the_tail.page, the_tail.elem, this);
     }
     Reverse rend()
@@ -242,7 +242,7 @@ public:
     }
     void sort()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_bond)
         {
             const auto heap_size = 32; // limited to 4294967296 elements
@@ -317,7 +317,7 @@ public:
     }
     Find find(const Element& arg)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)
@@ -348,7 +348,7 @@ public:
     }
     void page_size(int64 page_size)
     {
-        assert(!the_page_size && page_size);
+        certify(!the_page_size && page_size);
         the_page_size = page_size;
     }
     int64 page_size()
@@ -357,17 +357,17 @@ public:
     }
     int64 size()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return the_page_size * (the_tail.page - the_head) + (the_tail.elem - *the_tail.page);
     }
     bool is_empty()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return !the_bond;
     }
     void erase_all()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_bond)
         {
             the_bond = *the_tail.page;
@@ -397,17 +397,17 @@ public:
     template<class Iterator>
     void erase_by_iterator(Iterator it)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(it.next())
         {
             Cursor cr, to, from;
-            assert(it.value() < size());
+            certify(it.value() < size());
             convert(to, it.value());
             to.elem->~Element();
             from = to;
             while(it.next())
             {
-                assert(it.value() < size());
+                certify(it.value() < size());
                 convert(cr, it.value());
                 cr.elem->~Element();
                 move_down(to, from, cr);
@@ -418,7 +418,7 @@ public:
     }
     Element& at(int64 pos)
     {
-        assert(the_page_size && pos < size());
+        certify(the_page_size && pos < size());
         return the_head[pos / the_page_size][pos % the_page_size];
     }
     Element& operator[](int64 pos)
@@ -427,9 +427,9 @@ public:
     }
     Element& put(int64 pos, const Element& arg)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         acquire_tail();
-        assert(pos < size());
+        certify(pos < size());
         Cursor cr;
         convert(cr, pos);
         move_up(cr);
@@ -438,7 +438,7 @@ public:
     }
     void erase(int64 pos)
     {
-        assert(the_page_size && pos < size());
+        certify(the_page_size && pos < size());
         Cursor to, from;
         convert(to, pos);
         to.elem->~Element();
@@ -448,7 +448,7 @@ public:
     }
     void erase_by_tail(int64 pos)
     {
-        assert(the_page_size && pos < size());
+        certify(the_page_size && pos < size());
         auto elem = the_head[pos / the_page_size] + (pos % the_page_size);
         elem->~Element();
         ::memcpy((void*)elem, the_tail.elem - 1, sizeof(Element));
@@ -456,21 +456,21 @@ public:
     }
     Element& append()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto elem = acquire_tail();
         new((void*)elem) Element();
         return *elem;
     }
     Element& append(const Element& arg)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto elem = acquire_tail();
         new((void*)elem) Element(arg);
         return *elem;
     }
     int64 search(const Element& arg)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)
@@ -488,7 +488,7 @@ public:
     }
     Shared<Element> lookup(const Element& arg)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)
@@ -508,7 +508,7 @@ public:
     template<class Pager>
     Element& acquire(const Element& arg, Pager& pager)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)
@@ -532,7 +532,7 @@ public:
     }
     bool put(const Element& arg, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)
@@ -560,7 +560,7 @@ public:
     }
     int64 erase(const Element& arg, bool unique = true)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto lbond = 0;
         auto hbond = size() - 1;
         while(lbond <= hbond)

@@ -21,7 +21,7 @@ public:
     }
     void page_size(int64 page_size)
     {
-        assert(!the_page_size);
+        certify(!the_page_size);
         init(page_size);
     }
     int64 page_size()
@@ -30,7 +30,7 @@ public:
     }
     int64 size()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         auto size = the_tail - the_tail_page->data;
         auto page = the_head_page;
         while(page->next)
@@ -43,17 +43,17 @@ public:
     }
     bool is_empty()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         return the_tail == the_head;
     }
     void erase_all()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         erase_all(false);
     }
     void push(const Element& element)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_tail == the_tail_page->data + the_page_size)
         {
             the_tail_page->next = acquire<Page>(sizeof(Page) + sizeof(Element) * (the_page_size - 1));
@@ -66,7 +66,7 @@ public:
     }
     bool pop(Element& element)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_head != the_tail)
         {
             element = *the_head;
@@ -87,7 +87,7 @@ public:
     }
     bool pop()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_head != the_tail)
         {
             the_head->~Element();
@@ -107,7 +107,7 @@ public:
     }
     bool peek(Element& element)
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_head != the_tail)
         {
             element = *the_head;
@@ -117,7 +117,7 @@ public:
     }
     Shared<Element> peek()
     {
-        assert(the_page_size);
+        certify(the_page_size);
         if(the_head != the_tail)
             return Shared<Element>(*the_head);
         return Shared<Element>();
@@ -131,7 +131,7 @@ private:
 private:
     void init(int64 page_size)
     {
-        assert(page_size);
+        certify(page_size);
         the_page_size = page_size;
         the_tail_page = acquire<Page>(sizeof(Page) + sizeof(Element) * (the_page_size - 1));
         the_tail_page->next = 0;
