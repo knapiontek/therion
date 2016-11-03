@@ -79,15 +79,15 @@ struct Singleton
 };
 
 template<class Other, class Type>
-inline bool type_of(Type& type)
+inline bool type_of(Type& ref)
 {
-    return dynamic_cast<Other*>(&type);
+    return dynamic_cast<Other*>(&ref);
 }
 
 template<class Other, class Type>
-inline Other& down_cast(Type& type)
+inline Other& down_cast(Type& ref)
 {
-    return dynamic_cast<Other&>(type);
+    return dynamic_cast<Other&>(ref);
 }
 
 template<class Type>
@@ -106,10 +106,10 @@ template<class Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
     const auto size = sizeof(Type);
-    uint8 type[size];
-    ::memcpy((void*)&type, &arg1, size);
+    uint8 bytes[size];
+    ::memcpy((void*)&bytes, &arg1, size);
     ::memcpy((void*)&arg1, &arg2, size);
-    ::memcpy((void*)&arg2, &type, size);
+    ::memcpy((void*)&arg2, &bytes, size);
 }
 
 inline int64 randomize(uint32 seed = 0)
@@ -130,25 +130,25 @@ inline int64 randomize(uint32 seed = 0)
 template<class Type>
 inline Type* acquire(int64 size)
 {
-    auto type = (Type*)::malloc(size);
-    if(!type)
+    auto ptr = (Type*)::malloc(size);
+    if(!ptr)
         Handler::handler()->throw_alloc_exception();
-    return type;
+    return ptr;
 }
 
 template<class Type>
-inline Type* acquire(Type* type, int64 size)
+inline Type* acquire(Type* ptr, int64 size)
 {
-    type = (Type*)::realloc((void*)type, size);
-    if(!type)
+    ptr = (Type*)::realloc((void*)ptr, size);
+    if(!ptr)
         Handler::handler()->throw_alloc_exception();
-    return type;
+    return ptr;
 }
 
 template<class Type>
-inline void release(Type* type)
+inline void release(Type* ptr)
 {
-    ::free((void*)type);
+    ::free((void*)ptr);
 }
 
 // certify/verify
