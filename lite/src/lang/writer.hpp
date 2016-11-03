@@ -49,7 +49,7 @@ private:
         llvm::outs() << "LLVM module:\n" << *the_module;
         llvm::verifyModule(*the_module, &llvm::outs());
 
-        // call generated main function
+        // call the generated main function
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
         auto ret = engine->runFunction(main_func, {});
         auto result = ret.IntVal.getSExtValue();
@@ -98,8 +98,8 @@ private:
         {
             auto field = it.value();
             core::certify(field.type_of<AssignVar>());
-            auto& single = field.down_cast<AssignVar>();
-            auto field_exp = execute(single.exp);
+            auto& assign_var = field.down_cast<AssignVar>();
+            auto field_exp = execute(assign_var.exp);
             fields.push_back(field_exp->getType());
         }
         struct_type->setBody(fields, false);

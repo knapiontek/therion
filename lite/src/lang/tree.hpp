@@ -6,10 +6,10 @@ typedef core::String Token;
 template<class Type>
 struct Ret
 {
-    Type* type;
+    Type* ret;
     operator Type&()
     {
-        return *type;
+        return *ret;
     }
 };
 
