@@ -121,7 +121,7 @@ public:
             the_sentinel[0] = it.the_sentinel[0];
             the_sentinel[1] = it.the_sentinel[1];
             the_node = the_path;
-            *the_node = (Node*)the_sentinel;
+            *the_node = reinterpret_cast<Node*>(the_sentinel);
             return *this;
         }
         bool next()
@@ -156,7 +156,7 @@ public:
             the_sentinel[0] = root;
             the_sentinel[1] = root;
             the_node = the_path;
-            *the_node = (Node*)the_sentinel;
+            *the_node = reinterpret_cast<Node*>(the_sentinel);
         }
     private:
         Node* the_path[the_treeset_path_size];
@@ -306,7 +306,7 @@ public:
             if(dir)
                 pos = pos->leaves[0 < dir];
             else
-                return Find(pos, (Value*)&value, this);
+                return Find(pos, const_cast<Value*>(&value), this);
         }
         return Find();
     }
@@ -379,7 +379,7 @@ public:
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
         auto i = path;
-        i->node = (Node*)&the_root;
+        i->node = reinterpret_cast<Node*>(&the_root);
         i->dir = 0;
 
         // search/build path
@@ -421,7 +421,7 @@ public:
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
         auto i = path;
-        i->node = (Node*)&the_root;
+        i->node = reinterpret_cast<Node*>(&the_root);
         i->dir = 0;
 
         // search/build path
@@ -458,7 +458,7 @@ public:
         // add the_root to path/used as i->node->leaves[i->dir] = root;
         Path path[the_treeset_path_size];
         auto i = path;
-        i->node = (Node*)&the_root;
+        i->node = reinterpret_cast<Node*>(&the_root);
         i->dir = 0;
 
         // search/build path
@@ -513,7 +513,7 @@ public:
             cnt = erased;
             Path path[the_treeset_path_size];
             auto i = path;
-            i->node = (Node*)&the_root;
+            i->node = reinterpret_cast<Node*>(&the_root);
             i->dir = 0;
 
             // search value

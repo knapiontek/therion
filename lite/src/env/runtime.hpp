@@ -105,7 +105,7 @@ public:
     private:
         static void find_address_in_section(bfd *abfd, asection *section, void *cookie)
         {
-            auto it = (Iterator*)cookie;
+            auto it = static_cast<Iterator*>(cookie);
 
             bfd_vma vma;
             bfd_size_type size;
@@ -149,7 +149,7 @@ public:
         // Runtime is used in an error handling of ::malloc(), therefore cannot use ::malloc()!
         const core::int64 size = 64;
         static __thread core::uint8 space[sizeof(Handle) + sizeof(void*) * size];
-        the_handle = (Handle*)space;
+        the_handle = reinterpret_cast<Handle*>(space);
         the_handle->size = ::backtrace(the_handle->path, size);
     }
 private:

@@ -60,7 +60,7 @@ public:
 		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
-		auto type = (Type*)++tail;
+		auto type = reinterpret_cast<Type*>(++tail);
 		new((void*)type) Type();
 		return *type;
 	}
@@ -73,14 +73,14 @@ public:
 		SeqFinal<Type> final;
 		final.prev = the_last_final;
 
-		auto tail = (Final*)acquire_tail(byte_size);
+		auto tail = reinterpret_cast<Final*>(acquire_tail(byte_size));
 		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
 		auto ptr_size = (int64*)++tail;
 		*ptr_size = size;
 
-		auto type = (Type*)++ptr_size;
+		auto type = reinterpret_cast<Type*>(++ptr_size);
 		auto it = type;
 		auto end = type + size;
 		while(it < end)

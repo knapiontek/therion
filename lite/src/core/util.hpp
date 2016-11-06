@@ -130,7 +130,7 @@ inline int64 randomize(uint32 seed = 0)
 template<class Type>
 inline Type* acquire(int64 size)
 {
-    auto ptr = (Type*)::malloc(size);
+    auto ptr = static_cast<Type*>(::malloc(size));
     if(!ptr)
         Handler::handler()->throw_alloc_exception();
     return ptr;
@@ -139,7 +139,7 @@ inline Type* acquire(int64 size)
 template<class Type>
 inline Type* acquire(Type* ptr, int64 size)
 {
-    ptr = (Type*)::realloc((void*)ptr, size);
+    ptr = static_cast<Type*>(::realloc((void*)ptr, size));
     if(!ptr)
         Handler::handler()->throw_alloc_exception();
     return ptr;

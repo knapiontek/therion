@@ -416,7 +416,7 @@ private:
         auto mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
         auto mem_plexer_size = sizeof(Node*) * the_page_size;
         auto mem = core::acquire<uint8>(mem_page_size + mem_plexer_size);
-        the_head_page = (Page*)mem;
+        the_head_page = reinterpret_cast<Page*>(mem);
         the_head_page->next = 0;
         the_head_page->prev = 0;
         the_tail_page = the_head_page;

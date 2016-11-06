@@ -35,7 +35,7 @@ public:
         auto& item = the_items[the_cnt++];
         item.pt = arg.data();
         item.size = arg.size();
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(const char* arg)
     {
@@ -44,7 +44,7 @@ public:
         auto& item = the_items[the_cnt++];
         item.pt = (uint8*)arg;
         item.size = size;
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(uint8* arg, int64 size)
     {
@@ -52,7 +52,7 @@ public:
         auto& item = the_items[the_cnt++];
         item.pt = arg;
         item.size = size;
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(bool arg)
     {
@@ -61,7 +61,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(int8 arg)
     {
@@ -70,7 +70,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(int16 arg)
     {
@@ -79,7 +79,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(int32 arg)
     {
@@ -88,7 +88,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(int64 arg)
     {
@@ -97,7 +97,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(uint8 arg, Base base = decimal)
     {
@@ -106,7 +106,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(uint16 arg, Base base = decimal)
     {
@@ -115,7 +115,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(uint32 arg, Base base = decimal)
     {
@@ -124,7 +124,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(uint64 arg, Base base = decimal)
     {
@@ -133,7 +133,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, base);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(float32 arg, int64 precision = float32_precision)
     {
@@ -142,7 +142,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(float64 arg, int64 precision = float64_precision)
     {
@@ -151,7 +151,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
     FormatReturn& arg(float128 arg, int64 precision = float128_precision)
     {
@@ -160,7 +160,7 @@ public:
         item.pt = item.data;
         item.size = sizeof(item.data);
         Convert::it(item.pt, item.size, arg, precision);
-        return *(FormatReturn*)this;
+        return *static_cast<FormatReturn*>(this);
     }
 private:
     String& merge(bool new_line)

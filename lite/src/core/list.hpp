@@ -279,9 +279,9 @@ public:
                     prev(high);
                     while(low.page < high.page || (low.page == high.page && low.elem < high.elem))
                     {
-                        while(0 > the_index.compare(*low.elem, *(Element*)pivot))
+                        while(0 > the_index.compare(*low.elem, *reinterpret_cast<Element*>(pivot)))
                             next(low);
-                        while(0 < the_index.compare(*high.elem, *(Element*)pivot))
+                        while(0 < the_index.compare(*high.elem, *reinterpret_cast<Element*>(pivot)))
                             prev(high);
                         if(low.page < high.page || (low.page == high.page && low.elem < high.elem))
                         {

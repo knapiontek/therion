@@ -31,7 +31,7 @@ public:
     Managed(const Managed<Other>& arg)
     {
         certify(static_cast<Type*>(arg.the_handle->type));
-        the_handle = (Handle*)arg.the_handle;
+        the_handle = reinterpret_cast<Handle*>(arg.the_handle);
         the_handle->cnt++;
     }
     template<class... Args>
@@ -91,7 +91,7 @@ public:
             type->~Type();
             release<Handle>(the_handle);
         }
-        the_handle = (Handle*)arg.the_handle;
+        the_handle = reinterpret_cast<Handle*>(arg.the_handle);
         return *this;
     }
     friend bool operator==(const Nil&, const Managed& arg)
@@ -121,12 +121,12 @@ public:
     template<class Other>
     bool operator==(const Managed<Other>& arg) const
     {
-        return (the_handle == (Handle*)arg.the_handle);
+        return (the_handle == reinterpret_cast<Handle*>(arg.the_handle));
     }
     template<class Other>
     bool operator!=(const Managed<Other>& arg) const
     {
-        return (the_handle != (Handle*)arg.the_handle);
+        return (the_handle != reinterpret_cast<Handle*>(arg.the_handle));
     }
     Type* operator->()
     {
@@ -160,7 +160,7 @@ private:
     static Handle* nil_handle()
     {
         static uint16 nil[1] = { 1 };
-        return (Handle*)&nil;
+        return reinterpret_cast<Handle*>(&nil);
     }
 private:
     Handle* the_handle;

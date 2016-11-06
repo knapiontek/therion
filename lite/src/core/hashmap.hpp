@@ -450,12 +450,12 @@ private:
         auto mem_page_size = sizeof(Page) + sizeof(Node) * (the_page_size - 1);
         auto mem_plexer_size = sizeof(Node*) * the_page_size;
         auto mem = core::acquire<uint8>(mem_page_size + mem_plexer_size);
-        the_head_page = (Page*)mem;
+        the_head_page = reinterpret_cast<Page*>(mem);
         the_head_page->next = 0;
         the_head_page->prev = 0;
         the_tail_page = the_head_page;
         the_tail = the_tail_page->data;
-        the_plexer = (Node**)(mem + mem_page_size);
+        the_plexer = reinterpret_cast<Node**>(mem + mem_page_size);
         ::bzero(the_plexer, mem_plexer_size);
     }
     void erase_all(bool final)

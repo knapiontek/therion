@@ -190,9 +190,9 @@ public:
                     auto h = hbond - 1;
                     while(l < h)
                     {
-                        while(0 > the_index.compare(*l, *(Element*)pivot))
+                        while(0 > the_index.compare(*l, *reinterpret_cast<Element*>(pivot)))
                             l++;
-                        while(0 < the_index.compare(*h, *(Element*)pivot))
+                        while(0 < the_index.compare(*h, *reinterpret_cast<Element*>(pivot)))
                             h--;
                         if(l < h)
                         {
