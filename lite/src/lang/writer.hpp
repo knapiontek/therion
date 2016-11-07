@@ -39,7 +39,19 @@ private:
         the_entry = llvm::BasicBlock::Create(the_context, "entry", main_func);
 
         // build body of main function
-        //auto value = execute(tree.var());
+        execute(tree.var());
+        core::String struct_id;
+        if(tree.var().signature_var.type_of<IdVar>())
+            struct_id = tree.var().signature_var.down_cast<IdVar>().id;
+        else if(tree.var().signature_var.type_of<AssignVar>())
+            struct_id = tree.var().signature_var.down_cast<AssignVar>().id;
+        else
+            core::certify(false);
+        auto ctor = the_module->getFunction(core::Format("$1_ctor").arg(struct_id).end().ascii());
+        llvm::CallInst::Create(ctor, {}, "call", the_entry);
+        auto dtor = the_module->getFunction(core::Format("$1_dtor").arg(struct_id).end().ascii());
+        llvm::CallInst::Create(dtor, {}, "call", the_entry);
+
 
         // create main function return
         auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), 0);
@@ -83,10 +95,10 @@ private:
     llvm::AllocaInst* execute(CompositeVar& var)
     {
         core::String struct_id;
-        if(core::type_of<IdVar>(var))
-            struct_id = core::down_cast<IdVar>(var).id;
-        else if(core::type_of<AssignVar>(var))
-            struct_id = core::down_cast<AssignVar>(var).id;
+        if(var.signature_var.type_of<IdVar>())
+            struct_id = var.signature_var.down_cast<IdVar>().id;
+        else if(var.signature_var.type_of<AssignVar>())
+            struct_id = var.signature_var.down_cast<AssignVar>().id;
         else
             core::certify(false);
 

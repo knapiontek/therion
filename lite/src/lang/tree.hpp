@@ -157,7 +157,7 @@ struct CompositeVar : Var
 {
     CompositeVar() : var_list(0x8) {}
 
-    Var::share var;
+    Var::share signature_var;
     core::List<Var::share> var_list;
 };
 
@@ -168,6 +168,9 @@ class Tree
 public:
     Tree()
     {
+        auto& signature_var = pager.acquire<IdVar>();
+        signature_var.id = "main_var";
+        the_var.signature_var = signature_var;
         the_context.append(the_var);
     }
     CompositeVar& var()
@@ -277,7 +280,7 @@ private:
         else
         {
             auto& composite = pager.acquire<CompositeVar>();
-            composite.var = parent;
+            composite.signature_var = parent;
             composite.var_list.append(var);
             the_context[shift] = composite;
 
