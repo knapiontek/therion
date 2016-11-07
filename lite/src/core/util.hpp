@@ -93,23 +93,23 @@ inline Other& down_cast(Type& ref)
 template<class Type>
 inline Type& min(const Type& arg1, const Type& arg2)
 {
-    return (arg1 < arg2) ? (Type&)arg1 : (Type&)arg2;
+    return (arg1 < arg2) ? const_cast<Type&>(arg1) : const_cast<Type&>(arg2);
 }
 
 template<class Type>
 inline Type& max(const Type& arg1, const Type& arg2)
 {
-    return (arg1 > arg2) ? (Type&)arg1 : (Type&)arg2;
+    return (arg1 > arg2) ? const_cast<Type&>(arg1) : const_cast<Type&>(arg2);
 }
 
 template<class Type>
 inline void xchange(Type& arg1, Type& arg2)
 {
     const auto size = sizeof(Type);
-    uint8 bytes[size];
-    ::memcpy((void*)&bytes, &arg1, size);
+    uint8 mem[size];
+    ::memcpy((void*)&mem, &arg1, size);
     ::memcpy((void*)&arg1, &arg2, size);
-    ::memcpy((void*)&arg2, &bytes, size);
+    ::memcpy((void*)&arg2, &mem, size);
 }
 
 inline int64 randomize(uint32 seed = 0)
@@ -130,25 +130,25 @@ inline int64 randomize(uint32 seed = 0)
 template<class Type>
 inline Type* acquire(int64 size)
 {
-    auto ptr = static_cast<Type*>(::malloc(size));
-    if(!ptr)
+    auto var = static_cast<Type*>(::malloc(size));
+    if(!var)
         Handler::handler()->throw_alloc_exception();
-    return ptr;
+    return var;
 }
 
 template<class Type>
-inline Type* acquire(Type* ptr, int64 size)
+inline Type* acquire(Type* var, int64 size)
 {
-    ptr = static_cast<Type*>(::realloc((void*)ptr, size));
-    if(!ptr)
+    var = static_cast<Type*>(::realloc((void*)var, size));
+    if(!var)
         Handler::handler()->throw_alloc_exception();
-    return ptr;
+    return var;
 }
 
 template<class Type>
-inline void release(Type* ptr)
+inline void release(Type* var)
 {
-    ::free((void*)ptr);
+    ::free((void*)var);
 }
 
 // certify/verify

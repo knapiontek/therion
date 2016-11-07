@@ -6,7 +6,7 @@ struct Final
 };
 
 template<class Type>
-struct TypeFinal
+struct VarFinal
 {
 	virtual void destroy()
 	{
@@ -17,13 +17,13 @@ struct TypeFinal
 };
 
 template<class Type>
-struct SeqFinal
+struct VarSeqFinal
 {
 	virtual void destroy()
 	{
-		auto ptr_size = reinterpret_cast<int64*>(this + 1);
-		auto begin = reinterpret_cast<Type*>(ptr_size + 1);
-		auto it = begin + *ptr_size;
+		auto data_size = reinterpret_cast<int64*>(this + 1);
+		auto begin = reinterpret_cast<Type*>(data_size + 1);
+		auto it = begin + *data_size;
 		while(it > begin)
 		{
 			it--;
@@ -53,7 +53,7 @@ public:
 		auto byte_size = int64(sizeof(Final) + sizeof(Type));
 		certify(byte_size < the_page_size);
 
-		TypeFinal<Type> final;
+		VarFinal<Type> final;
 		final.prev = the_last_final;
 
 		auto tail = reinterpret_cast<Final*>(acquire_tail(byte_size));
@@ -70,17 +70,17 @@ public:
 		auto byte_size = int64(sizeof(Final) + sizeof(int64) + (sizeof(Type) * size));
 		certify(byte_size < the_page_size);
 
-		SeqFinal<Type> final;
+		VarSeqFinal<Type> final;
 		final.prev = the_last_final;
 
 		auto tail = reinterpret_cast<Final*>(acquire_tail(byte_size));
 		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
-		auto ptr_size = (int64*)++tail;
-		*ptr_size = size;
+		auto data_size = (int64*)++tail;
+		*data_size = size;
 
-		auto var = reinterpret_cast<Type*>(++ptr_size);
+		auto var = reinterpret_cast<Type*>(++data_size);
 		auto it = var;
 		auto end = var + size;
 		while(it < end)
@@ -124,21 +124,6 @@ private:
 			the_tail += byte_size;
 		}
 		return tail;
-	}
-	uint8* acquire_tail(uint8* pt, int64 byte_size)
-	{
-		auto tail = the_tail;
-		the_tail = pt + byte_size;
-		if(the_tail > (uint8*)the_tail_page + the_page_size)
-		{
-			auto next = the_tail_page;
-			the_tail_page = core::acquire<Page>(the_page_size);
-			the_tail_page->next = next;
-			::memcpy(the_tail_page->data, pt, tail - pt);
-			pt = the_tail = the_tail_page->data;
-			the_tail += byte_size;
-		}
-		return pt;
 	}
 private:
 	static const int64 the_page_size = 0x1000;

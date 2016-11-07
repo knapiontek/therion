@@ -331,10 +331,10 @@ private:
         return 0;
     }
     template<class Type>
-    static void throw_bad_class(const Type& type)
+    static void throw_bad_class(const Type& var)
     {
         env::Throw("Writable: $1 not handled")
-            .arg(typeid(type).name())
+            .arg(typeid(var).name())
             .end();
     }
 private:
