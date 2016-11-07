@@ -2,10 +2,10 @@
 class Writer
 {
 public:
-    static void execute(Tree& tree)
+    static void execute(Tree& tree, core::String& filename)
     {
         Writer writer;
-        writer.execute_tree(tree);
+        writer.execute_tree(tree, filename);
     }
 private:
     Writer()
@@ -16,10 +16,10 @@ private:
     {
         llvm::llvm_shutdown();
     }
-    void execute_tree(Tree& tree)
+    void execute_tree(Tree& tree, core::String& filename)
     {
         // initialize
-        the_module = llvm::make_unique<llvm::Module>("TODO:XXXXXXfilenameXXXXXXX", the_context);
+        the_module = llvm::make_unique<llvm::Module>(filename.ascii(), the_context);
 
         // declare malloc function
         auto malloc_result = llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0);
