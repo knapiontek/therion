@@ -36,26 +36,18 @@ private:
         // declare main function
         auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
         auto main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        the_entry = llvm::BasicBlock::Create(the_context, "entry", main_func);
+        auto main_entry = llvm::BasicBlock::Create(the_context, "entry", main_func);
 
         // build body of main function
         execute(tree.var());
-        core::String struct_id;
-        if(tree.var().signature_var.type_of<IdVar>())
-            struct_id = tree.var().signature_var.down_cast<IdVar>().id;
-        else if(tree.var().signature_var.type_of<AssignVar>())
-            struct_id = tree.var().signature_var.down_cast<AssignVar>().id;
-        else
-            core::certify(false);
-        auto ctor = the_module->getFunction(core::Format("$1_ctor").arg(struct_id).end().ascii());
-        llvm::CallInst::Create(ctor, {}, "call", the_entry);
-        auto dtor = the_module->getFunction(core::Format("$1_dtor").arg(struct_id).end().ascii());
-        llvm::CallInst::Create(dtor, {}, "call", the_entry);
-
+        auto ctor_func = the_module->getFunction(ctor().ascii());
+        llvm::CallInst::Create(ctor_func, {}, "call", main_entry);
+        auto dtor_func = the_module->getFunction(dtor().ascii());
+        llvm::CallInst::Create(dtor_func, {}, "call", main_entry);
 
         // create main function return
         auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), 0);
-        llvm::ReturnInst::Create(the_context, main_return, the_entry);
+        llvm::ReturnInst::Create(the_context, main_return, main_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
@@ -69,68 +61,65 @@ private:
 
         core::verify(!result);
     }
-    llvm::AllocaInst* execute(Var& var)
+    void execute(Var& var)
     {
         if(core::type_of<IdVar>(var))
-            return execute(core::down_cast<IdVar>(var));
+            execute(core::down_cast<IdVar>(var));
         else if(core::type_of<AssignVar>(var))
-            return execute(core::down_cast<AssignVar>(var));
+            execute(core::down_cast<AssignVar>(var));
         else if(core::type_of<CompositeVar>(var))
-            return execute(core::down_cast<CompositeVar>(var));
+            execute(core::down_cast<CompositeVar>(var));
         else
             throw_bad_class(var);
-        return 0;
     }
-    llvm::AllocaInst* execute(IdVar& var)
+    void execute(IdVar& var)
     {
-        return 0;
+
     }
-    llvm::AllocaInst* execute(AssignVar& var)
+    void execute(AssignVar& var)
     {
         auto value = execute(var.exp);
-        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_entry);
-        new llvm::StoreInst(value, alloca, false, the_entry);
-        return alloca;
+        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_ctor_entry);
+        new llvm::StoreInst(value, alloca, false, the_ctor_entry);
     }
-    llvm::AllocaInst* execute(CompositeVar& var)
+    void execute(CompositeVar& var)
     {
-        core::String struct_id;
-        if(var.signature_var.type_of<IdVar>())
-            struct_id = var.signature_var.down_cast<IdVar>().id;
-        else if(var.signature_var.type_of<AssignVar>())
-            struct_id = var.signature_var.down_cast<AssignVar>().id;
-        else
-            core::certify(false);
+        core::String struct_id = signature(var.signature_var);
 
         // create struct
         auto struct_name = core::Format("$1_struct").arg(struct_id).end();
         auto struct_type = llvm::StructType::create(the_context, struct_name.ascii());
-        std::vector<llvm::Type*> fields;
+        auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
+
+        // create ctor
+        auto ctor_type = llvm::FunctionType::get(struct_ptr_type, {}, false);
+        auto ctor_func = llvm::Function::Create(ctor_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        the_ctor_entry = llvm::BasicBlock::Create(the_context, "entry", ctor_func);
+
+        // alloca struct pointer
+        the_struct_ptr = new llvm::AllocaInst(struct_ptr_type, struct_id.ascii(), the_ctor_entry);
+
+        // call malloc
+        auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
+        auto struct_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), struct_size);
+        auto malloc = the_module->getFunction("malloc");
+        auto call_malloc = llvm::CallInst::Create(malloc, struct_size_const, "call", the_ctor_entry);
+
+        // store malloc result
+        auto cast = new llvm::BitCastInst(call_malloc, struct_ptr_type, "cast", the_ctor_entry);
+        new llvm::StoreInst(cast, the_struct_ptr, false, the_ctor_entry);
+
+        // struct and ctor body
+        std::vector<llvm::Type*> field_vec;
         for(auto& it : var.var_list)
         {
             auto field = it.value();
             core::certify(field.type_of<AssignVar>());
             auto& assign_var = field.down_cast<AssignVar>();
             auto field_exp = execute(assign_var.exp);
-            fields.push_back(field_exp->getType());
+            field_vec.push_back(field_exp->getType());
         }
-        struct_type->setBody(fields, false);
-
-        // alloca struct pointer
-        auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
-        auto struct_ptr = new llvm::AllocaInst(struct_ptr_type, struct_id.ascii(), the_entry);
-
-        // call malloc
-        auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
-        auto struct_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), struct_size);
-        auto malloc = the_module->getFunction("malloc");
-        auto call_malloc = llvm::CallInst::Create(malloc, struct_size_const, "", the_entry);
-
-        // store result
-        auto cast = new llvm::BitCastInst(call_malloc, struct_ptr_type, "", the_entry);
-        new llvm::StoreInst(cast, struct_ptr, false, the_entry);
-
-        return struct_ptr;
+        struct_type->setBody(field_vec, false);
     }
     llvm::Value* execute(Expression& exp)
     {
@@ -196,7 +185,7 @@ private:
             auto value = it.value();
             auto name = value->getName().data();
             if(loc.id.equal(name))
-                return new llvm::LoadInst(value, name, false, the_entry);
+                return new llvm::LoadInst(value, name, false, the_ctor_entry);
         }
         env::Throw("Unknown variable: $1").arg(loc.id).end();
         return 0;
@@ -242,21 +231,21 @@ private:
         if(type1->isFloatingPointTy() || type2->isFloatingPointTy())
         {
             if(type1->isIntegerTy())
-                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", the_entry);
+                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", the_ctor_entry);
             else if(type2->isIntegerTy())
-                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", the_entry);
+                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", the_ctor_entry);
             else if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::FPExtInst(val2, type1, "fpext", the_entry);
+                val2 = new llvm::FPExtInst(val2, type1, "fpext", the_ctor_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::FPExtInst(val1, type2, "fpext", the_entry);
+                val1 = new llvm::FPExtInst(val1, type2, "fpext", the_ctor_entry);
             return execute_float(val1, op, val2);
         }
         else if(type1->isIntegerTy() && type2->isIntegerTy())
         {
             if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::SExtInst(val2, type1, "sext", the_entry);
+                val2 = new llvm::SExtInst(val2, type1, "sext", the_ctor_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::SExtInst(val1, type2, "sext", the_entry);
+                val1 = new llvm::SExtInst(val1, type2, "sext", the_ctor_entry);
             return execute_int(val1, op, val2);
         }
         else
@@ -274,37 +263,37 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_ctor_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", the_ctor_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_ctor_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", the_ctor_entry);
             case BinaryOp::SHL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_ctor_entry);
             case BinaryOp::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", the_ctor_entry);
             case BinaryOp::EQ:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
             case BinaryOp::NE:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
             case BinaryOp::LT:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
             case BinaryOp::GT:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
             case BinaryOp::LE:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
             case BinaryOp::GE:
-                return new llvm::ICmpInst(*the_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
+                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
             case BinaryOp::AND:
-                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_ctor_entry);
             case BinaryOp::OR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", the_ctor_entry);
             case BinaryOp::XOR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_ctor_entry);
             case BinaryOp::MOD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", the_ctor_entry);
         }
         return 0;
     }
@@ -313,25 +302,25 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", the_ctor_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", the_ctor_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_ctor_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_ctor_entry);
             case BinaryOp::EQ:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
             case BinaryOp::NE:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
             case BinaryOp::LT:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
             case BinaryOp::GT:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
             case BinaryOp::LE:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
             case BinaryOp::GE:
-                return new llvm::FCmpInst(*the_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
+                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
             case BinaryOp::SHL:
             case BinaryOp::SHR:
             case BinaryOp::AND:
@@ -349,8 +338,34 @@ private:
             .arg(typeid(var).name())
             .end();
     }
+    core::String signature(Var& signature_var)
+    {
+        if(core::type_of<IdVar>(signature_var))
+            return core::down_cast<IdVar>(signature_var).id;
+        else if(core::type_of<AssignVar>(signature_var))
+            return core::down_cast<AssignVar>(signature_var).id;
+        else
+            core::certify(false);
+        return core::String();
+    }
+    core::String ctor()
+    {
+        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
+        return core::Format("$1_ctor").arg(struct_id).end();
+    }
+    core::String dtor()
+    {
+        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
+        return core::Format("$1_dtor").arg(struct_id).end();
+    }
+    core::String struct_name()
+    {
+        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
+        return core::Format("$1_struct").arg(struct_id).end();
+    }
 private:
-    llvm::BasicBlock* the_entry;
-    llvm::LLVMContext the_context;
+    llvm::BasicBlock* the_ctor_entry;
+    llvm::AllocaInst* the_struct_ptr;
     std::unique_ptr<llvm::Module> the_module;
+    llvm::LLVMContext the_context;
 };
