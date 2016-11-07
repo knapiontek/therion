@@ -9,18 +9,18 @@ public:
     {
         the_handle = acquire<Handle>(sizeof(Handle));
         the_handle->cnt = 1;
-        new((void*)the_handle->type) Type();
+        new((void*)the_handle->var) Type();
     }
     Managed(const Nil&)
     {
         the_handle = nil_handle();
         the_handle->cnt++;
     }
-    Managed(const Type& type)
+    Managed(const Type& var)
     {
         the_handle = acquire<Handle>(sizeof(Handle));
         the_handle->cnt = 1;
-        new((void*)the_handle->type) Type(type);
+        new((void*)the_handle->var) Type(var);
     }
     Managed(const Managed& arg)
     {
@@ -30,7 +30,7 @@ public:
     template<class Other>
     Managed(const Managed<Other>& arg)
     {
-        certify(static_cast<Type*>(arg.the_handle->type));
+        certify(static_cast<Type*>(arg.the_handle->var));
         the_handle = reinterpret_cast<Handle*>(arg.the_handle);
         the_handle->cnt++;
     }
@@ -39,14 +39,14 @@ public:
     {
         the_handle = acquire<Handle>(sizeof(Handle));
         the_handle->cnt = 1;
-        new((void*)the_handle->type) Type(args...);
+        new((void*)the_handle->var) Type(args...);
     }
     ~Managed()
     {
         if(!--the_handle->cnt)
         {
-            auto type = the_handle->type;
-            type->~Type();
+            auto var = the_handle->var;
+            var->~Type();
             release<Handle>(the_handle);
         }
     }
@@ -55,17 +55,17 @@ public:
         nil_handle()->cnt++;
         if(!--the_handle->cnt)
         {
-            auto type = the_handle->type;
-            type->~Type();
+            auto var = the_handle->var;
+            var->~Type();
             release<Handle>(the_handle);
         }
         the_handle = nil_handle();
         return *this;
     }
-    Managed& operator=(const Type& type)
+    Managed& operator=(const Type& var)
     {
         certify(the_handle != nil_handle());
-        *the_handle->type = type;
+        *the_handle->var = var;
         return *this;
     }
     Managed& operator=(const Managed& arg)
@@ -73,8 +73,8 @@ public:
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
         {
-            auto type = the_handle->type;
-            type->~Type();
+            auto var = the_handle->var;
+            var->~Type();
             release<Handle>(the_handle);
         }
         the_handle = arg.the_handle;
@@ -83,12 +83,12 @@ public:
     template<class Other>
     Managed& operator=(const Managed<Other>& arg)
     {
-        certify(static_cast<Type*>(arg.the_handle->type));
+        certify(static_cast<Type*>(arg.the_handle->var));
         arg.the_handle->cnt++;
         if(!--the_handle->cnt)
         {
-            auto type = the_handle->type;
-            type->~Type();
+            auto var = the_handle->var;
+            var->~Type();
             release<Handle>(the_handle);
         }
         the_handle = reinterpret_cast<Handle*>(arg.the_handle);
@@ -131,30 +131,30 @@ public:
     Type* operator->()
     {
         certify(the_handle != nil_handle());
-        return the_handle->type;
+        return the_handle->var;
     }
     operator Type&()
     {
         certify(the_handle != nil_handle());
-        return *the_handle->type;
+        return *the_handle->var;
     }
     template<class Other>
     bool type_of() const
     {
         certify(the_handle != nil_handle());
-        return dynamic_cast<Other*>(the_handle->type);
+        return dynamic_cast<Other*>(the_handle->var);
     }
     template<class Other>
     Other& down_cast() const
     {
         certify(the_handle != nil_handle());
-        return dynamic_cast<Other&>(*the_handle->type);
+        return dynamic_cast<Other&>(*the_handle->var);
     }
 private:
     struct Handle
     {
         uint16 cnt;
-        Type type[1];
+        Type var[1];
     };
 private:
     static Handle* nil_handle()

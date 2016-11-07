@@ -19,9 +19,9 @@ enum Base
 };
 
 template<class Type>
-inline Type absolute_int(Type type)
+inline Type absolute_int(Type var)
 {
-    return type * (((type > 0) << 1) - 1);
+    return var * (((var > 0) << 1) - 1);
 }
 
 class Convert

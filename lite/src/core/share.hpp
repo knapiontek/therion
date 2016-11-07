@@ -7,102 +7,102 @@ class Shared
 public:
     Shared()
     {
-        the_type = 0;
+        the_var = 0;
     }
     Shared(const Nil&)
     {
-        the_type = 0;
+        the_var = 0;
     }
-    Shared(const Type& type)
+    Shared(const Type& var)
     {
-        the_type = const_cast<Type*>(&type);
+        the_var = const_cast<Type*>(&var);
     }
     Shared(const Shared& arg)
     {
-        the_type = arg.the_type;
+        the_var = arg.the_var;
     }
     template<class Other>
     Shared(const Shared<Other>& arg)
     {
-        the_type = static_cast<Type*>(arg.the_type);
+        the_var = static_cast<Type*>(arg.the_var);
     }
     Shared& operator=(const Nil&)
     {
-        the_type = 0;
+        the_var = 0;
         return *this;
     }
-    Shared& operator=(const Type& type)
+    Shared& operator=(const Type& var)
     {
-        the_type = const_cast<Type*>(&type);
+        the_var = const_cast<Type*>(&var);
         return *this;
     }
     Shared& operator=(const Shared& arg)
     {
-        the_type = arg.the_type;
+        the_var = arg.the_var;
         return *this;
     }
     template<class Other>
     Shared& operator=(const Shared<Other>& arg)
     {
-        the_type = static_cast<Type*>(arg.the_type);
+        the_var = static_cast<Type*>(arg.the_var);
         return *this;
     }
     friend bool operator==(const Nil&, const Shared& arg)
     {
-        return (0 == arg.the_type);
+        return (0 == arg.the_var);
     }
     friend bool operator!=(const Nil&, const Shared& arg)
     {
-        return (0 != arg.the_type);
+        return (0 != arg.the_var);
     }
     bool operator==(const Nil&) const
     {
-        return (0 == the_type);
+        return (0 == the_var);
     }
     bool operator!=(const Nil&) const
     {
-        return (0 != the_type);
+        return (0 != the_var);
     }
     bool operator==(const Shared& arg) const
     {
-        return (the_type == arg.the_type);
+        return (the_var == arg.the_var);
     }
     bool operator!=(const Shared& arg) const
     {
-        return (the_type != arg.the_type);
+        return (the_var != arg.the_var);
     }
     template<class Other>
     bool operator==(const Shared<Other>& arg) const
     {
-        return (the_type == static_cast<Type*>(arg.the_type));
+        return (the_var == static_cast<Type*>(arg.the_var));
     }
     template<class Other>
     bool operator!=(const Shared<Other>& arg) const
     {
-        return (the_type != static_cast<Type*>(arg.the_type));
+        return (the_var != static_cast<Type*>(arg.the_var));
     }
     Type* operator->()
     {
-        certify(the_type);
-        return the_type;
+        certify(the_var);
+        return the_var;
     }
     operator Type&()
     {
-        certify(the_type);
-        return *the_type;
+        certify(the_var);
+        return *the_var;
     }
     template<class Other>
     bool type_of() const
     {
-        return dynamic_cast<Other*>(the_type);
+        return dynamic_cast<Other*>(the_var);
     }
     template<class Other>
     Other& down_cast() const
     {
-        return dynamic_cast<Other&>(*the_type);
+        return dynamic_cast<Other&>(*the_var);
     }
 private:
-    Type* the_type;
+    Type* the_var;
 };
 
 namespace share

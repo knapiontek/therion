@@ -14,9 +14,9 @@ struct Ret
 };
 
 template<class Type>
-inline Ret<Type> ret(Type& type)
+inline Ret<Type> ret(Type& var)
 {
-    Ret<Type> ret {&type};
+    Ret<Type> ret {&var};
     return ret;
 }
 

@@ -10,8 +10,8 @@ struct TypeFinal
 {
 	virtual void destroy()
 	{
-		auto type = reinterpret_cast<Type*>(this + 1);
-		type->~Type();
+		auto var = reinterpret_cast<Type*>(this + 1);
+		var->~Type();
 	}
 	Final* prev;
 };
@@ -60,9 +60,9 @@ public:
 		::memcpy((void*)tail, (void*)&final, sizeof(Final));
 		the_last_final = tail;
 
-		auto type = reinterpret_cast<Type*>(++tail);
-		new((void*)type) Type();
-		return *type;
+		auto var = reinterpret_cast<Type*>(++tail);
+		new((void*)var) Type();
+		return *var;
 	}
 	template<class Type>
 	Type* acquire(int64 size)
@@ -80,15 +80,15 @@ public:
 		auto ptr_size = (int64*)++tail;
 		*ptr_size = size;
 
-		auto type = reinterpret_cast<Type*>(++ptr_size);
-		auto it = type;
-		auto end = type + size;
+		auto var = reinterpret_cast<Type*>(++ptr_size);
+		auto it = var;
+		auto end = var + size;
 		while(it < end)
 		{
 			new((void*)it) Type();
 			it++;
 		}
-		return type;
+		return var;
 	}
 	void release()
 	{
