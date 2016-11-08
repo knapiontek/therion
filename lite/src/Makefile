@@ -14,4 +14,4 @@ build:
 	lemon lang/grammar.lem $(bindir)
 	$(cc) test/test.cpp $(cxxflags) -o $(bindir)/test/test.o
 	$(cc) $(bindir)/test/test.o $(linkflags) -o $(bindir)/test/test
-	$(bindir)/test/test ~/therion/lite
+	#$(bindir)/test/test ~/therion/lite

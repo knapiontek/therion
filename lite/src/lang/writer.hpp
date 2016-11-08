@@ -8,6 +8,13 @@ public:
         writer.execute_tree(tree, filename);
     }
 private:
+    struct Context
+    {
+        llvm::AllocaInst* clazz_ptr;
+        llvm::BasicBlock* create_entry;
+        llvm::BasicBlock* destroy_entry;
+    };
+private:
     Writer()
     {
         llvm::InitializeNativeTarget();
@@ -19,35 +26,34 @@ private:
     void execute_tree(Tree& tree, core::String& filename)
     {
         // initialize
-        the_module = llvm::make_unique<llvm::Module>(filename.ascii(), the_context);
+        the_module = llvm::make_unique<llvm::Module>(filename.ascii(), the_llvm);
 
-        // declare malloc function
-        auto malloc_result = llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0);
-        llvm::Type* malloc_args[] = { llvm::Type::getInt64Ty(the_context) };
+        // malloc
+        auto malloc_result = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
+        llvm::Type* malloc_args[] = { llvm::Type::getInt64Ty(the_llvm) };
         auto malloc_type = llvm::FunctionType::get(malloc_result, malloc_args, false);
-        llvm::Function::Create(malloc_type, llvm::GlobalValue::ExternalLinkage, "malloc", the_module.get());
+        the_malloc_func = llvm::Function::Create(malloc_type, llvm::GlobalValue::ExternalLinkage, "malloc", the_module.get());
 
-        // declare free function
-        auto free_result = llvm::Type::getVoidTy(the_context);
-        llvm::Type* free_args[] = { llvm::PointerType::get(llvm::Type::getInt8Ty(the_context), 0) };
+        // free
+        auto free_result = llvm::Type::getVoidTy(the_llvm);
+        llvm::Type* free_args[] = { llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0) };
         auto free_type = llvm::FunctionType::get(free_result, free_args, false);
-        llvm::Function::Create(free_type, llvm::GlobalValue::ExternalLinkage, "free", the_module.get());
+        the_free_func = llvm::Function::Create(free_type, llvm::GlobalValue::ExternalLinkage, "free", the_module.get());
 
-        // declare main function
-        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_context), {}, false);
+        // main
+        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        auto main_entry = llvm::BasicBlock::Create(the_context, "entry", main_func);
+        auto main_create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", main_func);
+        auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
 
         // build body of main function
-        execute(tree.var());
-        auto ctor_func = the_module->getFunction(ctor().ascii());
-        llvm::CallInst::Create(ctor_func, {}, "call", main_entry);
-        auto dtor_func = the_module->getFunction(dtor().ascii());
-        llvm::CallInst::Create(dtor_func, {}, "call", main_entry);
+        Context context = { 0, main_create_entry, main_destroy_entry };
+        execute(tree.var(), context);
 
         // create main function return
-        auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), 0);
-        llvm::ReturnInst::Create(the_context, main_return, main_entry);
+        auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        llvm::ReturnInst::Create(the_llvm, main_return, main_create_entry);
+        llvm::ReturnInst::Create(the_llvm, main_return, main_destroy_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
@@ -61,123 +67,128 @@ private:
 
         core::verify(!result);
     }
-    void execute(Var& var)
+    void execute(Var& var, Context& context)
     {
         if(core::type_of<IdVar>(var))
-            execute(core::down_cast<IdVar>(var));
+            execute(core::down_cast<IdVar>(var), context);
         else if(core::type_of<AssignVar>(var))
-            execute(core::down_cast<AssignVar>(var));
+            execute(core::down_cast<AssignVar>(var), context);
         else if(core::type_of<CompositeVar>(var))
-            execute(core::down_cast<CompositeVar>(var));
+            execute(core::down_cast<CompositeVar>(var), context);
         else
             throw_bad_class(var);
     }
-    void execute(IdVar& var)
+    void execute(IdVar& var, Context& context)
     {
 
     }
-    void execute(AssignVar& var)
+    void execute(AssignVar& var, Context& context)
     {
-        auto value = execute(var.exp);
-        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), the_ctor_entry);
-        new llvm::StoreInst(value, alloca, false, the_ctor_entry);
+        auto value = execute(var.exp, context);
+        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), context.create_entry);
+        new llvm::StoreInst(value, alloca, false, context.create_entry);
     }
-    void execute(CompositeVar& var)
+    void execute(CompositeVar& var, Context& context)
     {
-        core::String struct_id = signature(var.signature_var);
+        core::String clazz_id = var_id(var.signature_var);
 
-        // create struct
-        auto struct_name = core::Format("$1_struct").arg(struct_id).end();
-        auto struct_type = llvm::StructType::create(the_context, struct_name.ascii());
-        auto struct_ptr_type = llvm::PointerType::get(struct_type, 0);
+        // clazz
+        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(context).ascii());
+        auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
 
-        // create ctor
-        auto ctor_type = llvm::FunctionType::get(struct_ptr_type, {}, false);
-        auto ctor_func = llvm::Function::Create(ctor_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        the_ctor_entry = llvm::BasicBlock::Create(the_context, "entry", ctor_func);
+        // clazz alloca
+        context.clazz_ptr = new llvm::AllocaInst(clazz_ptr_type, clazz_id.ascii(), context.create_entry);
 
-        // alloca struct pointer
-        the_struct_ptr = new llvm::AllocaInst(struct_ptr_type, struct_id.ascii(), the_ctor_entry);
+        // clazz create/destroy
+        auto create_type = llvm::FunctionType::get(clazz_ptr_type, {}, false);
+        auto create_func = llvm::Function::Create(create_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        context.create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
+        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_ptr_type }, false);
+        auto destroy_func = llvm::Function::Create(destroy_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
 
-        // call malloc
-        auto struct_size = the_module->getDataLayout().getTypeAllocSize(struct_type);
-        auto struct_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), struct_size);
-        auto malloc = the_module->getFunction("malloc");
-        auto call_malloc = llvm::CallInst::Create(malloc, struct_size_const, "call", the_ctor_entry);
+        // call create/destroy by parent
+        llvm::CallInst::Create(create_func, {}, "call", context.create_entry);
+        llvm::CallInst::Create(destroy_func, {}, "call", context.destroy_entry);
 
-        // store malloc result
-        auto cast = new llvm::BitCastInst(call_malloc, struct_ptr_type, "cast", the_ctor_entry);
-        new llvm::StoreInst(cast, the_struct_ptr, false, the_ctor_entry);
-
-        // struct and ctor body
+        // clazz and create/destroy body
         std::vector<llvm::Type*> field_vec;
         for(auto& it : var.var_list)
         {
             auto field = it.value();
             core::certify(field.type_of<AssignVar>());
             auto& assign_var = field.down_cast<AssignVar>();
-            auto field_exp = execute(assign_var.exp);
+            auto field_exp = execute(assign_var.exp, context);
             field_vec.push_back(field_exp->getType());
         }
-        struct_type->setBody(field_vec, false);
+        clazz_type->setBody(field_vec, false);
+
+        // call malloc
+        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
+        auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", context.clazz_ptr);
+
+        // store malloc result
+        auto cast = new llvm::BitCastInst(call_malloc, clazz_ptr_type, "cast", context.create_entry);
+        new llvm::StoreInst(cast, context.clazz_ptr, false, context.create_entry);
     }
-    llvm::Value* execute(Expression& exp)
+    llvm::Value* execute(Expression& exp, Context& context)
     {
         if(core::type_of<FinalExpression>(exp))
-            return execute(core::down_cast<FinalExpression>(exp));
+            return execute(core::down_cast<FinalExpression>(exp), context);
         else if(core::type_of<LocationExpression>(exp))
-            return execute(core::down_cast<LocationExpression>(exp));
+            return execute(core::down_cast<LocationExpression>(exp), context);
         else if(core::type_of<NestFinalExpression>(exp))
-            return execute(core::down_cast<NestFinalExpression>(exp));
+            return execute(core::down_cast<NestFinalExpression>(exp), context);
         else if(core::type_of<NestLocationExpression>(exp))
-            return execute(core::down_cast<NestLocationExpression>(exp));
+            return execute(core::down_cast<NestLocationExpression>(exp), context);
         else if(core::type_of<NestExpression>(exp))
-            return execute(core::down_cast<NestExpression>(exp));
+            return execute(core::down_cast<NestExpression>(exp), context);
         else
             throw_bad_class(exp);
         return 0;
     }
-    llvm::Value* execute(FinalExpression& exp)
+    llvm::Value* execute(FinalExpression& exp, Context& context)
     {
         return execute(exp.final);
     }
-    llvm::Value* execute(LocationExpression& exp)
+    llvm::Value* execute(LocationExpression& exp, Context& context)
     {
-        return execute(exp.loc);
+        return execute(exp.loc, context);
     }
-    llvm::Value* execute(NestFinalExpression& exp)
+    llvm::Value* execute(NestFinalExpression& exp, Context& context)
     {
-        auto exp_val = execute(exp.exp);
+        auto exp_val = execute(exp.exp, context);
         auto final_val = execute(exp.final);
-        return execute(exp_val, exp.op, final_val);
+        return execute(exp_val, exp.op, final_val, context);
     }
-    llvm::Value* execute(NestLocationExpression& exp)
+    llvm::Value* execute(NestLocationExpression& exp, Context& context)
     {
-        auto exp_val = execute(exp.exp);
-        auto loc_val = execute(exp.loc);
-        return execute(exp_val, exp.op, loc_val);
+        auto exp_val = execute(exp.exp, context);
+        auto loc_val = execute(exp.loc, context);
+        return execute(exp_val, exp.op, loc_val, context);
     }
-    llvm::Value* execute(NestExpression& exp)
+    llvm::Value* execute(NestExpression& exp, Context& context)
     {
-        auto val1 = execute(exp.exp1);
-        auto val2 = execute(exp.exp2);
-        return execute(val1, exp.op, val2);
+        auto val1 = execute(exp.exp1, context);
+        auto val2 = execute(exp.exp2, context);
+        return execute(val1, exp.op, val2, context);
     }
-    llvm::Value* execute(Location& loc)
+    llvm::Value* execute(Location& loc, Context& context)
     {
         if(core::type_of<IdLocation>(loc))
-            return execute(core::down_cast<IdLocation>(loc));
+            return execute(core::down_cast<IdLocation>(loc), context);
         else if(core::type_of<FilterLocation>(loc))
-            return execute(core::down_cast<FilterLocation>(loc));
+            return execute(core::down_cast<FilterLocation>(loc), context);
         else if(core::type_of<NestIdLocation>(loc))
-            return execute(core::down_cast<NestIdLocation>(loc));
+            return execute(core::down_cast<NestIdLocation>(loc), context);
         else if(core::type_of<NestFilterLocation>(loc))
-            return execute(core::down_cast<NestFilterLocation>(loc));
+            return execute(core::down_cast<NestFilterLocation>(loc), context);
         else
             throw_bad_class(loc);
         return 0;
     }
-    llvm::Value* execute(IdLocation& loc)
+    llvm::Value* execute(IdLocation& loc, Context& context)
     {
         core::List<llvm::AllocaInst*> list;
         for(auto it : list)
@@ -185,7 +196,7 @@ private:
             auto value = it.value();
             auto name = value->getName().data();
             if(loc.id.equal(name))
-                return new llvm::LoadInst(value, name, false, the_ctor_entry);
+                return new llvm::LoadInst(value, name, false, context.create_entry);
         }
         env::Throw("Unknown variable: $1").arg(loc.id).end();
         return 0;
@@ -210,20 +221,20 @@ private:
         switch(final.type)
         {
             case Type::INT8:
-                return llvm::ConstantInt::get(llvm::Type::getInt8Ty(the_context), final.value.to_int8());
+                return llvm::ConstantInt::get(llvm::Type::getInt8Ty(the_llvm), final.value.to_int8());
             case Type::INT16:
-                return llvm::ConstantInt::get(llvm::Type::getInt16Ty(the_context), final.value.to_int16());
+                return llvm::ConstantInt::get(llvm::Type::getInt16Ty(the_llvm), final.value.to_int16());
             case Type::INT32:
-                return llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_context), final.value.to_int32());
+                return llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), final.value.to_int32());
             case Type::INT64:
-                return llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_context), final.value.to_int64());
+                return llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), final.value.to_int64());
             case Type::FLOAT32:
-                return llvm::ConstantFP::get(llvm::Type::getFloatTy(the_context), final.value.to_float32());
+                return llvm::ConstantFP::get(llvm::Type::getFloatTy(the_llvm), final.value.to_float32());
             case Type::FLOAT64:
-                return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_context), final.value.to_float64());
+                return llvm::ConstantFP::get(llvm::Type::getDoubleTy(the_llvm), final.value.to_float64());
         }
     }
-    llvm::Value* execute(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
+    llvm::Value* execute(llvm::Value* val1, BinaryOp op, llvm::Value* val2, Context& context)
     {
         auto type1 = val1->getType();
         auto type2 = val2->getType();
@@ -231,22 +242,22 @@ private:
         if(type1->isFloatingPointTy() || type2->isFloatingPointTy())
         {
             if(type1->isIntegerTy())
-                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", the_ctor_entry);
+                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", context.create_entry);
             else if(type2->isIntegerTy())
-                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", the_ctor_entry);
+                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", context.create_entry);
             else if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::FPExtInst(val2, type1, "fpext", the_ctor_entry);
+                val2 = new llvm::FPExtInst(val2, type1, "fpext", context.create_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::FPExtInst(val1, type2, "fpext", the_ctor_entry);
-            return execute_float(val1, op, val2);
+                val1 = new llvm::FPExtInst(val1, type2, "fpext", context.create_entry);
+            return execute_float(val1, op, val2, context);
         }
         else if(type1->isIntegerTy() && type2->isIntegerTy())
         {
             if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::SExtInst(val2, type1, "sext", the_ctor_entry);
+                val2 = new llvm::SExtInst(val2, type1, "sext", context.create_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::SExtInst(val1, type2, "sext", the_ctor_entry);
-            return execute_int(val1, op, val2);
+                val1 = new llvm::SExtInst(val1, type2, "sext", context.create_entry);
+            return execute_int(val1, op, val2, context);
         }
         else
         {
@@ -258,69 +269,69 @@ private:
 
         return 0;
     }
-    llvm::Value* execute_int(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
+    llvm::Value* execute_int(llvm::Value* val1, BinaryOp op, llvm::Value* val2, Context& context)
     {
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", context.create_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", context.create_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", context.create_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", context.create_entry);
             case BinaryOp::SHL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", context.create_entry);
             case BinaryOp::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", context.create_entry);
             case BinaryOp::EQ:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
             case BinaryOp::NE:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
             case BinaryOp::LT:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
             case BinaryOp::GT:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
             case BinaryOp::LE:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
             case BinaryOp::GE:
-                return new llvm::ICmpInst(*the_ctor_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
             case BinaryOp::AND:
-                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", context.create_entry);
             case BinaryOp::OR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", context.create_entry);
             case BinaryOp::XOR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", context.create_entry);
             case BinaryOp::MOD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", context.create_entry);
         }
         return 0;
     }
-    llvm::Value* execute_float(llvm::Value* val1, BinaryOp op, llvm::Value* val2)
+    llvm::Value* execute_float(llvm::Value* val1, BinaryOp op, llvm::Value* val2, Context& context)
     {
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", context.create_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", context.create_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", context.create_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", the_ctor_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", context.create_entry);
             case BinaryOp::EQ:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
             case BinaryOp::NE:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
             case BinaryOp::LT:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
             case BinaryOp::GT:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
             case BinaryOp::LE:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
             case BinaryOp::GE:
-                return new llvm::FCmpInst(*the_ctor_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
             case BinaryOp::SHL:
             case BinaryOp::SHR:
             case BinaryOp::AND:
@@ -331,6 +342,21 @@ private:
         }
         return 0;
     }
+    core::String clazz_name(Context& context)
+    {
+        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        return core::Format("$1_struct").arg(clazz_id).end();
+    }
+    core::String create_name(Context& context)
+    {
+        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        return core::Format("$1_create").arg(clazz_id).end();
+    }
+    core::String destroy_name(Context& context)
+    {
+        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        return core::Format("$1_destroy").arg(clazz_id).end();
+    }
     template<class Type>
     static void throw_bad_class(const Type& var)
     {
@@ -338,34 +364,19 @@ private:
             .arg(typeid(var).name())
             .end();
     }
-    core::String signature(Var& signature_var)
+    core::String var_id(Var& var)
     {
-        if(core::type_of<IdVar>(signature_var))
-            return core::down_cast<IdVar>(signature_var).id;
-        else if(core::type_of<AssignVar>(signature_var))
-            return core::down_cast<AssignVar>(signature_var).id;
+        if(core::type_of<IdVar>(var))
+            return core::down_cast<IdVar>(var).id;
+        else if(core::type_of<AssignVar>(var))
+            return core::down_cast<AssignVar>(var).id;
         else
             core::certify(false);
         return core::String();
     }
-    core::String ctor()
-    {
-        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
-        return core::Format("$1_ctor").arg(struct_id).end();
-    }
-    core::String dtor()
-    {
-        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
-        return core::Format("$1_dtor").arg(struct_id).end();
-    }
-    core::String struct_name()
-    {
-        core::String struct_id = the_struct_ptr->getType()->getStructName().data();
-        return core::Format("$1_struct").arg(struct_id).end();
-    }
 private:
-    llvm::BasicBlock* the_ctor_entry;
-    llvm::AllocaInst* the_struct_ptr;
+    llvm::Function* the_malloc_func;
+    llvm::Function* the_free_func;
+    llvm::LLVMContext the_llvm;
     std::unique_ptr<llvm::Module> the_module;
-    llvm::LLVMContext the_context;
 };
