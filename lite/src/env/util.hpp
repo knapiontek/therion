@@ -93,27 +93,31 @@ private:
     core::int64 the_size;
 };
 
-class Throw : public core::FormatClass<Throw>
+class Format : public core::FormatClass<Format>
 {
 public:
-    static void raise(core::String& message)
+    static Exception exception(core::String& message)
     {
         Return::code() |= Return::fail;
         Exception exception;
         exception.message() = message;
-        throw exception;
+        return exception;
     }
 public:
-    Throw(core::String& format) : core::FormatClass<Throw>(format)
+    Format(core::String& format) : core::FormatClass<Format>(format)
     {
 
     }
-    void end()
+    Exception exception()
     {
         Return::code() |= Return::fail;
         Exception exception;
-        exception.message() = core::FormatClass<Throw>::end();
-        throw exception;
+        exception.message() = core::FormatClass<Format>::end();
+        return exception;
+    }
+    void end()
+    {
+        core::certify(false);
     }
     void endln()
     {

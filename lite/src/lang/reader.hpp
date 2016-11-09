@@ -310,11 +310,11 @@ start_switch:
             decode.read(ch);
             if('\n' == ch || '\0' == ch)
             {
-                env::Throw("syntax error before: '$1'\n\tlocation: $2:$3")
+                throw env::Format("syntax error before: '$1'\n\tlocation: $2:$3")
                     .arg(line)
                     .arg(filename)
                     .arg(line_cnt)
-                    .end();
+                    .exception();
             }
             line.attach(ch);
         }

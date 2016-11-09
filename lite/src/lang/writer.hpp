@@ -76,7 +76,7 @@ private:
         else if(core::type_of<CompositeVar>(var))
             execute(core::down_cast<CompositeVar>(var), context);
         else
-            throw_bad_class(var);
+            throw bad_class_exception(var);
     }
     void execute(IdVar& var, Context& context)
     {
@@ -145,8 +145,7 @@ private:
         else if(core::type_of<NestExpression>(exp))
             return execute(core::down_cast<NestExpression>(exp), context);
         else
-            throw_bad_class(exp);
-        return 0;
+            throw bad_class_exception(exp);
     }
     llvm::Value* execute(FinalExpression& exp, Context& context)
     {
@@ -185,8 +184,7 @@ private:
         else if(core::type_of<NestFilterLocation>(loc))
             return execute(core::down_cast<NestFilterLocation>(loc), context);
         else
-            throw_bad_class(loc);
-        return 0;
+            throw bad_class_exception(loc);
     }
     llvm::Value* execute(IdLocation& loc, Context& context)
     {
@@ -198,8 +196,7 @@ private:
             if(loc.id.equal(name))
                 return new llvm::LoadInst(value, name, false, context.create_entry);
         }
-        env::Throw("Unknown variable: $1").arg(loc.id).end();
-        return 0;
+        throw env::Format("Unknown variable: $1").arg(loc.id).exception();
     }
     llvm::Value* execute(FilterLocation& loc)
     {
@@ -261,13 +258,11 @@ private:
         }
         else
         {
-            env::Throw("Cannot handle llvm::Type::TypeID's: [$1, $2]")
+            throw env::Format("Cannot handle llvm::Type::TypeID's: [$1, $2]")
                 .arg(type1->getTypeID())
                 .arg(type2->getTypeID())
-                .end();
+                .exception();
         }
-
-        return 0;
     }
     llvm::Value* execute_int(llvm::Value* val1, BinaryOp op, llvm::Value* val2, Context& context)
     {
@@ -338,9 +333,10 @@ private:
             case BinaryOp::OR:
             case BinaryOp::XOR:
             case BinaryOp::MOD:
-                env::Throw("Binary operator '$1' not supported for floating point").arg(binary_op_name(op)).end();
+                throw env::Format("Binary operator '$1' not supported for floating point")
+                    .arg(binary_op_name(op))
+                    .exception();
         }
-        return 0;
     }
     core::String clazz_name(Context& context)
     {
@@ -358,11 +354,11 @@ private:
         return core::Format("$1_destroy").arg(clazz_id).end();
     }
     template<class Type>
-    static void throw_bad_class(const Type& var)
+    env::Exception bad_class_exception(const Type& var)
     {
-        env::Throw("Writable: $1 not handled")
+        return env::Format("Writable: $1 not handled")
             .arg(typeid(var).name())
-            .end();
+            .exception();
     }
     core::String var_id(Var& var)
     {
