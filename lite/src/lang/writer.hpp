@@ -98,7 +98,7 @@ private:
                                                            context.create_entry);
         new llvm::StoreInst(value, clazz_field, false, context.create_entry);
     }
-    llvm::Value* execute(CompositeVar& var, Context& context)
+    void execute(CompositeVar& var, Context& context)
     {
         auto clazz_id = var_id(var.signature_var);
 
@@ -115,13 +115,13 @@ private:
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   create_name(clazz_id).ascii(),
                                                   the_module.get());
-        context.create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
+        context.create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto destroy_func = llvm::Function::Create(destroy_type,
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name(clazz_id).ascii(),
                                                    the_module.get());
-        context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
+        context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
         // call create/destroy by parent
         llvm::CallInst::Create(create_func, {}, "call", context.create_entry);
@@ -141,7 +141,7 @@ private:
 
         // store malloc result
         auto cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, "cast", context.create_entry);
-        return new llvm::StoreInst(cast, context.clazz_alloca, false, context.create_entry);
+        new llvm::StoreInst(cast, context.clazz_alloca, false, context.create_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
