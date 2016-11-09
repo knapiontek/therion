@@ -10,7 +10,8 @@ public:
 private:
     struct Context
     {
-        llvm::AllocaInst* clazz_ptr;
+        llvm::StructType* clazz_type;
+        llvm::AllocaInst* clazz_alloca;
         llvm::BasicBlock* create_entry;
         llvm::BasicBlock* destroy_entry;
     };
@@ -47,7 +48,7 @@ private:
         auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
 
         // build body of main function
-        Context context = { 0, main_create_entry, main_destroy_entry };
+        Context context = { 0, 0, main_create_entry, main_destroy_entry };
         execute(tree.var(), context);
 
         // create main function return
@@ -67,43 +68,50 @@ private:
 
         core::verify(!result);
     }
-    void execute(Var& var, Context& context)
+    llvm::Value* execute(Var& var, Context& context)
     {
         if(core::type_of<IdVar>(var))
-            execute(core::down_cast<IdVar>(var), context);
+            return execute(core::down_cast<IdVar>(var), context);
         else if(core::type_of<AssignVar>(var))
-            execute(core::down_cast<AssignVar>(var), context);
+            return execute(core::down_cast<AssignVar>(var), context);
         else if(core::type_of<CompositeVar>(var))
-            execute(core::down_cast<CompositeVar>(var), context);
+            return execute(core::down_cast<CompositeVar>(var), context);
         else
             throw bad_class_exception(var);
     }
-    void execute(IdVar& var, Context& context)
+    llvm::Value* execute(IdVar& var, Context& context)
     {
-
+        core::certify(false);
+        return 0;
     }
-    void execute(AssignVar& var, Context& context)
+    llvm::Value* execute(AssignVar& var, Context& context)
     {
         auto value = execute(var.exp, context);
-        auto alloca = new llvm::AllocaInst(value->getType(), var.id.ascii(), context.create_entry);
-        new llvm::StoreInst(value, alloca, false, context.create_entry);
+        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto clazz_load = new llvm::LoadInst(context.clazz_alloca, "", false, context.create_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { const_int32_0, const_int32_0 },
+                                                           "gep",
+                                                           context.create_entry);
+        return new llvm::StoreInst(value, clazz_field, false, context.create_entry);
     }
-    void execute(CompositeVar& var, Context& context)
+    llvm::Value* execute(CompositeVar& var, Context& context)
     {
         core::String clazz_id = var_id(var.signature_var);
 
         // clazz
-        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(context).ascii());
-        auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
+        context.clazz_type = llvm::StructType::create(the_llvm, clazz_name(context).ascii());
+        auto clazz_type_ptr = llvm::PointerType::get(context.clazz_type, 0);
 
         // clazz alloca
-        context.clazz_ptr = new llvm::AllocaInst(clazz_ptr_type, clazz_id.ascii(), context.create_entry);
+        context.clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, clazz_id.ascii(), context.create_entry);
 
         // clazz create/destroy
-        auto create_type = llvm::FunctionType::get(clazz_ptr_type, {}, false);
+        auto create_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
         auto create_func = llvm::Function::Create(create_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         context.create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
-        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_ptr_type }, false);
+        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto destroy_func = llvm::Function::Create(destroy_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
 
@@ -116,21 +124,19 @@ private:
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            core::certify(field.type_of<AssignVar>());
-            auto& assign_var = field.down_cast<AssignVar>();
-            auto field_exp = execute(assign_var.exp, context);
-            field_vec.push_back(field_exp->getType());
+            auto field_value = execute(field, context);
+            field_vec.push_back(field_value->getType());
         }
-        clazz_type->setBody(field_vec, false);
+        context.clazz_type->setBody(field_vec, false);
 
         // call malloc
-        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
+        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(context.clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", context.clazz_ptr);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", context.clazz_alloca);
 
         // store malloc result
-        auto cast = new llvm::BitCastInst(call_malloc, clazz_ptr_type, "cast", context.create_entry);
-        new llvm::StoreInst(cast, context.clazz_ptr, false, context.create_entry);
+        auto cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, "cast", context.create_entry);
+        return new llvm::StoreInst(cast, context.clazz_alloca, false, context.create_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
@@ -340,21 +346,21 @@ private:
     }
     core::String clazz_name(Context& context)
     {
-        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
         return core::Format("$1_struct").arg(clazz_id).end();
     }
     core::String create_name(Context& context)
     {
-        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
         return core::Format("$1_create").arg(clazz_id).end();
     }
     core::String destroy_name(Context& context)
     {
-        auto clazz_id = context.clazz_ptr->getType()->getStructName().data();
+        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
         return core::Format("$1_destroy").arg(clazz_id).end();
     }
     template<class Type>
-    env::Exception bad_class_exception(const Type& var)
+    env::Exception bad_class_exception(Type& var)
     {
         return env::Format("Writable: $1 not handled")
             .arg(typeid(var).name())
