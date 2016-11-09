@@ -14,6 +14,7 @@ private:
         llvm::AllocaInst* clazz_alloca;
         llvm::BasicBlock* create_entry;
         llvm::BasicBlock* destroy_entry;
+        std::vector<llvm::Type*> field_vec;
     };
 private:
     Writer()
@@ -48,7 +49,7 @@ private:
         auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
 
         // build body of main function
-        Context context = { 0, 0, main_create_entry, main_destroy_entry };
+        Context context = { 0, 0, main_create_entry, main_destroy_entry, {} };
         execute(tree.var(), context);
 
         // create main function return
@@ -68,25 +69,26 @@ private:
 
         core::verify(!result);
     }
-    llvm::Value* execute(Var& var, Context& context)
+    void execute(Var& var, Context& context)
     {
         if(core::type_of<IdVar>(var))
-            return execute(core::down_cast<IdVar>(var), context);
+            execute(core::down_cast<IdVar>(var), context);
         else if(core::type_of<AssignVar>(var))
-            return execute(core::down_cast<AssignVar>(var), context);
+            execute(core::down_cast<AssignVar>(var), context);
         else if(core::type_of<CompositeVar>(var))
-            return execute(core::down_cast<CompositeVar>(var), context);
+            execute(core::down_cast<CompositeVar>(var), context);
         else
             throw bad_class_exception(var);
     }
-    llvm::Value* execute(IdVar& var, Context& context)
+    void execute(IdVar& var, Context& context)
     {
         core::certify(false);
-        return 0;
     }
-    llvm::Value* execute(AssignVar& var, Context& context)
+    void execute(AssignVar& var, Context& context)
     {
         auto value = execute(var.exp, context);
+        context.field_vec.push_back(value->getType());
+        context.clazz_type->setBody(context.field_vec, false);
         auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto clazz_load = new llvm::LoadInst(context.clazz_alloca, "", false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
@@ -94,7 +96,7 @@ private:
                                                            { const_int32_0, const_int32_0 },
                                                            "gep",
                                                            context.create_entry);
-        return new llvm::StoreInst(value, clazz_field, false, context.create_entry);
+        new llvm::StoreInst(value, clazz_field, false, context.create_entry);
     }
     llvm::Value* execute(CompositeVar& var, Context& context)
     {
@@ -126,14 +128,11 @@ private:
         llvm::CallInst::Create(destroy_func, {}, "call", context.destroy_entry);
 
         // clazz and create/destroy body
-        std::vector<llvm::Type*> field_vec;
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            auto field_value = execute(field, context);
-            field_vec.push_back(field_value->getType());
+            execute(field, context);
         }
-        context.clazz_type->setBody(field_vec, false);
 
         // call malloc
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(context.clazz_type);
