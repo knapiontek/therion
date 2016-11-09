@@ -98,10 +98,10 @@ private:
     }
     llvm::Value* execute(CompositeVar& var, Context& context)
     {
-        core::String clazz_id = var_id(var.signature_var);
+        auto clazz_id = var_id(var.signature_var);
 
         // clazz
-        context.clazz_type = llvm::StructType::create(the_llvm, clazz_name(context).ascii());
+        context.clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
         auto clazz_type_ptr = llvm::PointerType::get(context.clazz_type, 0);
 
         // clazz alloca
@@ -109,10 +109,16 @@ private:
 
         // clazz create/destroy
         auto create_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
-        auto create_func = llvm::Function::Create(create_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        auto create_func = llvm::Function::Create(create_type,
+                                                  llvm::GlobalValue::ExternalLinkage,
+                                                  create_name(clazz_id).ascii(),
+                                                  the_module.get());
         context.create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
         auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
-        auto destroy_func = llvm::Function::Create(destroy_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        auto destroy_func = llvm::Function::Create(destroy_type,
+                                                   llvm::GlobalValue::ExternalLinkage,
+                                                   destroy_name(clazz_id).ascii(),
+                                                   the_module.get());
         context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
 
         // call create/destroy by parent
@@ -344,19 +350,16 @@ private:
                     .exception();
         }
     }
-    core::String clazz_name(Context& context)
+    core::String clazz_name(core::String& clazz_id)
     {
-        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
-        return core::Format("$1_struct").arg(clazz_id).end();
+        return core::Format("$1_clazz").arg(clazz_id).end();
     }
-    core::String create_name(Context& context)
+    core::String create_name(core::String& clazz_id)
     {
-        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
         return core::Format("$1_create").arg(clazz_id).end();
     }
-    core::String destroy_name(Context& context)
+    core::String destroy_name(core::String& clazz_id)
     {
-        auto clazz_id = context.clazz_alloca->getType()->getStructName().data();
         return core::Format("$1_destroy").arg(clazz_id).end();
     }
     template<class Type>
