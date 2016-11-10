@@ -86,14 +86,18 @@ private:
     }
     void execute(AssignVar& var, Context& context)
     {
+        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto const_int32_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
+
         auto value = execute(var.exp, context);
+
         context.field_vec.push_back(value->getType());
         context.clazz_type->setBody(context.field_vec, false);
-        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+
         auto clazz_load = new llvm::LoadInst(context.clazz_alloca, "", false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
-                                                           { const_int32_0, const_int32_0 },
+                                                           { const_int32_0, const_int32_i },
                                                            "gep",
                                                            context.create_entry);
         new llvm::StoreInst(value, clazz_field, false, context.create_entry);
@@ -103,11 +107,11 @@ private:
         auto clazz_id = var_id(var.signature_var);
 
         // clazz
-        context.clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
-        auto clazz_type_ptr = llvm::PointerType::get(context.clazz_type, 0);
+        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
+        auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // clazz alloca
-        context.clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, clazz_id.ascii(), context.create_entry);
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, clazz_id.ascii(), context.create_entry);
 
         // clazz create/destroy
         auto create_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
@@ -115,33 +119,34 @@ private:
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   create_name(clazz_id).ascii(),
                                                   the_module.get());
-        context.create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto destroy_func = llvm::Function::Create(destroy_type,
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name(clazz_id).ascii(),
                                                    the_module.get());
-        context.destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
+        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
         // call create/destroy by parent
         llvm::CallInst::Create(create_func, {}, "call", context.create_entry);
         llvm::CallInst::Create(destroy_func, {}, "call", context.destroy_entry);
 
         // clazz and create/destroy body
+        Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
         for(auto& it : var.var_list)
         {
             auto field = it.value();
-            execute(field, context);
+            execute(field, in_context);
         }
 
         // call malloc
-        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(context.clazz_type);
+        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", context.clazz_alloca);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", clazz_alloca);
 
         // store malloc result
-        auto cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, "cast", context.create_entry);
-        new llvm::StoreInst(cast, context.clazz_alloca, false, context.create_entry);
+        auto cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, "cast", create_entry);
+        new llvm::StoreInst(cast, clazz_alloca, false, create_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
