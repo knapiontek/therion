@@ -127,7 +127,12 @@ private:
                                                    the_module.get());
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
-        // call create/destroy by parent
+        // call clazz and create/destroy by parent
+        if(context.clazz_type)
+        {
+            context.field_vec.push_back(clazz_type);
+            context.clazz_type->setBody(context.field_vec, false);
+        }
         llvm::CallInst::Create(create_func, {}, "call", context.create_entry);
         llvm::CallInst::Create(destroy_func, {}, "call", context.destroy_entry);
 
