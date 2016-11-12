@@ -43,13 +43,14 @@ private:
     {
         // main
         auto clazz_type = llvm::StructType::create(the_llvm, "main_clazz");
+        auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
         auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", func);
 
         // main body
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
         Context context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
         for(auto& it : tree.var().var_list)
         {
@@ -130,15 +131,24 @@ private:
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
         // clazz alloca
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, context.create_entry);
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
 
         // place clazz and create/destroy in parent
-        context.field_vec.push_back(clazz_type);
+        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto const_int32_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
+
+        context.field_vec.push_back(clazz_type_ptr);
         context.clazz_type->setBody(context.field_vec, false);
-        auto call_create = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
-        new llvm::StoreInst(call_create, clazz_alloca, false, context.create_entry);
-        auto clazz_load = new llvm::LoadInst(clazz_alloca, nil, false, context.destroy_entry);
-        llvm::CallInst::Create(destroy_func, { clazz_load }, nil, context.destroy_entry);
+
+        auto create_call = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.clazz_alloca, nil, false, context.create_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { const_int32_0, const_int32_i },
+                                                           nil,
+                                                           context.create_entry);
+        new llvm::StoreInst(create_call, clazz_field, false, context.create_entry);
+        llvm::CallInst::Create(destroy_func, { clazz_field }, nil, context.destroy_entry);
 
         // clazz and create/destroy body
         Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
