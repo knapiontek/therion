@@ -148,7 +148,7 @@ private:
                                                            nil,
                                                            context.create_entry);
         new llvm::StoreInst(create_call, clazz_field, false, context.create_entry);
-        llvm::CallInst::Create(destroy_func, { clazz_field }, nil, context.destroy_entry);
+        llvm::CallInst::Create(destroy_func, { create_call }, nil, context.destroy_entry);
 
         // clazz and create/destroy body
         Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
@@ -164,6 +164,9 @@ private:
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, clazz_alloca);
         auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_entry);
         new llvm::StoreInst(bit_cast, clazz_alloca, false, create_entry);
+
+        // create return
+        llvm::ReturnInst::Create(the_llvm, bit_cast, create_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
