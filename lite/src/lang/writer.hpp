@@ -43,14 +43,20 @@ private:
         the_free_func = llvm::Function::Create(free_type, llvm::GlobalValue::ExternalLinkage, "free", the_module.get());
 
         // main
+        auto clazz_type = llvm::StructType::create(the_llvm, "main_clazz");
         auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         auto main_create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", main_func);
         auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
 
         // main body
-        Context context = { 0, 0, main_create_entry, main_destroy_entry, {} };
-        execute(tree.var(), context);
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, main_create_entry);
+        Context context = { clazz_type, clazz_alloca, main_create_entry, main_destroy_entry, {} };
+        for(auto& it : tree.var().var_list)
+        {
+            auto field = it.value();
+            execute(field, context);
+        }
 
         // main finish
         llvm::BranchInst::Create(main_destroy_entry, main_create_entry);
@@ -128,11 +134,8 @@ private:
         auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, context.create_entry);
 
         // place clazz and create/destroy in parent-clazz
-        if(context.clazz_type)
-        {
-            context.field_vec.push_back(clazz_type);
-            context.clazz_type->setBody(context.field_vec, false);
-        }
+        context.field_vec.push_back(clazz_type);
+        context.clazz_type->setBody(context.field_vec, false);
         auto call_create = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
         new llvm::StoreInst(call_create, clazz_alloca, false, context.create_entry);
         auto clazz_load = new llvm::LoadInst(clazz_alloca, nil, false, context.destroy_entry);
@@ -147,14 +150,11 @@ private:
         }
 
         // call malloc
-        if(context.clazz_type)
-        {
-            auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
-            auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-            auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, clazz_alloca);
-            auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_entry);
-            new llvm::StoreInst(bit_cast, clazz_alloca, false, create_entry);
-        }
+        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
+        auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, clazz_alloca);
+        auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_entry);
+        new llvm::StoreInst(bit_cast, clazz_alloca, false, create_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
