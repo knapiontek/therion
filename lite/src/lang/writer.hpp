@@ -4,8 +4,8 @@ class Writer
 public:
     static void execute(Tree& tree, core::String& filename)
     {
-        Writer writer;
-        writer.execute_tree(tree, filename);
+        Writer writer(filename);
+        writer.execute_main(tree);
     }
 private:
     struct Context
@@ -17,17 +17,10 @@ private:
         std::vector<llvm::Type*> field_vec;
     };
 private:
-    Writer()
-    {
-        llvm::InitializeNativeTarget();
-    }
-    ~Writer()
-    {
-        llvm::llvm_shutdown();
-    }
-    void execute_tree(Tree& tree, core::String& filename)
+    Writer(core::String& filename)
     {
         // initialize
+        llvm::InitializeNativeTarget();
         the_module = llvm::make_unique<llvm::Module>(filename.ascii(), the_llvm);
 
         // malloc
@@ -41,17 +34,23 @@ private:
         llvm::Type* free_args[] = { llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0) };
         auto free_type = llvm::FunctionType::get(free_result, free_args, false);
         the_free_func = llvm::Function::Create(free_type, llvm::GlobalValue::ExternalLinkage, "free", the_module.get());
-
+    }
+    ~Writer()
+    {
+        llvm::llvm_shutdown();
+    }
+    void execute_main(Tree& tree)
+    {
         // main
         auto clazz_type = llvm::StructType::create(the_llvm, "main_clazz");
-        auto main_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
-        auto main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        auto main_create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", main_func);
-        auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
+        auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
+        auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", func);
+        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", func);
 
         // main body
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, main_create_entry);
-        Context context = { clazz_type, clazz_alloca, main_create_entry, main_destroy_entry, {} };
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
+        Context context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
         for(auto& it : tree.var().var_list)
         {
             auto field = it.value();
@@ -59,9 +58,9 @@ private:
         }
 
         // main finish
-        llvm::BranchInst::Create(main_destroy_entry, main_create_entry);
-        auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        llvm::ReturnInst::Create(the_llvm, main_return, main_destroy_entry);
+        llvm::BranchInst::Create(destroy_entry, create_entry);
+        auto return_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        llvm::ReturnInst::Create(the_llvm, return_const, destroy_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
@@ -69,7 +68,7 @@ private:
 
         // call main
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
-        auto ret = engine->runFunction(main_func, {});
+        auto ret = engine->runFunction(func, {});
         auto result = ret.IntVal.getSExtValue();
         delete engine;
 
@@ -117,13 +116,13 @@ private:
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // clazz create/destroy
-        auto create_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
-        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
-        auto create_func = llvm::Function::Create(create_type,
+        auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
+        auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
+        auto create_func = llvm::Function::Create(create_func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   create_name(clazz_id).ascii(),
                                                   the_module.get());
-        auto destroy_func = llvm::Function::Create(destroy_type,
+        auto destroy_func = llvm::Function::Create(destroy_func_type,
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name(clazz_id).ascii(),
                                                    the_module.get());
@@ -133,7 +132,7 @@ private:
         // clazz alloca
         auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, context.create_entry);
 
-        // place clazz and create/destroy in parent-clazz
+        // place clazz and create/destroy in parent
         context.field_vec.push_back(clazz_type);
         context.clazz_type->setBody(context.field_vec, false);
         auto call_create = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
