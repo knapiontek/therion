@@ -48,20 +48,20 @@ private:
         auto main_create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", main_func);
         auto main_destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", main_func);
 
-        // build body of main function
+        // main body
         Context context = { 0, 0, main_create_entry, main_destroy_entry, {} };
         execute(tree.var(), context);
 
-        // create main function return
+        // main finish
+        llvm::BranchInst::Create(main_destroy_entry, main_create_entry);
         auto main_return = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        llvm::ReturnInst::Create(the_llvm, main_return, main_create_entry);
         llvm::ReturnInst::Create(the_llvm, main_return, main_destroy_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
         llvm::verifyModule(*the_module, &llvm::outs());
 
-        // call the generated main function
+        // call main
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
         auto ret = engine->runFunction(main_func, {});
         auto result = ret.IntVal.getSExtValue();
@@ -94,11 +94,11 @@ private:
         context.field_vec.push_back(value->getType());
         context.clazz_type->setBody(context.field_vec, false);
 
-        auto clazz_load = new llvm::LoadInst(context.clazz_alloca, "", false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.clazz_alloca, nil, false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { const_int32_0, const_int32_i },
-                                                           "gep",
+                                                           nil,
                                                            context.create_entry);
         new llvm::StoreInst(value, clazz_field, false, context.create_entry);
     }
@@ -110,31 +110,33 @@ private:
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
-        // clazz alloca
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, clazz_id.ascii(), context.create_entry);
-
         // clazz create/destroy
         auto create_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
+        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto create_func = llvm::Function::Create(create_type,
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   create_name(clazz_id).ascii(),
                                                   the_module.get());
-        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
-        auto destroy_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto destroy_func = llvm::Function::Create(destroy_type,
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name(clazz_id).ascii(),
                                                    the_module.get());
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
-        // call clazz and create/destroy by parent
+        // clazz alloca
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, context.create_entry);
+
+        // place clazz and create/destroy in parent-clazz
         if(context.clazz_type)
         {
             context.field_vec.push_back(clazz_type);
             context.clazz_type->setBody(context.field_vec, false);
         }
-        llvm::CallInst::Create(create_func, {}, "call", context.create_entry);
-        llvm::CallInst::Create(destroy_func, {}, "call", context.destroy_entry);
+        auto call_create = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
+        new llvm::StoreInst(call_create, clazz_alloca, false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(clazz_alloca, nil, false, context.destroy_entry);
+        llvm::CallInst::Create(destroy_func, { clazz_load }, nil, context.destroy_entry);
 
         // clazz and create/destroy body
         Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
@@ -145,13 +147,14 @@ private:
         }
 
         // call malloc
-        auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
-        auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, "call", clazz_alloca);
-
-        // store malloc result
-        auto cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, "cast", create_entry);
-        new llvm::StoreInst(cast, clazz_alloca, false, create_entry);
+        if(context.clazz_type)
+        {
+            auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
+            auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
+            auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, clazz_alloca);
+            auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_entry);
+            new llvm::StoreInst(bit_cast, clazz_alloca, false, create_entry);
+        }
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
@@ -260,21 +263,21 @@ private:
         if(type1->isFloatingPointTy() || type2->isFloatingPointTy())
         {
             if(type1->isIntegerTy())
-                val1 = new llvm::SIToFPInst(val1, type2, "sitofp", context.create_entry);
+                val1 = new llvm::SIToFPInst(val1, type2, nil, context.create_entry);
             else if(type2->isIntegerTy())
-                val2 = new llvm::SIToFPInst(val2, type1, "sitofp", context.create_entry);
+                val2 = new llvm::SIToFPInst(val2, type1, nil, context.create_entry);
             else if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::FPExtInst(val2, type1, "fpext", context.create_entry);
+                val2 = new llvm::FPExtInst(val2, type1, nil, context.create_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::FPExtInst(val1, type2, "fpext", context.create_entry);
+                val1 = new llvm::FPExtInst(val1, type2, nil, context.create_entry);
             return execute_float(val1, op, val2, context);
         }
         else if(type1->isIntegerTy() && type2->isIntegerTy())
         {
             if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::SExtInst(val2, type1, "sext", context.create_entry);
+                val2 = new llvm::SExtInst(val2, type1, nil, context.create_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::SExtInst(val1, type2, "sext", context.create_entry);
+                val1 = new llvm::SExtInst(val1, type2, nil, context.create_entry);
             return execute_int(val1, op, val2, context);
         }
         else
@@ -290,37 +293,37 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, "mul", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, nil, context.create_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, "div", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, nil, context.create_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, "add", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, nil, context.create_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, "sub", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, nil, context.create_entry);
             case BinaryOp::SHL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, "shl", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, nil, context.create_entry);
             case BinaryOp::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, "shr", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, nil, context.create_entry);
             case BinaryOp::EQ:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, "eq");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, nil);
             case BinaryOp::NE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_NE, val1, val2, "ne");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_NE, val1, val2, nil);
             case BinaryOp::LT:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, "lt");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, nil);
             case BinaryOp::GT:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, "qt");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, nil);
             case BinaryOp::LE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, "le");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, nil);
             case BinaryOp::GE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, "ge");
+                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, nil);
             case BinaryOp::AND:
-                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, "and", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, nil, context.create_entry);
             case BinaryOp::OR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, "or", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, nil, context.create_entry);
             case BinaryOp::XOR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, "xor", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, nil, context.create_entry);
             case BinaryOp::MOD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, "rem", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, nil, context.create_entry);
         }
         return 0;
     }
@@ -329,25 +332,25 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, "fmul", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, nil, context.create_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, "fdiv", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, nil, context.create_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, "fadd", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, nil, context.create_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, "fsub", context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, nil, context.create_entry);
             case BinaryOp::EQ:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, "eq");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, nil);
             case BinaryOp::NE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, "ne");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, nil);
             case BinaryOp::LT:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, "lt");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, nil);
             case BinaryOp::GT:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, "gt");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, nil);
             case BinaryOp::LE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, "le");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, nil);
             case BinaryOp::GE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, "ge");
+                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, nil);
             case BinaryOp::SHL:
             case BinaryOp::SHR:
             case BinaryOp::AND:
@@ -365,11 +368,11 @@ private:
     }
     core::String create_name(core::String& clazz_id)
     {
-        return core::Format("$1_create").arg(clazz_id).end();
+        return core::Format("create_$1").arg(clazz_id).end();
     }
     core::String destroy_name(core::String& clazz_id)
     {
-        return core::Format("$1_destroy").arg(clazz_id).end();
+        return core::Format("destroy_$1").arg(clazz_id).end();
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)
@@ -393,4 +396,5 @@ private:
     llvm::Function* the_free_func;
     llvm::LLVMContext the_llvm;
     std::unique_ptr<llvm::Module> the_module;
+    const char* nil = "";
 };
