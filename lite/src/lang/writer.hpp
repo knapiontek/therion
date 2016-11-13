@@ -150,18 +150,20 @@ private:
 
         // clazz and create/destroy body
         Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
+        auto start_body = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "start_body", create_entry);
         for(auto& it : var.var_list)
         {
             auto field = it.value();
             execute(field, in_context);
         }
 
-        // call malloc
+        // call malloc/free
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, clazz_alloca);
-        auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_entry);
-        new llvm::StoreInst(bit_cast, clazz_alloca, false, create_entry);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, start_body);
+        auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
+        new llvm::StoreInst(bit_cast, clazz_alloca, false, start_body);
+        llvm::CallInst::Create(the_free_func, clazz_size_const, nil, destroy_entry);
 
         // create return
         llvm::ReturnInst::Create(the_llvm, bit_cast, create_entry);
