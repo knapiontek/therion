@@ -91,8 +91,8 @@ private:
     }
     void execute(AssignVar& var, Context& context)
     {
-        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto const_int32_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
 
         auto value = execute(var.exp, context);
 
@@ -102,7 +102,7 @@ private:
         auto clazz_load = new llvm::LoadInst(context.clazz_alloca, nil, false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
-                                                           { const_int32_0, const_int32_i },
+                                                           { int32_0_const, int32_i_const },
                                                            nil,
                                                            context.create_entry);
         new llvm::StoreInst(value, clazz_field, false, context.create_entry);
@@ -133,8 +133,8 @@ private:
         auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
 
         // place clazz and create/destroy in parent
-        auto const_int32_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto const_int32_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
 
         context.field_vec.push_back(clazz_type_ptr);
         context.clazz_type->setBody(context.field_vec, false);
@@ -142,7 +142,7 @@ private:
         auto create_call = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            context.clazz_alloca,
-                                                           { const_int32_0, const_int32_i },
+                                                           { int32_0_const, int32_i_const },
                                                            nil,
                                                            context.create_entry);
         new llvm::StoreInst(create_call, clazz_field, false, context.create_entry);
@@ -157,7 +157,7 @@ private:
             execute(field, in_context);
         }
 
-        // call malloc/free
+        // posponed call malloc/free
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, start_body);
