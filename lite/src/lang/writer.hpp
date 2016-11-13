@@ -167,6 +167,7 @@ private:
 
         // create return
         llvm::ReturnInst::Create(the_llvm, bit_cast, create_entry);
+        llvm::ReturnInst::Create(the_llvm, destroy_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
