@@ -168,9 +168,6 @@ class Tree
 public:
     Tree()
     {
-        auto& signature_var = pager.acquire<IdVar>();
-        signature_var.id = "main";
-        the_var.signature_var = signature_var;
         the_context.append(the_var);
     }
     CompositeVar& var()
