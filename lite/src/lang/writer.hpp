@@ -11,7 +11,7 @@ private:
     struct Context
     {
         llvm::StructType* clazz_type;
-        llvm::AllocaInst* clazz_alloca;
+        llvm::AllocaInst* clazz_ptr_alloca;
         llvm::BasicBlock* create_entry;
         llvm::BasicBlock* destroy_entry;
         std::vector<llvm::Type*> field_vec;
@@ -43,6 +43,7 @@ private:
     {
         // main
         auto clazz_type = llvm::StructType::create(the_llvm, "main_clazz");
+        auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", func);
@@ -50,7 +51,9 @@ private:
 
         // main body
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
-        Context context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
+        auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, create_entry);
+        new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, create_entry);
+        Context context = { clazz_type, clazz_ptr_alloca, create_entry, destroy_entry, {} };
         for(auto& it : tree.var().var_list)
         {
             auto field = it.value();
@@ -99,7 +102,7 @@ private:
         context.field_vec.push_back(value->getType());
         context.clazz_type->setBody(context.field_vec, false);
 
-        auto clazz_load = new llvm::LoadInst(context.clazz_alloca, nil, false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.clazz_ptr_alloca, nil, false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { int32_0_const, int32_i_const },
@@ -129,27 +132,28 @@ private:
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
-        // clazz alloca
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
-
-        // place clazz and create/destroy in parent
+        // clazz in parent
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size());
-
         context.field_vec.push_back(clazz_type_ptr);
         context.clazz_type->setBody(context.field_vec, false);
 
+        // create in parent
         auto create_call = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
+        auto clazz_load1 = new llvm::LoadInst(context.clazz_ptr_alloca, nil, false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
-                                                           context.clazz_alloca,
+                                                           clazz_load1,
                                                            { int32_0_const, int32_i_const },
                                                            nil,
                                                            context.create_entry);
         new llvm::StoreInst(create_call, clazz_field, false, context.create_entry);
-        llvm::CallInst::Create(destroy_func, { create_call }, nil, context.destroy_entry);
+
+        // destroy in parent
+        llvm::CallInst::Create(destroy_func, { clazz_field }, nil, context.destroy_entry);
 
         // clazz and create/destroy body
-        Context in_context = { clazz_type, clazz_alloca, create_entry, destroy_entry, {} };
+        auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
+        Context in_context = { clazz_type, clazz_ptr_alloca, create_entry, destroy_entry, {} };
         auto start_body = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "start_body", create_entry);
         for(auto& it : var.var_list)
         {
@@ -157,16 +161,21 @@ private:
             execute(field, in_context);
         }
 
-        // posponed call malloc/free
+        // deferred call malloc
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, start_body);
-        auto bit_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
-        new llvm::StoreInst(bit_cast, clazz_alloca, false, start_body);
-        llvm::CallInst::Create(the_free_func, clazz_size_const, nil, destroy_entry);
+        auto bit_cast1 = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
+        new llvm::StoreInst(bit_cast1, clazz_ptr_alloca, false, start_body);
+
+        // call free
+        auto clazz_load3 = new llvm::LoadInst(context.clazz_ptr_alloca, nil, false, destroy_entry);
+        auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
+        auto bit_cast2 = new llvm::BitCastInst(clazz_load3, int8_ptr_type, nil, destroy_entry);
+        llvm::CallInst::Create(the_free_func, bit_cast2, nil, destroy_entry);
 
         // create return
-        llvm::ReturnInst::Create(the_llvm, bit_cast, create_entry);
+        llvm::ReturnInst::Create(the_llvm, bit_cast1, create_entry);
         llvm::ReturnInst::Create(the_llvm, destroy_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
