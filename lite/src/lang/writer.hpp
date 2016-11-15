@@ -102,11 +102,12 @@ private:
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
         auto clazz_load = new llvm::LoadInst(context.clazz_ptr_alloca, nil, false, context.destroy_entry);
-        return llvm::GetElementPtrInst::Create(context.clazz_type,
-                                               clazz_load,
-                                               { int32_0_const, int32_i_const },
-                                               nil,
-                                               context.destroy_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { int32_0_const, int32_i_const },
+                                                           nil,
+                                                           context.destroy_entry);
+        return new llvm::LoadInst(clazz_field, nil, false, context.destroy_entry);
     }
     void store_last_field(llvm::Value* value, Context& context)
     {
