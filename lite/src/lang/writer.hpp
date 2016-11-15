@@ -170,17 +170,20 @@ private:
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, start_body);
-        auto bit_cast1 = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
-        new llvm::StoreInst(bit_cast1, clazz_ptr_alloca, false, start_body);
+        auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
+        new llvm::StoreInst(malloc_cast, clazz_ptr_alloca, false, start_body);
 
         // call free
-        auto clazz_load3 = new llvm::LoadInst(context.clazz_ptr_alloca, nil, false, destroy_entry);
+        //auto clazz_load = new llvm::LoadInst(clazz_ptr_alloca, nil, false, destroy_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
-        auto bit_cast2 = new llvm::BitCastInst(clazz_load3, int8_ptr_type, nil, destroy_entry);
-        llvm::CallInst::Create(the_free_func, bit_cast2, nil, destroy_entry);
+        llvm::Function::arg_iterator args = destroy_func->arg_begin();
+        llvm::Value* arg = &*args;
+        arg->setName("arg");
+        auto free_cast = new llvm::BitCastInst(arg, int8_ptr_type, nil, destroy_entry);
+        llvm::CallInst::Create(the_free_func, free_cast, nil, destroy_entry);
 
         // create return
-        llvm::ReturnInst::Create(the_llvm, bit_cast1, create_entry);
+        llvm::ReturnInst::Create(the_llvm, malloc_cast, create_entry);
         llvm::ReturnInst::Create(the_llvm, destroy_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
