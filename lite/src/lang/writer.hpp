@@ -174,12 +174,13 @@ private:
         new llvm::StoreInst(malloc_cast, clazz_ptr_alloca, false, start_body);
 
         // call free
-        //auto clazz_load = new llvm::LoadInst(clazz_ptr_alloca, nil, false, destroy_entry);
+        llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
+        llvm::Value* arg = &*destroy_func_arg_it;
+        auto arg_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
+        new llvm::StoreInst(arg, arg_alloca, false, destroy_entry);
+        auto arg_load = new llvm::LoadInst(arg_alloca, nil, false, destroy_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
-        llvm::Function::arg_iterator args = destroy_func->arg_begin();
-        llvm::Value* arg = &*args;
-        arg->setName("arg");
-        auto free_cast = new llvm::BitCastInst(arg, int8_ptr_type, nil, destroy_entry);
+        auto free_cast = new llvm::BitCastInst(arg_load, int8_ptr_type, nil, destroy_entry);
         llvm::CallInst::Create(the_free_func, free_cast, nil, destroy_entry);
 
         // create return
