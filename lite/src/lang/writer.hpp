@@ -135,7 +135,7 @@ private:
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
-        // clazz create/destroy
+        // create/destroy
         auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
         auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto create_func = llvm::Function::Create(create_func_type,
@@ -149,35 +149,40 @@ private:
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
-        // call from parent
+        // call create/destroy from parent
         append_new_field(clazz_type_ptr, context);
         auto create_call = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
         store_last_field(create_call, context);
         auto clazz_field = load_last_field(context);
         llvm::CallInst::Create(destroy_func, { clazz_field }, nil, context.destroy_entry);
 
-        // clazz and create/destroy body
+        // begin create_func body must be deferred until the clazz_size is known
         auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
+        auto create_body_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "create_body_start", create_entry);
+
+        // begin destroy_func body
+        llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
+        llvm::Value* arg = &*destroy_func_arg_it;
+        arg->setName(clazz_var(clazz_id).ascii());
+        auto arg_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
+        new llvm::StoreInst(arg, arg_alloca, false, destroy_entry);
+
+        // clazz and create/destroy body
         Context in_context = { clazz_type, clazz_ptr_alloca, create_entry, destroy_entry, {} };
-        auto start_body = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "start_body", create_entry);
         for(auto& it : var.var_list)
         {
             auto field = it.value();
             execute(field, in_context);
         }
 
-        // deferred call malloc
+        // begin deferred create_func body (clazz_size is known now)
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, start_body);
-        auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, start_body);
-        new llvm::StoreInst(malloc_cast, clazz_ptr_alloca, false, start_body);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, create_body_start);
+        auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_body_start);
+        new llvm::StoreInst(malloc_cast, clazz_ptr_alloca, false, create_body_start);
 
-        // call free
-        llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
-        llvm::Value* arg = &*destroy_func_arg_it;
-        auto arg_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
-        new llvm::StoreInst(arg, arg_alloca, false, destroy_entry);
+        // end destroy_func body
         auto arg_load = new llvm::LoadInst(arg_alloca, nil, false, destroy_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
         auto free_cast = new llvm::BitCastInst(arg_load, int8_ptr_type, nil, destroy_entry);
@@ -396,6 +401,10 @@ private:
     core::String clazz_name(core::String& clazz_id)
     {
         return core::Format("$1_clazz").arg(clazz_id).end();
+    }
+    core::String clazz_var(core::String& clazz_id)
+    {
+        return core::Format("$1_var").arg(clazz_id).end();
     }
     core::String create_name(core::String& clazz_id)
     {

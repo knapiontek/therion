@@ -176,20 +176,20 @@ public:
     }
     void var(Token& indent, Token& id, Expression& exp)
     {
-        auto& var = pager.acquire<AssignVar>();
+        auto& var = the_pager.acquire<AssignVar>();
         var.id = id;
         var.exp = exp;
         update_context(indent, var);
     }
     void var(Token& indent, Token& id)
     {
-        auto& var = pager.acquire<IdVar>();
+        auto& var = the_pager.acquire<IdVar>();
         var.id = id;
         update_context(indent, var);
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
-        auto& exp = pager.acquire<NestExpression>();
+        auto& exp = the_pager.acquire<NestExpression>();
         exp.exp1 = exp1;
         exp.op = op;
         exp.exp2 = exp2;
@@ -197,7 +197,7 @@ public:
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Location& loc)
     {
-        auto& exp = pager.acquire<NestLocationExpression>();
+        auto& exp = the_pager.acquire<NestLocationExpression>();
         exp.exp = exp1;
         exp.op = op;
         exp.loc = loc;
@@ -205,7 +205,7 @@ public:
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Final& final)
     {
-        auto& exp = pager.acquire<NestFinalExpression>();
+        auto& exp = the_pager.acquire<NestFinalExpression>();
         exp.exp = exp1;
         exp.op = op;
         exp.final = final;
@@ -213,19 +213,19 @@ public:
     }
     Ret<Expression> exp(Location& loc)
     {
-        auto& exp = pager.acquire<LocationExpression>();
+        auto& exp = the_pager.acquire<LocationExpression>();
         exp.loc = loc;
         return ret<Expression>(exp);
     }
     Ret<Expression> exp(Final& final)
     {
-        auto& exp = pager.acquire<FinalExpression>();
+        auto& exp = the_pager.acquire<FinalExpression>();
         exp.final = final;
         return ret<Expression>(exp);
     }
     Ret<Location> loc(Location& loc1, Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<NestFilterLocation>();
+        auto& loc = the_pager.acquire<NestFilterLocation>();
         loc.loc = loc1;
         loc.id = id;
         loc.exp = exp;
@@ -233,27 +233,27 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& loc = pager.acquire<NestIdLocation>();
+        auto& loc = the_pager.acquire<NestIdLocation>();
         loc.loc = loc1;
         loc.id = id;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Token& id, Expression& exp)
     {
-        auto& loc = pager.acquire<FilterLocation>();
+        auto& loc = the_pager.acquire<FilterLocation>();
         loc.id = id;
         loc.exp = exp;
         return ret<Location>(loc);
     }
     Ret<Location> loc(Token& id)
     {
-        auto& loc = pager.acquire<IdLocation>();
+        auto& loc = the_pager.acquire<IdLocation>();
         loc.id = id;
         return ret<Location>(loc);
     }
     Ret<Final> final(Token& value, Type type)
     {
-        auto& final = pager.acquire<Final>();
+        auto& final = the_pager.acquire<Final>();
         final.value = value;
         final.type = type;
         return ret<Final>(final);
@@ -276,7 +276,7 @@ private:
         }
         else
         {
-            auto& composite = pager.acquire<CompositeVar>();
+            auto& composite = the_pager.acquire<CompositeVar>();
             composite.signature_var = parent;
             composite.var_list.append(var);
             the_context[shift] = composite;
@@ -291,7 +291,7 @@ private:
         the_context[shift + 1] = var;
     }
 private:
-    core::Pager pager;
+    core::Pager the_pager;
     CompositeVar the_var;
     core::Seq<Var::share> the_context;
 };
