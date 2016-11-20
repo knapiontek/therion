@@ -72,8 +72,8 @@ private:
 
         // call main
         auto engine = llvm::EngineBuilder(std::move(the_module)).create();
-        auto ret = engine->runFunction(func, {});
-        auto result = ret.IntVal.getSExtValue();
+        auto func_return = engine->runFunction(func, {});
+        auto result = func_return.IntVal.getSExtValue();
         delete engine;
 
         core::verify(!result);
@@ -184,12 +184,13 @@ private:
         new llvm::StoreInst(malloc_cast, create_clazz_ptr_alloca, false, create_body_start);
 
         // end create body
-        llvm::ReturnInst::Create(the_llvm, malloc_cast, create_entry);
+        auto create_clazz_load = new llvm::LoadInst(create_clazz_ptr_alloca, nil, false, create_entry);
+        llvm::ReturnInst::Create(the_llvm, create_clazz_load, create_entry);
 
         // end destroy body
-        auto clazz_load = new llvm::LoadInst(destroy_clazz_ptr_alloca, nil, false, destroy_entry);
+        auto destroy_clazz_load = new llvm::LoadInst(destroy_clazz_ptr_alloca, nil, false, destroy_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
-        auto free_cast = new llvm::BitCastInst(clazz_load, int8_ptr_type, nil, destroy_entry);
+        auto free_cast = new llvm::BitCastInst(destroy_clazz_load, int8_ptr_type, nil, destroy_entry);
         llvm::CallInst::Create(the_free_func, free_cast, nil, destroy_entry);
         llvm::ReturnInst::Create(the_llvm, destroy_entry);
     }
