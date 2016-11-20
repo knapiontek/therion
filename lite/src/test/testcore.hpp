@@ -31,29 +31,29 @@ inline void test_acquire()
 
 inline void test_pager()
 {
-	core::Pager pager;
+    core::Pager pager;
     core::String cs_hello = "hello";
-	const core::uint32 size = 100;
-	for(core::uint32 i = 0; i < size; i++)
-	{
-		core::float32& f = pager.acquire<core::float32>();
-		f = 0;
+    const core::uint32 size = 100;
+    for(core::uint32 i = 0; i < size; i++)
+    {
+        core::float32& f = pager.acquire<core::float32>();
+        f = 0;
 
-		core::int32* int_seq = pager.acquire<core::int32>(100);
-		int_seq[0] = 0;
-		int_seq[99] = 99;
+        core::int32* int_seq = pager.acquire<core::int32>(100);
+        int_seq[0] = 0;
+        int_seq[99] = 99;
 
-		int_seq = pager.acquire<core::int32>(200);
-		int_seq[0] = 0;
-		int_seq[199] = 199;
+        int_seq = pager.acquire<core::int32>(200);
+        int_seq[0] = 0;
+        int_seq[199] = 199;
 
-		core::String& st = pager.acquire<core::String>();
-		st = cs_hello;
+        core::String& st = pager.acquire<core::String>();
+        st = cs_hello;
 
-		core::String* st_seq = pager.acquire<core::String>(2);
-		st_seq[0] = cs_hello;
-		st_seq[1] = cs_hello;
-	}
+        core::String* st_seq = pager.acquire<core::String>(2);
+        st_seq[0] = cs_hello;
+        st_seq[1] = cs_hello;
+    }
 }
 
 class Flower
