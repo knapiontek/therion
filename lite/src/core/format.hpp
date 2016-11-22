@@ -1,4 +1,9 @@
 
+struct EndTerm { EndTerm() {}; };
+struct EndLnTerm { EndLnTerm() {}; };
+const EndTerm end;
+const EndLnTerm endln;
+
 template<class FormatReturn>
 class FormatClass
 {
@@ -162,6 +167,66 @@ public:
         Convert::it(item.pt, item.size, arg, precision);
         return *static_cast<FormatReturn*>(this);
     }
+    FormatReturn& operator%(String& var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(const char* var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(int8 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(int16 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(int32 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(int64 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(uint8 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(uint16 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(uint32 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(uint64 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(float32 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(float64 var)
+    {
+        return arg(var);
+    }
+    FormatReturn& operator%(float128 var)
+    {
+        return arg(var);
+    }
+    String& operator%(EndTerm)
+    {
+        return end();
+    }
+    String& operator%(EndLnTerm)
+    {
+        return endln();
+    }
 private:
     String& merge(bool new_line)
     {
@@ -180,11 +245,11 @@ private:
             the_result.copy_in(pos, cs_line);
         for(auto& it : the_format)
         {
-            if('$' == it.value())
+            if('%' == it.value())
             {
                 the_result.copy_in(pos, the_format.data() + last, it.position() - last);
                 last = it.position() + 1; // skip $
-                if(it.next() && '$' != it.value())
+                if(it.next() && '%' != it.value())
                 {
                     last++; // skip digit
                     auto index = it.value() - '1';

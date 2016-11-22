@@ -25,11 +25,11 @@ public:
         while(frame_it.next())
         {
             auto& frame = frame_it.value();
-            auto st_frame = core::Format("\n\t$1 [$2:$3]")
-                .arg(frame.function_name)
-                .arg(frame.file_name)
-                .arg(frame.line)
-                .end();
+            auto st_frame = core::Format("\n\t%1 [%2:%3]")
+                % frame.function_name
+                % frame.file_name
+                % frame.line
+                % core::end;
             st_exception.copy_in(pos, st_frame);
         }
 

@@ -82,7 +82,7 @@ public:
         the_handle = nil_handle();
         the_handle->cnt++;
     }
-    StringClass(const Nil&)
+    StringClass(Nil)
     {
         the_handle = nil_handle();
         the_handle->cnt++;
@@ -287,7 +287,7 @@ public:
     {
         return !compare(arg);
     }
-    String& operator=(const Nil&) const
+    String& operator=(Nil) const
     {
         nil_handle()->cnt++;
         if(!--the_handle->cnt)
@@ -311,19 +311,19 @@ public:
         the_handle = clone((uint8*)arg, size);
         return *this;
     }
-    friend bool operator==(const Nil&, String& arg)
+    friend bool operator==(Nil, String& arg)
     {
         return (nil_handle() == arg.the_handle);
     }
-    friend bool operator!=(const Nil&, String& arg)
+    friend bool operator!=(Nil, String& arg)
     {
         return (nil_handle() != arg.the_handle);
     }
-    bool operator==(const Nil&) const
+    bool operator==(Nil) const
     {
         return (the_handle == nil_handle());
     }
-    bool operator!=(const Nil&) const
+    bool operator!=(Nil) const
     {
         return (the_handle != nil_handle());
     }

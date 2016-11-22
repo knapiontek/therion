@@ -6,11 +6,11 @@ inline void test_file()
     io::File file(cs_filetest_tmp);
 
     // assemble filename
-    auto filename = core::Format("$1/$2.$3")
-        .arg(file.path())
-        .arg(file.core())
-        .arg(file.ext())
-        .end();
+    auto filename = core::Format("%1/%2.%3")
+        % file.path()
+        % file.core()
+        % file.ext()
+        % core::end;
     core::verify(filename.equal(cs_filetest_tmp));
     filename = file.path()
         .append(io::File::slash())

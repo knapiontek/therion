@@ -11,7 +11,7 @@ public:
         the_handle->cnt = 1;
         new((void*)the_handle->var) Type();
     }
-    Managed(const Nil&)
+    Managed(Nil)
     {
         the_handle = nil_handle();
         the_handle->cnt++;
@@ -50,7 +50,7 @@ public:
             release<Handle>(the_handle);
         }
     }
-    Managed& operator=(const Nil&)
+    Managed& operator=(Nil)
     {
         nil_handle()->cnt++;
         if(!--the_handle->cnt)
@@ -94,19 +94,19 @@ public:
         the_handle = reinterpret_cast<Handle*>(arg.the_handle);
         return *this;
     }
-    friend bool operator==(const Nil&, const Managed& arg)
+    friend bool operator==(Nil, const Managed& arg)
     {
         return (nil_handle() == arg.the_handle);
     }
-    friend bool operator!=(const Nil&, const Managed& arg)
+    friend bool operator!=(Nil, const Managed& arg)
     {
         return (nil_handle() != arg.the_handle);
     }
-    bool operator==(const Nil&) const
+    bool operator==(Nil) const
     {
         return (the_handle == nil_handle());
     }
-    bool operator!=(const Nil&) const
+    bool operator!=(Nil) const
     {
         return (the_handle != nil_handle());
     }

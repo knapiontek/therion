@@ -230,7 +230,7 @@ inline void test_iterator()
 
 inline void test_string()
 {
-    core::String cs_string = " string: $ $";
+    core::String cs_string = " string: % %";
     core::String cs_data = " data: ";
     core::String cs_bool = " bool: ";
     core::String cs_int8 = " int8: ";
@@ -244,14 +244,14 @@ inline void test_string()
     core::String cs_float32 = " float32: ";
     core::String cs_float64 = " float64: ";
     core::String cs_float128 = " float128: ";
-    core::String cs_and_the_end = " and the end$";
+    core::String cs_and_the_end = " and the end%";
     core::String cs_mix = "-127false-9223372036854775807";
-    core::String cs_format = " string: $$ $$$1 data: $2 bool: $3 int8: $4 int16: $A int32: $6 int64: $7 "
-            "uint8: $8 uint16: $9 uint32: $5 uint64: $B float32: $C float64: $D float128: $E and the end$$";
-    core::String cs_hardcoded_output = " string: $ $!\"£$^&*()_+{}[]:@~;'#|\\<>?,./ data: *** bool: false "
+    core::String cs_format = " string: %% %%%1 data: %2 bool: %3 int8: %4 int16: %A int32: %6 int64: %7 "
+            "uint8: %8 uint16: %9 uint32: %5 uint64: %B float32: %C float64: %D float128: %E and the end%%";
+    core::String cs_hardcoded_output = " string: % %!\"£%^&*()_+{}[]:@~;'#|\\<>?,./ data: *** bool: false "
             "int8: -127 int16: -32767 int32: -2147483647 int64: -9223372036854775807 uint8: 127 uint16: 32767 "
             "uint32: 2147483647 uint64: 9223372036854775807 float32: 123456.78 float64: 1234567890.123456 "
-            "float128: 1234567890.1234567 and the end$";
+            "float128: 1234567890.1234567 and the end%";
 
     // nil
     core::verify(core::nil == core::String());
@@ -265,7 +265,7 @@ inline void test_string()
     core::verify(!core::String().tail().prev());
 
     // basic types
-    core::String var_st = "!\"£$^&*()_+{}[]:@~;'#|\\<>?,./";
+    core::String var_st = "!\"£%^&*()_+{}[]:@~;'#|\\<>?,./";
     core::uint8 var_data[] = { '*', '*', '*' };
     bool var_bool = false;
     core::int8 var_int8 = -core::int8_max;

@@ -90,7 +90,7 @@ public:
     void open(Mode mode = read_only, bool remove_on_close = false)
     {
         if(!try_open(mode, remove_on_close))
-            throw env::Format("open file fail: $1").arg(the_name).exception();
+            throw env::Format("open file fail: %1") % the_name % env::exception;
     }
     void close()
     {
@@ -105,7 +105,7 @@ public:
     {
         struct stat info;
         if(::stat(the_name.ascii(), &info))
-            throw env::Format("read file size fail: $1").arg(the_name).exception();
+            throw env::Format("read file size fail: %1") % the_name % env::exception;
         return info.st_size;
     }
     core::String& name()
@@ -208,7 +208,7 @@ private:
         {
             core::int64 read = ::read(the_file->the_handle, data, size);
             if(read != size)
-                throw env::Format("read data fail: block size: $1").arg(size).exception();
+                throw env::Format("read data fail: block size: %1") % size % env::exception;
             the_available -= size;
         }
         core::int64 available() override
@@ -235,7 +235,7 @@ private:
         {
             core::int64 written = ::write(the_file->the_handle, data, size);
             if(written != size)
-                throw env::Format("write data fail: block size: $1").arg(size).exception();
+                throw env::Format("write data fail: block size: %1") % size % env::exception;
         }
         void flush() override
         {

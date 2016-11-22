@@ -18,6 +18,9 @@ public:
     }
 };
 
+struct ExceptionTerm { ExceptionTerm() {}; };
+const ExceptionTerm exception;
+
 core::String cs_F = "F: ";
 core::String cs_E = "E: ";
 core::String cs_W = "W: ";
@@ -88,6 +91,62 @@ public:
     {
         core::certify(false);
     }
+    Log& operator%(core::String& var)
+    {
+        return arg(var);
+    }
+    Log& operator%(const char* var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::int8 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::int16 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::int32 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::int64 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::uint8 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::uint16 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::uint32 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::uint64 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::float32 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::float64 var)
+    {
+        return arg(var);
+    }
+    Log& operator%(core::float128 var)
+    {
+        return arg(var);
+    }
+    void operator%(core::EndTerm)
+    {
+        return end();
+    }
 private:
     core::String the_type;
     core::int64 the_size;
@@ -122,6 +181,62 @@ public:
     void endln()
     {
         core::certify(false);
+    }
+    Format& operator%(core::String& var)
+    {
+        return arg(var);
+    }
+    Format& operator%(const char* var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::int8 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::int16 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::int32 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::int64 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::uint8 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::uint16 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::uint32 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::uint64 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::float32 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::float64 var)
+    {
+        return arg(var);
+    }
+    Format& operator%(core::float128 var)
+    {
+        return arg(var);
+    }
+    Exception operator%(ExceptionTerm)
+    {
+        return exception();
     }
 };
 
@@ -210,22 +325,19 @@ public:
     }
     void call_certify(const char* file_name, int line_no, const char* content)
     {
-        auto message = core::Format("\nreport:\n\t$1 [$2:$3]\nbacktrace:")
-            .arg(content)
-            .arg(file_name)
-            .arg(line_no)
-            .end();
+        auto message = core::Format("\nreport:\n\t%1 [%2:%3]\nbacktrace:")
+            % content % file_name % line_no % core::end;
         auto pos = message.size();
 
         Runtime::Iterator it = Runtime::backtrace();
         while(it.next())
         {
             auto& frame = it.value();
-            auto st_frame = core::Format("\n\t$1 [$2:$3]")
-                .arg(frame.function_name)
-                .arg(frame.file_name)
-                .arg(frame.line)
-                .end();
+            auto st_frame = core::Format("\n\t%1 [%2:%3]")
+                % frame.function_name
+                % frame.file_name
+                % frame.line
+                % core::end;
             message.copy_in(pos, st_frame);
         }
 

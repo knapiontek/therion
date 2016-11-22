@@ -137,19 +137,19 @@ public:
         {
             return the_node->value;
         }
-        friend bool operator==(const Nil&, const Find& arg)
+        friend bool operator==(Nil, const Find& arg)
         {
             return !arg.the_node->next;
         }
-        friend bool operator!=(const Nil&, const Find& arg)
+        friend bool operator!=(Nil, const Find& arg)
         {
             return arg.the_node->next;
         }
-        friend bool operator==(const Find& arg, const Nil&)
+        friend bool operator==(const Find& arg, Nil)
         {
             return !arg.the_node->next;
         }
-        friend bool operator!=(const Find& arg, const Nil&)
+        friend bool operator!=(const Find& arg, Nil)
         {
             return arg.the_node->next;
         }

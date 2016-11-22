@@ -217,19 +217,19 @@ public:
         {
             return (*the_node)->value;
         }
-        friend bool operator==(const Nil&, const Find& arg)
+        friend bool operator==(Nil, const Find& arg)
         {
             return none == arg.the_state;
         }
-        friend bool operator!=(const Nil&, const Find& arg)
+        friend bool operator!=(Nil, const Find& arg)
         {
             return none != arg.the_state;
         }
-        friend bool operator==(const Find& arg, const Nil&)
+        friend bool operator==(const Find& arg, Nil)
         {
             return none == arg.the_state;
         }
-        friend bool operator!=(const Find& arg, const Nil&)
+        friend bool operator!=(const Find& arg, Nil)
         {
             return none != arg.the_state;
         }

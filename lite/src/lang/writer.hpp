@@ -258,7 +258,7 @@ private:
             if(loc.id.equal(name))
                 return new llvm::LoadInst(value, name, false, context.create_entry);
         }
-        throw env::Format("Unknown variable: $1").arg(loc.id).exception();
+        throw env::Format("Unknown variable: %1") % loc.id % env::exception;
     }
     llvm::Value* execute(FilterLocation& loc)
     {
@@ -320,10 +320,10 @@ private:
         }
         else
         {
-            throw env::Format("Cannot handle llvm::Type::TypeID's: [$1, $2]")
-                .arg(type1->getTypeID())
-                .arg(type2->getTypeID())
-                .exception();
+            throw env::Format("Cannot handle llvm::Type::TypeID's: [%1, %2]")
+                % type1->getTypeID()
+                % type2->getTypeID()
+                % env::exception;
         }
     }
     llvm::Value* execute_int(llvm::Value* val1, BinaryOp op, llvm::Value* val2, Context& context)
@@ -395,33 +395,33 @@ private:
             case BinaryOp::OR:
             case BinaryOp::XOR:
             case BinaryOp::MOD:
-                throw env::Format("Binary operator '$1' not supported for floating point")
-                    .arg(binary_op_name(op))
-                    .exception();
+                throw env::Format("Binary operator '%1' not supported for floating point")
+                    % binary_op_name(op)
+                    % env::exception;
         }
     }
     core::String clazz_name(core::String& clazz_id)
     {
-        return core::Format("$1_clazz").arg(clazz_id).end();
+        return core::Format("%1_clazz") % clazz_id % core::end;
     }
     core::String clazz_var(core::String& clazz_id)
     {
-        return core::Format("$1_var").arg(clazz_id).end();
+        return core::Format("%1_var") % clazz_id % core::end;
     }
     core::String create_name(core::String& clazz_id)
     {
-        return core::Format("create_$1").arg(clazz_id).end();
+        return core::Format("create_%1") % clazz_id % core::end;
     }
     core::String destroy_name(core::String& clazz_id)
     {
-        return core::Format("destroy_$1").arg(clazz_id).end();
+        return core::Format("destroy_%1") % clazz_id % core::end;
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)
     {
-        return env::Format("Writable: $1 not handled")
-            .arg(typeid(var).name())
-            .exception();
+        return env::Format("Writable: %1 not handled")
+            % typeid(var).name()
+            % env::exception;
     }
     core::String var_id(Var& var)
     {

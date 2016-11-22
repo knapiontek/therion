@@ -5,7 +5,7 @@ inline void test_exception()
     {
         core::float64 var_float64 = 9.999995;
         env::Exception exception;
-        exception.message() = core::Format("exception test $1")
+        exception.message() = core::Format("exception test %1")
             .arg(var_float64, 5)
             .end();
         throw exception;
@@ -33,7 +33,7 @@ inline void test_utils()
     time.mark();
     return;
     env::Log log;
-    log.debug("test").end();
+    log.debug("test: %1") % 1 % core::end;
     env::Con::print(result);
     throw env::Format::exception(result);
     env::OS::exit(0);

@@ -9,7 +9,7 @@ public:
     {
         the_var = 0;
     }
-    Shared(const Nil&)
+    Shared(Nil)
     {
         the_var = 0;
     }
@@ -26,7 +26,7 @@ public:
     {
         the_var = static_cast<Type*>(arg.the_var);
     }
-    Shared& operator=(const Nil&)
+    Shared& operator=(Nil)
     {
         the_var = 0;
         return *this;
@@ -47,19 +47,19 @@ public:
         the_var = static_cast<Type*>(arg.the_var);
         return *this;
     }
-    friend bool operator==(const Nil&, const Shared& arg)
+    friend bool operator==(Nil, const Shared& arg)
     {
         return (0 == arg.the_var);
     }
-    friend bool operator!=(const Nil&, const Shared& arg)
+    friend bool operator!=(Nil, const Shared& arg)
     {
         return (0 != arg.the_var);
     }
-    bool operator==(const Nil&) const
+    bool operator==(Nil) const
     {
         return (0 == the_var);
     }
-    bool operator!=(const Nil&) const
+    bool operator!=(Nil) const
     {
         return (0 != the_var);
     }
