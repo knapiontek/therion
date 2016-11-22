@@ -167,55 +167,8 @@ public:
         Convert::it(item.pt, item.size, arg, precision);
         return *static_cast<FormatReturn*>(this);
     }
-    FormatReturn& operator%(String& var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(const char* var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(int8 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(int16 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(int32 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(int64 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(uint8 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(uint16 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(uint32 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(uint64 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(float32 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(float64 var)
-    {
-        return arg(var);
-    }
-    FormatReturn& operator%(float128 var)
+    template<class Type>
+    FormatReturn& operator%(const Type& var)
     {
         return arg(var);
     }

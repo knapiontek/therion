@@ -91,57 +91,10 @@ public:
     {
         core::certify(false);
     }
-    Log& operator%(core::String& var)
+    template<class Type>
+    Log& operator%(const Type& var)
     {
-        return arg(var);
-    }
-    Log& operator%(const char* var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::int8 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::int16 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::int32 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::int64 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::uint8 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::uint16 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::uint32 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::uint64 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::float32 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::float64 var)
-    {
-        return arg(var);
-    }
-    Log& operator%(core::float128 var)
-    {
-        return arg(var);
+        return core::FormatClass<Log>::arg(var);
     }
     void operator%(core::EndTerm)
     {
@@ -182,57 +135,10 @@ public:
     {
         core::certify(false);
     }
-    Format& operator%(core::String& var)
+    template<class Type>
+    Format& operator%(const Type& var)
     {
-        return arg(var);
-    }
-    Format& operator%(const char* var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::int8 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::int16 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::int32 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::int64 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::uint8 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::uint16 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::uint32 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::uint64 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::float32 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::float64 var)
-    {
-        return arg(var);
-    }
-    Format& operator%(core::float128 var)
-    {
-        return arg(var);
+        return core::FormatClass<Format>::arg(var);
     }
     Exception operator%(ExceptionTerm)
     {
