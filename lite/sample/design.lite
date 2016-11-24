@@ -138,3 +138,18 @@ person:
         year: 1974
         month: 1
         day: 1
+
+# operator
+    1 < x <= 2
+    x + y
+    x, y, z
+
+    (r1: any < r2: any <= r2: any) -> any
+    (r1: any + r2: any) -> any
+    (r1: any, r2: any, r3: any) -> any
+
+    condition([1] = 'John') -> snap(limit-definition-list)
+
+    condition: (value: bool) -> (lambda: (value: any) -> nil)
+        if(value)
+            lambda(value)
