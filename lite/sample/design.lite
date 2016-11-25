@@ -148,7 +148,7 @@ person:
     (r1: any + r2: any) -> any
     (r1: any, r2: any, r3: any) -> any
 
-    condition([1] = 'John') -> snap(limit-definition-list)
+    condition([1] = 'John') -> snap(john)
 
     condition: (value: bool) -> (lambda: (value: any) -> nil)
         if(value)
