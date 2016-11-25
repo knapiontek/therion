@@ -153,3 +153,18 @@ person:
     condition: (value: bool) -> (lambda: (value: any) -> nil)
         if(value)
             lambda(value)
+
+# operator with lambda
+
+seq(element: any):
+	element-seq: element[]
+	[condition(el: element) -> bool] -> (lambda: (el: element) -> (return: any))
+		result: lambda.return[]
+		for(el: element-seq)
+			if(condition(el))
+				result <<< lambda(el)
+
+person: {name: unicode, last-name: unicode}
+person-seq: seq(person)
+person-seq <<< {'John', 'Smith'} <<< {'Mary', 'Stuart'}
+last-name-seq: person-seq[name = 'John'] -> last-name
