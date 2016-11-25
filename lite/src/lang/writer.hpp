@@ -10,7 +10,7 @@ public:
 private:
     struct Context
     {
-        Context* parent;
+        core::Shared<Context> parent;
         CompositeVar& var;
         llvm::StructType* clazz_type;
         llvm::AllocaInst* create_alloca;
@@ -56,7 +56,7 @@ private:
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
         auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, create_entry);
         new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, create_entry);
-        Context context = { 0, tree.var(),
+        Context context = { core::nil, tree.var(),
                             clazz_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
                             create_entry, destroy_entry, {} };
@@ -186,7 +186,7 @@ private:
         new llvm::StoreInst(arg, destroy_alloca, false, destroy_entry);
 
         // clazz and create/destroy body
-        Context in_context = { 0, var,
+        Context in_context = { context, var,
                                clazz_type,
                                create_alloca, destroy_alloca,
                                create_entry, destroy_entry, {} };
@@ -270,26 +270,20 @@ private:
     }
     llvm::Value* execute(IdLocation& loc, Context& context)
     {
-        auto context_id = var_id(context.var);
-        for(auto it : context.var.var_list)
-        {
-            auto var = it.value();
-            if(loc.id.equal(context_id))
-                return 0;
-            else if(loc.id.equal(context_id))
-                return load_field(context, it.position());
-        }
-
-        auto parent = &context;
+        core::Shared<Context> share = context;
         do
         {
-            for(auto it : parent->var.var_list)
+            auto context_id = var_id(share->var);
+            for(auto it : share->var.var_list)
             {
                 auto var = it.value();
-                if(loc.id.equal(var_id(var)))
-                return load_field(context, it.position());
+                if(loc.id.equal(context_id))
+                    break;
+                else if(loc.id.equal(context_id))
+                    return load_field(share, it.position());
             }
-        } while((parent = context.parent));
+            share = share->parent;
+        } while(share != core::nil);
 
         throw env::Format("Unknown variable: %1") % loc.id % env::exception;
     }
