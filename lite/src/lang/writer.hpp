@@ -131,7 +131,7 @@ private:
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
-        auto clazz_load = new llvm::LoadInst(context.destroy_alloca, nil, false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { int32_0_const, int32_i_const },
