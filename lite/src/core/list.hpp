@@ -1,9 +1,10 @@
 
 template<class Element, class ListIndex = Index<Element>>
-class List : Singleton
+class List : Iteratable
 {
     struct Cursor;
 public:
+    typedef Element element;
     typedef Shared<List> share;
     typedef Managed<List> manage;
 public:

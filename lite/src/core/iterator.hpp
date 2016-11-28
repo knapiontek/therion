@@ -103,3 +103,89 @@ inline Range range(int64 end)
 {
     return Range(0, end);
 }
+
+template<class Key, class Value>
+class Zip
+{
+public:
+    class Iterator
+    {
+    public:
+        Iterator(class Key::Iterator key, class Value::Iterator value) : the_key(key), the_value(value)
+        {
+
+        }
+        typename Key::element& key()
+        {
+            return the_key.value();
+        }
+        typename Value::element& value()
+        {
+            return the_value.value();
+        }
+        bool operator!=(Iterator& it)
+        {
+            return the_key != it.the_key && the_value != it.the_value;
+        }
+        void operator++()
+        {
+            the_key.next();
+            the_value.next();
+        }
+        void operator--()
+        {
+            the_key.prev();
+            the_value.prev();
+        }
+        Iterator& operator*()
+        {
+            return *this;
+        }
+    protected:
+        class Key::Iterator the_key;
+        class Value::Iterator the_value;
+    };
+    class Reverse : public Iterator
+    {
+    public:
+        Reverse(Iterator&& it) : Iterator(it)
+        {
+
+        }
+        void operator++()
+        {
+            Iterator::operator--();
+        }
+    };
+public:
+    Zip(Key& key, Value& value) : the_key(key), the_value(value)
+    {
+
+    }
+    Iterator begin()
+    {
+        return Iterator(the_key.begin(), the_value.begin());
+    }
+    Iterator end()
+    {
+        return Iterator(the_key.end(), the_value.end());
+    }
+    Reverse rbegin()
+    {
+        return Iterator(the_key.rend(), the_value.rend());
+    }
+    Reverse rend()
+    {
+        return Iterator(the_key.rbegin(), the_value.rbegin());
+    }
+private:
+    Key& the_key;
+    Value& the_value;
+};
+
+template<class Key, class Value>
+inline Zip<Key, Value> zip(Key& key, Value& value)
+{
+    certify(key.size() == value.size());
+    return Zip<Key, Value>(key, value);
+}

@@ -215,6 +215,7 @@ inline void test_manage()
 
 inline void test_iterator()
 {
+    // int
     auto sum = 0;
     for(auto& i : core::range(-1, 5))
     {
@@ -226,6 +227,42 @@ inline void test_iterator()
         sum += i;
     }
     core::verify(18 == sum);
+
+    // seq, list
+    core::Seq<core::int16> seq;
+    core::List<core::String> list(0x4);
+    for(auto& i : core::zip(seq, list))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
+    for(auto& i : core::reverse(core::zip(seq, list)))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
+
+    // set
+    core::TreeSet<core::int16> tree_set(0x4);
+    core::HashSet<core::String> hash_set(0x4);
+    for(auto& i : core::zip(tree_set, hash_set))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
+    for(auto& i : core::reverse(core::zip(tree_set, hash_set)))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
+
+    // map
+    core::TreeMap<core::int32, core::int16> tree_map(0x4);
+    core::HashMap<core::int32, core::String> hash_map(0x4);
+    for(auto& i : core::zip(tree_map, hash_map))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
+    for(auto& i : core::reverse(core::zip(tree_map, hash_map)))
+    {
+        core::verify(i.key() == i.value().to_int16());
+    }
 }
 
 inline void test_string()

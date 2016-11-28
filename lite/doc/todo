@@ -1,4 +1,8 @@
-arg() -> <<
+Separate range from iterator
+Index can convert to lambda
+Find by lambda
+core::zip
+
 enum -> enum class
 use moder casting static_cast<> vs ()
 
