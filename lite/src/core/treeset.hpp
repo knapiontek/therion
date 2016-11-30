@@ -2,12 +2,11 @@
 const auto the_treeset_path_size = 32;
 
 template<class Value, class TreeIndex = Index<Value>>
-class TreeSet : Iteratable
+class TreeSet : Iterable
 {
     struct Node;
     struct Page;
 public:
-    typedef Value element;
     typedef Shared<TreeSet> share;
     typedef Managed<TreeSet> manage;
 public:

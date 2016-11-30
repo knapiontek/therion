@@ -231,37 +231,37 @@ inline void test_iterator()
     // seq, list
     core::Seq<core::int16> seq;
     core::List<core::String> list(0x4);
-    for(auto& i : core::zip(seq, list))
+    for(auto& it : core::zip(seq, list))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
-    for(auto& i : core::reverse(core::zip(seq, list)))
+    for(auto& it : core::reverse(core::zip(seq, list)))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
 
-    // set
+    // tree, hash set
     core::TreeSet<core::int16> tree_set(0x4);
     core::HashSet<core::String> hash_set(0x4);
-    for(auto& i : core::zip(tree_set, hash_set))
+    for(auto& it : core::zip(tree_set, hash_set))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
-    for(auto& i : core::reverse(core::zip(tree_set, hash_set)))
+    for(auto& it : core::reverse(core::zip(tree_set, hash_set)))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
 
-    // map
+    // tree, hash map
     core::TreeMap<core::int32, core::int16> tree_map(0x4);
     core::HashMap<core::int32, core::String> hash_map(0x4);
-    for(auto& i : core::zip(tree_map, hash_map))
+    for(auto& it : core::zip(tree_map, hash_map))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
-    for(auto& i : core::reverse(core::zip(tree_map, hash_map)))
+    for(auto& it : core::reverse(core::zip(tree_map, hash_map)))
     {
-        core::verify(i.key() == i.value().to_int16());
+        core::verify(it.it1().value() == it.it2().value().to_int16());
     }
 }
 

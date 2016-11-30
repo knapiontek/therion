@@ -1,6 +1,6 @@
 
 template<class Element>
-class Queue : Iteratable
+class Queue : Iterable
 {
 public:
     typedef Shared<Queue> share;

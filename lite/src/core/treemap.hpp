@@ -2,12 +2,11 @@
 const auto the_treemap_path_size = 32;
 
 template<class Key, class Value, class TreeIndex = Index<Key>>
-class TreeMap : Iteratable
+class TreeMap : Iterable
 {
     struct Node;
     struct Page;
 public:
-    typedef Value element;
     typedef Shared<TreeMap> share;
     typedef Managed<TreeMap> manage;
 public:

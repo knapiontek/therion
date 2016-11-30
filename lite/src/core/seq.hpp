@@ -1,9 +1,8 @@
 
 template<class Element, class SeqIndex = Index<Element>>
-class Seq : Iteratable
+class Seq : Iterable
 {
 public:
-    typedef Element element;
     typedef Shared<Seq> share;
     typedef Managed<Seq> manage;
 public:

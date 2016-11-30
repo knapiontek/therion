@@ -104,46 +104,46 @@ inline Range range(int64 end)
     return Range(0, end);
 }
 
-template<class Key, class Value>
+template<class Iterable1, class Iterable2>
 class Zip
 {
 public:
     class Iterator
     {
     public:
-        Iterator(class Key::Iterator key, class Value::Iterator value) : the_key(key), the_value(value)
+        Iterator(class Iterable1::Iterator it1, class Iterable2::Iterator it2) : the_it1(it1), the_it2(it2)
         {
 
         }
-        typename Key::element& key()
+        class Iterable1::Iterator& it1()
         {
-            return the_key.value();
+            return the_it1;
         }
-        typename Value::element& value()
+        class Iterable2::Iterator& it2()
         {
-            return the_value.value();
+            return the_it2;
         }
         bool operator!=(Iterator& it)
         {
-            return the_key != it.the_key && the_value != it.the_value;
+            return the_it1 != it.the_it1;
         }
         void operator++()
         {
-            the_key.next();
-            the_value.next();
+            the_it1.operator++();
+            the_it2.operator++();
         }
         void operator--()
         {
-            the_key.prev();
-            the_value.prev();
+            the_it1.operator--();
+            the_it2.operator--();
         }
         Iterator& operator*()
         {
             return *this;
         }
     protected:
-        class Key::Iterator the_key;
-        class Value::Iterator the_value;
+        class Iterable1::Iterator the_it1;
+        class Iterable2::Iterator the_it2;
     };
     class Reverse : public Iterator
     {
@@ -158,34 +158,34 @@ public:
         }
     };
 public:
-    Zip(Key& key, Value& value) : the_key(key), the_value(value)
+    Zip(Iterable1& it1, Iterable2& it2) : the_it1(it1), the_it2(it2)
     {
 
     }
     Iterator begin()
     {
-        return Iterator(the_key.begin(), the_value.begin());
+        return Iterator(the_it1.begin(), the_it2.begin());
     }
     Iterator end()
     {
-        return Iterator(the_key.end(), the_value.end());
+        return Iterator(the_it1.end(), the_it2.end());
     }
     Reverse rbegin()
     {
-        return Iterator(the_key.rend(), the_value.rend());
+        return Iterator(the_it1.rend(), the_it2.rend());
     }
     Reverse rend()
     {
-        return Iterator(the_key.rbegin(), the_value.rbegin());
+        return Iterator(the_it1.rbegin(), the_it2.rbegin());
     }
 private:
-    Key& the_key;
-    Value& the_value;
+    Iterable1& the_it1;
+    Iterable2& the_it2;
 };
 
-template<class Key, class Value>
-inline Zip<Key, Value> zip(Key& key, Value& value)
+template<class Iterable1, class Iterable2>
+inline Zip<Iterable1, Iterable2> zip(Iterable1& it1, Iterable2& it2)
 {
-    certify(key.size() == value.size());
-    return Zip<Key, Value>(key, value);
+    certify(it1.size() == it2.size());
+    return Zip<Iterable1, Iterable2>(it1, it2);
 }

@@ -1,11 +1,10 @@
 
 template<class Key, class Value, class HashIndex = Index<Key>>
-class HashMap : Iteratable
+class HashMap : Iterable
 {
     struct Node;
     struct Page;
 public:
-    typedef Value element;
     typedef Shared<HashMap> share;
     typedef Managed<HashMap> manage;
 public:

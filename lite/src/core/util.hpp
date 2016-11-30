@@ -68,14 +68,14 @@ public:
 
 // miscellaneous
 
-struct Iteratable
+struct Iterable
 {
-    Iteratable()
+    Iterable()
     {
 
     }
-    Iteratable(Iteratable const&) = delete;
-    Iteratable& operator=(Iteratable const&) = delete;
+    Iterable(Iterable const&) = delete;
+    Iterable& operator=(Iterable const&) = delete;
 };
 
 template<class Other, class Type>

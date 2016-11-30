@@ -1,11 +1,10 @@
 
 template<class Value, class HashIndex = Index<Value>>
-class HashSet : Iteratable
+class HashSet : Iterable
 {
     struct Node;
     struct Page;
 public:
-    typedef Value element;
     typedef Shared<HashSet> share;
     typedef Managed<HashSet> manage;
 public:
