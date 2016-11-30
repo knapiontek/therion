@@ -213,7 +213,7 @@ inline void test_manage()
     core::verify(variadic->st.equal("3"));
 }
 
-inline void test_iterator()
+inline void test_iterable()
 {
     // int
     auto sum = 0;
@@ -692,7 +692,7 @@ inline void test_seq()
             pos_seq.append(pos);
     }
     pos_seq.squeeze();
-    seq.erase_by_iterator(pos_seq.head());
+    seq.erase_by_iterable(pos_seq);
     core::verify(size / 8 == seq.size());
 
     // clean up
@@ -902,7 +902,7 @@ inline void test_list()
         auto pos = it.position();
         if(pos % 2) pos_list.append(pos);
     }
-    list.erase_by_iterator(pos_list.head());
+    list.erase_by_iterable(pos_list);
     core::verify(size / 8 == list.size());
 
     // clean up
@@ -1587,7 +1587,7 @@ inline void test_core()
     test_pager();
     test_share();
     test_manage();
-    test_iterator();
+    test_iterable();
     test_string();
     test_acquire();
     test_queue();

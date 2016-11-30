@@ -321,9 +321,10 @@ public:
             init();
         }
     }
-    template<class Iterator>
-    void erase_by_iterator(Iterator it)
+    template<class Iterable>
+    void erase_by_iterable(Iterable& iterable)
     {
+        auto it = iterable.head();
         if(it.next())
         {
             certify(it.value() < size());
