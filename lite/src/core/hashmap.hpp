@@ -175,6 +175,15 @@ public:
     {
         init(page_size);
     }
+    HashMap(const std::initializer_list<std::pair<Key, Value>>& list)
+    {
+        init(list.size());
+
+        for(auto& i : list)
+        {
+            put(i.first, i.second);
+        }
+    }
     ~HashMap()
     {
         if(the_page_size)

@@ -216,63 +216,74 @@ inline void test_manage()
 inline void test_iterable()
 {
     // int
-    auto sum = 0;
+    auto balance = 0;
     for(auto& i : core::range(-1, 5))
     {
-        sum += i;
+        balance += i;
     }
-    core::verify(9 == sum);
+    core::verify(9 == balance);
     for(auto& i : core::reverse(core::range(-1, 5)))
     {
-        sum += i;
+        balance += i;
     }
-    core::verify(18 == sum);
-
-    core::List<core::String> list1 { "1", "2" };
-    for(auto& it : list1)
-    {
-        auto value = it.value();
-    }
-    for(auto& it : core::reverse(list1))
-    {
-        auto value = it.value();
-    }
+    core::verify(18 == balance);
 
     // seq, list
     core::Seq<core::int16> seq { 1, 2 };
     core::List<core::String> list { "1", "2" };
     for(auto& it : core::zip(seq, list))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
     for(auto& it : core::reverse(core::zip(seq, list)))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
+    core::verify(30 == balance);
 
     // tree, hash set
-    core::TreeSet<core::int16> tree_set(0x4);
-    core::HashSet<core::String> hash_set(0x4);
+    core::TreeSet<core::int16> tree_set { 1, 2 };
+    core::HashSet<core::String> hash_set { "1", "2" };
     for(auto& it : core::zip(tree_set, hash_set))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
     for(auto& it : core::reverse(core::zip(tree_set, hash_set)))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
+    core::verify(42 == balance);
 
     // tree, hash map
-    core::TreeMap<core::int32, core::int16> tree_map(0x4);
-    core::HashMap<core::int32, core::String> hash_map(0x4);
+    core::TreeMap<core::int32, core::int16> tree_map {{ 1, 3 }, { 2, 4 }};
+    core::HashMap<core::int32, core::String> hash_map {{ 1, "3" }, { 2, "4" }};
     for(auto& it : core::zip(tree_map, hash_map))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
     for(auto& it : core::reverse(core::zip(tree_map, hash_map)))
     {
-        core::verify(it.it1().value() == it.it2().value().to_int16());
+        auto value1 = it.it1().value();
+        auto value2 = it.it2().value().to_int16();
+        balance += value1 + value2;
+        core::verify(value1 == value2);
     }
+    core::verify(70 == balance);
 }
 
 inline void test_string()

@@ -167,4 +167,5 @@ seq(element: any):
 person: {name: unicode, last-name: unicode}
 person-seq: seq(person)
 person-seq <<< {'John', 'Smith'} <<< {'Mary', 'Stuart'}
+person-seq: person[{'John', 'Smith'}, {'Mary', 'Stuart'}]
 last-name-seq: person-seq[name = 'John'] -> last-name

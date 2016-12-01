@@ -252,6 +252,15 @@ public:
     {
         init(page_size);
     }
+    TreeSet(const std::initializer_list<Value>& list)
+    {
+        init(list.size());
+
+        for(auto& i : list)
+        {
+            put(i);
+        }
+    }
     ~TreeSet()
     {
         if(the_page_size)

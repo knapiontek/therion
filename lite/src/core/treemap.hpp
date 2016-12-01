@@ -264,6 +264,15 @@ public:
     {
         init(page_size);
     }
+    TreeMap(const std::initializer_list<std::pair<Key, Value>>& list)
+    {
+        init(list.size());
+
+        for(auto& i : list)
+        {
+            put(i.first, i.second);
+        }
+    }
     ~TreeMap()
     {
         if(the_page_size)
