@@ -125,10 +125,31 @@ public:
     {
         init();
     }
-    Seq(int64 size)
+    Seq(int64 _size)
     {
-        init();
-        Seq::size(size);
+        the_head = core::acquire<Element>(sizeof(Element) * _size);
+        the_tail = the_bond = the_head + _size;
+        the_bond = the_tail;
+
+        auto elem = the_head;
+        while(elem < the_tail)
+        {
+            new((void*)elem) Element();
+            elem++;
+        }
+    }
+    Seq(const std::initializer_list<Element>& list)
+    {
+        the_head = core::acquire<Element>(sizeof(Element) * list.size());
+        the_tail = the_bond = the_head + list.size();
+        the_bond = the_tail;
+
+        auto elem = the_head;
+        for(auto& i : list)
+        {
+            new((void*)elem) Element(i);
+            elem++;
+        }
     }
     ~Seq()
     {

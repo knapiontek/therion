@@ -8,8 +8,8 @@
 #include "io/io.hpp"
 #include "test/testio.hpp"
 
-#include "lang/lang.hpp"
-#include "test/testlang.hpp"
+//#include "lang/lang.hpp"
+//#include "test/testlang.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
         test_core();
         test_env();
         test_io();
-        test_lang();
+//        test_lang();
     }
     catch(env::Exception& exception)
     {

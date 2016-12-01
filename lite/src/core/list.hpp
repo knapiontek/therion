@@ -201,6 +201,17 @@ public:
         the_page_size = page_size;
         init();
     }
+    List(const std::initializer_list<Element>& list)
+    {
+        certify(list.size());
+        the_page_size = list.size();
+        init();
+
+        for(auto& i : list)
+        {
+            append(i);
+        }
+    }
     ~List()
     {
         if(the_page_size)

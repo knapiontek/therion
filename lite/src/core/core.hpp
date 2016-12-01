@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/time.h>
+#include <initializer_list>
 
 namespace core
 {

@@ -228,9 +228,19 @@ inline void test_iterable()
     }
     core::verify(18 == sum);
 
+    core::List<core::String> list1 { "1", "2" };
+    for(auto& it : list1)
+    {
+        auto value = it.value();
+    }
+    for(auto& it : core::reverse(list1))
+    {
+        auto value = it.value();
+    }
+
     // seq, list
-    core::Seq<core::int16> seq;
-    core::List<core::String> list(0x4);
+    core::Seq<core::int16> seq { 1, 2 };
+    core::List<core::String> list { "1", "2" };
     for(auto& it : core::zip(seq, list))
     {
         core::verify(it.it1().value() == it.it2().value().to_int16());
