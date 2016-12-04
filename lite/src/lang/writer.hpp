@@ -152,10 +152,10 @@ private:
     }
     void execute(CompositeVar& var, Clazz& clazz)
     {
-        auto clazz_id = var_id(var.signature_var);
+        auto _var_id = var_id(var.signature_var);
 
         // clazz
-        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(clazz_id).ascii());
+        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(_var_id).ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // create/destroy
@@ -163,11 +163,11 @@ private:
         auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto create_func = llvm::Function::Create(create_func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
-                                                  create_name(clazz_id).ascii(),
+                                                  create_name(_var_id).ascii(),
                                                   the_module.get());
         auto destroy_func = llvm::Function::Create(destroy_func_type,
                                                    llvm::GlobalValue::ExternalLinkage,
-                                                   destroy_name(clazz_id).ascii(),
+                                                   destroy_name(_var_id).ascii(),
                                                    the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
@@ -186,7 +186,7 @@ private:
         // begin destroy body
         llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
         llvm::Value* arg = &*destroy_func_arg_it;
-        arg->setName(clazz_var(clazz_id).ascii());
+        arg->setName(clazz_var(_var_id).ascii());
         auto destroy_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
         new llvm::StoreInst(arg, destroy_alloca, false, destroy_entry);
 
@@ -278,13 +278,13 @@ private:
         core::Shared<Clazz> share = clazz;
         do
         {
-            auto clazz_id = var_id(share->var);
+            auto _var_id = var_id(share->var);
             for(auto it : share->var.var_list)
             {
                 auto var = it.value();
-                if(loc.id.equal(clazz_id))
+                if(loc.id.equal(_var_id))
                     break;
-                else if(loc.id.equal(clazz_id))
+                else if(loc.id.equal(_var_id))
                     return load_field(share, it.position());
             }
             share = share->context;
