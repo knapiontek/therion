@@ -159,9 +159,9 @@ struct AssignVar : Var
     Expression::share exp;
 };
 
-struct CompositeVar : Var
+struct ClazzVar : Var
 {
-    CompositeVar() : field_list(0x8) {}
+    ClazzVar() : field_list(0x8) {}
     core::String& var_id() override { return signature->var_id(); }
 
     Var::share signature;
@@ -177,7 +177,7 @@ public:
     {
         the_context.append(the_var);
     }
-    CompositeVar& var()
+    ClazzVar& var()
     {
         return the_var;
     }
@@ -257,10 +257,10 @@ public:
         for(auto& context_it : core::reverse(the_context))
         {
             auto& var = context_it.value();
-            if(var.type_of<CompositeVar>())
+            if(var.type_of<ClazzVar>())
             {
-                auto& composite_var = var.down_cast<CompositeVar>();
-                for(auto& field_it : composite_var.field_list)
+                auto& clazz_var = var.down_cast<ClazzVar>();
+                for(auto& field_it : clazz_var.field_list)
                 {
                     auto& field = field_it.value();
                     if(id.equal(field->var_id()))
@@ -293,22 +293,22 @@ private:
         }
 
         auto context = the_context[shift];
-        if(context.type_of<CompositeVar>())
+        if(context.type_of<ClazzVar>())
         {
-            auto& composite = context.down_cast<CompositeVar>();
-            composite.field_list.append(var);
+            auto& clazz_var = context.down_cast<ClazzVar>();
+            clazz_var.field_list.append(var);
         }
         else
         {
-            auto& composite = the_pager.acquire<CompositeVar>();
-            composite.signature = context;
-            composite.field_list.append(var);
-            the_context[shift] = composite;
+            auto& clazz_var = the_pager.acquire<ClazzVar>();
+            clazz_var.signature = context;
+            clazz_var.field_list.append(var);
+            the_context[shift] = clazz_var;
 
-            auto& grand_context = the_context[shift - 1].down_cast<CompositeVar>();
+            auto& grand_context = the_context[shift - 1].down_cast<ClazzVar>();
             auto tail = grand_context.field_list.tail();
             if(tail.prev())
-                tail.value() = composite;
+                tail.value() = clazz_var;
         }
 
         the_context.size(shift + 2);
@@ -316,6 +316,6 @@ private:
     }
 private:
     core::Pager the_pager;
-    CompositeVar the_var;
+    ClazzVar the_var;
     core::Seq<Var::share> the_context;
 };

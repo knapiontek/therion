@@ -11,7 +11,7 @@ private:
     struct Clazz
     {
         core::Shared<Clazz> context;
-        CompositeVar& var;
+        ClazzVar& var;
         llvm::StructType* type;
         llvm::AllocaInst* create_alloca;
         llvm::AllocaInst* destroy_alloca;
@@ -21,7 +21,7 @@ private:
     };
     struct Field
     {
-        CompositeVar& var;
+        ClazzVar& var;
         llvm::LoadInst* clazz_load;
     };
 private:
@@ -94,8 +94,8 @@ private:
             execute(core::down_cast<IdVar>(var), clazz);
         else if(core::type_of<AssignVar>(var))
             execute(core::down_cast<AssignVar>(var), clazz);
-        else if(core::type_of<CompositeVar>(var))
-            execute(core::down_cast<CompositeVar>(var), clazz);
+        else if(core::type_of<ClazzVar>(var))
+            execute(core::down_cast<ClazzVar>(var), clazz);
         else
             throw bad_class_exception(var);
     }
@@ -150,7 +150,7 @@ private:
         append_new_field(exp_val->getType(), clazz);
         store_last_field(exp_val, clazz);
     }
-    void execute(CompositeVar& var, Clazz& clazz)
+    void execute(ClazzVar& var, Clazz& clazz)
     {
         auto var_id = var.var_id();
 
@@ -276,8 +276,8 @@ private:
     llvm::Value* execute(IdLocation& loc, Clazz& clazz)
     {
         core::verify(loc.context_var == clazz.var);
-        auto& composite_var = loc.context_var.down_cast<CompositeVar>();
-        for(auto& field_it : composite_var.field_list)
+        auto& clazz_var = loc.context_var.down_cast<ClazzVar>();
+        for(auto& field_it : clazz_var.field_list)
         {
             auto& field = field_it.value();
             if(loc.id.equal(field->var_id()))
