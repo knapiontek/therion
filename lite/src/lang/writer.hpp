@@ -152,10 +152,10 @@ private:
     }
     void execute(CompositeVar& var, Clazz& clazz)
     {
-        auto _var_id = var_id(var.signature_var);
+        auto var_id = var.var_id();
 
         // clazz
-        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(_var_id).ascii());
+        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(var_id).ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // create/destroy
@@ -163,11 +163,11 @@ private:
         auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
         auto create_func = llvm::Function::Create(create_func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
-                                                  create_name(_var_id).ascii(),
+                                                  create_name(var_id).ascii(),
                                                   the_module.get());
         auto destroy_func = llvm::Function::Create(destroy_func_type,
                                                    llvm::GlobalValue::ExternalLinkage,
-                                                   destroy_name(_var_id).ascii(),
+                                                   destroy_name(var_id).ascii(),
                                                    the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
@@ -186,7 +186,7 @@ private:
         // begin destroy body
         llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
         llvm::Value* arg = &*destroy_func_arg_it;
-        arg->setName(clazz_var(_var_id).ascii());
+        arg->setName(clazz_var(var_id).ascii());
         auto destroy_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
         new llvm::StoreInst(arg, destroy_alloca, false, destroy_entry);
 
@@ -275,21 +275,16 @@ private:
     }
     llvm::Value* execute(IdLocation& loc, Clazz& clazz)
     {
-        core::Shared<Clazz> share = clazz;
-        do
+        auto& composite_var = loc.context_var.down_cast<CompositeVar>();
+        for(auto& it : composite_var.var_list)
         {
-            auto _var_id = var_id(share->var);
-            for(auto it : share->var.var_list)
+            auto& var = it.value();
+            if(loc.id.equal(var->var_id()))
             {
-                auto var = it.value();
-                if(loc.id.equal(_var_id))
-                    break;
-                else if(loc.id.equal(_var_id))
-                    return load_field(share, it.position());
+                return load_field(clazz, it.position());
             }
-            share = share->context;
-        } while(share != core::nil);
-
+        }
+        core::certify(false);
         throw env::Format("Unknown variable: %1") % loc.id % env::exception;
     }
     llvm::Value* execute(FilterLocation& loc)
@@ -454,16 +449,6 @@ private:
         return env::Format("Writable: %1 not handled")
             % typeid(var).name()
             % env::exception;
-    }
-    core::String var_id(Var& var)
-    {
-        if(core::type_of<IdVar>(var))
-            return core::down_cast<IdVar>(var).id;
-        else if(core::type_of<AssignVar>(var))
-            return core::down_cast<AssignVar>(var).id;
-        else
-            core::certify(false);
-        return core::String();
     }
 private:
     llvm::Function* the_malloc_func;

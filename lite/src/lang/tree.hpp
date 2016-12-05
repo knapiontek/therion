@@ -80,6 +80,7 @@ struct Expression
 struct Var
 {
     typedef core::Shared<Var> share;
+    virtual core::String& var_id() = 0;
     virtual ~Var() {}
 };
 
@@ -88,6 +89,7 @@ struct Var
 struct IdLocation : Location
 {
     Token id;
+    Var::share context_var;
 };
 
 struct FilterLocation : Location
@@ -144,11 +146,15 @@ struct NestExpression : Expression
 
 struct IdVar : Var
 {
+    core::String& var_id() override { return id; }
+
     Token id;
 };
 
 struct AssignVar : Var
 {
+    core::String& var_id() override { return id; }
+
     Token id;
     Expression::share exp;
 };
@@ -156,6 +162,7 @@ struct AssignVar : Var
 struct CompositeVar : Var
 {
     CompositeVar() : var_list(0x8) {}
+    core::String& var_id() override { return signature_var->var_id(); }
 
     Var::share signature_var;
     core::List<Var::share> var_list;
@@ -249,7 +256,22 @@ public:
     {
         auto& loc = the_pager.acquire<IdLocation>();
         loc.id = id;
-        return ret<Location>(loc);
+        for(auto& context_it : core::reverse(the_context))
+        {
+            auto& var = context_it.value();
+            core::verify(var.type_of<CompositeVar>());
+            auto& composite_var = var.down_cast<CompositeVar>();
+            for(auto& it : composite_var.var_list)
+            {
+                auto& var = it.value();
+                if(loc.id.equal(var->var_id()))
+                {
+                    loc.context_var = context_it.value();
+                    return ret<Location>(loc);
+                }
+            }
+        }
+        throw env::Format("Unknown variable: %1") % loc.id % env::exception;
     }
     Ret<Final> final(Token& value, Type type)
     {
