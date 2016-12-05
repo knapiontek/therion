@@ -161,11 +161,11 @@ struct AssignVar : Var
 
 struct CompositeVar : Var
 {
-    CompositeVar() : var_list(0x8) {}
-    core::String& var_id() override { return signature_var->var_id(); }
+    CompositeVar() : field_list(0x8) {}
+    core::String& var_id() override { return signature->var_id(); }
 
-    Var::share signature_var;
-    core::List<Var::share> var_list;
+    Var::share signature;
+    core::List<Var::share> field_list;
 };
 
 // tree
@@ -254,24 +254,26 @@ public:
     }
     Ret<Location> loc(Token& id)
     {
-        auto& loc = the_pager.acquire<IdLocation>();
-        loc.id = id;
         for(auto& context_it : core::reverse(the_context))
         {
             auto& var = context_it.value();
-            core::verify(var.type_of<CompositeVar>());
-            auto& composite_var = var.down_cast<CompositeVar>();
-            for(auto& it : composite_var.var_list)
+            if(var.type_of<CompositeVar>())
             {
-                auto& var = it.value();
-                if(loc.id.equal(var->var_id()))
+                auto& composite_var = var.down_cast<CompositeVar>();
+                for(auto& field_it : composite_var.field_list)
                 {
-                    loc.context_var = context_it.value();
-                    return ret<Location>(loc);
+                    auto& field = field_it.value();
+                    if(id.equal(field->var_id()))
+                    {
+                        auto& loc = the_pager.acquire<IdLocation>();
+                        loc.id = id;
+                        loc.context_var = context_it.value();
+                        return ret<Location>(loc);
+                    }
                 }
             }
         }
-        throw env::Format("Unknown variable: %1") % loc.id % env::exception;
+        throw env::Format("Unknown variable: %1") % id % env::exception;
     }
     Ret<Final> final(Token& value, Type type)
     {
@@ -290,21 +292,21 @@ private:
             throw SyntaxException();
         }
 
-        auto parent = the_context[shift];
-        if(parent.type_of<CompositeVar>())
+        auto context = the_context[shift];
+        if(context.type_of<CompositeVar>())
         {
-            auto& composite = parent.down_cast<CompositeVar>();
-            composite.var_list.append(var);
+            auto& composite = context.down_cast<CompositeVar>();
+            composite.field_list.append(var);
         }
         else
         {
             auto& composite = the_pager.acquire<CompositeVar>();
-            composite.signature_var = parent;
-            composite.var_list.append(var);
+            composite.signature = context;
+            composite.field_list.append(var);
             the_context[shift] = composite;
 
-            auto& grand_parent = the_context[shift - 1].down_cast<CompositeVar>();
-            auto tail = grand_parent.var_list.tail();
+            auto& grand_context = the_context[shift - 1].down_cast<CompositeVar>();
+            auto tail = grand_context.field_list.tail();
             if(tail.prev())
                 tail.value() = composite;
         }

@@ -65,9 +65,9 @@ private:
                         clazz_type,
                         clazz_ptr_alloca, clazz_ptr_alloca,
                         create_entry, destroy_entry, {} };
-        for(auto& it : tree.var().var_list)
+        for(auto& field_it : tree.var().field_list)
         {
-            auto field = it.value();
+            auto field = field_it.value();
             execute(field, clazz);
         }
 
@@ -195,9 +195,9 @@ private:
                            clazz_type,
                            create_alloca, destroy_alloca,
                            create_entry, destroy_entry, {} };
-        for(auto& it : var.var_list)
+        for(auto& field_it : var.field_list)
         {
-            auto field = it.value();
+            auto field = field_it.value();
             execute(field, in_clazz);
         }
 
@@ -275,17 +275,18 @@ private:
     }
     llvm::Value* execute(IdLocation& loc, Clazz& clazz)
     {
+        core::verify(loc.context_var == clazz.var);
         auto& composite_var = loc.context_var.down_cast<CompositeVar>();
-        for(auto& it : composite_var.var_list)
+        for(auto& field_it : composite_var.field_list)
         {
-            auto& var = it.value();
-            if(loc.id.equal(var->var_id()))
+            auto& field = field_it.value();
+            if(loc.id.equal(field->var_id()))
             {
-                return load_field(clazz, it.position());
+                return load_field(clazz, field_it.position());
             }
         }
         core::certify(false);
-        throw env::Format("Unknown variable: %1") % loc.id % env::exception;
+        return 0;
     }
     llvm::Value* execute(FilterLocation& loc)
     {
