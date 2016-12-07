@@ -186,13 +186,13 @@ public:
         auto& var = the_pager.acquire<AssignVar>();
         var.id = id;
         var.exp = exp;
-        update_context(indent, var);
+        solve_context(indent, var);
     }
     void var(Token& indent, Token& id)
     {
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
-        update_context(indent, var);
+        solve_context(indent, var);
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
@@ -283,7 +283,7 @@ public:
         return ret<Final>(final);
     }
 private:
-    void update_context(Token& indent, Var& var)
+    void solve_context(Token& indent, Var& var)
     {
         auto size = indent.size();
         auto shift = size / 4;
