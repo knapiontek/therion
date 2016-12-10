@@ -80,7 +80,7 @@ struct Expression
 struct Var
 {
     typedef core::Shared<Var> share;
-    virtual core::String& var_id() = 0;
+    virtual core::String& get_id() = 0;
     virtual ~Var() {}
 };
 
@@ -121,6 +121,7 @@ struct FinalExpression : Expression
 struct LocationExpression : Expression
 {
     Location::share loc;
+    Var::share context_var;
 };
 
 struct NestFinalExpression : Expression
@@ -146,14 +147,14 @@ struct NestExpression : Expression
 
 struct IdVar : Var
 {
-    core::String& var_id() override { return id; }
+    core::String& get_id() override { return id; }
 
     Token id;
 };
 
 struct AssignVar : Var
 {
-    core::String& var_id() override { return id; }
+    core::String& get_id() override { return id; }
 
     Token id;
     Expression::share exp;
@@ -162,7 +163,7 @@ struct AssignVar : Var
 struct ClazzVar : Var
 {
     ClazzVar() : field_list(0x8) {}
-    core::String& var_id() override { return signature->var_id(); }
+    core::String& get_id() override { return signature->get_id(); }
 
     Var::share signature;
     core::List<Var::share> field_list;
@@ -263,7 +264,7 @@ public:
                 for(auto& field_it : clazz_var.field_list)
                 {
                     auto& field = field_it.value();
-                    if(id.equal(field->var_id()))
+                    if(id.equal(field->get_id()))
                     {
                         auto& loc = the_pager.acquire<IdLocation>();
                         loc.id = id;

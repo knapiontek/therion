@@ -147,7 +147,7 @@ private:
     }
     void execute(ClazzVar& var, Context& context)
     {
-        auto var_id = var.var_id();
+        auto var_id = var.get_id();
 
         // clazz
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(var_id).ascii());
@@ -275,7 +275,7 @@ private:
         for(auto& field_it : clazz_var.field_list)
         {
             auto& field = field_it.value();
-            if(loc.id.equal(field->var_id()))
+            if(loc.id.equal(field->get_id()))
             {
                 return load_field(context, field_it.position());
             }

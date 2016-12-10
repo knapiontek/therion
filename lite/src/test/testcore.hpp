@@ -39,18 +39,18 @@ inline void test_pager()
         core::float32& f = pager.acquire<core::float32>();
         f = 0;
 
-        core::int32* int_seq = pager.acquire<core::int32>(100);
+        core::int32* int_seq = pager.acquire_seq<core::int32>(100);
         int_seq[0] = 0;
         int_seq[99] = 99;
 
-        int_seq = pager.acquire<core::int32>(200);
+        int_seq = pager.acquire_seq<core::int32>(200);
         int_seq[0] = 0;
         int_seq[199] = 199;
 
         core::String& st = pager.acquire<core::String>();
         st = cs_hello;
 
-        core::String* st_seq = pager.acquire<core::String>(2);
+        core::String* st_seq = pager.acquire_seq<core::String>(2);
         st_seq[0] = cs_hello;
         st_seq[1] = cs_hello;
     }
