@@ -271,17 +271,12 @@ private:
     llvm::Value* execute(IdLocation& loc, Context& context)
     {
         core::verify(loc.context_var == context.var);
-        auto& clazz_var = loc.context_var.down_cast<ClazzVar>();
-        for(auto& field_it : clazz_var.field_list)
+        core::Shared<ClazzVar> loc_var = loc.context_var;
+        while(loc_var != context.var)
         {
-            auto& field = field_it.value();
-            if(loc.id.equal(field->get_id()))
-            {
-                return load_field(context, field_it.position());
-            }
+            loc_var = context.context->var;
         }
-        core::certify(false);
-        return 0;
+        return load_field(context, loc.field_pos);
     }
     llvm::Value* execute(FilterLocation& loc)
     {

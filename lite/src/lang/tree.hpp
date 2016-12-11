@@ -89,6 +89,7 @@ struct Var
 struct IdLocation : Location
 {
     Token id;
+    core::int64 field_pos;
     Var::share context_var;
 };
 
@@ -121,7 +122,6 @@ struct FinalExpression : Expression
 struct LocationExpression : Expression
 {
     Location::share loc;
-    Var::share context_var;
 };
 
 struct NestFinalExpression : Expression
@@ -268,6 +268,7 @@ public:
                     {
                         auto& loc = the_pager.acquire<IdLocation>();
                         loc.id = id;
+                        loc.field_pos = field_it.position();
                         loc.context_var = context_it.value();
                         return ret<Location>(loc);
                     }
