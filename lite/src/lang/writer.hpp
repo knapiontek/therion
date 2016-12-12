@@ -10,9 +10,10 @@ public:
 private:
     struct Context
     {
-        core::Shared<Context> context;
-        ClazzVar& var;
-        llvm::StructType* struct_type;
+        core::Shared<Context> outer;
+        core::Shared<ClazzVar> var;
+        llvm::StructType* clazz_type;
+        llvm::PointerType* clazz_ptr_type;
         llvm::AllocaInst* create_alloca;
         llvm::AllocaInst* destroy_alloca;
         llvm::BasicBlock* create_entry;
@@ -57,7 +58,7 @@ private:
         auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, create_entry);
         new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, create_entry);
         Context context = { core::nil, tree.var(),
-                            clazz_type,
+                            clazz_type, clazz_ptr_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
                             create_entry, destroy_entry, {} };
         for(auto& field_it : tree.var().field_list)
@@ -97,47 +98,6 @@ private:
     void execute(IdVar& var, Context& context)
     {
         core::certify(false);
-    }
-    void append_new_field(llvm::Type* type, Context& context)
-    {
-        context.field_vec.push_back(type);
-        context.struct_type->setBody(context.field_vec, false);
-    }
-    void store_last_field(llvm::Value* value, Context& context)
-    {
-        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
-        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
-        auto clazz_field = llvm::GetElementPtrInst::Create(context.struct_type,
-                                                           clazz_load,
-                                                           { int32_0_const, int32_i_const },
-                                                           nil,
-                                                           context.create_entry);
-        new llvm::StoreInst(value, clazz_field, false, context.create_entry);
-    }
-    llvm::Value* load_last_field(Context& context)
-    {
-        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
-        auto clazz_load = new llvm::LoadInst(context.destroy_alloca, nil, false, context.destroy_entry);
-        auto clazz_field = llvm::GetElementPtrInst::Create(context.struct_type,
-                                                           clazz_load,
-                                                           { int32_0_const, int32_i_const },
-                                                           nil,
-                                                           context.destroy_entry);
-        return new llvm::LoadInst(clazz_field, nil, false, context.destroy_entry);
-    }
-    llvm::Value* load_field(Context& context, int position)
-    {
-        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
-        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
-        auto clazz_field = llvm::GetElementPtrInst::Create(context.struct_type,
-                                                           clazz_load,
-                                                           { int32_0_const, int32_i_const },
-                                                           nil,
-                                                           context.create_entry);
-        return new llvm::LoadInst(clazz_field, nil, false, context.create_entry);
     }
     void execute(AssignVar& var, Context& context)
     {
@@ -187,9 +147,9 @@ private:
 
         // clazz and create/destroy body
         Context in_context = { context, var,
-                               clazz_type,
+                               clazz_type, clazz_type_ptr,
                                create_alloca, destroy_alloca,
-                               create_entry, destroy_entry, {} };
+                               create_entry, destroy_entry, { context.clazz_ptr_type } };
         for(auto& field_it : var.field_list)
         {
             auto field = field_it.value();
@@ -270,13 +230,12 @@ private:
     }
     llvm::Value* execute(IdLocation& loc, Context& context)
     {
-        core::verify(loc.context_var == context.var);
-        core::Shared<ClazzVar> loc_var = loc.context_var;
-        while(loc_var != context.var)
+        core::Shared<Context> share = context;
+        while(share->var != loc.context_var)
         {
-            loc_var = context.context->var;
+            share = share->outer;
         }
-        return load_field(context, loc.field_pos);
+        return load_field(share, loc.field_pos);
     }
     llvm::Value* execute(FilterLocation& loc)
     {
@@ -417,6 +376,47 @@ private:
                     % binary_op_name(op)
                     % env::exception;
         }
+    }
+    void append_new_field(llvm::Type* type, Context& context)
+    {
+        context.field_vec.push_back(type);
+        context.clazz_type->setBody(context.field_vec, false);
+    }
+    void store_last_field(llvm::Value* value, Context& context)
+    {
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
+        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { int32_0_const, int32_i_const },
+                                                           nil,
+                                                           context.create_entry);
+        new llvm::StoreInst(value, clazz_field, false, context.create_entry);
+    }
+    llvm::Value* load_last_field(Context& context)
+    {
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
+        auto clazz_load = new llvm::LoadInst(context.destroy_alloca, nil, false, context.destroy_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { int32_0_const, int32_i_const },
+                                                           nil,
+                                                           context.destroy_entry);
+        return new llvm::LoadInst(clazz_field, nil, false, context.destroy_entry);
+    }
+    llvm::Value* load_field(Context& context, int position)
+    {
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
+        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
+        auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
+                                                           clazz_load,
+                                                           { int32_0_const, int32_i_const },
+                                                           nil,
+                                                           context.create_entry);
+        return new llvm::LoadInst(clazz_field, nil, false, context.create_entry);
     }
     core::String clazz_name(core::String& clazz_id)
     {
