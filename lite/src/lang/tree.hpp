@@ -182,18 +182,48 @@ public:
     {
         return the_var;
     }
-    void var(Token& indent, Token& id, Expression& exp)
+    void var(Token& id, Expression& exp)
     {
         auto& var = the_pager.acquire<AssignVar>();
         var.id = id;
         var.exp = exp;
-        solve_context(indent, var);
+
+        auto last = the_context[the_context.size() - 1];
+        auto& clazz_var = last.down_cast<ClazzVar>();
+        clazz_var.field_list.append(var);
     }
-    void var(Token& indent, Token& id)
+    void var(Token& id)
     {
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
-        solve_context(indent, var);
+
+        auto last = the_context[the_context.size() - 1];
+        auto& clazz_var = last.down_cast<ClazzVar>();
+        clazz_var.field_list.append(var);
+    }
+    void ind(Token& ind)
+    {
+        auto size = ind.size();
+        auto shift = size / 4;
+        if(size % 4 || (shift > the_context.size() - 1))
+        {
+            throw SyntaxException();
+        }
+
+        auto last = the_context[shift];
+        if(!last.type_of<ClazzVar>())
+        {
+            auto& clazz_var = the_pager.acquire<ClazzVar>();
+            clazz_var.signature = last;
+            the_context[shift] = clazz_var;
+
+            auto& grand_context = the_context[shift - 1].down_cast<ClazzVar>();
+            auto tail = grand_context.field_list.tail();
+            if(tail.prev())
+                tail.value() = clazz_var;
+        }
+
+        the_context.size(shift + 1);
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
@@ -283,38 +313,6 @@ public:
         final.value = value;
         final.type = type;
         return ret<Final>(final);
-    }
-private:
-    void solve_context(Token& indent, Var& var)
-    {
-        auto size = indent.size();
-        auto shift = size / 4;
-        if(size % 4 || (shift > the_context.size() - 1))
-        {
-            throw SyntaxException();
-        }
-
-        auto context = the_context[shift];
-        if(context.type_of<ClazzVar>())
-        {
-            auto& clazz_var = context.down_cast<ClazzVar>();
-            clazz_var.field_list.append(var);
-        }
-        else
-        {
-            auto& clazz_var = the_pager.acquire<ClazzVar>();
-            clazz_var.signature = context;
-            clazz_var.field_list.append(var);
-            the_context[shift] = clazz_var;
-
-            auto& grand_context = the_context[shift - 1].down_cast<ClazzVar>();
-            auto tail = grand_context.field_list.tail();
-            if(tail.prev())
-                tail.value() = clazz_var;
-        }
-
-        the_context.size(shift + 2);
-        the_context[shift + 1] = var;
     }
 private:
     core::Pager the_pager;
