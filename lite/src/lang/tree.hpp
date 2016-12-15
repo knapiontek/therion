@@ -204,20 +204,23 @@ public:
     void ind(Token& ind)
     {
         auto size = ind.size();
+        if(size % 4)
+            throw SyntaxException();
+
         auto shift = 1 + (size / 4);
         auto& last_var = the_context[the_context.size() - 1];
-
-        if((size % 4) || (shift > the_context.size() + !last_var->field_var_list.is_empty()))
-        {
+        auto last_field = last_var->field_var_list.tail();
+        auto has_field = last_field.prev();
+        if(shift > the_context.size() + has_field)
             throw SyntaxException();
-        }
-        else if(!last_var->field_var_list.is_empty() && shift == the_context.size())
+
+        if((shift == the_context.size() + 1) && has_field)
         {
             auto& clazz_var = the_pager.acquire<ClazzVar>();
-            clazz_var.decl_var = last_var->field_var_list[last_var->field_var_list.size() - 1]; // last field
+            clazz_var.decl_var = last_field.value();
             last_var = clazz_var;
         }
-        else
+        else if(shift < the_context.size())
         {
             the_context.size(shift);
         }
