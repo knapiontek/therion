@@ -219,6 +219,7 @@ public:
             auto& clazz_var = the_pager.acquire<ClazzVar>();
             clazz_var.decl_var = last_field.value();
             last_var = clazz_var;
+            the_context.append(clazz_var);
         }
         else if(shift < the_context.size())
         {
