@@ -57,11 +57,11 @@ private:
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
         auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, create_entry);
         new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, create_entry);
-        Context context = { core::nil, tree.var(),
+        Context context = { core::nil, tree.main_var(),
                             clazz_type, clazz_ptr_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
                             create_entry, destroy_entry, {} };
-        for(auto& field_it : tree.var().field_list)
+        for(auto& field_it : tree.main_var().field_var_list)
         {
             auto field = field_it.value();
             execute(field, context);
@@ -150,7 +150,7 @@ private:
                                clazz_type, clazz_type_ptr,
                                create_alloca, destroy_alloca,
                                create_entry, destroy_entry, { context.clazz_ptr_type } };
-        for(auto& field_it : var.field_list)
+        for(auto& field_it : var.field_var_list)
         {
             auto field = field_it.value();
             execute(field, in_context);

@@ -162,11 +162,13 @@ struct AssignVar : Var
 
 struct ClazzVar : Var
 {
-    ClazzVar() : field_list(0x8) {}
-    core::String& get_id() override { return signature->get_id(); }
+    typedef core::Shared<ClazzVar> share;
 
-    Var::share signature;
-    core::List<Var::share> field_list;
+    ClazzVar() : field_var_list(0x8) {}
+    core::String& get_id() override { return decl_var->get_id(); }
+
+    Var::share decl_var;
+    core::List<Var::share> field_var_list;
 };
 
 // tree
@@ -176,11 +178,11 @@ class Tree
 public:
     Tree()
     {
-        the_context.append(the_var);
+        the_context.append(the_main_var);
     }
-    ClazzVar& var()
+    ClazzVar& main_var()
     {
-        return the_var;
+        return the_main_var;
     }
     void var(Token& id, Expression& exp)
     {
@@ -188,42 +190,37 @@ public:
         var.id = id;
         var.exp = exp;
 
-        auto last = the_context[the_context.size() - 1];
-        auto& clazz_var = last.down_cast<ClazzVar>();
-        clazz_var.field_list.append(var);
+        auto last_var = the_context[the_context.size() - 1];
+        last_var->field_var_list.append(var);
     }
     void var(Token& id)
     {
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
 
-        auto last = the_context[the_context.size() - 1];
-        auto& clazz_var = last.down_cast<ClazzVar>();
-        clazz_var.field_list.append(var);
+        auto last_var = the_context[the_context.size() - 1];
+        last_var->field_var_list.append(var);
     }
     void ind(Token& ind)
     {
         auto size = ind.size();
-        auto shift = size / 4;
-        if(size % 4 || (shift > the_context.size() - 1))
+        auto shift = 1 + (size / 4);
+        auto& last_var = the_context[the_context.size() - 1];
+
+        if((size % 4) || (shift > the_context.size() + !last_var->field_var_list.is_empty()))
         {
             throw SyntaxException();
         }
-
-        auto last = the_context[shift];
-        if(!last.type_of<ClazzVar>())
+        else if(!last_var->field_var_list.is_empty() && shift == the_context.size())
         {
             auto& clazz_var = the_pager.acquire<ClazzVar>();
-            clazz_var.signature = last;
-            the_context[shift] = clazz_var;
-
-            auto& grand_context = the_context[shift - 1].down_cast<ClazzVar>();
-            auto tail = grand_context.field_list.tail();
-            if(tail.prev())
-                tail.value() = clazz_var;
+            clazz_var.decl_var = last_var->field_var_list[last_var->field_var_list.size() - 1]; // last field
+            last_var = clazz_var;
         }
-
-        the_context.size(shift + 1);
+        else
+        {
+            the_context.size(shift);
+        }
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
     {
@@ -287,21 +284,17 @@ public:
     {
         for(auto& context_it : core::reverse(the_context))
         {
-            auto& var = context_it.value();
-            if(var.type_of<ClazzVar>())
+            auto& context_var = context_it.value();
+            for(auto& field_it : context_var->field_var_list)
             {
-                auto& clazz_var = var.down_cast<ClazzVar>();
-                for(auto& field_it : clazz_var.field_list)
+                auto& field_var = field_it.value();
+                if(id.equal(field_var->get_id()))
                 {
-                    auto& field = field_it.value();
-                    if(id.equal(field->get_id()))
-                    {
-                        auto& loc = the_pager.acquire<IdLocation>();
-                        loc.id = id;
-                        loc.field_pos = field_it.position();
-                        loc.context_var = context_it.value();
-                        return ret<Location>(loc);
-                    }
+                    auto& loc = the_pager.acquire<IdLocation>();
+                    loc.id = id;
+                    loc.field_pos = field_it.position();
+                    loc.context_var = context_var;
+                    return ret<Location>(loc);
                 }
             }
         }
@@ -316,6 +309,6 @@ public:
     }
 private:
     core::Pager the_pager;
-    ClazzVar the_var;
-    core::Seq<Var::share> the_context;
+    ClazzVar the_main_var;
+    core::Seq<ClazzVar::share> the_context;
 };
