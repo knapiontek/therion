@@ -285,14 +285,14 @@ public:
         for(auto& context_it : core::reverse(the_context))
         {
             auto& context_var = context_it.value();
-            for(auto& field_it : context_var->field_var_list)
+            for(auto& field_var_it : context_var->field_var_list)
             {
-                auto& field_var = field_it.value();
+                auto& field_var = field_var_it.value();
                 if(id.equal(field_var->get_id()))
                 {
                     auto& loc = the_pager.acquire<IdLocation>();
                     loc.id = id;
-                    loc.field_pos = field_it.position();
+                    loc.field_pos = field_var_it.position();
                     loc.context_var = context_var;
                     return ret<Location>(loc);
                 }

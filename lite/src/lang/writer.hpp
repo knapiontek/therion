@@ -61,9 +61,9 @@ private:
                             clazz_type, clazz_ptr_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
                             create_entry, destroy_entry, {} };
-        for(auto& field_it : tree.main_var().field_var_list)
+        for(auto& field_var_it : tree.main_var().field_var_list)
         {
-            auto field = field_it.value();
+            auto field = field_var_it.value();
             execute(field, context);
         }
 
@@ -150,9 +150,9 @@ private:
                                clazz_type, clazz_type_ptr,
                                create_alloca, destroy_alloca,
                                create_entry, destroy_entry, { context.clazz_ptr_type } };
-        for(auto& field_it : var.field_var_list)
+        for(auto& field_var_it : var.field_var_list)
         {
-            auto field = field_it.value();
+            auto field = field_var_it.value();
             execute(field, in_context);
         }
 
