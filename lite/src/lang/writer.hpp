@@ -149,7 +149,7 @@ private:
         Context in_context = { context, var,
                                clazz_type, clazz_type_ptr,
                                create_alloca, destroy_alloca,
-                               create_entry, destroy_entry, {} };
+                               create_entry, destroy_entry, {context.clazz_ptr_type} };
         for(auto& field_var_it : var.field_var_list)
         {
             auto field = field_var_it.value();
@@ -235,7 +235,7 @@ private:
         {
             share = share->outer;
         }
-        return load_field(share, loc.field_pos);
+        return load_field(share, loc.field_pos + (share->outer != core::nil));
     }
     llvm::Value* execute(FilterLocation& loc)
     {
