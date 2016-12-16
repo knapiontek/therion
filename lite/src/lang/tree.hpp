@@ -178,7 +178,7 @@ class Tree
 public:
     Tree()
     {
-        the_context.append(the_main_var);
+        the_context_seq.append(the_main_var);
     }
     ClazzVar& main_var()
     {
@@ -190,7 +190,7 @@ public:
         var.id = id;
         var.exp = exp;
 
-        auto last_var = the_context[the_context.size() - 1];
+        auto last_var = the_context_seq[the_context_seq.size() - 1];
         last_var->field_var_list.append(var);
     }
     void var(Token& id)
@@ -198,7 +198,7 @@ public:
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
 
-        auto last_var = the_context[the_context.size() - 1];
+        auto last_var = the_context_seq[the_context_seq.size() - 1];
         last_var->field_var_list.append(var);
     }
     void ind(Token& ind)
@@ -208,22 +208,22 @@ public:
             throw SyntaxException();
 
         auto shift = 1 + (size / 4);
-        auto& last_var = the_context[the_context.size() - 1];
+        auto& last_var = the_context_seq[the_context_seq.size() - 1];
         auto last_field = last_var->field_var_list.tail();
         auto has_field = last_field.prev();
-        if(shift > the_context.size() + has_field)
+        if(shift > the_context_seq.size() + has_field)
             throw SyntaxException();
 
-        if((shift == the_context.size() + 1) && has_field)
+        if((shift == the_context_seq.size() + 1) && has_field)
         {
             auto& clazz_var = the_pager.acquire<ClazzVar>();
             clazz_var.decl_var = last_field.value();
             last_field.value() = clazz_var;
-            the_context.append(clazz_var);
+            the_context_seq.append(clazz_var);
         }
-        else if(shift < the_context.size())
+        else if(shift < the_context_seq.size())
         {
-            the_context.size(shift);
+            the_context_seq.size(shift);
         }
     }
     Ret<Expression> exp(Expression& exp1, BinaryOp op, Expression& exp2)
@@ -286,7 +286,7 @@ public:
     }
     Ret<Location> loc(Token& id)
     {
-        for(auto& context_it : core::reverse(the_context))
+        for(auto& context_it : core::reverse(the_context_seq))
         {
             auto& context_var = context_it.value();
             for(auto& field_var_it : context_var->field_var_list)
@@ -314,5 +314,5 @@ public:
 private:
     core::Pager the_pager;
     ClazzVar the_main_var;
-    core::Seq<ClazzVar::share> the_context;
+    core::Seq<ClazzVar::share> the_context_seq;
 };
