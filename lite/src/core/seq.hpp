@@ -371,6 +371,10 @@ public:
             the_tail -= h - l;
         }
     }
+    Element& last()
+    {
+        return *(the_tail - 1);
+    }
     Element& at(int64 pos)
     {
         certify(pos < size());

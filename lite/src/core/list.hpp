@@ -428,6 +428,10 @@ public:
             release_tail(to);
         }
     }
+    Element& last()
+    {
+        return *(the_tail.elem - 1);
+    }
     Element& at(int64 pos)
     {
         certify(the_page_size && pos < size());

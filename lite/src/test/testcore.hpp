@@ -733,6 +733,8 @@ inline void test_seq()
             erasing++;
         core::verify(erasing == seq.erase(erase, scope & 2) || scope & 2);
         core::verify(!seq.erase(erase) || scope & 2);
+        if(!seq.is_empty())
+            core::verify(seq.last().equal(seq[seq.size()-1]));
     }
 
     // int index
@@ -943,6 +945,8 @@ inline void test_list()
             erasing++;
         core::verify(erasing == list.erase(erase, scope & 2) || scope & 2);
         core::verify(!list.erase(erase) || scope & 2);
+        if(!list.is_empty())
+            core::verify(list.last().equal(list[list.size()-1]));
     }
 
     // list as a pager

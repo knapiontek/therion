@@ -190,7 +190,7 @@ public:
         var.id = id;
         var.exp = exp;
 
-        auto last_var = the_context_seq[the_context_seq.size() - 1];
+        auto last_var = the_context_seq.last();
         last_var->field_var_list.append(var);
     }
     void var(Token& id)
@@ -198,7 +198,7 @@ public:
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
 
-        auto last_var = the_context_seq[the_context_seq.size() - 1];
+        auto last_var = the_context_seq.last();
         last_var->field_var_list.append(var);
     }
     void ind(Token& ind)
@@ -208,7 +208,7 @@ public:
             throw SyntaxException();
 
         auto shift = 1 + (size / 4);
-        auto& last_var = the_context_seq[the_context_seq.size() - 1];
+        auto& last_var = the_context_seq.last();
         auto last_field = last_var->field_var_list.tail();
         auto has_field = last_field.prev();
         if(shift > the_context_seq.size() + has_field)
