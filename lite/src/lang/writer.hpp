@@ -149,7 +149,7 @@ private:
         Context in_context = { context, var,
                                clazz_type, clazz_type_ptr,
                                create_alloca, destroy_alloca,
-                               create_entry, destroy_entry, { context.clazz_ptr_type } };
+                               create_entry, destroy_entry, {} };
         for(auto& field_var_it : var.field_var_list)
         {
             auto field = field_var_it.value();
