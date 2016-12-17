@@ -114,8 +114,8 @@ private:
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // create/destroy
-        auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {}, false);
-        auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), { clazz_type_ptr }, false);
+        auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
+        auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_type_ptr}, false);
         auto create_func = llvm::Function::Create(create_func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   create_name(var_id).ascii(),
@@ -129,10 +129,11 @@ private:
 
         // call create/destroy from parent
         append_new_field(clazz_type_ptr, context);
-        auto create_call = llvm::CallInst::Create(create_func, {}, nil, context.create_entry);
+        auto context_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
+        auto create_call = llvm::CallInst::Create(create_func, {context_load}, nil, context.create_entry);
         store_last_field(create_call, context);
         auto clazz_field = load_last_field(context);
-        llvm::CallInst::Create(destroy_func, { clazz_field }, nil, context.destroy_entry);
+        llvm::CallInst::Create(destroy_func, {clazz_field}, nil, context.destroy_entry);
 
         // begin create body must be deferred until the clazz_size is known
         auto create_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);

@@ -1,4 +1,3 @@
 
 person:
-    address: 678
-    house: 9.1 + address
+    address: 111
