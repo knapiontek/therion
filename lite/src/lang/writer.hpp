@@ -110,19 +110,22 @@ private:
         auto var_id = var.get_id();
 
         // clazz
-        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name(var_id).ascii());
+        auto clazz_name = core::Format("%1_clazz") % var_id % core::end;
+        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name.ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // create/destroy
+        auto create_name = core::Format("create_%1") % var_id % core::end;
+        auto destroy_name = core::Format("destroy_%1") % var_id % core::end;
         auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
         auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_type_ptr}, false);
         auto create_func = llvm::Function::Create(create_func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
-                                                  create_name(var_id).ascii(),
+                                                  create_name.ascii(),
                                                   the_module.get());
         auto destroy_func = llvm::Function::Create(destroy_func_type,
                                                    llvm::GlobalValue::ExternalLinkage,
-                                                   destroy_name(var_id).ascii(),
+                                                   destroy_name.ascii(),
                                                    the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
@@ -142,7 +145,8 @@ private:
         // begin destroy body
         llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
         llvm::Value* arg = &*destroy_func_arg_it;
-        arg->setName(clazz_var(var_id).ascii());
+        auto clazz_var = core::Format("%1_var") % var_id % core::end;
+        arg->setName(clazz_var.ascii());
         auto destroy_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
         new llvm::StoreInst(arg, destroy_alloca, false, destroy_entry);
 
@@ -418,22 +422,6 @@ private:
                                                            nil,
                                                            context.create_entry);
         return new llvm::LoadInst(clazz_field, nil, false, context.create_entry);
-    }
-    core::String clazz_name(core::String& clazz_id)
-    {
-        return core::Format("%1_clazz") % clazz_id % core::end;
-    }
-    core::String clazz_var(core::String& clazz_id)
-    {
-        return core::Format("%1_var") % clazz_id % core::end;
-    }
-    core::String create_name(core::String& clazz_id)
-    {
-        return core::Format("create_%1") % clazz_id % core::end;
-    }
-    core::String destroy_name(core::String& clazz_id)
-    {
-        return core::Format("destroy_%1") % clazz_id % core::end;
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)
