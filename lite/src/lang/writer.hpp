@@ -16,8 +16,8 @@ private:
         llvm::PointerType* clazz_ptr_type;
         llvm::AllocaInst* create_alloca;
         llvm::AllocaInst* destroy_alloca;
-        llvm::BasicBlock* create_entry;
-        llvm::BasicBlock* destroy_entry;
+        llvm::BasicBlock*& create_entry;
+        llvm::BasicBlock*& destroy_entry;
         std::vector<llvm::Type*> field_vec;
     };
 private:
@@ -52,6 +52,7 @@ private:
         auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
         auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", func);
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", func);
+        auto destroy_entry1 = destroy_entry;
 
         // main body
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
@@ -63,12 +64,14 @@ private:
                             create_entry, destroy_entry, {} };
         for(auto& field_var_it : tree.main_var().field_var_list)
         {
-            auto field = field_var_it.value();
-            execute(field, context);
+            auto field_var = field_var_it.value();
+            create_label(field_var->get_id(), context);
+            execute(field_var, context);
         }
 
         // main finish
-        llvm::BranchInst::Create(destroy_entry, create_entry);
+        create_label("return", context);
+        llvm::BranchInst::Create(destroy_entry1, create_entry);
         auto return_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         llvm::ReturnInst::Create(the_llvm, return_const, destroy_entry);
 
@@ -102,7 +105,7 @@ private:
     void execute(AssignVar& var, Context& context)
     {
         auto exp_val = execute(var.exp, context);
-        append_new_field(exp_val->getType(), context);
+        append_field(exp_val->getType(), context);
         store_last_field(exp_val, context);
     }
     void execute(ClazzVar& var, Context& context)
@@ -127,11 +130,11 @@ private:
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name.ascii(),
                                                    the_module.get());
-        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
-        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
+        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
 
         // call create/destroy from parent
-        append_new_field(clazz_type_ptr, context);
+        append_field(clazz_type_ptr, context);
         auto context_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
         auto create_call = llvm::CallInst::Create(create_func, {context_load}, nil, context.create_entry);
         store_last_field(create_call, context);
@@ -157,8 +160,9 @@ private:
                                create_entry, destroy_entry, {context.clazz_ptr_type} };
         for(auto& field_var_it : var.field_var_list)
         {
-            auto field = field_var_it.value();
-            execute(field, in_context);
+            auto field_var = field_var_it.value();
+            create_label(field_var->get_id(), in_context);
+            execute(field_var, in_context);
         }
 
         // begin deferred create body (clazz_size is known now)
@@ -167,6 +171,8 @@ private:
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, create_body_start);
         auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_body_start);
         new llvm::StoreInst(malloc_cast, create_alloca, false, create_body_start);
+
+        create_label("return", in_context);
 
         // end create body
         auto create_clazz_load = new llvm::LoadInst(create_alloca, nil, false, create_entry);
@@ -382,7 +388,7 @@ private:
                     % env::exception;
         }
     }
-    void append_new_field(llvm::Type* type, Context& context)
+    void append_field(llvm::Type* type, Context& context)
     {
         context.field_vec.push_back(type);
         context.clazz_type->setBody(context.field_vec, false);
@@ -422,6 +428,21 @@ private:
                                                            nil,
                                                            context.create_entry);
         return new llvm::LoadInst(clazz_field, nil, false, context.create_entry);
+    }
+    void create_label(core::String& label, Context& context)
+    {
+        auto after_entry = context.destroy_entry;
+        if(context.outer != core::nil)
+            after_entry = nullptr;
+        auto create_entry_name = core::Format("%1_entry") % label % core::end;
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, create_entry_name.ascii(), context.create_entry->getParent(), after_entry);
+        llvm::BranchInst::Create(create_entry, context.create_entry);
+        context.create_entry = create_entry;
+
+        auto destroy_entry_name = core::Format("%1_entry") % label % core::end;
+        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, destroy_entry_name.ascii(), context.destroy_entry->getParent());
+        llvm::BranchInst::Create(destroy_entry, context.destroy_entry);
+        context.destroy_entry = destroy_entry;
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)
