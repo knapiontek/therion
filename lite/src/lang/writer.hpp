@@ -130,8 +130,8 @@ private:
                                                    llvm::GlobalValue::ExternalLinkage,
                                                    destroy_name.ascii(),
                                                    the_module.get());
-        auto create_entry = llvm::BasicBlock::Create(the_llvm, "entry", create_func);
-        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "entry", destroy_func);
+        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
+        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
 
         // call create/destroy from parent
         append_field(clazz_type_ptr, context);
@@ -434,12 +434,12 @@ private:
         auto after_entry = context.destroy_entry;
         if(context.outer != core::nil)
             after_entry = nullptr;
-        auto create_entry_name = core::Format("%1_entry") % label % core::end;
+        auto create_entry_name = core::Format("create_%1_entry") % label % core::end;
         auto create_entry = llvm::BasicBlock::Create(the_llvm, create_entry_name.ascii(), context.create_entry->getParent(), after_entry);
         llvm::BranchInst::Create(create_entry, context.create_entry);
         context.create_entry = create_entry;
 
-        auto destroy_entry_name = core::Format("%1_entry") % label % core::end;
+        auto destroy_entry_name = core::Format("destroy_%1_entry") % label % core::end;
         auto destroy_entry = llvm::BasicBlock::Create(the_llvm, destroy_entry_name.ascii(), context.destroy_entry->getParent());
         llvm::BranchInst::Create(destroy_entry, context.destroy_entry);
         context.destroy_entry = destroy_entry;
