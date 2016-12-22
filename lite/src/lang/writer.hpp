@@ -14,10 +14,10 @@ private:
         core::Shared<ClazzVar> var;
         llvm::StructType* clazz_type;
         llvm::PointerType* clazz_ptr_type;
-        llvm::AllocaInst* create_alloca;
-        llvm::AllocaInst* destroy_alloca;
-        llvm::BasicBlock* create_entry;
-        llvm::BasicBlock* destroy_entry;
+        llvm::AllocaInst* ctor_alloca;
+        llvm::AllocaInst* dtor_alloca;
+        llvm::BasicBlock* ctor_entry;
+        llvm::BasicBlock* dtor_entry;
         std::vector<llvm::Type*> field_vec;
     };
 private:
@@ -50,17 +50,17 @@ private:
         auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", func);
-        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", func);
+        auto ctor_entry = llvm::BasicBlock::Create(the_llvm, "ctor_entry", func);
+        auto dtor_entry = llvm::BasicBlock::Create(the_llvm, "dtor_entry", func);
 
         // main body
-        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, create_entry);
-        auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, create_entry);
-        new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, create_entry);
+        auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, ctor_entry);
+        auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, ctor_entry);
+        new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, ctor_entry);
         Context context = { core::nil, tree.main_var(),
                             clazz_type, clazz_ptr_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
-                            create_entry, destroy_entry, {} };
+                            ctor_entry, dtor_entry, {} };
         for(auto& field_var_it : tree.main_var().field_var_list)
         {
             auto field_var = field_var_it.value();
@@ -68,9 +68,9 @@ private:
         }
 
         // main finish
-        llvm::BranchInst::Create(destroy_entry, create_entry);
+        llvm::BranchInst::Create(dtor_entry, ctor_entry);
         auto return_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        llvm::ReturnInst::Create(the_llvm, return_const, destroy_entry);
+        llvm::ReturnInst::Create(the_llvm, return_const, dtor_entry);
 
         // print and verify module
         llvm::outs() << "LLVM module:\n" << *the_module;
@@ -102,8 +102,8 @@ private:
     void execute(AssignVar& var, Context& context)
     {
         auto exp_val = execute(var.exp, context);
-        append_field(exp_val->getType(), context);
-        store_last_field(exp_val, context);
+        clazz_append_field(exp_val->getType(), context);
+        ctor_store_field(exp_val, context);
     }
     void execute(ClazzVar& var, Context& context)
     {
@@ -115,46 +115,46 @@ private:
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
         // create/destroy
-        auto create_name = core::Format("create_%1") % var_id % core::end;
-        auto destroy_name = core::Format("destroy_%1") % var_id % core::end;
-        auto create_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
-        auto destroy_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_type_ptr}, false);
-        auto create_func = llvm::Function::Create(create_func_type,
-                                                  llvm::GlobalValue::ExternalLinkage,
-                                                  create_name.ascii(),
-                                                  the_module.get());
-        auto destroy_func = llvm::Function::Create(destroy_func_type,
-                                                   llvm::GlobalValue::ExternalLinkage,
-                                                   destroy_name.ascii(),
-                                                   the_module.get());
-        auto create_entry = llvm::BasicBlock::Create(the_llvm, "create_entry", create_func);
-        auto destroy_entry = llvm::BasicBlock::Create(the_llvm, "destroy_entry", destroy_func);
+        auto ctor_name = core::Format("ctor_%1") % var_id % core::end;
+        auto dtor_name = core::Format("dtor_%1") % var_id % core::end;
+        auto ctor_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
+        auto dtor_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_type_ptr}, false);
+        auto ctor_func = llvm::Function::Create(ctor_func_type,
+                                                llvm::GlobalValue::ExternalLinkage,
+                                                ctor_name.ascii(),
+                                                the_module.get());
+        auto dtor_func = llvm::Function::Create(dtor_func_type,
+                                                llvm::GlobalValue::ExternalLinkage,
+                                                dtor_name.ascii(),
+                                                the_module.get());
+        auto ctor_entry = llvm::BasicBlock::Create(the_llvm, "ctor_entry", ctor_func);
+        auto dtor_entry = llvm::BasicBlock::Create(the_llvm, "dtor_entry", dtor_func);
 
         // call create/destroy from parent
-        append_field(clazz_type_ptr, context);
-        auto context_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
-        auto create_call = llvm::CallInst::Create(create_func, {context_load}, nil, context.create_entry);
-        store_last_field(create_call, context);
-        auto clazz_field = load_last_field(context);
-        llvm::CallInst::Create(destroy_func, {clazz_field}, nil, context.destroy_entry);
+        clazz_append_field(clazz_type_ptr, context);
+        auto context_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
+        auto ctor_call = llvm::CallInst::Create(ctor_func, {context_load}, nil, context.ctor_entry);
+        ctor_store_field(ctor_call, context);
+        auto clazz_field = dtor_load_field(context);
+        llvm::CallInst::Create(dtor_func, {clazz_field}, nil, context.dtor_entry);
 
         // begin create body must be deferred until the clazz_size is known
-        auto create_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, create_entry);
-        auto create_body_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "create_body_start", create_entry);
+        auto ctor_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, ctor_entry);
+        auto ctor_body_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "ctor_body_start", ctor_entry);
 
         // begin destroy body
-        llvm::Function::arg_iterator destroy_func_arg_it = destroy_func->arg_begin();
-        llvm::Value* arg = &*destroy_func_arg_it;
+        llvm::Function::arg_iterator dtor_func_arg_it = dtor_func->arg_begin();
+        llvm::Value* arg = &*dtor_func_arg_it;
         auto clazz_var = core::Format("%1_var") % var_id % core::end;
         arg->setName(clazz_var.ascii());
-        auto destroy_alloca = new llvm::AllocaInst(arg->getType(), nil, destroy_entry);
-        new llvm::StoreInst(arg, destroy_alloca, false, destroy_entry);
+        auto dtor_alloca = new llvm::AllocaInst(arg->getType(), nil, dtor_entry);
+        new llvm::StoreInst(arg, dtor_alloca, false, dtor_entry);
 
         // clazz and create/destroy body
         Context in_context = { context, var,
                                clazz_type, clazz_type_ptr,
-                               create_alloca, destroy_alloca,
-                               create_entry, destroy_entry, {context.clazz_ptr_type} };
+                               ctor_alloca, dtor_alloca,
+                               ctor_entry, dtor_entry, {context.clazz_ptr_type} };
         for(auto& field_var_it : var.field_var_list)
         {
             auto field_var = field_var_it.value();
@@ -164,20 +164,20 @@ private:
         // begin deferred create body (clazz_size is known now)
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
-        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, create_body_start);
-        auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, create_body_start);
-        new llvm::StoreInst(malloc_cast, create_alloca, false, create_body_start);
+        auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, ctor_body_start);
+        auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, ctor_body_start);
+        new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_body_start);
 
         // end create body
-        auto create_clazz_load = new llvm::LoadInst(create_alloca, nil, false, create_entry);
-        llvm::ReturnInst::Create(the_llvm, create_clazz_load, create_entry);
+        auto ctor_clazz_load = new llvm::LoadInst(ctor_alloca, nil, false, ctor_entry);
+        llvm::ReturnInst::Create(the_llvm, ctor_clazz_load, ctor_entry);
 
         // end destroy body
-        auto destroy_clazz_load = new llvm::LoadInst(destroy_alloca, nil, false, destroy_entry);
+        auto dtor_clazz_load = new llvm::LoadInst(dtor_alloca, nil, false, dtor_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
-        auto free_cast = new llvm::BitCastInst(destroy_clazz_load, int8_ptr_type, nil, destroy_entry);
-        llvm::CallInst::Create(the_free_func, free_cast, nil, destroy_entry);
-        llvm::ReturnInst::Create(the_llvm, destroy_entry);
+        auto free_cast = new llvm::BitCastInst(dtor_clazz_load, int8_ptr_type, nil, dtor_entry);
+        llvm::CallInst::Create(the_free_func, free_cast, nil, dtor_entry);
+        llvm::ReturnInst::Create(the_llvm, dtor_entry);
     }
     llvm::Value* execute(Expression& exp, Context& context)
     {
@@ -240,7 +240,7 @@ private:
         {
             share = share->outer;
         }
-        return load_field(share, loc.field_pos + (share->outer != core::nil));
+        return ctor_load_field(share, loc.field_pos + (share->outer != core::nil));
     }
     llvm::Value* execute(FilterLocation& loc)
     {
@@ -283,21 +283,21 @@ private:
         if(type1->isFloatingPointTy() || type2->isFloatingPointTy())
         {
             if(type1->isIntegerTy())
-                val1 = new llvm::SIToFPInst(val1, type2, nil, context.create_entry);
+                val1 = new llvm::SIToFPInst(val1, type2, nil, context.ctor_entry);
             else if(type2->isIntegerTy())
-                val2 = new llvm::SIToFPInst(val2, type1, nil, context.create_entry);
+                val2 = new llvm::SIToFPInst(val2, type1, nil, context.ctor_entry);
             else if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::FPExtInst(val2, type1, nil, context.create_entry);
+                val2 = new llvm::FPExtInst(val2, type1, nil, context.ctor_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::FPExtInst(val1, type2, nil, context.create_entry);
+                val1 = new llvm::FPExtInst(val1, type2, nil, context.ctor_entry);
             return execute_float(val1, op, val2, context);
         }
         else if(type1->isIntegerTy() && type2->isIntegerTy())
         {
             if(type1->getPrimitiveSizeInBits() > type2->getPrimitiveSizeInBits())
-                val2 = new llvm::SExtInst(val2, type1, nil, context.create_entry);
+                val2 = new llvm::SExtInst(val2, type1, nil, context.ctor_entry);
             else if(type2->getPrimitiveSizeInBits() > type1->getPrimitiveSizeInBits())
-                val1 = new llvm::SExtInst(val1, type2, nil, context.create_entry);
+                val1 = new llvm::SExtInst(val1, type2, nil, context.ctor_entry);
             return execute_int(val1, op, val2, context);
         }
         else
@@ -313,37 +313,37 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Mul, val1, val2, nil, context.ctor_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SDiv, val1, val2, nil, context.ctor_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Add, val1, val2, nil, context.ctor_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Sub, val1, val2, nil, context.ctor_entry);
             case BinaryOp::SHL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Shl, val1, val2, nil, context.ctor_entry);
             case BinaryOp::SHR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::AShr, val1, val2, nil, context.ctor_entry);
             case BinaryOp::EQ:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_EQ, val1, val2, nil);
             case BinaryOp::NE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_NE, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_NE, val1, val2, nil);
             case BinaryOp::LT:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_SLT, val1, val2, nil);
             case BinaryOp::GT:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_SGT, val1, val2, nil);
             case BinaryOp::LE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_SLE, val1, val2, nil);
             case BinaryOp::GE:
-                return new llvm::ICmpInst(*context.create_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, nil);
+                return new llvm::ICmpInst(*context.ctor_entry, llvm::ICmpInst::ICMP_SGE, val1, val2, nil);
             case BinaryOp::AND:
-                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::And, val1, val2, nil, context.ctor_entry);
             case BinaryOp::OR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Or, val1, val2, nil, context.ctor_entry);
             case BinaryOp::XOR:
-                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::Xor, val1, val2, nil, context.ctor_entry);
             case BinaryOp::MOD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::SRem, val1, val2, nil, context.ctor_entry);
         }
         return 0;
     }
@@ -352,25 +352,25 @@ private:
         switch(op)
         {
             case BinaryOp::MUL:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FMul, val1, val2, nil, context.ctor_entry);
             case BinaryOp::DIV:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FDiv, val1, val2, nil, context.ctor_entry);
             case BinaryOp::ADD:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FAdd, val1, val2, nil, context.ctor_entry);
             case BinaryOp::SUB:
-                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, nil, context.create_entry);
+                return llvm::BinaryOperator::Create(llvm::Instruction::FSub, val1, val2, nil, context.ctor_entry);
             case BinaryOp::EQ:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_OEQ, val1, val2, nil);
             case BinaryOp::NE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_UNE, val1, val2, nil);
             case BinaryOp::LT:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_OLT, val1, val2, nil);
             case BinaryOp::GT:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_OGT, val1, val2, nil);
             case BinaryOp::LE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_OLE, val1, val2, nil);
             case BinaryOp::GE:
-                return new llvm::FCmpInst(*context.create_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, nil);
+                return new llvm::FCmpInst(*context.ctor_entry, llvm::FCmpInst::FCMP_OGE, val1, val2, nil);
             case BinaryOp::SHL:
             case BinaryOp::SHR:
             case BinaryOp::AND:
@@ -382,46 +382,46 @@ private:
                     % env::exception;
         }
     }
-    void append_field(llvm::Type* type, Context& context)
+    void clazz_append_field(llvm::Type* type, Context& context)
     {
         context.field_vec.push_back(type);
         context.clazz_type->setBody(context.field_vec, false);
     }
-    llvm::Value* load_field(Context& context, int position)
+    llvm::Value* ctor_load_field(Context& context, int position)
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
-        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { int32_0_const, int32_i_const },
                                                            nil,
-                                                           context.create_entry);
-        return new llvm::LoadInst(clazz_field, nil, false, context.create_entry);
+                                                           context.ctor_entry);
+        return new llvm::LoadInst(clazz_field, nil, false, context.ctor_entry);
     }
-    void store_last_field(llvm::Value* value, Context& context)
+    void ctor_store_field(llvm::Value* value, Context& context)
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
-        auto clazz_load = new llvm::LoadInst(context.create_alloca, nil, false, context.create_entry);
+        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { int32_0_const, int32_i_const },
                                                            nil,
-                                                           context.create_entry);
-        new llvm::StoreInst(value, clazz_field, false, context.create_entry);
+                                                           context.ctor_entry);
+        new llvm::StoreInst(value, clazz_field, false, context.ctor_entry);
     }
-    llvm::Value* load_last_field(Context& context)
+    llvm::Value* dtor_load_field(Context& context)
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), context.field_vec.size() - 1);
-        auto clazz_load = new llvm::LoadInst(context.destroy_alloca, nil, false, context.destroy_entry);
+        auto clazz_load = new llvm::LoadInst(context.dtor_alloca, nil, false, context.dtor_entry);
         auto clazz_field = llvm::GetElementPtrInst::Create(context.clazz_type,
                                                            clazz_load,
                                                            { int32_0_const, int32_i_const },
                                                            nil,
-                                                           context.destroy_entry);
-        return new llvm::LoadInst(clazz_field, nil, false, context.destroy_entry);
+                                                           context.dtor_entry);
+        return new llvm::LoadInst(clazz_field, nil, false, context.dtor_entry);
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)
