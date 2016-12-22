@@ -114,7 +114,7 @@ private:
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name.ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
 
-        // create/destroy
+        // ctor/dtor
         auto ctor_name = core::Format("ctor_%1") % var_id % core::end;
         auto dtor_name = core::Format("dtor_%1") % var_id % core::end;
         auto ctor_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
@@ -130,7 +130,7 @@ private:
         auto ctor_entry = llvm::BasicBlock::Create(the_llvm, "ctor_entry", ctor_func);
         auto dtor_entry = llvm::BasicBlock::Create(the_llvm, "dtor_entry", dtor_func);
 
-        // call create/destroy from parent
+        // call ctor/dtor from parent
         clazz_append_field(clazz_type_ptr, context);
         auto context_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
         auto ctor_call = llvm::CallInst::Create(ctor_func, {context_load}, nil, context.ctor_entry);
@@ -138,11 +138,11 @@ private:
         auto clazz_field = dtor_load_field(context);
         llvm::CallInst::Create(dtor_func, {clazz_field}, nil, context.dtor_entry);
 
-        // begin create body must be deferred until the clazz_size is known
+        // begin ctor body must be deferred until the clazz_size is known
         auto ctor_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, ctor_entry);
         auto ctor_body_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), "ctor_body_start", ctor_entry);
 
-        // begin destroy body
+        // begin dtor body
         llvm::Function::arg_iterator dtor_func_arg_it = dtor_func->arg_begin();
         llvm::Value* arg = &*dtor_func_arg_it;
         auto clazz_var = core::Format("%1_var") % var_id % core::end;
@@ -150,7 +150,7 @@ private:
         auto dtor_alloca = new llvm::AllocaInst(arg->getType(), nil, dtor_entry);
         new llvm::StoreInst(arg, dtor_alloca, false, dtor_entry);
 
-        // clazz and create/destroy body
+        // clazz and ctor/dtor body
         Context in_context = { context, var,
                                clazz_type, clazz_type_ptr,
                                ctor_alloca, dtor_alloca,
@@ -161,18 +161,18 @@ private:
             execute(field_var, in_context);
         }
 
-        // begin deferred create body (clazz_size is known now)
+        // begin deferred ctor body (clazz_size is known now)
         auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
         auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, ctor_body_start);
         auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, ctor_body_start);
         new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_body_start);
 
-        // end create body
+        // end ctor body
         auto ctor_clazz_load = new llvm::LoadInst(ctor_alloca, nil, false, ctor_entry);
         llvm::ReturnInst::Create(the_llvm, ctor_clazz_load, ctor_entry);
 
-        // end destroy body
+        // end dtor body
         auto dtor_clazz_load = new llvm::LoadInst(dtor_alloca, nil, false, dtor_entry);
         auto int8_ptr_type = llvm::PointerType::get(llvm::Type::getInt8Ty(the_llvm), 0);
         auto free_cast = new llvm::BitCastInst(dtor_clazz_load, int8_ptr_type, nil, dtor_entry);
