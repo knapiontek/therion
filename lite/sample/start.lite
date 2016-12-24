@@ -2,3 +2,7 @@
 person:
     address1: 111
     address2: 222
+
+factory:
+    item1: 333
+    item2: 444
