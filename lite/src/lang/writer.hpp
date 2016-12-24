@@ -132,8 +132,10 @@ private:
                                                 the_module.get());
         auto dtor_begin = llvm::BasicBlock::Create(the_llvm, "dtor_begin", dtor_func);
 
-        // context ctor call
+        // context clazz field
         clazz_append_field(clazz_type_ptr, context);
+
+        // context ctor call
         auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, ctor_name.ascii(), context.ctor_entry->getParent());
         context_ctor_entry->moveAfter(context.ctor_entry);
         core::xchange(context_ctor_entry, context.ctor_entry);
