@@ -101,16 +101,18 @@ private:
     }
     void execute(AssignVar& var, Context& context)
     {
-        auto exp_val = execute(var.exp, context);
-
-        clazz_append_field(exp_val->getType(), context);
-
+        // ctor
         auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, var.id.ascii(), context.ctor_entry->getParent());
         context_ctor_entry->moveAfter(context.ctor_entry);
         core::xchange(context_ctor_entry, context.ctor_entry);
+
+        auto exp_val = execute(var.exp, context);
+        clazz_append_field(exp_val->getType(), context);
         ctor_store_field(exp_val, context);
+
         llvm::BranchInst::Create(context.ctor_entry, context_ctor_entry);
 
+        // dtor
         auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, var.id.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
         core::xchange(context_dtor_entry, context.dtor_entry);
         llvm::BranchInst::Create(context_dtor_entry, context.dtor_entry);

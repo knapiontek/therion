@@ -1,4 +1,4 @@
 
 person:
-    address1: 111
-    address2: 222
+    no: 111
+    address: no + 222
