@@ -53,14 +53,17 @@ private:
         auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "ctor_begin", func);
         auto dtor_end = llvm::BasicBlock::Create(the_llvm, "dtor_end", func);
 
-        // main body
+        // context for main body
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, ctor_begin);
         auto clazz_ptr_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, ctor_begin);
         new llvm::StoreInst(clazz_alloca, clazz_ptr_alloca, false, ctor_begin);
+
         Context context = { core::nil, tree.main_var(),
                             clazz_type, clazz_ptr_type,
                             clazz_ptr_alloca, clazz_ptr_alloca,
                             ctor_begin, dtor_end, {} };
+
+        // main body
         for(auto& field_var_it : tree.main_var().field_var_list)
         {
             auto field_var = field_var_it.value();
@@ -171,17 +174,18 @@ private:
 
         // begin dtor body
         llvm::Function::arg_iterator dtor_func_arg_it = dtor_func->arg_begin();
-        llvm::Value* arg = &*dtor_func_arg_it;
-        auto clazz_var = core::Format("%1_var") % var_id % core::end;
-        arg->setName(clazz_var.ascii());
-        auto dtor_alloca = new llvm::AllocaInst(arg->getType(), nil, dtor_begin);
-        new llvm::StoreInst(arg, dtor_alloca, false, dtor_begin);
+        llvm::Value* dtor_arg = &*dtor_func_arg_it;
+        dtor_arg->setName("arg");
+        auto dtor_alloca = new llvm::AllocaInst(dtor_arg->getType(), nil, dtor_begin);
+        new llvm::StoreInst(dtor_arg, dtor_alloca, false, dtor_begin);
 
-        // clazz and ctor/dtor body
+        // context for clazz and ctor/dtor body
         Context in_context = { context, var,
                                clazz_type, clazz_type_ptr,
                                ctor_alloca, dtor_alloca,
                                ctor_begin, dtor_end, {context.clazz_ptr_type} };
+
+        // clazz and ctor/dtor body
         for(auto& field_var_it : var.field_var_list)
         {
             auto field_var = field_var_it.value();
@@ -194,6 +198,17 @@ private:
         auto call_malloc = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, ctor_body_start);
         auto malloc_cast = new llvm::BitCastInst(call_malloc, clazz_type_ptr, nil, ctor_body_start);
         new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_body_start);
+
+        llvm::Function::arg_iterator ctor_func_arg_it = ctor_func->arg_begin();
+        llvm::Value* ctor_arg = &*ctor_func_arg_it;
+        ctor_arg->setName("arg");
+        auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto context_field = llvm::GetElementPtrInst::Create(clazz_type,
+                                                             malloc_cast,
+                                                             { int32_0_const, int32_0_const },
+                                                             nil,
+                                                             ctor_body_start);
+        new llvm::StoreInst(ctor_arg, context_field, false, ctor_body_start);
 
         // end ctor body
         llvm::BranchInst::Create(ctor_end, in_context.ctor_entry);
@@ -269,7 +284,7 @@ private:
         {
             share = share->outer;
         }
-        return ctor_load_field(share, loc.field_pos + (share->outer != core::nil));
+        return ctor_load_field(context, loc.field_pos + (share->outer != core::nil));
     }
     llvm::Value* execute(FilterLocation& loc)
     {
