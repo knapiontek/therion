@@ -113,7 +113,10 @@ private:
         context.field_vec.push_back(exp_val->getType());
         context.clazz_type->setBody(context.field_vec, false);
 
-        ctor_store_field(exp_val, context);
+        auto position = context.field_vec.size() - 1;
+        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
+        auto field = get_clazz_field(context.clazz_type, clazz_load, position, context.ctor_entry);
+        new llvm::StoreInst(exp_val, field, false, context.ctor_entry);
 
         llvm::BranchInst::Create(context.ctor_entry, context_ctor_entry);
 
@@ -156,20 +159,30 @@ private:
         context.clazz_type->setBody(context.field_vec, false);
 
         // context ctor call
+        {
         auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, ctor_name.ascii(), context.ctor_entry->getParent());
         context_ctor_entry->moveAfter(context.ctor_entry);
         core::xchange(context_ctor_entry, context.ctor_entry);
         auto context_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
         auto ctor_call = llvm::CallInst::Create(ctor_func, {context_load}, nil, context.ctor_entry);
-        ctor_store_field(ctor_call, context);
+        auto position = context.field_vec.size() - 1;
+        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
+        auto field = get_clazz_field(context.clazz_type, clazz_load, position, context.ctor_entry);
+        new llvm::StoreInst(ctor_call, field, false, context.ctor_entry);
         llvm::BranchInst::Create(context.ctor_entry, context_ctor_entry);
+        }
 
         // context dtor call
+        {
         auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, dtor_name.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
         core::xchange(context_dtor_entry, context.dtor_entry);
-        auto clazz_field = dtor_load_field(context);
+        auto position = context.field_vec.size() - 1;
+        auto clazz_load = new llvm::LoadInst(context.dtor_alloca, nil, false, context.dtor_entry);
+        auto field = get_clazz_field(context.clazz_type, clazz_load, position, context.dtor_entry);
+        auto clazz_field = new llvm::LoadInst(field, nil, false, context.dtor_entry);
         llvm::CallInst::Create(dtor_func, {clazz_field}, nil, context.dtor_entry);
         llvm::BranchInst::Create(context_dtor_entry, context.dtor_entry);
+        }
 
         // begin ctor body must be deferred until the clazz_size is known
         auto ctor_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, ctor_begin);
@@ -426,20 +439,6 @@ private:
                     % binary_op_name(op)
                     % env::exception;
         }
-    }
-    void ctor_store_field(llvm::Value* value, Context& context)
-    {
-        auto position = context.field_vec.size() - 1;
-        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
-        auto field = get_clazz_field(context.clazz_type, clazz_load, position, context.ctor_entry);
-        new llvm::StoreInst(value, field, false, context.ctor_entry);
-    }
-    llvm::Value* dtor_load_field(Context& context)
-    {
-        auto position = context.field_vec.size() - 1;
-        auto clazz_load = new llvm::LoadInst(context.dtor_alloca, nil, false, context.dtor_entry);
-        auto field = get_clazz_field(context.clazz_type, clazz_load, position, context.dtor_entry);
-        return new llvm::LoadInst(field, nil, false, context.dtor_entry);
     }
     llvm::Value* get_clazz_field(llvm::Type* type, llvm::Value* value, int position, llvm::BasicBlock* entry)
     {
