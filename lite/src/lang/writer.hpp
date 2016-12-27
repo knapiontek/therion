@@ -302,14 +302,18 @@ private:
     }
     llvm::Value* execute(IdLocation& loc, Context& context)
     {
+        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
+
         core::Shared<Context> share = context;
         while(share->var != loc.context_var)
         {
+            auto field = get_clazz_field(share->clazz_type, clazz_load, 0, context.ctor_entry);
+            clazz_load = new llvm::LoadInst(field, nil, false, context.ctor_entry);
             share = share->outer;
         }
+
         auto field_pos = loc.field_pos + (share->outer != core::nil);
-        auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
-        auto field = get_clazz_field(context.clazz_type, clazz_load, field_pos, context.ctor_entry);
+        auto field = get_clazz_field(share->clazz_type, clazz_load, field_pos, context.ctor_entry);
         return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
     llvm::Value* execute(FilterLocation& loc)
@@ -455,14 +459,14 @@ private:
     llvm::Value* get_clazz_field(llvm::Type* type, llvm::Value* value, int position, llvm::BasicBlock* entry)
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
-        return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_i_const}, nil, entry);
+        auto int32_p_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
+        return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_p_const}, nil, entry);
     }
     llvm::Value* get_clazz_field(llvm::Type* type, llvm::Value* value, int position, llvm::Instruction* before)
     {
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
-        auto int32_i_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
-        return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_i_const}, nil, before);
+        auto int32_p_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
+        return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_p_const}, nil, before);
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)

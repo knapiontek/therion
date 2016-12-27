@@ -1,4 +1,6 @@
 
+yy: 1
+
 person:
     no: 111
-    address: no + 222
+    address: yy + 222
