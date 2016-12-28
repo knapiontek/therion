@@ -103,6 +103,7 @@ struct NestIdLocation : Location
 {
     Location::share loc;
     Token id;
+    core::int64 field_pos;
 };
 
 struct NestFilterLocation : Location

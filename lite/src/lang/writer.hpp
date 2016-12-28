@@ -317,17 +317,19 @@ private:
         auto field = get_clazz_field(share->clazz_type, clazz_load, field_pos, context.ctor_entry);
         return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
-    llvm::Value* execute(FilterLocation& loc)
+    llvm::Value* execute(FilterLocation& loc, Context& context)
     {
         core::certify(false);
         return 0;
     }
-    llvm::Value* execute(NestIdLocation& loc)
+    llvm::Value* execute(NestIdLocation& loc, Context& context)
     {
-        core::certify(false);
-        return 0;
+        auto loc_val = execute(loc.loc, context);
+        auto field_pos = loc.field_pos + 1;
+        auto field = get_clazz_field(loc_val->getType(), loc_val, field_pos, context.ctor_entry);
+        return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
-    llvm::Value* execute(NestFilterLocation& loc)
+    llvm::Value* execute(NestFilterLocation& loc, Context& context)
     {
         core::certify(false);
         return 0;
