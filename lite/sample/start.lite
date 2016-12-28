@@ -1,6 +1,9 @@
 
-yy: 1
+no: 111
 
-person:
-    no: 111
-    address: yy + 222
+factory:
+    line: 222
+    person:
+        address:
+            house: no * line + 3.33
+        temp: no + line * 4.44

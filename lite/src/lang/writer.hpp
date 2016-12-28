@@ -142,7 +142,7 @@ private:
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name.ascii());
         auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
         context.field_vec.push_back(clazz_type_ptr);
-        context.clazz_type->setBody(context.field_vec, false);
+        context.clazz_type->setBody(context.field_vec, false); // update StructType for GEP
 
         // ctor
         auto ctor_name = core::Format("ctor_%1") % var_id % core::end;
@@ -199,6 +199,7 @@ private:
                                clazz_type, clazz_type_ptr,
                                ctor_alloca, dtor_alloca,
                                ctor_begin, dtor_end, {context.clazz_ptr_type} };
+        clazz_type->setBody(in_context.field_vec, false); // update StructType for GEP
 
         // clazz and ctor/dtor fields
         for(auto& field_var_it : var.field_var_list)
@@ -215,7 +216,7 @@ private:
             auto malloc_cast = new llvm::BitCastInst(malloc_call, clazz_type_ptr, nil, ctor_start);
             new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_start);
 
-            // store context in the first field
+            // store context clazz in the first field
             llvm::Function::arg_iterator ctor_func_arg_it = ctor_func->arg_begin();
             llvm::Value* ctor_arg = &*ctor_func_arg_it;
             ctor_arg->setName("arg");
