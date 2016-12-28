@@ -217,11 +217,11 @@ private:
             new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_start);
 
             // store context clazz in the first field
-            llvm::Function::arg_iterator ctor_func_arg_it = ctor_func->arg_begin();
-            llvm::Value* ctor_arg = &*ctor_func_arg_it;
-            ctor_arg->setName("arg");
+            llvm::Function::arg_iterator arg_it = ctor_func->arg_begin();
+            llvm::Value* arg = &*arg_it;
+            arg->setName("arg");
             auto context_field = get_clazz_field(clazz_type, malloc_cast, 0, ctor_start);
-            new llvm::StoreInst(ctor_arg, context_field, false, ctor_start);
+            new llvm::StoreInst(arg, context_field, false, ctor_start);
             ctor_start->removeFromParent();
 
             // end ctor body
@@ -232,10 +232,10 @@ private:
 
         {
             // begin dtor body
-            llvm::Function::arg_iterator dtor_func_arg_it = dtor_func->arg_begin();
-            llvm::Value* dtor_arg = &*dtor_func_arg_it;
-            dtor_arg->setName("arg");
-            new llvm::StoreInst(dtor_arg, dtor_alloca, false, dtor_start);
+            llvm::Function::arg_iterator arg_it = dtor_func->arg_begin();
+            llvm::Value* arg = &*arg_it;
+            arg->setName("arg");
+            new llvm::StoreInst(arg, dtor_alloca, false, dtor_start);
             dtor_start->removeFromParent();
 
             // end dtor body
