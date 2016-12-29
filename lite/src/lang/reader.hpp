@@ -230,7 +230,7 @@ start_switch:
             }
             if('.' != ch)
             {
-                parser.put(TOK_INT64, ret(token_list.append(token)));
+                parser.put(TOK_INT32, ret(token_list.append(token)));
                 goto start_erase;
             }
         case '.':
