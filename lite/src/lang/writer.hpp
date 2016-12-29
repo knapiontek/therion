@@ -119,7 +119,7 @@ private:
             // store expression result in a new field
             auto last_field_pos = context.field_vec.size() - 1;
             auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
-            auto clazz_field = get_clazz_field(context.clazz_type, clazz_load, last_field_pos, context.ctor_entry);
+            auto clazz_field = get_clazz_field(clazz_load, last_field_pos, context.ctor_entry);
             new llvm::StoreInst(exp_val, clazz_field, false, context.ctor_entry);
 
             // end entry
@@ -140,32 +140,32 @@ private:
         // clazz
         auto clazz_name = core::Format("%1_clazz") % var_id % core::end;
         auto clazz_type = llvm::StructType::create(the_llvm, clazz_name.ascii());
-        auto clazz_type_ptr = llvm::PointerType::get(clazz_type, 0);
-        context.field_vec.push_back(clazz_type_ptr);
+        auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
+        context.field_vec.push_back(clazz_ptr_type);
         context.clazz_type->setBody(context.field_vec, false); // update StructType for GEP
 
         // ctor
         auto ctor_name = core::Format("ctor_%1") % var_id % core::end;
-        auto ctor_func_type = llvm::FunctionType::get(clazz_type_ptr, {context.clazz_ptr_type}, false);
+        auto ctor_func_type = llvm::FunctionType::get(clazz_ptr_type, {context.clazz_ptr_type}, false);
         auto ctor_func = llvm::Function::Create(ctor_func_type,
                                                 llvm::GlobalValue::ExternalLinkage,
                                                 ctor_name.ascii(),
                                                 the_module.get());
         auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "ctor_begin", ctor_func);
         auto ctor_end = llvm::BasicBlock::Create(the_llvm, "ctor_end", ctor_func);
-        auto ctor_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, ctor_begin);
+        auto ctor_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, ctor_begin);
         auto ctor_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), nil, ctor_begin);
 
         // dtor
         auto dtor_name = core::Format("dtor_%1") % var_id % core::end;
-        auto dtor_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_type_ptr}, false);
+        auto dtor_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_ptr_type}, false);
         auto dtor_func = llvm::Function::Create(dtor_func_type,
                                                 llvm::GlobalValue::ExternalLinkage,
                                                 dtor_name.ascii(),
                                                 the_module.get());
         auto dtor_begin = llvm::BasicBlock::Create(the_llvm, "dtor_begin", dtor_func);
         auto dtor_end = llvm::BasicBlock::Create(the_llvm, "dtor_end", dtor_func);
-        auto dtor_alloca = new llvm::AllocaInst(clazz_type_ptr, nil, dtor_begin);
+        auto dtor_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, dtor_begin);
         auto dtor_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), nil, dtor_begin);
 
         {
@@ -177,7 +177,7 @@ private:
             auto ctor_call = llvm::CallInst::Create(ctor_func, {context_load}, nil, context.ctor_entry);
             auto last_field_pos = context.field_vec.size() - 1;
             auto clazz_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
-            auto field = get_clazz_field(context.clazz_type, clazz_load, last_field_pos, context.ctor_entry);
+            auto field = get_clazz_field(clazz_load, last_field_pos, context.ctor_entry);
             new llvm::StoreInst(ctor_call, field, false, context.ctor_entry);
             llvm::BranchInst::Create(context.ctor_entry, context_ctor_entry);
         }
@@ -188,7 +188,7 @@ private:
             core::xchange(context_dtor_entry, context.dtor_entry);
             auto last_field_pos = context.field_vec.size() - 1;
             auto clazz_load = new llvm::LoadInst(context.dtor_alloca, nil, false, context.dtor_entry);
-            auto field = get_clazz_field(context.clazz_type, clazz_load, last_field_pos, context.dtor_entry);
+            auto field = get_clazz_field(clazz_load, last_field_pos, context.dtor_entry);
             auto clazz_field = new llvm::LoadInst(field, nil, false, context.dtor_entry);
             llvm::CallInst::Create(dtor_func, {clazz_field}, nil, context.dtor_entry);
             llvm::BranchInst::Create(context_dtor_entry, context.dtor_entry);
@@ -196,7 +196,7 @@ private:
 
         // context for clazz and ctor/dtor body
         Context in_context = { context, var,
-                               clazz_type, clazz_type_ptr,
+                               clazz_type, clazz_ptr_type,
                                ctor_alloca, dtor_alloca,
                                ctor_begin, dtor_end, {context.clazz_ptr_type} };
         clazz_type->setBody(in_context.field_vec, false); // update StructType for GEP
@@ -213,7 +213,7 @@ private:
             auto clazz_size = the_module->getDataLayout().getTypeAllocSize(clazz_type);
             auto clazz_size_const = llvm::ConstantInt::get(llvm::Type::getInt64Ty(the_llvm), clazz_size);
             auto malloc_call = llvm::CallInst::Create(the_malloc_func, clazz_size_const, nil, ctor_start);
-            auto malloc_cast = new llvm::BitCastInst(malloc_call, clazz_type_ptr, nil, ctor_start);
+            auto malloc_cast = new llvm::BitCastInst(malloc_call, clazz_ptr_type, nil, ctor_start);
             new llvm::StoreInst(malloc_cast, ctor_alloca, false, ctor_start);
 
             // store context clazz in the first field
@@ -308,13 +308,13 @@ private:
         core::Shared<Context> share = context;
         while(share->var != loc.context_var)
         {
-            auto field = get_clazz_field(share->clazz_type, clazz_load, 0, context.ctor_entry);
+            auto field = get_clazz_field(clazz_load, 0, context.ctor_entry);
             clazz_load = new llvm::LoadInst(field, nil, false, context.ctor_entry);
             share = share->outer;
         }
 
         auto field_pos = loc.field_pos + (share->outer != core::nil);
-        auto field = get_clazz_field(share->clazz_type, clazz_load, field_pos, context.ctor_entry);
+        auto field = get_clazz_field(clazz_load, field_pos, context.ctor_entry);
         return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
     llvm::Value* execute(FilterLocation& loc, Context& context)
@@ -326,7 +326,7 @@ private:
     {
         auto loc_val = execute(loc.loc, context);
         auto field_pos = loc.field_pos + 1;
-        auto field = get_clazz_field(loc_val->getType(), loc_val, field_pos, context.ctor_entry);
+        auto field = get_clazz_field(loc_val, field_pos, context.ctor_entry);
         return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
     llvm::Value* execute(NestFilterLocation& loc, Context& context)
@@ -459,8 +459,9 @@ private:
                     % env::exception;
         }
     }
-    llvm::Value* get_clazz_field(llvm::Type* type, llvm::Value* value, int position, llvm::BasicBlock* entry)
+    llvm::Value* get_clazz_field(llvm::Value* value, int position, llvm::BasicBlock* entry)
     {
+        auto type = value->getType()->getContainedType(0);
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_p_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
         return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_p_const}, nil, entry);
