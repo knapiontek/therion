@@ -59,15 +59,20 @@ enum struct Type
 struct Final
 {
     typedef core::Shared<Final> share;
+
     Token value;
     Type type;
 };
 
 // interfaces
 
+struct ClazzVar;
+
 struct Location
 {
     typedef core::Shared<Location> share;
+    virtual core::int64 get_field_pos() = 0;
+    virtual ClazzVar& get_context_var() = 0;
     virtual ~Location() {}
 };
 
@@ -88,29 +93,50 @@ struct Var
 
 struct IdLocation : Location
 {
+    core::int64 get_field_pos() override { return field_pos; }
+    ClazzVar& get_context_var() override { return context_var; }
+
     Token id;
+
     core::int64 field_pos;
-    Var::share context_var;
+    core::Shared<ClazzVar> context_var;
 };
 
 struct FilterLocation : Location
 {
+    core::int64 get_field_pos() override { return field_pos; }
+    ClazzVar& get_context_var() override { return context_var; }
+
     Token id;
     Expression::share exp;
+
+    core::int64 field_pos;
+    core::Shared<ClazzVar> context_var;
 };
 
 struct NestIdLocation : Location
 {
+    core::int64 get_field_pos() override { return field_pos; }
+    ClazzVar& get_context_var() override { return context_var; }
+
     Location::share loc;
     Token id;
+
     core::int64 field_pos;
+    core::Shared<ClazzVar> context_var;
 };
 
 struct NestFilterLocation : Location
 {
+    core::int64 get_field_pos() override { return field_pos; }
+    ClazzVar& get_context_var() override { return context_var; }
+
     Location::share loc;
     Token id;
     Expression::share exp;
+
+    core::int64 field_pos;
+    core::Shared<ClazzVar> context_var;
 };
 
 // expression
@@ -273,10 +299,27 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& loc = the_pager.acquire<NestIdLocation>();
-        loc.loc = loc1;
-        loc.id = id;
-        return ret<Location>(loc);
+        auto& context_var = loc1.get_context_var();
+        auto field_pos = loc1.get_field_pos();
+        auto var = context_var.field_var_list[field_pos];
+        if(var.type_of<ClazzVar>())
+        {
+            auto& clazz_var = var.down_cast<ClazzVar>();
+            for(auto& field_var_it : clazz_var.field_var_list)
+            {
+                auto& field_var = field_var_it.value();
+                if(id.equal(field_var->get_id()))
+                {
+                    auto& loc = the_pager.acquire<NestIdLocation>();
+                    loc.loc = loc1;
+                    loc.id = id;
+                    loc.field_pos = field_var_it.position();
+                    loc.context_var = var;
+                    return ret<Location>(loc);
+                }
+            }
+        }
+        throw env::Format("Variable: %1 does not contain: %2") % var->get_id() % id % env::exception;
     }
     Ret<Location> loc(Token& id, Expression& exp)
     {
