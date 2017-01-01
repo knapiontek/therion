@@ -102,41 +102,20 @@ struct IdLocation : Location
     core::Shared<ClazzVar> context_var;
 };
 
-struct FilterLocation : Location
+struct FilterLocation : IdLocation
 {
-    core::int64 get_field_pos() override { return field_pos; }
-    ClazzVar& get_context_var() override { return context_var; }
-
-    Token id;
     Expression::share exp;
-
-    core::int64 field_pos;
-    core::Shared<ClazzVar> context_var;
 };
 
-struct NestIdLocation : Location
+struct NestIdLocation : IdLocation
 {
-    core::int64 get_field_pos() override { return field_pos; }
-    ClazzVar& get_context_var() override { return context_var; }
-
     Location::share loc;
-    Token id;
-
-    core::int64 field_pos;
-    core::Shared<ClazzVar> context_var;
 };
 
-struct NestFilterLocation : Location
+struct NestFilterLocation : IdLocation
 {
-    core::int64 get_field_pos() override { return field_pos; }
-    ClazzVar& get_context_var() override { return context_var; }
-
     Location::share loc;
-    Token id;
     Expression::share exp;
-
-    core::int64 field_pos;
-    core::Shared<ClazzVar> context_var;
 };
 
 // expression

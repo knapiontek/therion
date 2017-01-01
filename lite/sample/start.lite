@@ -6,4 +6,4 @@ factory:
     person:
         address:
             house: no * line + 3.33
-        temp: no + line * 4.44
+        temp: no + factory.line * 4.44
