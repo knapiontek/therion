@@ -71,9 +71,10 @@ struct ClazzVar;
 struct Location
 {
     typedef core::Shared<Location> share;
-    virtual core::int64 get_field_pos() = 0;
-    virtual ClazzVar& get_context_var() = 0;
     virtual ~Location() {}
+
+    core::int64 field_pos;
+    core::Shared<ClazzVar> context_var;
 };
 
 struct Expression
@@ -93,28 +94,25 @@ struct Var
 
 struct IdLocation : Location
 {
-    core::int64 get_field_pos() override { return field_pos; }
-    ClazzVar& get_context_var() override { return context_var; }
-
     Token id;
-
-    core::int64 field_pos;
-    core::Shared<ClazzVar> context_var;
 };
 
-struct FilterLocation : IdLocation
+struct FilterLocation : Location
 {
+    Token id;
     Expression::share exp;
 };
 
-struct NestIdLocation : IdLocation
+struct NestIdLocation : Location
 {
     Location::share loc;
+    Token id;
 };
 
-struct NestFilterLocation : IdLocation
+struct NestFilterLocation : Location
 {
     Location::share loc;
+    Token id;
     Expression::share exp;
 };
 
@@ -278,9 +276,7 @@ public:
     }
     Ret<Location> loc(Location& loc1, Token& id)
     {
-        auto& context_var = loc1.get_context_var();
-        auto field_pos = loc1.get_field_pos();
-        auto var = context_var.field_var_list[field_pos];
+        auto& var = loc1.context_var->field_var_list[loc1.field_pos];
         if(var.type_of<ClazzVar>())
         {
             auto& clazz_var = var.down_cast<ClazzVar>();
