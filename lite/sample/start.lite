@@ -4,3 +4,5 @@ factory:
         address: 6
     address_1: person.address
     address_2: factory.person.address
+
+person: factory.person

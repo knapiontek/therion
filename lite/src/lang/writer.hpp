@@ -46,12 +46,12 @@ private:
     void execute_main(Tree& tree)
     {
         // main
-        auto clazz_type = llvm::StructType::create(the_llvm, "main_clazz");
+        auto clazz_type = llvm::StructType::create(the_llvm, "main");
         auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
         auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
-        auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "ctor_begin", func);
-        auto dtor_end = llvm::BasicBlock::Create(the_llvm, "dtor_end", func);
+        auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "entry", func);
+        auto dtor_end = llvm::BasicBlock::Create(the_llvm, "return", func);
 
         // main context
         auto clazz_alloca = new llvm::AllocaInst(clazz_type, nil, ctor_begin);
@@ -138,8 +138,7 @@ private:
         auto var_id = var.get_id();
 
         // clazz
-        auto clazz_name = core::Format("%1_clazz") % var_id % core::end;
-        auto clazz_type = llvm::StructType::create(the_llvm, clazz_name.ascii());
+        auto clazz_type = llvm::StructType::create(the_llvm, var_id.ascii());
         auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         context.field_vec.push_back(clazz_ptr_type);
         context.clazz_type->setBody(context.field_vec, false); // update StructType for GEP
@@ -151,8 +150,8 @@ private:
                                                 llvm::GlobalValue::ExternalLinkage,
                                                 ctor_name.ascii(),
                                                 the_module.get());
-        auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "ctor_begin", ctor_func);
-        auto ctor_end = llvm::BasicBlock::Create(the_llvm, "ctor_end", ctor_func);
+        auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "entry", ctor_func);
+        auto ctor_end = llvm::BasicBlock::Create(the_llvm, "return", ctor_func);
         auto ctor_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, ctor_begin);
         auto ctor_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), nil, ctor_begin);
 
@@ -163,14 +162,14 @@ private:
                                                 llvm::GlobalValue::ExternalLinkage,
                                                 dtor_name.ascii(),
                                                 the_module.get());
-        auto dtor_begin = llvm::BasicBlock::Create(the_llvm, "dtor_begin", dtor_func);
-        auto dtor_end = llvm::BasicBlock::Create(the_llvm, "dtor_end", dtor_func);
+        auto dtor_begin = llvm::BasicBlock::Create(the_llvm, "entry", dtor_func);
+        auto dtor_end = llvm::BasicBlock::Create(the_llvm, "return", dtor_func);
         auto dtor_alloca = new llvm::AllocaInst(clazz_ptr_type, nil, dtor_begin);
         auto dtor_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), nil, dtor_begin);
 
         {
             // context ctor call
-            auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, ctor_name.ascii(), context.ctor_entry->getParent());
+            auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, var_id.ascii(), context.ctor_entry->getParent());
             context_ctor_entry->moveAfter(context.ctor_entry);
             core::xchange(context_ctor_entry, context.ctor_entry);
             auto context_load = new llvm::LoadInst(context.ctor_alloca, nil, false, context.ctor_entry);
@@ -184,7 +183,7 @@ private:
 
         {
             // context dtor call
-            auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, dtor_name.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
+            auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, var_id.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
             core::xchange(context_dtor_entry, context.dtor_entry);
             auto last_field_pos = context.field_vec.size() - 1;
             auto clazz_load = new llvm::LoadInst(context.dtor_alloca, nil, false, context.dtor_entry);
