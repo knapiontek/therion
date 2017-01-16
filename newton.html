@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+<script>
+var GM = 20000
+var delta = 1
+var planet = { x: 250, y: 120, vx: 7, vy: 0 }
+var sun = { x: 400, y: 400 }
+function draw_clock() {
+    var currentTime = new Date()
+    var hours = currentTime.getHours()
+    var minutes = currentTime.getMinutes()
+    var seconds = currentTime.getSeconds()
+
+    hours = (hours < 10 ? '0' : '') + hours
+    minutes = (minutes < 10 ? '0' : '') + minutes
+    seconds = (seconds < 10 ? '0' : '') + seconds
+
+    var currentTimeString = hours + ':' + minutes + ':' + seconds
+    $('#clock').html(currentTimeString)
+}
+function new_planets() {
+	var planets = $('#planets').get(0)
+	var context = planets.getContext('2d')
+	context.clearRect(0, 0, planets.width, planets.height)
+	return context
+}
+function draw_planet() {
+	planets = new_planets()
+	planets.beginPath()
+	planets.arc(sun.x, sun.y, 15, 0, 2 * Math.PI)
+	planets.stroke()
+	planets.beginPath()
+	planets.arc(planet.x, planet.y, 5, 0, 2 * Math.PI)
+	planets.stroke()
+
+	x = planet.x - sun.x
+	y = planet.y - sun.y
+	r = Math.sqrt((x * x) + (y * y))
+	console.log(r)
+	r3 = r * r * r
+	ax = GM * x / r3
+	ay = GM * y / r3
+	planet.vx = planet.vx - (ax * delta)
+	planet.vy = planet.vy - (ay * delta)
+	planet.x = planet.x + (planet.vx * delta)
+	planet.y = planet.y + (planet.vy * delta)
+}
+$(document).ready(function(){
+	draw_clock()
+	setInterval(draw_clock, 1000)
+	setInterval(draw_planet, 50)
+})
+</script>
+</head>
+<body>
+	<div id='clock'></div>
+	<canvas id='planets' width='800' height='800' style='border:1px solid #d3d3d3;'>
+</body>
+</html>
