@@ -1,62 +1,153 @@
-
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css" integrity="sha384-wE+lCONuEo/QSfLb4AfrSk7HjWJtc4Xc1OiB2/aDBzHzjnlBP4SX7vjErTcwlA8C" crossorigin="anonymous">
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
-<script>
-var GM = 20000
-var delta = 1
-var planet = { x: 250, y: 120, vx: 7, vy: 0 }
-var sun = { x: 400, y: 400 }
-function draw_clock() {
-    var currentTime = new Date()
-    var hours = currentTime.getHours()
-    var minutes = currentTime.getMinutes()
-    var seconds = currentTime.getSeconds()
-
-    hours = (hours < 10 ? '0' : '') + hours
-    minutes = (minutes < 10 ? '0' : '') + minutes
-    seconds = (seconds < 10 ? '0' : '') + seconds
-
-    var currentTimeString = hours + ':' + minutes + ':' + seconds
-    $('#clock').html(currentTimeString)
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js" integrity="sha384-tdtuPw3yx/rnUGmnLNWXtfjb9fpmwexsd+lr6HUYnUY4B7JhB5Ty7a1mYd+kto/s" crossorigin="anonymous"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style>
+#main_page {
+    padding: 2cm;
+    width: 19cm;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ffffff;
+    box-shadow: 10px 10px 5px #888888;
 }
-function new_planets() {
-	var planets = $('#planets').get(0)
-	var context = planets.getContext('2d')
-	context.clearRect(0, 0, planets.width, planets.height)
-	return context
+body {
+    background-color: #cccccc;
+    font: 14px Myriad,Helvetica,Tahoma,Arial,clean,sans-serif;
+    font-size: 0.8em;
+    line-height: 1.5em;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
 }
-function draw_planet() {
-	planets = new_planets()
-	planets.beginPath()
-	planets.arc(sun.x, sun.y, 15, 0, 2 * Math.PI)
-	planets.stroke()
-	planets.beginPath()
-	planets.arc(planet.x, planet.y, 5, 0, 2 * Math.PI)
-	planets.stroke()
-
-	x = planet.x - sun.x
-	y = planet.y - sun.y
-	r = Math.sqrt((x * x) + (y * y))
-	console.log(r)
-	r3 = r * r * r
-	ax = GM * x / r3
-	ay = GM * y / r3
-	planet.vx = planet.vx - (ax * delta)
-	planet.vy = planet.vy - (ay * delta)
-	planet.x = planet.x + (planet.vx * delta)
-	planet.y = planet.y + (planet.vy * delta)
+#system {
+    width: 100%;
+    margin: 0 auto;
+    border: thin solid;
 }
-$(document).ready(function(){
-	draw_clock()
-	setInterval(draw_clock, 1000)
-	setInterval(draw_planet, 50)
-})
-</script>
+</style>
 </head>
 <body>
-	<div id='clock'></div>
-	<canvas id='planets' width='800' height='800' style='border:1px solid #d3d3d3;'>
+<div id="main_page">
+    <h3>Newton Dynamics</h3>
+    <div class="math">\vec{F}=m\frac{\partial^2\vec{x}}{\partial t^2}</div>
+    <h3>Law Of Gravitation</h3>
+    <div class="math">F=G\frac{Mm}{r^2}</div>
+    <h3>Stellar System Simulation</h3>
+    <h3>Explanation</h3>
+    <p>from geometry</p>
+    <div class="math">\begin{matrix}\frac{F_1}{F}=\frac{-x_1}{r}&\frac{F_2}{F}=\frac{-x_2}{r}\end{matrix}</div>
+    <p>we get</p>
+    <div class="math">\frac{\partial^2\vec{x}}{\partial t^2}=\vec{a}=\frac{\vec{F}}{m}=\begin{bmatrix}GM\frac{-x_1}{r^3}&GM\frac{-x_2}{r^3}\end{bmatrix}</div>
+    <div class="math">\frac{\partial\vec{x}}{\partial t}=\vec{v}=\vec{v_0}+\sum_{i=1}^{i=n}\vec{a_i}\Delta t</div>
+    <div class="math">\vec{x}=\vec{x_0}+\sum_{i=1}^{i=n}\vec{v_i}\Delta t</div>
+    <canvas id='system'>
+</div>
+<script>
+var G = 20
+var delta = 0.05
+var max = 100
+var planet_seq = [{ m: 600, x: 50, y: 50, vx: 0, vy: 0 },
+                  { m: 5, x: 20, y: 20, vx: 7, vy: -5 },
+                  { m: 4, x: 30, y: 30, vx: 7, vy: -5 },
+                  { m: 3, x: 40, y: 40, vx: -9, vy: 6 }]
+function sx(x) {
+    var system = $('#system').get(0)
+    return system.width * x / max
+}
+function sy(y) {
+    var system = $('#system').get(0)
+    return system.height * y / max
+}
+function radius(m) {
+    return Math.sqrt(m / Math.PI)
+}
+function render_katex() {
+    $(".math").each(function() {
+        var texTxt = $(this).text()
+        elem = $(this).get(0)
+        try {
+            katex.render(texTxt, elem, { displayMode: true })
+        }
+        catch(err) {
+            $(this).html("<span class='err'>" + err)
+        }
+    })
+}
+function stellar_system() {
+    var system = $('#system').get(0)
+    var context = system.getContext('2d')
+    system.width = 1000
+    system.height = 1000
+    context.clearRect(0, 0, system.width, system.height)
+    return context
+}
+function render() {
+    system = stellar_system()
+    for(var i = 0; i < planet_seq.length; i++) {
+        planet = planet_seq[i]
+        if(planet != 'null') {
+            system.beginPath()
+            system.arc(sx(planet.x), sy(planet.y), 4 * radius(planet.m), 0, 2 * Math.PI)
+            system.stroke()
+        }
+    }
+}
+function calculate() {
+    for(var i = 0; i < planet_seq.length; i++) {
+        planet_i = planet_seq[i]
+        if(planet_i != 'null') {
+            var ax = 0
+            var ay = 0
+            for(var j = 0; j < planet_seq.length; j++) {
+                if(i != j) {
+                    planet_j = planet_seq[j]
+                    if(planet_j != 'null') {
+                        var x = planet_i.x - planet_j.x
+                        var y = planet_i.y - planet_j.y
+                        var r2 = (x * x) + (y * y)
+                        var r = Math.sqrt(r2)
+                        if(r > radius(planet_i.m) + radius(planet_j.m)) {
+                            var r3 = r2 * r
+                            // a ~ -x
+                            ax -= G * planet_j.m * x / r3
+                            ay -= G * planet_j.m * y / r3
+                        } else if(planet_i.m < planet_j.m) {
+                            var m_i2 = planet_i.m * planet_i.m
+                            var m_j2 = planet_j.m * planet_j.m
+                            // mass square ratio
+                            var r_i2 = (m_i2 + m_j2) / m_i2
+                            var r_j2 = (m_i2 + m_j2) / m_j2
+                            // new mass and velocity
+                            planet_j.m = Math.sqrt(r_j2)
+                            planet_j.vx += planet_i.vx / r_i2
+                            planet_j.vy += planet_i.vy / r_i2
+                            // remove smaller planet
+                            planet_seq[i] = planet_i = 'null'
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(planet_i != 'null') {
+            planet_i.vx = planet_i.vx + (ax * delta)
+            planet_i.vy = planet_i.vy + (ay * delta)
+            planet_i.x = planet_i.x + (planet_i.vx * delta)
+            planet_i.y = planet_i.y + (planet_i.vy * delta)
+        }
+    }
+    render()
+}
+$(document).ready(function(){
+    $(window).resize(function() {
+        render()
+    })
+    setInterval(calculate, 50)
+})
+render_katex()
+</script>
 </body>
 </html>
