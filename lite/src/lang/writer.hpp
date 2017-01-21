@@ -10,7 +10,7 @@ public:
 private:
     struct Context
     {
-        core::Shared<Context> outer;
+        core::Shared<Context> out;
         core::Shared<ClazzVar> var;
         llvm::StructType* clazz_type;
         llvm::PointerType* clazz_ptr_type;
@@ -309,10 +309,10 @@ private:
         {
             auto field = get_clazz_field(clazz_load, 0, context.ctor_entry);
             clazz_load = new llvm::LoadInst(field, nil, false, context.ctor_entry);
-            share = share->outer;
+            share = share->out;
         }
 
-        auto field_pos = loc.field_pos + (share->outer != core::nil);
+        auto field_pos = loc.field_pos + (share->out != core::nil);
         auto field = get_clazz_field(clazz_load, field_pos, context.ctor_entry);
         return new llvm::LoadInst(field, nil, false, context.ctor_entry);
     }
@@ -470,6 +470,17 @@ private:
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_p_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
         return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_p_const}, nil, before);
+    }
+    core::String clazz_name(Var& var, Context& context)
+    {
+        core::String result = var.get_id();
+        core::Shared<Context> share = context;
+        while(share != core::nil)
+        {
+            result.prepend(share->var->get_id());
+            share = share->out;
+        }
+        return result;
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)

@@ -2,8 +2,8 @@
 <html>
 <head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css" integrity="sha384-wE+lCONuEo/QSfLb4AfrSk7HjWJtc4Xc1OiB2/aDBzHzjnlBP4SX7vjErTcwlA8C" crossorigin="anonymous">
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js" integrity="sha384-tdtuPw3yx/rnUGmnLNWXtfjb9fpmwexsd+lr6HUYnUY4B7JhB5Ty7a1mYd+kto/s" crossorigin="anonymous"></script>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <style>
 #main_page {
@@ -36,14 +36,16 @@ body {
     <h3>Law Of Gravitation</h3>
     <div class="math">F=G\frac{Mm}{r^2}</div>
     <h3>Stellar System Simulation</h3>
-    <h3>Explanation</h3>
+    <div><canvas id='system'></div>
+    <h3>Solution</h3>
     <p>from geometry</p>
-    <div class="math">\begin{matrix}\frac{F_1}{F}=\frac{-x_1}{r}&\frac{F_2}{F}=\frac{-x_2}{r}\end{matrix}</div>
+    <div class="math">\vec{x}=\begin{bmatrix}x_1&x_2\end{bmatrix}^T</div>
+    <div class="math">\vec{F}=\begin{bmatrix}-F_1&-F_2\end{bmatrix}^T</div>
+    <div class="math">\begin{matrix}\frac{F_1}{F}=\frac{x_1}{r}&\frac{F_2}{F}=\frac{x_2}{r}\end{matrix}</div>
     <p>we get</p>
-    <div class="math">\frac{\partial^2\vec{x}}{\partial t^2}=\vec{a}=\frac{\vec{F}}{m}=\begin{bmatrix}GM\frac{-x_1}{r^3}&GM\frac{-x_2}{r^3}\end{bmatrix}</div>
-    <div class="math">\frac{\partial\vec{x}}{\partial t}=\vec{v}=\vec{v_0}+\sum_{i=1}^{i=n}\vec{a_i}\Delta t</div>
-    <div class="math">\vec{x}=\vec{x_0}+\sum_{i=1}^{i=n}\vec{v_i}\Delta t</div>
-    <canvas id='system'>
+    <div class="math">\frac{\partial^2\vec{x_{n+1}}}{\partial t^2}=\vec{a_{n+1}}=\frac{\vec{F_{n+1}}}{m}=GM\frac{\vec{x_n}}{r^3}</div>
+    <div class="math">\frac{\partial\vec{x_{n+1}}}{\partial t}=\vec{v_{n+1}}=\vec{v_0}+\sum_{i=1}^{i=n}\vec{a_i}\Delta t</div>
+    <div class="math">\vec{x_{n+1}}=\vec{x_0}+\sum_{i=1}^{i=n}\vec{v_i}\Delta t</div>
 </div>
 <script>
 var G = 20
