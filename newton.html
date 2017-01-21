@@ -48,23 +48,19 @@ body {
     <div class="math">\vec{x_{n+1}}=\vec{x_0}+\sum_{i=1}^{i=n}\vec{v_i}\Delta t</div>
 </div>
 <script>
-var G = 20
+var G = 500
 var delta = 0.05
-var max = 100
-var planet_seq = [{ m: 600, x: 50, y: 50, vx: 0, vy: 0 },
-                  { m: 5, x: 20, y: 20, vx: 7, vy: -5 },
-                  { m: 4, x: 30, y: 30, vx: 7, vy: -5 },
-                  { m: 3, x: 40, y: 40, vx: -9, vy: 6 }]
-function sx(x) {
-    var system = $('#system').get(0)
-    return system.width * x / max
-}
-function sy(y) {
-    var system = $('#system').get(0)
-    return system.height * y / max
+var size = 1000
+var planet_seq = [{ r: 20.0, x: 500, y: 500, vx: 0, vy: 0 },
+                  { r: 2.0, x: 200, y: 200, vx: 35, vy: -5 },
+                  { r: 1.5, x: 300, y: 300, vx: 35, vy: -25 },
+                  { r: 2.5, x: 850, y: 800, vx: -35, vy: 5 },
+                  { r: 1.0, x: 400, y: 400, vx: -45, vy: 40 }]
+function mass(r) {
+    return Math.PI * r * r
 }
 function radius(m) {
-    return Math.sqrt(m / Math.PI)
+    return Math.sqrt(m) / Math.PI
 }
 function render_katex() {
     $(".math").each(function() {
@@ -78,78 +74,66 @@ function render_katex() {
         }
     })
 }
-function stellar_system() {
+function render() {
     var system = $('#system').get(0)
     var context = system.getContext('2d')
-    system.width = 1000
-    system.height = 1000
+    system.width = size
+    system.height = size
     context.clearRect(0, 0, system.width, system.height)
-    return context
-}
-function render() {
-    system = stellar_system()
     for(var i = 0; i < planet_seq.length; i++) {
         planet = planet_seq[i]
         if(planet != 'null') {
-            system.beginPath()
-            system.arc(sx(planet.x), sy(planet.y), 4 * radius(planet.m), 0, 2 * Math.PI)
-            system.stroke()
+            context.beginPath()
+            context.arc(planet.x, planet.y, 4 * planet.r, 0, 2 * Math.PI)
+            context.stroke()
         }
     }
 }
 function calculate() {
-    for(var i = 0; i < planet_seq.length; i++) {
-        planet_i = planet_seq[i]
-        if(planet_i != 'null') {
+    for(var i1 = 0; i1 < planet_seq.length; i1++) {
+        planet1 = planet_seq[i1]
+        if(planet1 != 'null') {
             var ax = 0
             var ay = 0
-            for(var j = 0; j < planet_seq.length; j++) {
-                if(i != j) {
-                    planet_j = planet_seq[j]
-                    if(planet_j != 'null') {
-                        var x = planet_i.x - planet_j.x
-                        var y = planet_i.y - planet_j.y
+            for(var i2 = 0; i2 < planet_seq.length; i2++) {
+                if(i1 != i2) {
+                    planet2 = planet_seq[i2]
+                    if(planet2 != 'null') {
+                        var x = planet1.x - planet2.x
+                        var y = planet1.y - planet2.y
                         var r2 = (x * x) + (y * y)
                         var r = Math.sqrt(r2)
-                        if(r > radius(planet_i.m) + radius(planet_j.m)) {
+                        if(r > (planet1.r + planet2.r)) {
                             var r3 = r2 * r
                             // a ~ -x
-                            ax -= G * planet_j.m * x / r3
-                            ay -= G * planet_j.m * y / r3
-                        } else if(planet_i.m < planet_j.m) {
-                            var m_i2 = planet_i.m * planet_i.m
-                            var m_j2 = planet_j.m * planet_j.m
-                            // mass square ratio
-                            var r_i2 = (m_i2 + m_j2) / m_i2
-                            var r_j2 = (m_i2 + m_j2) / m_j2
-                            // new mass and velocity
-                            planet_j.m = Math.sqrt(r_j2)
-                            planet_j.vx += planet_i.vx / r_i2
-                            planet_j.vy += planet_i.vy / r_i2
+                            ax -= G * mass(planet2.r) * x / r3
+                            ay -= G * mass(planet2.r) * y / r3
+                        } else if(planet1.r < planet2.r) {
+                            var m1 = mass(planet1.r)
+                            var m2 = mass(planet2.r)
+                            var m = m1 + m2
+                            planet2.r = radius(m)
+                            planet2.vx = ((planet2.vx * m2) + (planet1.vx * m1)) / m
+                            planet2.vy = ((planet2.vy * m2) + (planet1.vy * m1)) / m
                             // remove smaller planet
-                            planet_seq[i] = planet_i = 'null'
+                            planet_seq[i1] = planet1 = 'null'
                             break;
                         }
                     }
                 }
             }
         }
-        if(planet_i != 'null') {
-            planet_i.vx = planet_i.vx + (ax * delta)
-            planet_i.vy = planet_i.vy + (ay * delta)
-            planet_i.x = planet_i.x + (planet_i.vx * delta)
-            planet_i.y = planet_i.y + (planet_i.vy * delta)
+        if(planet1 != 'null') {
+            planet1.vx = planet1.vx + (ax * delta)
+            planet1.vy = planet1.vy + (ay * delta)
+            planet1.x = planet1.x + (planet1.vx * delta)
+            planet1.y = planet1.y + (planet1.vy * delta)
         }
     }
     render()
 }
-$(document).ready(function(){
-    $(window).resize(function() {
-        render()
-    })
-    setInterval(calculate, 50)
-})
 render_katex()
+setInterval(calculate, 50)
 </script>
 </body>
 </html>
