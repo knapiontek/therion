@@ -11,3 +11,10 @@
 - **fem** - experiments, articles, resources relates to *finite element method*
 - asio - presentation of boost::asio library
 - markdown - implementation of markdown format with extended formatting aka 'nested tables'
+
+# bookmarks
+- https://people.eecs.berkeley.edu/~demmel/cs267/lecture24/lecture24.html
+- http://www.livescience.com/33816-quantum-mechanics-explanation.html
+- http://www.mathematik.uni-karlsruhe.de/user/~wieners/MaxwellCourse.pdf
+- https://amath.colorado.edu/faculty/fornberg/Docs/forn.pdf
+- https://en.wikipedia.org/wiki/Curl_(mathematics)
