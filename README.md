@@ -17,4 +17,16 @@
 - http://www.livescience.com/33816-quantum-mechanics-explanation.html
 - http://www.mathematik.uni-karlsruhe.de/user/~wieners/MaxwellCourse.pdf
 - https://amath.colorado.edu/faculty/fornberg/Docs/forn.pdf
+
+- http://www.feynmanlectures.caltech.edu/I_91.html
+- https://people.eecs.berkeley.edu/~demmel/cs267/lecture24/lecture24.html
+- http://www.yr.no/place/Ireland/Leinster/Dublin/hour_by_hour.html
+- http://www.livescience.com/33816-quantum-mechanics-explanation.html
+- http://www.feynmanlectures.caltech.edu/I_08.html#Ch8-S1
+- http://www.mathematik.uni-karlsruhe.de/user/~wieners/MaxwellCourse.pdf
+- https://amath.colorado.edu/faculty/fornberg/Docs/forn.pdf
 - https://en.wikipedia.org/wiki/Curl_(mathematics)
+- http://www.feynmanlectures.caltech.edu/I_18.html
+- http://www.maths.tcd.ie/~evd/2E2/Notes/vector,grad,div,curl.pdf
+- http://www2.eng.cam.ac.uk/~tph/S3.pdf
+- http://math.mit.edu/~gs/linearalgebra/linearalgebra5_6-1.pdf
