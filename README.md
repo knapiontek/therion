@@ -30,3 +30,4 @@
 - http://www.maths.tcd.ie/~evd/2E2/Notes/vector,grad,div,curl.pdf
 - http://www2.eng.cam.ac.uk/~tph/S3.pdf
 - http://math.mit.edu/~gs/linearalgebra/linearalgebra5_6-1.pdf
+- http://www.impan.pl/~szczep/AMM1/Kincaid.pdf
