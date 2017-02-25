@@ -45,11 +45,14 @@ private:
     }
     void execute_main(Tree& tree)
     {
+        auto& var_unique_id = tree.main_var().get_unique_id();
+
         // main
-        auto clazz_type = llvm::StructType::create(the_llvm, "main");
+        auto clazz_type = llvm::StructType::create(the_llvm, var_unique_id.ascii());
         auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         auto func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(the_llvm), {}, false);
-        auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, "main", the_module.get());
+        auto func_name = core::Format("main_%1") % var_unique_id % core::end;
+        auto func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, func_name.ascii(), the_module.get());
         auto ctor_begin = llvm::BasicBlock::Create(the_llvm, "entry", func);
         auto dtor_end = llvm::BasicBlock::Create(the_llvm, "return", func);
 
@@ -63,15 +66,15 @@ private:
                             ctor_begin, dtor_end, {} };
 
         // main body
-        for(auto& field_var_it : tree.main_var().field_var_list)
+        for(auto& field_it : tree.main_var().field_var_list)
         {
-            auto field_var = field_var_it.value();
+            auto field_var = field_it.value();
             execute(field_var, context);
         }
 
         // main finish
         llvm::BranchInst::Create(context.dtor_entry, context.ctor_entry);
-        auto return_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
+        auto return_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 123);
         llvm::ReturnInst::Create(the_llvm, return_const, dtor_end);
 
         // print and verify module
@@ -84,7 +87,7 @@ private:
         auto result = func_return.IntVal.getSExtValue();
         delete engine;
 
-        core::verify(!result);
+        core::verify(result == 123);
     }
     void execute(Var& var, Context& context)
     {
@@ -103,9 +106,11 @@ private:
     }
     void execute(AssignVar& var, Context& context)
     {
+        auto& var_id = var.get_id();
+
         {
             // begin entry
-            auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, var.id.ascii(), context.ctor_entry->getParent());
+            auto context_ctor_entry = llvm::BasicBlock::Create(the_llvm, var_id.ascii(), context.ctor_entry->getParent());
             context_ctor_entry->moveAfter(context.ctor_entry);
             core::xchange(context_ctor_entry, context.ctor_entry);
 
@@ -128,23 +133,24 @@ private:
 
         {
             // empty entry
-            auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, var.id.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
+            auto context_dtor_entry = llvm::BasicBlock::Create(the_llvm, var_id.ascii(), context.dtor_entry->getParent(), context.dtor_entry);
             core::xchange(context_dtor_entry, context.dtor_entry);
             llvm::BranchInst::Create(context_dtor_entry, context.dtor_entry);
         }
     }
     void execute(ClazzVar& var, Context& context)
     {
-        auto var_id = var.get_id();
+        auto& var_id = var.get_id();
+        auto& var_unique_id = var.get_unique_id();
 
         // clazz
-        auto clazz_type = llvm::StructType::create(the_llvm, var_id.ascii());
+        auto clazz_type = llvm::StructType::create(the_llvm, var_unique_id.ascii());
         auto clazz_ptr_type = llvm::PointerType::get(clazz_type, 0);
         context.field_vec.push_back(clazz_ptr_type);
         context.clazz_type->setBody(context.field_vec, false); // update StructType for GEP
 
         // ctor
-        auto ctor_name = core::Format("ctor_%1") % var_id % core::end;
+        auto ctor_name = core::Format("ctor_%1") % var_unique_id % core::end;
         auto ctor_func_type = llvm::FunctionType::get(clazz_ptr_type, {context.clazz_ptr_type}, false);
         auto ctor_func = llvm::Function::Create(ctor_func_type,
                                                 llvm::GlobalValue::ExternalLinkage,
@@ -156,7 +162,7 @@ private:
         auto ctor_start = new llvm::AllocaInst(llvm::Type::getInt8Ty(the_llvm), nil, ctor_begin);
 
         // dtor
-        auto dtor_name = core::Format("dtor_%1") % var_id % core::end;
+        auto dtor_name = core::Format("dtor_%1") % var_unique_id % core::end;
         auto dtor_func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(the_llvm), {clazz_ptr_type}, false);
         auto dtor_func = llvm::Function::Create(dtor_func_type,
                                                 llvm::GlobalValue::ExternalLinkage,
@@ -201,9 +207,9 @@ private:
         clazz_type->setBody(in_context.field_vec, false); // update StructType for GEP
 
         // clazz and ctor/dtor fields
-        for(auto& field_var_it : var.field_var_list)
+        for(auto& field_it : var.field_var_list)
         {
-            auto field_var = field_var_it.value();
+            auto field_var = field_it.value();
             execute(field_var, in_context);
         }
 
@@ -470,17 +476,6 @@ private:
         auto int32_0_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), 0);
         auto int32_p_const = llvm::ConstantInt::get(llvm::Type::getInt32Ty(the_llvm), position);
         return llvm::GetElementPtrInst::Create(type, value, {int32_0_const, int32_p_const}, nil, before);
-    }
-    core::String clazz_name(Var& var, Context& context)
-    {
-        core::String result = var.get_id();
-        core::Shared<Context> share = context;
-        while(share != core::nil)
-        {
-            result.prepend(share->var->get_id());
-            share = share->out;
-        }
-        return result;
     }
     template<class Type>
     env::Exception bad_class_exception(Type& var)

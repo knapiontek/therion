@@ -87,6 +87,7 @@ struct Var
 {
     typedef core::Shared<Var> share;
     virtual core::String& get_id() = 0;
+    virtual core::String& get_unique_id() = 0;
     virtual ~Var() {}
 };
 
@@ -152,15 +153,19 @@ struct NestExpression : Expression
 struct IdVar : Var
 {
     core::String& get_id() override { return id; }
+    core::String& get_unique_id() override { return unique_id; }
 
     Token id;
+    core::String unique_id;
 };
 
 struct AssignVar : Var
 {
     core::String& get_id() override { return id; }
+    core::String& get_unique_id() override { return unique_id; }
 
     Token id;
+    core::String unique_id;
     Expression::share exp;
 };
 
@@ -170,6 +175,7 @@ struct ClazzVar : Var
 
     ClazzVar() : field_var_list(0x8) {}
     core::String& get_id() override { return decl_var->get_id(); }
+    core::String& get_unique_id() override { return decl_var->get_unique_id(); }
 
     Var::share decl_var;
     core::List<Var::share> field_var_list;
@@ -180,8 +186,12 @@ struct ClazzVar : Var
 class Tree
 {
 public:
-    Tree()
+    Tree(core::String scope_id)
     {
+        auto& scope_var = the_pager.acquire<IdVar>();
+        scope_var.id = scope_id;
+        scope_var.unique_id = scope_id;
+        the_main_var.decl_var = scope_var;
         the_context_seq.append(the_main_var);
     }
     ClazzVar& main_var()
@@ -192,6 +202,7 @@ public:
     {
         auto& var = the_pager.acquire<AssignVar>();
         var.id = id;
+        var.unique_id = unique_id(id);
         var.exp = exp;
 
         auto last_var = the_context_seq.last();
@@ -201,6 +212,7 @@ public:
     {
         auto& var = the_pager.acquire<IdVar>();
         var.id = id;
+        var.unique_id = unique_id(id);
 
         auto last_var = the_context_seq.last();
         last_var->field_var_list.append(var);
@@ -280,15 +292,15 @@ public:
         if(var.type_of<ClazzVar>())
         {
             auto& clazz_var = var.down_cast<ClazzVar>();
-            for(auto& field_var_it : clazz_var.field_var_list)
+            for(auto& field_it : clazz_var.field_var_list)
             {
-                auto& field_var = field_var_it.value();
+                auto& field_var = field_it.value();
                 if(id.equal(field_var->get_id()))
                 {
                     auto& loc = the_pager.acquire<NestIdLocation>();
                     loc.loc = loc1;
                     loc.id = id;
-                    loc.field_pos = field_var_it.position();
+                    loc.field_pos = field_it.position();
                     loc.context_var = var;
                     return ret<Location>(loc);
                 }
@@ -308,14 +320,14 @@ public:
         for(auto& context_it : core::reverse(the_context_seq))
         {
             auto& context_var = context_it.value();
-            for(auto& field_var_it : context_var->field_var_list)
+            for(auto& field_it : context_var->field_var_list)
             {
-                auto& field_var = field_var_it.value();
+                auto& field_var = field_it.value();
                 if(id.equal(field_var->get_id()))
                 {
                     auto& loc = the_pager.acquire<IdLocation>();
                     loc.id = id;
-                    loc.field_pos = field_var_it.position();
+                    loc.field_pos = field_it.position();
                     loc.context_var = context_var;
                     return ret<Location>(loc);
                 }
@@ -329,6 +341,28 @@ public:
         final.value = value;
         final.type = type;
         return ret<Final>(final);
+    }
+    core::String unique_id(core::String id)
+    {
+        auto size = id.size();
+        for(auto& it : the_context_seq)
+        {
+            auto& var = it.value();
+            size += 1 + var->get_id().size();
+        }
+
+        core::int64 pos = 0;
+        core::String result;
+        result.size(size);
+        for(auto& it : the_context_seq)
+        {
+            auto& var = it.value();
+            result.copy_in(pos, var->get_id());
+            result.copy_in(pos, "_");
+        }
+        result.copy_in(pos, id);
+        core::certify(pos == result.size());
+        return result;
     }
 private:
     core::Pager the_pager;

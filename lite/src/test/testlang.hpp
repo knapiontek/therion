@@ -10,7 +10,7 @@ inline void test_lang()
     core::verify(lite_file.status(io::File::exist));
     core::verify(lite_file.try_open());
 
-    lang::Tree tree;
+    lang::Tree tree(lite_file.core());
     lang::Decode decode = lite_file.input();
     lang::Reader::execute(tree, decode, lite_filename);
     lang::Writer::execute(tree, lite_filename);

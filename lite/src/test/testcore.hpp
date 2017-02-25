@@ -428,6 +428,7 @@ inline void test_string()
     st_copy.copy_in(pos, cs_float128);
     st_copy.copy_in(pos, var_float128, 7);
     st_copy.copy_in(pos, cs_and_the_end);
+    core::certify(pos == st_copy.size());
     st_copy.size(pos);
 
     // duplicate
