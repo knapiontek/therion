@@ -31,3 +31,4 @@
 - http://www2.eng.cam.ac.uk/~tph/S3.pdf
 - http://math.mit.edu/~gs/linearalgebra/linearalgebra5_6-1.pdf
 - http://www.impan.pl/~szczep/AMM1/Kincaid.pdf
+- https://www.math.ust.hk/~machas/numerical-methods.pdf
