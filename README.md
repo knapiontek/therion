@@ -32,3 +32,4 @@
 - http://math.mit.edu/~gs/linearalgebra/linearalgebra5_6-1.pdf
 - http://www.impan.pl/~szczep/AMM1/Kincaid.pdf
 - https://www.math.ust.hk/~machas/numerical-methods.pdf
+- http://ocw.usu.edu/Civil_and_Environmental_Engineering/Numerical_Methods_in_Civil_Engineering/LaplaceDirichletTemperature.pdf
