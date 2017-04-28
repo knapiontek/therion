@@ -35,3 +35,5 @@
 - http://ocw.usu.edu/Civil_and_Environmental_Engineering/Numerical_Methods_in_Civil_Engineering/LaplaceDirichletTemperature.pdf
 - http://tutorial.math.lamar.edu/Classes/CalcIII/StokesTheorem.aspx
 - https://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Numerical_methods_for_ordinary_differential_equations
+- http://arturo.imati.cnr.it/~marini/didattica/Metodi-engl/Intro2FEM.pdf
+
