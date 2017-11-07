@@ -31,3 +31,9 @@
 - http://www2.eng.cam.ac.uk/~tph/S3.pdf
 - http://math.mit.edu/~gs/linearalgebra/linearalgebra5_6-1.pdf
 - http://www.impan.pl/~szczep/AMM1/Kincaid.pdf
+- https://www.math.ust.hk/~machas/numerical-methods.pdf
+- http://ocw.usu.edu/Civil_and_Environmental_Engineering/Numerical_Methods_in_Civil_Engineering/LaplaceDirichletTemperature.pdf
+- http://tutorial.math.lamar.edu/Classes/CalcIII/StokesTheorem.aspx
+- https://en.wikipedia.org/wiki/List_of_numerical_analysis_topics#Numerical_methods_for_ordinary_differential_equations
+- http://arturo.imati.cnr.it/~marini/didattica/Metodi-engl/Intro2FEM.pdf
+
