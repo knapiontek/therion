@@ -14,10 +14,10 @@ int: i32
 """
 
 person-seq <+ person
-seq[name = nil] << nil
-nil << seq[name = nil]
+seq[name = 'John'] << nil
+nil << seq[name = 'John']
 
-# keywords: this, that, in, out, if, for, repeat, until
+# keywords: if, for, repeat, until
 
 var: {1: 0, 2: 1}
 var <+ {1: 1} # copy only field '1'
@@ -28,12 +28,12 @@ address-ref: address
 my-address: address {town: 'my-town', street: 'my-street', house-no: 1}
 your-address: address {'your-town', 'your-street', 2}
 their-address: address
-   town: 'their-town'
+   var town: var 'their-town'
    street: 'their-street'
    house-no: 3
 
 family:
-    last-name: string
+    var last-name: unicode
     first-name-seq: string[]
     address-seq: address[]
 
@@ -46,70 +46,81 @@ family-seq <+ family
 
 function: (x: 0, y: 0) -> x + y
 
-item: {street: address.street, house-no: address.house-no, family.last-name}
+item: {street: address.street, house-no: address.house-no, family-last-name: family.last-name}
 
+find-by-name(street: address.street, name: string) -> (item-seq: item[])
+    for f: family-seq[last-name = 'Smith' & first-name-seq[name]]
+		for a: f.address-seq[street = street]
+			item-seq <+ item {street, a.house-no, f.last-name}
+
+# or simplify if fields are unique
 find-by-name(street: address.street, name: string) ->
-    family-seq[.last-name = 'Smith' & first-name-seq[name]]
-            .address-seq[.street = in.street]
-        -> item {street, house-no, ..last-name}
+    family-seq[last-name = 'Smith' & first-name-seq[name]]
+		.address-seq[street = street]
+			item {street, house-no, last-name}
 
-function(in: f64) -> (out: 2 * in)
-    if(out = false)
+function(in: f64) -> in
+    if out = false
         out << true
-    else if(in > 0.0)
-        return
+    else if > 0.0
+        -> 1.0
 
     # group locals
-    (a, b, c): (1, 2, 3)
-    (a, b, c) << (1, 2, 3)
-    log.debug(a)
+    a, b, c: 1, 2, 3
+    a, b, c << 1, 2, 3
+    log.debug(a, b, c)
 
-    for(p: person-seq)
-        if(p.name.start-with('K'))
+    for p: person-seq
+        if p.name.start-with('Kris')
+				& maybe
             log.debug(p.name)
     repeat
-        until(condition)
+        until condition
 
-    until(out > 100)
+    until out > 100
         out << (2 + in)
         repeat
 
 result: function(5)
 function(6) -> result
 
+# no shadow allowed
 shade:
-    var: 0i32
-    function(var: 1.0f32) -> {var: 1i64}
-        var: 'local'
-        log.debug('closure: %1, local: %2, arg: %3, result: %4', that.var, this.var, in.var, out.var)
+    var var1: 0i32 # mutable
+    function(var var2: 1.0f32) -> {var3: 1i64}
+        var4: 'local'
+        log.debug('closure: %1, local: %2, arg: %3, result: %4' % (var1, var4, var2, var3))
 
 shade-result: shade.function(2.0)
 
 # reflection
 shade[name.start-with('test') & class >= function.class]
-    (f: field) -> log.debug('test: %1', f.name)
+    on-element: (f: field) -> log.debug('test: %1', f.name)
+    on-element: log.debug('test: %1', f.name) # guess arg from original: on-element: (f: field) -> bool
 
 # lock-free event-driven programming
-file.write('data', (rc: int) -> log.debug('return-code: %1', rc))
+file.write('data')
+	on-complete: (rc: int, message: unicode) -> log.debug('return-code: %1, message: %2', rc, message)
+
 queue.post(sync: shade, data: 'data')
 
 # posponed code generation, template
 person:
     name: unicode
-    match(iterable: iterable(person))
-        for(it: iterable)
-            if(that = it.value())
-                return true
-        return false
+    match(iterable: iterable(person)) -> bool
+        for it: iterable
+            if that = it
+                -> true
+        -> false
 
 seq(element: any)
-    find(e: element) -> iterable(element)
+    find(e: element) -> element[]
     at(i: int) -> element
-    match(equal: (e: element) -> bool) -> iterable(e)
+    match(equal: (e: element) -> bool) -> element[]
 
 people: seq(person)
-for(p: people.match('John' = e.name))
-    log.debug('person: $1', p)
+for p: people.match('John' = e.name)
+    log.debug('person: %1' % p)
 
 #
 # indentation
@@ -117,27 +128,30 @@ for(p: people.match('John' = e.name))
 
 person: {name: 'John',
          last-name: 'Smith',
-         data-of-brith: date {1974, 1, 1}}
+         date-of-brith: date {1974, 1, 1}}
 
 john: person {name: 'John',
               last-name: 'Smith',
-              data-of-brith: date {1974, 1, 1}}
+              date-of-brith: date {1974, 1, 1}}
 
 person(name: 'John',
        last-name: 'Smith',
-       data-of-brith: date(1974, 1, 1))
+       date-of-brith: date(1974, 1, 1))
 
 john: person
 john: person()
 john: person {}
 
 person:
-    name: 'John'
-    last-name: 'Smith'
-    data-of-brith: date
+    var name:: 'John'  # mutable variable
+    last-name := 'Smith'
+    date-of-brith: date
         year: 1974
         month: 1
         day: 1
+
+dob: person.date-of-brith {2001, 1, 1}
+dob1: person.date-of-brith {2001, 1, 1}
 
 # operator
     1 < x <= 2
@@ -151,18 +165,18 @@ person:
     condition([1] = 'John') -> snap(john)
 
     condition: (value: bool) -> (lambda: (value: any) -> nil)
-        if(value)
+        if value
             lambda(value)
 
 # operator with lambda
 
 seq(element: any):
 	element-seq: element[]
-	[condition(el: element) -> bool] -> (lambda: (el: element) -> (return: any))
-		result: lambda.return[]
-		for(el: element-seq)
-			if(condition(el))
-				result <<< lambda(el)
+	[condition(el: element) -> bool] -> (on-select: (el: element) -> el)
+		result: el[]
+		for el: element-seq
+			if condition(el)
+				result <+ on-select(el)
 
 person: {name: unicode, last-name: unicode}
 person-seq: seq(person)
