@@ -183,3 +183,57 @@ person-seq: seq(person)
 person-seq <<< {'John', 'Smith'} <<< {'Mary', 'Stuart'}
 person-seq: person[{'John', 'Smith'}, {'Mary', 'Stuart'}]
 last-name-seq: person-seq[name = 'John'] -> last-name
+
+##############################
+seq_element: any
+seq_compare: (seq_element, seq_element) -> int
+
+seq(element: seq_element, compare: seq_compare):
+	head: blob(element)
+	prepend(e: element) -> seq(element, compare)
+		blob.append(e, sizeof(e))
+
+int_seq: seq(int)
+int_seq.prepend(5)
+
+my-home: home + {street: 'Southdene'}
+
+find(name: unicode, element_seq: seq(element), name_map: element -> unicode) -> int | exception
+	-> element_seq.contain(name, name_map)
+
+student:
+	name: unicode
+
+student_seq: seq(student)
+findy: find(name: 'Kris',
+			 element_seq: student_seq,
+			 name_map: (s: student) -> s.name)
+findy << find('Kris',
+			   student_seq,
+			   student -> student.name)
+case findy: find{'Kris',
+                 student_seq,
+				 student -> student.name}
+	exception: sys.exit(0)
+
+case findy: find()
+catch findy: find()
+
+find -> int
+find: -> int
+find1: -> find
+find: float -> int
+find: (f: float) -> int(f)
+find(f: float) -> int(f)
+	case(f)
+		5.0: out.print('5.0'), -> 0;
+		4.0:
+			out.print('5.0')
+			-> 0;
+		: -> exception('specify 5.0');;
+
+find -> int | exception
+
+case findy: find(5.0)
+	exception -> out.print('Nothing found')
+###########################
