@@ -57,10 +57,10 @@ find-by-name(street: address.street, name: unicode) -> (item-seq: item[])
         for a: f.address-seq[street = street]
             item-seq <+ item (street, a.house-no, f.last-name)
 
-# or simplify if fields are unique
+# or simplify if fields are unique, dots for embedding using vars (not mandatory if ids are unique)
 find-by-name(street: address.street, name: unicode) ->
-    family-seq[last-name = 'Smith' & first-name-seq[name]]
-        .address-seq[street = street]
+    family-seq[last-name = 'Smith' & first-name-seq[.name]]
+        .address-seq[street = .street]
             item (street, house-no, last-name)
 
 function(in: f64) -> in
@@ -88,13 +88,15 @@ function(in: f64) -> in
 result: function(5)
 function(6) -> result
 
-# no shadow allowed
+# optional fixed access: local ., 1-up .., 2-up ...
+# otherwise search upward for a match
 shade:
-    var var: 0i32 # mutable
-    function(var var: 1.0f32) -> (var: 1i64)
-        var: 'local'
-        log.debug(r'closure: %1, local: %2, arg: %3, result: %4' % (that.var, this.var, in.var, out.var))
-        log.debug s'closure: {that.var}, local: {this.var}, arg: {in.var}, result: {out.var}'
+    var up: 0i32 # mutable
+    function(var in: 1.0f32) -> (out: 1i64)
+        local: 'local'
+        log.debug(r'closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out))
+        log.debug <<< s'closure: {..up}, local: {.local}, arg: {.in}, result: {.out}'
+        log.debug <<< s'closure: {up}, local: {local}, arg: {in}, result: {out}'
 
 shade-result: shade.function(2.0)
 
