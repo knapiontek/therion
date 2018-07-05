@@ -1,3 +1,4 @@
+# use epoch-based reclamation: http://concurrencykit.org
 
 unicode: ''
 unicode: 0u8[]
@@ -58,26 +59,35 @@ find-by-name(street: address.street, name: unicode) -> (item-seq: item[])
             item-seq <+ item (street, a.house-no, f.last-name)
 
 # or simplify if fields are unique, dots for embedding using vars (not mandatory if ids are unique)
-find-by-name(street: address.street, name: unicode) ->
+find-by-name(street: address.street, name: unicode) >>
     family-seq[last-name = 'Smith' & first-name-seq[.name]]
         | address-seq[street = .street]
-            item (street, house-no, last-name)
+            >> item (street, house-no, last-name)
 
 function(in: f64) -> in
-    case out = false:
-        out << true
-    else i > 0.0:
-        -> 1.0
+	result: (0.0: 1.0, 1.0: 2.0)[in]
+
+	state:
+		0.0: 1.0
+		1.0: 2.0
+	result: state[in]
+
+	case:
+		out = false: out << true
+		i > 0.0: -> 1.0
+		: -> 2.0
+
+	case out = false: out << true
+	case: -> 2.0
 
     # group locals
     a, b, c: 1, 2, 3
     a, b, c << 1, 2, 3
     log.debug(a, b, c)
-    log.debug a, b, c;
 
     for p: person-seq
         case p.name.start-with('Kris') & maybe:
-            log.debug p.name
+            log.debug(p.name)
     repeat:
         until condition
 
@@ -94,9 +104,9 @@ shade:
     var up: 0i32 # mutable
     function(var in: 1.0f32) -> (out: 1i64)
         local: 'local'
-        log.debug(r'closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out))
-        log.debug <<< s'closure: {..up}, local: {.local}, arg: {.in}, result: {.out}'
-        log.debug <<< s'closure: {up}, local: {local}, arg: {in}, result: {out}'
+        log.debug('closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out))
+        log.debug <<< "closure: {..up}, local: {.local}, arg: {.in}, result: {.out}"
+        log.debug <<< "closure: {up}, local: {local}, arg: {in}, result: {out}"
 
 shade-result: shade.function(2.0)
 
