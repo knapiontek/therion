@@ -272,3 +272,24 @@ run-parallel():
         -> 0
     log.debug <+ future.state
     log.debug <+ result
+
+######################################
+
+context: contract
+	enter() -> any
+	leave() -> nil
+
+file-context(file-name: unicode): context
+	<< (): RuntimeException('Cloning object not allowed!')
+	
+	enter() -> io.file
+		file: io.file.open(file-name)
+		log.debug << 'File {file-name} has been opened!'
+		-> file
+	
+	leave() -> nil
+		file.close()
+		log.debug << 'File {file-name} has been closed!'
+
+test-file: file-context('/tmp/test.txt')
+	log.debug << test-file.content()
