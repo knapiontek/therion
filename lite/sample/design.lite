@@ -259,7 +259,7 @@ io:
 # multi-thread synchronization
 # use epoch-based reclamation: http://concurrencykit.org
 # callable-0: -> any
-# delay and yield order objects with thread-safe tree-map(any, callable-0[])
+# delay(), wait() order objects with thread-safe tree-map(any, callable-0[])
 # no 2 process executors can run with the same object in the same time
 run-parallel():
     var mutable: 1
