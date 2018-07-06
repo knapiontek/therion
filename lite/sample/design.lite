@@ -1,4 +1,3 @@
-# use epoch-based reclamation: http://concurrencykit.org
 
 unicode: ''
 unicode: 0u8[]
@@ -253,3 +252,24 @@ find -> int | exception
 case findy: find(5.0)
     exception -> out.print('Nothing found')
 ###########################
+io:
+    file: closable
+        close():
+	    # close file handle
+# multi-thread synchronization
+# use epoch-based reclamation: http://concurrencykit.org
+# callable-0: -> any
+# delay and yield order objects with thread-safe tree-map(any, callable-0[])
+# no 2 process executors can run with the same object in the same time
+run-parallel():
+    var mutable: 1
+    var file: io.file('/tmp/states.txt')
+    future: delay(file, mutable)
+        mutable << 2
+        file <+ mutable
+    result: yield(file, mutable)
+        mutable <+ 3
+        file <+ mutable
+        -> 0
+    log.debug <+ future.state
+    log.debug <+ result
