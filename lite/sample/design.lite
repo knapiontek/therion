@@ -267,7 +267,7 @@ run-parallel():
     future: delay(file, mutable)
         mutable << 2
         file <+ mutable
-    result: yield(file, mutable)
+    result: wait(file, mutable)
         mutable <+ 3
         file <+ mutable
         -> 0
