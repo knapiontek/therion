@@ -285,7 +285,7 @@ file-context(file-name: unicode): context
     var file: io.file(file-name)
 
     enter() -> io.file
-        file: io.file.open()
+        file.open()
         log.debug << 'File {file-name} has been opened!'
         -> file
 
@@ -297,7 +297,6 @@ test-file: file-context('/tmp/test.txt')
     log.debug << test-file.content()
 
 # asynchronous
-file: io.file('/tmp/file.txt')
-file.open()
+var file: io.file.open('/tmp/file.txt')
     delay: log.debug << file.content()
         delay: file.close()
