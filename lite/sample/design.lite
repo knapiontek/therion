@@ -66,11 +66,10 @@ find-by-name(street: address.street, name: unicode) >>
 function(in: f64) -> in
 	result: (0.0: 1.0, 1.0: 2.0)[in]
 
-	state:
+	result: case(in)
 		0.0: 1.0
 		1.0: 2.0
-	result: state[in]
-
+	
 	case:
 		out = false: out << true
 		i > 0.0: -> 1.0
