@@ -297,6 +297,12 @@ test-file: file-context('/tmp/test.txt')
     log.debug << test-file.content()
 
 # asynchronous
-var file: io.file.open('/tmp/file.txt')
-    delay: log.debug << file.content()
-        delay: file.close()
+io:
+    chain:
+        ready: () -> nil
+    file: .chain
+        open(file-name: unicode)
+
+io.file.open('/tmp/file.txt')
+    ready: log.debug << file.content()
+        ready: file.close()
