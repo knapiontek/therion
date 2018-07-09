@@ -251,28 +251,25 @@ find -> int | exception
 case findy: find(5.0)
     exception -> out.print('Nothing found')
 ###########################
-io:
-    file: closable
-        close():
-	    # close file handle
-# multi-thread synchronization
-# use epoch-based reclamation: http://concurrencykit.org
-# callable-0: -> any
-# delay(), wait() order objects with thread-safe tree-map(any, callable-0[])
-# no 2 process executors can run with the same object in the same time
-run-parallel():
-    var mutable: 1
-    var file: io.file('/tmp/states.txt')
-    future: delay(file, mutable)
-        mutable << 2
-        file <+ mutable
-    result: wait(file, mutable)
-        mutable <+ 3
-        file <+ mutable
-        -> 0
-    log.debug <+ future.state
-    log.debug <+ result
+hello:
+    var count: 0
+    change(i: 0) -> count + i
 
+run(i: 0) -> nil
+    delay(hello)
+        log.debug << hello.change(i)
+
+var count: 0
+yield(hello)
+    count << hello.change(i)
+log.debug << count
+
+count: yield(hello)
+    -> hello.change(i)
+log.debug << count
+
+# client1$ test.run(1)
+# client2$ test.run(2)
 ######################################
 
 context: contract
