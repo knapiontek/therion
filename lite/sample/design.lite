@@ -253,20 +253,20 @@ case findy: find(5.0)
 ###########################
 hello:
     var count: 0
-    change(i: 0) -> count + i
+    change(i: 0) -> count <+ i
 
 run(i: 0) -> nil
     delay(hello)
         log.debug << hello.change(i)
 
-var count: 0
-yield(hello)
-    count << hello.change(i)
-log.debug << count
+    var count: 0
+    yield(hello)
+        count << hello.change(i)
+    log.debug << count
 
-count: yield(hello)
-    -> hello.change(i)
-log.debug << count
+    count: yield(hello)
+        -> hello.change(i)
+    log.debug << count
 
 # client1$ test.run(1)
 # client2$ test.run(2)
