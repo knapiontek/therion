@@ -251,22 +251,18 @@ find -> int | exception
 case findy: find(5.0)
     exception -> out.print('Nothing found')
 ###########################
-safe-hello: guardable  # no way to return var object, all subfunction serialized
+safe-hello:
     var count: 0i64
-    change(i: 0) -> count <+ i
+    yield-change(i: 0) -> int
+        yield(count)
+            -> count <+ i
+    delay-change(i: 0) -> nil
+        delay(count)
+            log.debug << count <+ i
 
 run(i: 0) -> nil
-    delay(safe-hello)
-        log.debug << safe-hello.change(i)
-
-    var count: 0
-    yield(safe-hello)
-        count << safe-hello.change(i)
-    log.debug << count
-
-    count: yield(safe-hello)
-        -> safe-hello.change(i)
-    log.debug << count
+    safe-hello.delay-change(i)
+    log.debug << safe-hello.yield-change(i)
 
 # client1$ test.run(1)
 # client2$ test.run(2)
