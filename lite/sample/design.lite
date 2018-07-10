@@ -254,10 +254,10 @@ case findy: find(5.0)
 safe-hello:
     var count: 0i64
     yield-change(i: 0) -> int
-        yield(count)
+        yield:  # access to count has to be synchronized
             -> count <+ i
     delay-change(i: 0) -> nil
-        delay(count)
+        delay:  # access to count has to be delegated
             log.debug << count <+ i
 
 run(i: 0) -> nil
