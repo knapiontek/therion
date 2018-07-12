@@ -251,21 +251,20 @@ find -> int | exception
 case findy: find(5.0)
     exception -> out.print('Nothing found')
 ###########################
-safe-hello:
-    var count: 0i64
-    yield-change(i: 0) -> int
-        yield:  # access to count has to be synchronized
-            -> count <+ i
-    delay-change(i: 0) -> nil
-        delay:  # access to count has to be delegated
-            log.debug << count <+ i
+safe-hello: atom
+    # * all routines are synchrinized by 'atom'
+    # * no var-ref can leak by any routine
+    var student: {count: 0}
+    change(i: 0) -> student.count <+ i
 
-run(i: 0) -> nil
-    safe-hello.delay-change(i)
-    log.debug << safe-hello.yield-change(i)
+execute(i: 0) -> nil
+    safe-hello.change(i) # synchronized with futex_wait()
+    delay:
+        # return a cloned object, serialized by internal io-queue
+        log.debug << safe-hello.student().count
 
-# client1$ test.run(1)
-# client2$ test.run(2)
+for i: range(10)
+    execute(i) # runs in parallel because there are no var-refs, safe-hello is guarded by 'atom'
 ######################################
 
 context: contract
@@ -297,6 +296,6 @@ io:
     file: .chain
         open(file-name: unicode)
 
-io.file.open('/tmp/file.txt')
+file: io.file.open('/tmp/file.txt')
     ready: log.debug << file.content()
         ready: file.close()
