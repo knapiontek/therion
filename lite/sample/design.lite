@@ -5,7 +5,7 @@ int: 0i32
 
 # single line comment
 
-{{
+"""
     multi-line comment
     x: 5 define new final
     var x: 5 define new variable 
@@ -14,7 +14,7 @@ int: 0i32
     <- -> define function
     function arg call function
     function(args) call function
-}}
+"""
 
 
 person-seq <+ person
@@ -72,19 +72,19 @@ find-by-name(street: address.street, name: unicode) -> {
 }
 
 function(in: f64) -> in
-	result: {0.0: 1.0, 1.0: 2.0}[in],
+    result: {0.0: 1.0, 1.0: 2.0}[in]
 
-	result: case in
-		0.0: 1.0,
-		1.0: 2.0
+    result: case in
+        0.0: 1.0
+        1.0: 2.0
 
-	case:
-		out = false: out << true,
-		i > 0.0: -> 1.0,
-		: -> 2.0
-	
-	case out = false: out << true
-	case: -> 2.0
+    case:
+        out = false: out << true
+        i > 0.0: -> 1.0
+        : -> 2.0
+    
+    case out = false: out << true
+    case: -> 2.0
 
     # group locals
     {a, b, c}: {1, 2, 3}
@@ -95,10 +95,10 @@ function(in: f64) -> in
         case p.name.start-with('Kris') & maybe
             log.debug(p.name)
 
-	repeat:
-		until true
+    repeat:
+        until true
 
-	until out > 100:
+    until out > 100:
         out << (2 + in)
 
 result: function(5)
@@ -238,8 +238,8 @@ findy: find(name: 'Kris',
 findy << find('Kris',
               student_seq,
               student -> student.name,
-			  compare:
-			      e1.value < e2.value)
+              compare:
+                  e1.value < e2.value)
 case findy: find('Kris',
                  student_seq,
                  student -> student.name)
@@ -286,7 +286,7 @@ for i: range(10)
 context: contract
     class.clonable: false,
     clone() -> context,
-    	raise CompilationException('No way to clone this context object')
+        raise CompilationException('No way to clone this context object')
     enter() -> any,
     leave() -> nil
 
