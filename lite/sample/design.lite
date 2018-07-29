@@ -55,21 +55,29 @@ function: (x: 0, y: 0) -> x + y
 
 item: {street: address.street, house-no: address.house-no, family-last-name: family.last-name}
 
-find-by-name(street: address.street, name: unicode) -> {item-seq: item[]}
-    for f: family-seq[last-name = 'Smith' & first-name-seq[name]]
-        for a: f.address-seq[street = street]
+find-by-name(street: address.street, name: unicode) -> {item-seq: item[]} {
+    for f: family-seq[last-name = 'Smith' & first-name-seq[name]] {
+        for a: f.address-seq[street = street] {
             item-seq <+ item {street, a.house-no, f.last-name}
+        }
+    }
+}
+
+# stream example does not work now
+element: {a: 1, id-seq: [1, 2, 3]}
+seq[a = 1] | id-seq[@ > 2] >> {result: id}
 
 # or simplify if fields are unique, dots for embedding using vars (not mandatory if ids are unique)
-find-by-name(street: address.street, name: unicode) >>
+find-by-name(street: address.street, name: unicode) -> {
     family-seq[last-name = 'Smith' & first-name-seq[.name]]
         | address-seq[street = .street]
-            >> item {street, house-no, last-name}
+        >> item {street, house-no, last-name}
+}
 
 function(in: f64) -> in {
 	result: {0.0: 1.0, 1.0: 2.0}[in],
 
-	result: case(in) {
+	result: case in {
 		0.0: 1.0,
 		1.0: 2.0
 	}
@@ -79,6 +87,7 @@ function(in: f64) -> in {
 		i > 0.0: -> 1.0,
 		: -> 2.0
 	}
+	
 	case out = false: out << true
 	case: -> 2.0
 
@@ -87,13 +96,13 @@ function(in: f64) -> in {
     {a, b, c} << {1, 2, 3}
     log.debug(a, b, c)
 
-    for p: person-seq
-        case p.name.start-with('Kris') & maybe:
+    for p: person-seq {
+        case p.name.start-with('Kris') & maybe {
             log.debug(p.name)
-    repeat:
-        until condition
-
-    while out > 100: {
+		}
+    }
+    
+	while(out > 100): {
         out << (2 + in)
     }
 }
@@ -104,7 +113,7 @@ function(6) -> result
 # optional fixed access: local ., 1-up .., 2-up ...
 # otherwise search upward for a match
 shade: {
-    var up: 0i32 # mutable
+    var up: 0i32, # mutable
     function(var in: 1.0f32) -> (out: 1i64) {
         local: 'local',
         log.debug('closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out)),
@@ -126,16 +135,22 @@ file.write('data') {
     on-complete: (rc: int, message: unicode) -> log.debug('return-code: %1, message: %2', rc, message)
 }
 
+sort(compare: (e1: any, e2: any) -> int) -> any[] {
+    -> ...
+}
+
 queue.post(sync: shade, data: 'data')
 
 # posponed code generation, template
 person: {
-    name: unicode
-    match(iterable: iterable(person)) -> bool
-        for it: iterable
+    name: unicode,
+    match(iterable: iterable(person)) -> bool {
+        for it: iterable {
             if that = it
                 -> true
+        }
         -> false
+    }
 }
 
 seq(element: any) {
