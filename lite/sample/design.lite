@@ -5,7 +5,7 @@ int: 0i32
 
 # single line comment
 
-"""
+{{
     multi-line comment
     x: 5 define new final
     var x: 5 define new variable 
@@ -14,7 +14,7 @@ int: 0i32
     <- -> define function
     function arg call function
     function(args) call function
-"""
+}}
 
 
 person-seq <+ person
