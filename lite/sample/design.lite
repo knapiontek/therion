@@ -31,27 +31,25 @@ address: address-town {street: unicode, house-no: int}
 address-ref: address
 my-address: address {town: 'my-town', street: 'my-street', house-no: 1}
 your-address: address {'your-town', 'your-street', 2}
-their-address: address {
-   var town: var 'their-town',
-   street: 'their-street',
-   house-no: 3
-}
+their-address: address {var town: var 'their-town',
+                        street: 'their-street',
+                        house-no: 3}
 
-family: {
-    var last-name: unicode,
-    first-name-seq: unicode[],
-    address-seq: address[]
-}
+family: {var last-name: unicode,
+         first-name-seq: unicode[],
+         address-seq: address[]}
 
 family-seq: family[]
 
-family-seq <+ family {
-    'Smith',
-    ['John', 'Mark', 'Teddy', 'Betty'],
-    [(street: 'Avenue'), (street: 'Strand')]
-}
+family-seq <+ family {'Smith',
+                      ['John', 'Mark', 'Teddy', 'Betty'],
+                      [{street: 'Avenue'}, {street: 'Strand'}]}
 
 function: (x: 0, y: 0) -> x + y
+
+# stream example does not work now
+element: {a: 1, id-seq: [1, 2, 3]}
+some-seq: seq[a = 1] >> id-seq[$ <> 2]
 
 item: {street: address.street, house-no: address.house-no, family-last-name: family.last-name}
 
@@ -60,14 +58,10 @@ find-by-name(street: address.street, name: unicode) -> {item-seq: item[]}
         for a: f.address-seq[street = street]
             item-seq <+ item {street, a.house-no, f.last-name}
 
-# stream example does not work now
-element: {a: 1, id-seq: [1, 2, 3]}
-seq[a = 1] >> id-seq[$ <> 2] >> {result: $}
-
-# or simplify if fields are unique, dots for embedding using vars (not mandatory if ids are unique)
+# or simplify if fields are unique, user dot for embedded vars (not mandatory if id is unique)
 find-by-name(street: address.street, name: unicode) -> {
     family-seq[last-name = 'Smith' & first-name-seq[.name]]
-        | address-seq[street = .street]
+        $address-seq[street = .street] # $ operates on each element of the list, here: family.address-seq
         >> item {street, house-no, last-name}
 }
 
@@ -101,13 +95,13 @@ function(in: f64) -> in
     until out > 100:
         out << (2 + in)
 
-result: function(5)
-function(6) -> result
+var result: function(5)
+function(6) >> result
 
 # optional fixed access: local ., 1-up .., 2-up ...
 # otherwise search upward for a match
 shade:
-    var up: 0i32, # mutable
+    var up: 0i32 # mutable
     function(var in: 1.0f32) -> (out: 1i64)
         local: 'local'
         log.debug('closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out))
@@ -126,8 +120,17 @@ file.write('data') {
     on-complete: (rc: int, message: unicode) -> log.debug('return-code: %1, message: %2', rc, message)
 }
 
-sort(compare: (e1: any, e2: any) -> int) -> any[]
-    -> compare(e1, e2)
+element: any
+sort(list: element[]) -> element[]
+    compare: (e1: element, e2: element) -> int
+    for i1: list
+        for i2: list
+            compare(i1, i2)
+
+sorted: sort([3, 2, 1])
+    compare: e1 - e2
+
+sorted1: sort([3, 2, 1]) {compare: e1 - e2}
 
 queue.post(sync: shade, data: 'data')
 
@@ -140,7 +143,7 @@ person:
                 -> true
         -> false
 
-seq(element: any)
+seq(element: any):
     find(e: element) -> element[]
     at(i: int) -> element
     match(equal: (e: element) -> bool) -> element[]
@@ -170,7 +173,7 @@ john: person
 john: person()
 
 person:
-    var name: 'John'  # mutable variable
+    var name: 'John' # mutable variable
     last-name := 'Smith'
     date-of-brith: date
         year: 1974
@@ -254,12 +257,12 @@ find1: -> find
 find: float -> int
 find: (f: float) -> int(f)
 find(f: float) -> int(f)
-    case f:
-        5.0: out.print('5.0'), -> 0;
+    case f
+        5.0: out.print('5.0') -> 0
         4.0:
             out.print('4.0')
-            -> 0;
-        any: -> exception('not specified 5.0');;
+            -> 0
+        any: -> exception('not specified 5.0')
 
 find -> int | exception
 
@@ -284,10 +287,8 @@ for i: range(10)
 ######################################
 
 context: contract
-    class.clonable: false,
-    clone() -> context,
-        raise CompilationException('No way to clone this context object')
-    enter() -> any,
+    clone: nil # override of clone is not allowed
+    enter() -> any
     leave() -> nil
 
 file-context(file-name: unicode): context
