@@ -16,6 +16,24 @@ int: 0i32
     function(args) call function
 """
 
+# syntax basics
+
+hello: {a: 1, b: 2}
+hello: {
+    a: 1
+    b: 2
+}
+hello: {
+    a: 1, b: 2
+    c: 3
+}
+hello: {a: 1, b: 2
+        c: 3}
+hello:
+    a: 1, b: 2
+    c: 3
+
+# list basics
 
 person-seq <+ person
 seq[name = 'John'] << nil
@@ -31,100 +49,98 @@ address: address-town {street: unicode, house-no: int}
 address-ref: address
 my-address: address {town: 'my-town', street: 'my-street', house-no: 1}
 your-address: address {'your-town', 'your-street', 2}
-their-address: address {var town: var 'their-town',
-                        street: 'their-street',
+their-address: address {var town: var 'their-town'
+                        street: 'their-street'
                         house-no: 3}
 
-family: {var last-name: unicode,
-         first-name-seq: unicode[],
-         address-seq: address[]}
+family:
+    var last-name: unicode
+    first-name-seq: unicode[]
+    address-seq: address[]
 
 family-seq: family[]
 
-family-seq <+ family {'Smith',
-                      ['John', 'Mark', 'Teddy', 'Betty'],
-                      [{street: 'Avenue'}, {street: 'Strand'}]}
+family-seq <+ family {
+    'Smith'
+    ['John', 'Mark', 'Teddy', 'Betty']
+    [{street: 'Avenue'}, {street: 'Strand'}]
+}
 
 function: (x: 0, y: 0) -> x + y
 
-# stream example does not work now
 element: {a: 1, id-seq: [1, 2, 3]}
-some-seq: seq[a = 1] >> id-seq[$ <> 2]
+seq: element[10] # new seq of elements
+some-seq: seq[a = 1] >>> id-seq[. <> 2] # >>> flat operator
 
 item: {street: address.street, house-no: address.house-no, family-last-name: family.last-name}
 
-find-by-name(street: address.street, name: unicode) -> {item-seq: item[]}
+find-by-name(by-street: address.street, name: unicode) -> {item-seq: item[]}
     for f: family-seq[last-name = 'Smith' & first-name-seq[name]]
-        for a: f.address-seq[street = street]
+        for a: f.address-seq[street = by-street]
             item-seq <+ item {street, a.house-no, f.last-name}
 
-# or simplify if fields are unique, user dot for embedded vars (not mandatory if id is unique)
-find-by-name(street: address.street, name: unicode) -> {
-    family-seq[last-name = 'Smith' & first-name-seq[.name]]
-        $address-seq[street = .street] # $ operates on each element of the list, here: family.address-seq
+find-by-name(by-street: address.street, name: unicode) ->
+    family-seq[last-name = 'Smith' & first-name-seq[name]]
+        >>> address-seq[street = by-street] # >>> flat operator
         >> item {street, house-no, last-name}
-}
 
-function(in: f64) -> in
-    result: {0.0: 1.0, 1.0: 2.0}[in]
+function(input: f64) -> input
+    result: {0.0: 1.0, 1.0: 2.0}[input]
 
-    result: case in
+    result: case(input)
         0.0: 1.0
         1.0: 2.0
 
-    case:
-        out = false: out << true
-        i > 0.0: -> 1.0
-        : -> 2.0
+    case(out = false) out << true
+    case(i > 0.0) -> 1.0
+    case -> 2.0
     
-    case out = false: out << true
-    case: -> 2.0
+    case(out = false) out << true
+    case -> 2.0
 
     # group locals
     {a, b, c}: {1, 2, 3}
     {a, b, c} << {1, 2, 3}
     log.debug(a, b, c)
 
-    for p: person-seq
-        case p.name.start-with('Kris') & maybe
+    for(p: person-seq)
+        case(p.name.start-with('Kris') & maybe)
             log.debug(p.name)
 
-    repeat:
-        until true
+    repeat
+        until(true)
 
-    until out > 100:
+    until(out > 100)
         out << (2 + in)
 
 var result: function(5)
 function(6) >> result
 
-# optional fixed access: local ., 1-up .., 2-up ...
-# otherwise search upward for a match
+# no shadowing allowed, create aliasing field to solve conflicts
 shade:
     var up: 0i32 # mutable
-    function(var in: 1.0f32) -> (out: 1i64)
+    function(in: 1.0f32) -> (out: 1i64)
         local: 'local'
-        log.debug('closure: %1, local: %2, arg: %3, result: %4' % (..up, .local, .in, .out))
-        log.debug <<< "closure: {..up}, local: {.local}, arg: {.in}, result: {.out}"
         log.debug <<< "closure: {up}, local: {local}, arg: {in}, result: {out}"
 
 shade-result: shade.function(2.0)
 
 # reflection
-shade[name.start-with('test') & class >= function.class]
+shade[name.start-with('test') & function.class[. == class]]
     on-element: (f: field) -> log.debug('test: %1', f.name)
     on-element: log.debug('test: %1', f.name) # guess arg from original: on-element: (f: field) -> bool
 
 # lock-free event-driven programming
-file.write('data') {
-    on-complete: (rc: int, message: unicode) -> log.debug('return-code: %1, message: %2', rc, message)
-}
+# "" must use formating {}
+# '' raw string (see python)
+file.write('data')
+    on-complete: (rc: int, message: unicode) -> log.debug("return-code: {rc}, message: {message}")
 
 element: any
 sort(list: element[]) -> element[]
     compare: (e1: element, e2: element) -> int
-    for i1: list
-        for i2: list
+    for(i1: list)
+        for(i2: list)
             compare(i1, i2)
 
 sorted: sort([3, 2, 1])
@@ -138,8 +154,8 @@ queue.post(sync: shade, data: 'data')
 person:
     name: unicode
     match(iterable: iterable(person)) -> bool
-        for it: iterable
-            if that = it
+        for(it: iterable)
+            case(that = it)
                 -> true
         -> false
 
@@ -149,8 +165,8 @@ seq(element: any):
     match(equal: (e: element) -> bool) -> element[]
 
 people: seq(person)
-for p: people.match('John' = e.name)
-    log.debug('person: %1' % p)
+for(p: people.match('John' = e.name))
+    log.debug("person: {p}")
 
 #
 # indentation
@@ -161,12 +177,12 @@ person:
     last-name: 'Smith'
     date-of-brith: date <+ {1974, 1, 1}
 
-john: person + {name: 'John',
-                last-name: 'Smith',
+john: person + {name: 'John'
+                last-name: 'Smith'
                 date-of-brith: date(1974, 1, 1)}
 
-person(name: 'John',
-       last-name: 'Smith',
+person(name: 'John'
+       last-name: 'Smith'
        date-of-brith: date(1974, 1, 1))
 
 john: person
@@ -183,7 +199,7 @@ person:
 dob: person.date-of-brith | (2001, 1, 1)
 dob1: person.date-of-brith | (2001, 1, 1)
 
-# operator
+operator-example:
     1 < x <= 2
     x + y
     x, y, z
@@ -194,15 +210,15 @@ dob1: person.date-of-brith | (2001, 1, 1)
 
     condition([1] = 'John') -> snap(john)
 
-    condition: (value: bool) -> (lambda: (value: any) -> nil)
-        if value
+    condition: (value: bool) -> {lambda: (value: any) -> nil}
+        case(value)
             lambda(value)
 
 # operator with lambda
 
 seq(element: any):
     element-seq: element[]
-    [condition(el: element) -> bool] -> (on-select: (el: element) -> el)
+    [condition(el: element) -> bool] -> {on-select: (el: element) -> el}
         result: el[]
         for el: element-seq
             if condition(el)
@@ -210,7 +226,7 @@ seq(element: any):
 
 person: {name: unicode, last-name: unicode}
 person-seq: seq(person)
-person-seq <<< {'John', 'Smith'} <<< {'Mary', 'Stuart'}
+person-seq <+ {'John', 'Smith'} <+ {'Mary', 'Stuart'}
 person-seq: person[{'John', 'Smith'}, {'Mary', 'Stuart'}]
 last-name-seq: person-seq[name = 'John'] -> last-name
 
@@ -219,12 +235,14 @@ seq_element: any
 seq_compare: (seq_element, seq_element) -> int
 
 seq(element: seq_element, compare: seq_compare):
-    head: blob(element)
+    head: native(element)
     prepend(e: element) -> seq(element, compare)
-        blob.append(e, sizeof(e))
+        native.append(e, sizeof(e))
 
 int_seq: seq(int)
 int_seq.prepend(5)
+int_seq <+ 5 ' append
+int_seq +< 5 # prepend
 
 my-home: home + {street: 'Southdene'}
 
@@ -235,16 +253,16 @@ student:
     name: unicode
 
 student_seq: seq(student)
-findy: find(name: 'Kris',
-            element_seq: student_seq,
+findy: find(name: 'Kris'
+            element_seq: student_seq
             name_map: (s: student) -> s.name)
-findy << find('Kris',
-              student_seq,
-              student -> student.name,
+findy << find('Kris'
+              student_seq
+              student -> student.name
               compare:
                   e1.value < e2.value)
-case findy: find('Kris',
-                 student_seq,
+case findy: find('Kris'
+                 student_seq
                  student -> student.name)
     exception: system.exit(0)
 
@@ -257,7 +275,7 @@ find1: -> find
 find: float -> int
 find: (f: float) -> int(f)
 find(f: float) -> int(f)
-    case f
+    case(f)
         5.0: out.print('5.0') -> 0
         4.0:
             out.print('4.0')
@@ -269,18 +287,17 @@ find -> int | exception
 case findy: find(5.0)
     exception -> out.print('Nothing found')
 ###########################
-safe-hello: atom
+atomic safe-hello:
     # * all routines are synchrinized by 'atom'
     # * no var-ref can leak by any routine
     var student: {count: 0},
     change(i: 0) -> student.count <+ i
 
-execute(i: 0) -> nil {
+execute(i: 0) -> nil
     safe-hello.change(i), # synchronized with futex_wait()
-    delay: {
+    delay:
         # return a cloned object, serialized by internal io-queue
         log.debug << safe-hello.student().count
-    }
 
 for i: range(10)
     execute(i) # runs in parallel because there are no var-refs, safe-hello is guarded by 'atom'
