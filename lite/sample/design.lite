@@ -33,6 +33,16 @@ hello:
     a: 1, b: 2
     c: 3
 
+my-hello: hello()
+    a: 11
+    b: 22
+# output {a: 11, b: 22, c: 3}, id(hello.c) != id(my-hello.c), cloned
+
+my-hello: hello
+    a: 11
+    b: 22
+# output {a: 11, b: 22, c: 3}, id(hello.c) == id(my-hello.c), shared, my-hello links with hello
+
 # list basics
 
 person-seq <+ person
@@ -60,7 +70,7 @@ family:
 
 family-seq: family[]
 
-family-seq <+ family {
+family-seq <+ family() {
     'Smith'
     ['John', 'Mark', 'Teddy', 'Betty']
     [{street: 'Avenue'}, {street: 'Strand'}]
@@ -81,8 +91,14 @@ find-by-name(by-street: address.street, name: unicode) -> {item-seq: item[]}
 
 find-by-name(by-street: address.street, name: unicode) ->
     family-seq[last-name = 'Smith' & first-name-seq[name]]
-        >>> address-seq[street = by-street] # >>> flat operator
+        >> address-seq[street = by-street] # >>> flat operator
         >> item {street, house-no, last-name}
+
+find-by-name(by-street: address.street, name: unicode) -> item[]
+    seq1: family-seq[last-name = 'Smith' & first-name-seq[name]]
+    seq2: seq1 >> address-seq[street = by-street & seq1?last-name]
+    -> seq2 >> item {street, house-no, last-name}
+
 
 function(input: f64) -> input
     result: {0.0: 1.0, 1.0: 2.0}[input]
