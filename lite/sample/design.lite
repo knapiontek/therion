@@ -36,12 +36,12 @@ hello:
 my-hello: hello()
     a: 11
     b: 22
-# output {a: 11, b: 22, c: 3}, id(hello.c) != id(my-hello.c), cloned
+# output {a: 11, b: 22, c: 3}, hello.c$ != my-hello.c$, cloned
 
 my-hello: hello
     a: 11
     b: 22
-# output {a: 11, b: 22, c: 3}, id(hello.c) == id(my-hello.c), shared, my-hello links with hello
+# output {a: 11, b: 22, c: 3}, hello.c$ == my-hello.c$, shared, my-hello links with hello
 
 # list basics
 
@@ -141,10 +141,10 @@ shade:
 
 shade-result: shade.function(2.0)
 
-# reflection
-shade[name.start-with('test') & function.class[. == class]]
-    on-element: (f: field) -> log.debug('test: %1', f.name)
-    on-element: log.debug('test: %1', f.name) # guess arg from original: on-element: (f: field) -> bool
+# reflection: $ short for class
+shade[name.start-with('test') & function$[. == $]]
+    on-element: (f: field) -> log.debug("test: {f.name}")
+    on-element: log.debug("test: {f.name}") # guess arg from original: on-element: (f: field) -> bool
 
 # lock-free event-driven programming
 # "" must use formating {}
