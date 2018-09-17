@@ -9,9 +9,13 @@
 
 import unittest
 from collections import defaultdict
+import multiprocessing
+from contextlib import closing
+
 
 def encode(word):
     return ''.join(sorted(word))
+
 
 class Anagrams:
 
@@ -31,12 +35,48 @@ class Anagrams:
         return self.data[key]
 
 
+class AnagramsGetter:
+    def __init__(self, anagrams):
+        self.anagrams = anagrams
+
+    def __call__(self, word):
+        return self.anagrams.get_anagrams(word)
+
+
 class TestAnagrams(unittest.TestCase):
 
     def test_anagrams(self):
         anagrams = Anagrams()
         self.assertEquals(anagrams.get_anagrams('plates'), ['palest', 'pastel', 'petals', 'plates', 'staple'])
         self.assertEquals(anagrams.get_anagrams('eat'), ['ate', 'eat', 'tea'])
+
+    def test_data_size(self):
+        """
+        Test if internal data dictionary has the right size, no duplicates.
+        """
+        with open('words.txt') as _file:
+            size = len(_file.readlines())
+
+        anagrams = Anagrams()
+        for key, value in anagrams.data.items():
+            size -= len(value)
+
+        self.assertFalse(size)
+
+    def test_threading(self):
+        """
+        Using multiprocessing instead of threading for simplicity.
+        Test if all parallel readers return expected data. Over-engineered!
+        """
+        anagrams = Anagrams()
+        getter = AnagramsGetter(anagrams)
+        pool = multiprocessing.Pool(processes=8)
+        with closing(pool):
+            scale = 123  # arbitrary int
+            words = ['palest', 'pastel', 'petals', 'plates', 'staple']
+            results = pool.map(getter, scale * words)
+            size = sum([len(r) for r in results])
+            self.assertEquals(size, scale * (len(words) ** 2))
 
 
 if __name__ == '__main__':
