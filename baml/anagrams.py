@@ -9,7 +9,7 @@
 
 import unittest
 from collections import defaultdict
-import multiprocessing
+from multiprocessing.pool import ThreadPool
 from contextlib import closing
 
 
@@ -35,13 +35,7 @@ class Anagrams:
         return self.data[key]
 
 
-class AnagramsGetter:
-    def __init__(self, anagrams):
-        self.anagrams = anagrams
-
-    def __call__(self, word):
-        return self.anagrams.get_anagrams(word)
-
+# Tested with Python 2.7.11
 
 class TestAnagrams(unittest.TestCase):
 
@@ -65,16 +59,14 @@ class TestAnagrams(unittest.TestCase):
 
     def test_threading(self):
         """
-        Using multiprocessing instead of threading for simplicity.
         Test if all parallel readers return expected data. Over-engineered!
         """
         anagrams = Anagrams()
-        getter = AnagramsGetter(anagrams)
-        pool = multiprocessing.Pool(processes=8)
+        pool = ThreadPool(processes=18)
         with closing(pool):
             scale = 123  # arbitrary int
             words = ['palest', 'pastel', 'petals', 'plates', 'staple']
-            results = pool.map(getter, scale * words)
+            results = pool.map(anagrams.get_anagrams, scale * words)
             size = sum([len(r) for r in results])
             self.assertEquals(size, scale * (len(words) ** 2))
 
