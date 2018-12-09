@@ -1,27 +1,44 @@
-clc;
-clear all;
+function solve(a, b, n)
+    h = (b-a)/n;
+    
+    z = a:h:b;
+    y = zeros(1,n+1);
+    x = zeros(1,n+1);
+    
+    y(1) = 0;
+    x(1) = 0;
+    
+    for i=1:n
+        k1 = h*g1(z(i),       y(i),        x(i));
+        l1 = h*g2(z(i),       y(i),        x(i));
 
-a = 1;
-b = 7;
-n = 30;
+        k2 = h*g1(z(i)+(h/2), y(i)+(k1/2), x(i)+(l1/2));
+        l2 = h*g2(z(i)+(h/2), y(i)+(k1/2), x(i)+(l1/2));
 
-h = (b-a)/n;
-h2 = h/2;
-h6 = h/6;
+        k3 = h*g1(z(i)+(h/2), y(i)+(k2/2), x(i)+(l2/2));
+        l3 = h*g2(z(i)+(h/2), y(i)+(k2/2), x(i)+(l2/2));
 
-x = a:h:b;
-y = zeros(1,n+1);
+        k4 = h*g1(z(i)+h,     y(i)+k3,     x(i)+l3);
+        l4 = h*g2(z(i)+h,     y(i)+k3,     x(i)+l3);
+    
+        y(i+1) = y(i) + (k1+2*k2+2*k3+k4)/6;
+        x(i+1) = x(i) + (l1+2*l2+2*l3+l4)/6;
+    end
+    
+    plot(z, y);
+end;
 
-y(1) = 0;
-f = @(t,r) sin(-t)-0.4*r;
+function result = g1(z, y, x)
+    result = x;
+end;
 
-for i=1:n
-    k_1 = f(x(i),    y(i));
-    k_2 = f(x(i)+h2, y(i)+k_1*h2);
-    k_3 = f(x(i)+h2, y(i)+k_2*h2);
-    k_4 = f(x(i)+h,  y(i)+k_3*h);
+function result = g2(z, y, x)
+    E = 1.08E8;
+    I = 0.05;
+    L = 29;
+    result = f(z)*(L-z)/2*E*I;
+end;
 
-    y(i+1) = y(i) + h6*(k_1+2*k_2+2*k_3+k_4);
-end
-
-plot(x, y, x, f(x, 1));
+function result = f(z)
+    result = 200*z*exp(-2*z/30)/(5+z);
+end;
