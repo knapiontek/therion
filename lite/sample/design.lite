@@ -367,3 +367,23 @@ io:
 file: io.file.open('/tmp/file.txt')
     ready: log.debug << file.content()
         ready: file.close()
+
+#--------------------------------------
+# all lower case
+# when operator !%^&*-+|\<>?/~@$;: starts new line it continues the line above
+
+element: any
+
+set(el: element):
+	contain(el: element) -> false
+
+set(head: element, tail: set(element, set(element)): set(element)
+	contain(el: element) -> el = head | tail.contain(el)
+
+set(seq: element[])
+	-> seq.size
+		? set(seq.at(0), set(seq.sub-seq(1)))
+		: set(element)
+
+set: set(1, 2, 3, 4)
+#--------------------------------------
