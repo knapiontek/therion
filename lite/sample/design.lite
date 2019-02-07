@@ -49,84 +49,81 @@ var: {1: 0; 2: 1}
 var <+ {1: 1} # copy only field '1'
 
 address-town: {town: unicode}
-address: address-town {street: unicode, house-no: int}
+address: address-town {street: unicode; house-no: int}
 address-ref: address
-my-address: address {town: 'my-town', street: 'my-street', house-no: 1}
-your-address: address {'your-town', 'your-street', 2}
-their-address: address {var town: var 'their-town',
-                        street: 'their-street',
+my-address: address {town: 'my-town'; street: 'my-street'; house-no: 1}
+your-address: address {'your-town'; 'your-street', 2}
+their-address: address {var town: var 'their-town';
+                        street: 'their-street';
                         house-no: 3}
 
-family: {
-    var last-name: unicode,
-    first-name-seq: unicode[],
+family:
+    last-name: unicode
+    first-name-seq: unicode[]
     address-seq: address[]
-}
 
 family-seq: family[]
 
 family-seq <+ family {
-    'Smith',
-    ['John', 'Mark', 'Teddy', 'Betty'],
+    'Smith';
+    ['John', 'Mark', 'Teddy', 'Betty'];
     [{street: 'Avenue'}, {street: 'Strand'}]
 }
 
 function: (x: 0, y: 0) -> x + y
 
-element: {a: 1, id-seq: [1, 2, 3]}
+element: {a: 1; id-seq: [1, 2, 3]}
 seq: element[10] # new seq of elements
-some-seq: seq[a = 1] >>> id-seq[. <> 2] # >>> flat operator
+some-seq: seq[a = 1] >>> id-seq[!2] # >>> flat operator
 
-item: {street: address.street, house-no: address.house-no, family-last-name: family.last-name}
+item: {street: address.street; house-no: address.house-no; family-last-name: family.last-name}
 
-find-by-name(by-street: address.street, name: unicode) -> {item-seq: item[]} {
+find-by-name(by-street: address.street, name: unicode) -> item[] {
     for f: family-seq[last-name = 'Smith' & first-name-seq[name]]
         for a: f.address-seq[street = by-street]
-            item-seq <+ item {street, a.house-no, f.last-name}
+            -> item {street, a.house-no, f.last-name} # yield element of the seq
+    -> # return
 }
 
-find-by-name(by-street: address.street, name: unicode) ->
-    family-seq[last-name = 'Smith' & first-name-seq[name]]
-        >> address-seq[street = by-street] # >>> flat operator
+find-by-name(by-street: address.street, name: unicode) -> ...
+    family-seq[last-name = 'Smith' & first-name-seq[name]] ...
+        >> address-seq[street = by-street] ... # >>> flat operator
         >> item {street, house-no, last-name}
 
 find-by-name(by-street: address.street, name: unicode) -> item[] {
     seq1: family-seq[last-name = 'Smith' & first-name-seq[name]]
     seq2: seq1 >> address-seq[street = by-street & seq1?last-name]
-    -> seq2 >> item {street, house-no, last-name}
+    -> seq2 >> item {street, house-no, last-name} # yield | return ?
 }
 
 function(input: f64) -> input {
     result: {0.0: 1.0, 1.0: 2.0}[input],
 
-    result: case(input) {
-        0.0: 1.0,
+    result: case(input)
+        0.0: 1.0
         1.0: 2.0
-    }
 
-    case(out = false) out << true,
-    case(i > 0.0) -> 1.0,
+    case(out = false) out << true
+    case(i > 0.0) -> 1.0
     case -> 2.0
     
-    case(out = false) out << true,
+    case(out = false) out << true
     case -> 2.0
 
     # group locals
-    {a, b, c}: {1, 2, 3}
-    {a, b, c} << {1, 2, 3}
+    (a, b, c): (1, 2, 3)
+    (a, b, c) << (1, 2, 3)
     log.debug(a, b, c)
 
-    for(p: person-seq) {
+    for(p: person-seq)
         case(p.name.start-with('Kris') & maybe)
             log.debug(p.name)
-    }
     
-    repeat {
-    } until(true)
+    repeat
+    until(true)
 
-    until(out > 100) {
+    until(out > 100)
         out << (2 + in)
-    }
     
     hello: ...
     	from-siberia ...
@@ -143,68 +140,55 @@ var result: function(5)
 function(6) >> result
 
 # no shadowing allowed, create aliasing field to solve conflicts
-shade: {
-    var up: 0i32, # mutable
-    function(in: 1.0f32) -> (out: 1i64) {
+shade:
+    var up: 0i32 # mutable
+    function(in: 1.0f32) -> (out: 1i64)
         local: 'local'
-        log.debug <<< "closure: {up}, local: {local}, arg: {in}, result: {out}"
-    }
-}
+        log.debug <<< "closure: $up, local: $local, arg: $in, result: $out"
 
 shade-result: shade.function(2.0)
 
 # reflection: $ short for class
-shade[name.start-with('test') & function$[. == $]] {
+shade[name.start-with('test') & function$[. == $]]
     on-element: (f: field) -> log.debug("test: {f.name}")
     on-element: log.debug("test: {f.name}") # guess arg from original: on-element: (f: field) -> bool
-}
 
 # lock-free event-driven programming
 # "" must use formating {}
 # '' raw string (see python)
-file.write('data') {
-    on-complete: (rc: int, message: unicode) -> log.debug("return-code: {rc}, message: {message}")
-}
+file.write('data')
+    on-complete: (rc: int, message: unicode) -> log.debug("return-code: $rc, message: $message")
 
 element: any
-sort(list: element[]) -> element[] {
+sort(list: element[]) -> element[]
     compare: (e1: element, e2: element) -> int
-    for(i1: list) {
-        for(i2: list) {
+    for(i1: list)
+        for(i2: list)
             compare(i1, i2)
-        }
-    }
-}
 
-sorted: sort([3, 2, 1]) {
+sorted: sort([3, 2, 1])
     compare: e1 - e2
-}
 
 sorted1: sort([3, 2, 1]) {compare: e1 - e2}
 
 queue.post(sync: shade, data: 'data')
 
 # posponed code generation, template
-person: {
+person:
     name: unicode,
-    match(iterable: iterable(person)) -> bool {
-        for(it: iterable) {
+    match(iterable: iterable(person)) -> bool
+        for(it: iterable)
             case(that = it) -> true
-        }
         -> false
-    }
-}
 
-seq(element: any): {
-    find(e: element) -> element[],
-    at(i: int) -> element,
+seq(element: any):
+    find(e: element) -> element[]
+    at(i: int) -> element
     match(equal: (e: element) -> bool) -> element[]
-}
 
 people: seq(person)
-for(p: people.match('John' = e.name)) {
+for(p: people.match('John' = e.name))
     log.debug("person: {p}")
-}
 
 #
 # indentation
@@ -216,63 +200,56 @@ person: {
     date-of-brith: date <+ {1974, 1, 1}
 }
 
-john: person + {name: 'John'
-                last-name: 'Smith'
-                date-of-brith: date(1974, 1, 1)}
+john: person + {
+	name: 'John';
+        last-name: 'Smith';
+        date-of-brith: date(1974, 1, 1)
+}
 
-person(name: 'John'
-       last-name: 'Smith'
+person(name: 'John',
+       last-name: 'Smith',
        date-of-brith: date(1974, 1, 1))
 
 john: person
 john: person()
 
-person: {
-    var name: 'John', # mutable variable
-    last-name := 'Smith',
-    date-of-brith: date {
+person:
+    name: 'John' # mutable variable
+    last-name : 'Smith'
+    date-of-brith: date
         year: 1974,
         month: 1,
         day: 1
-    }
-}
 
 dob: person.date-of-brith | (2001, 1, 1)
 dob1: person.date-of-brith | (2001, 1, 1)
 
-operator-example: {
+operator-example:
     1 < x <= 2
     x + y
     x, y, z
 
-    (r1: any < r2: any <= r2: any) -> any,
-    (r1: any + r2: any) -> any,
-    (r1: any, r2: any, r3: any) -> any,
+    (r1: any < r2: any <= r2: any) -> any
+    (r1: any + r2: any) -> any
+    (r1: any, r2: any, r3: any) -> any
 
-    condition([1] = 'John') -> snap(john),
+    condition([1] = 'John') -> snap(john)
 
-    condition: (value: bool) -> {lambda: (value: any) -> nil} {
-        case(value) {
+    condition: (value: bool) -> (lambda: (value: any) -> nil)
+        case(value)
             lambda(value)
-        }
-    }
-}
 
 # operator with lambda
 
-seq(element: any): {
-    element-seq: element[],
-    [condition(el: element) -> bool] -> {on-select: (el: element) -> el} {
+seq(element: any):
+    element-seq: element[]
+    [condition(el: element) -> bool] -> (on-select: (el: element) -> el)
         result: el[]
-        for(el: element-seq) {
-            if(condition(el)) {
+        for(el: element-seq)
+            if(condition(el))
                 result <+ on-select(el)
-            }
-        }
-    }
-}
 
-person: {name: unicode, last-name: unicode}
+person: {name: unicode; last-name: unicode}
 person-seq: seq(person)
 person-seq <+ {'John', 'Smith'} <+ {'Mary', 'Stuart'}
 person-seq: person[{'John', 'Smith'}, {'Mary', 'Stuart'}]
@@ -296,25 +273,22 @@ int_seq +< 5 # prepend
 
 my-home: home + {street: 'Southdene'}
 
-find(name: unicode, element_seq: seq(element), name_map: element -> unicode) -> int | exception {
+find(name: unicode, element_seq: seq(element), name_map: element -> unicode) -> int
     -> element_seq.contain(name, name_map)
-}
 
-student: {
+student:
     name: unicode
-}
 
 student_seq: seq(student)
-findy: find(name: 'Kris'
-            element_seq: student_seq
+findy: find(name: 'Kris',
+            element_seq: student_seq,
             name_map: (s: student) -> s.name)
-findy << find('Kris'
-              student_seq
-              student -> student.name
-              compare:
-                  e1.value < e2.value)
-case findy: find('Kris'
-                 student_seq
+findy << find('Kris',
+              student_seq,
+              student -> student.name,
+              compare: e1.value < e2.value)
+case findy: find('Kris',
+                 student_seq,
                  student -> student.name) {
     exception: system.exit(0)
 }
@@ -371,7 +345,7 @@ file-context(file-name: unicode): context
 
     enter() -> io.file
         file.open()
-        log.debug << 'File {file-name} has been opened!',
+        log.debug << 'File {file-name} has been opened!'
         -> file
 
     leave() -> nil
@@ -402,7 +376,7 @@ set(el: element):
 set(head: element, tail: set(element, set(element)): set(element)
 	contain(el: element) -> el = head | tail.contain(el)
 
-set(seq: element[])
+set(seq: element[]) ...
 	-> seq.size
 		? set(seq.at(0), set(seq.sub-seq(1)))
 		: set(element)
