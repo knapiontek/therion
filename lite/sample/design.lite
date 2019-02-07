@@ -115,6 +115,16 @@ function(input: f64) -> input {
     until(out > 100) {
         out << (2 + in)
     }
+    
+    hello: ...
+    	from-siberia ...
+	    & from-italy ...
+	    | from-tarifa
+	
+    hello: ...
+    	(from-siberia
+	 & from-italy
+	 | from-tarifa)
 }
 
 var result: function(5)
