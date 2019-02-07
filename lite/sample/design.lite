@@ -16,12 +16,24 @@ int: 0i32
     function(args) call function
 """
 
+# multiline {} operator requires ; separator as follows
+
+poppy: true; daisy: false
+{hi: john
+	& ana;
+	print-out("bye")}
+
+# otherwise
+hi: poppy ...
+	& daisy
+print-out("Bye $poppy and $daisy.")
+
 # syntax basics
 
-hello: {a: 1, b: 2}
+hello: {a: 1; b: 2}
 
 my-hello: hello {
-    a: 11,
+    a: 11;
     b: 22
 }
 
@@ -33,7 +45,7 @@ nil << seq[name = 'John']
 
 # keywords: if, for, repeat, until
 
-var: {1: 0, 2: 1}
+var: {1: 0; 2: 1}
 var <+ {1: 1} # copy only field '1'
 
 address-town: {town: unicode}
