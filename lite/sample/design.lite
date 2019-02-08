@@ -37,6 +37,11 @@ my-hello: hello {
     b: 22
 }
 
+fibonacci(x: int, y: int) -> stream(x, () -> fibonacci(y, x + y))
+sum(seq: seq(int), acc: int) -> int
+	print-out("seq: $seq, acc: $acc")
+	-> seq.size ? sum(seq.sub-seq(1, -1), seq(0)) : acc
+
 # list basics
 
 person-seq <+ person
