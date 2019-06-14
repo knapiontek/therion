@@ -26,7 +26,7 @@ poppy: true; daisy: false
 # otherwise
 hi: poppy ...
 	& daisy
-print-out("Bye $poppy and $daisy.")
+print-out("Bye {poppy} and {daisy}.")
 
 # syntax basics
 
@@ -39,7 +39,7 @@ my-hello: hello {
 
 fibonacci(x: int, y: int) -> stream(x, () -> fibonacci(y, x + y))
 sum(seq: seq(int), acc: int) -> int
-	print-out("seq: $seq, acc: $acc")
+	print-out("seq: {seq}, acc: {acc}")
 	-> seq.size ? sum(seq.sub-seq(1, -1), seq(0)) : acc
 
 # list basics
@@ -64,8 +64,8 @@ their-address: address {var town: var 'their-town';
 
 family:
     last-name: unicode
-    first-name-seq: unicode[]
-    address-seq: address[]
+    first-name-seq: seq(unicode)
+    address-seq: seq(address)
 
 family-seq: family[]
 
@@ -105,8 +105,9 @@ function(input: f64) -> input {
     result: {0.0: 1.0, 1.0: 2.0}[input],
 
     result: case(input)
-        0.0: 1.0
-        1.0: 2.0
+        0.0: () -> 1.0
+        1.0: () -> 2.0
+        any: () -> any
 
     case(out = false) out << true
     case(i > 0.0) -> 1.0
@@ -134,11 +135,6 @@ function(input: f64) -> input {
     	from-siberia ...
 	    & from-italy ...
 	    | from-tarifa
-	
-    hello: ...
-    	(from-siberia
-	 & from-italy
-	 | from-tarifa)
 }
 
 var result: function(5)
@@ -149,7 +145,7 @@ shade:
     var up: 0i32 # mutable
     function(in: 1.0f32) -> (out: 1i64)
         local: 'local'
-        log.debug <<< "closure: $up, local: $local, arg: $in, result: $out"
+        log.debug <<< "closure: {up}, local: {local}, arg: {in}, result: {out}"
 
 shade-result: shade.function(2.0)
 
@@ -159,10 +155,10 @@ shade[name.start-with('test') & function$[. == $]]
     on-element: log.debug("test: {f.name}") # guess arg from original: on-element: (f: field) -> bool
 
 # lock-free event-driven programming
-# "" must use formating {}
+# "" must use formatting {}
 # '' raw string (see python)
 file.write('data')
-    on-complete: (rc: int, message: unicode) -> log.debug("return-code: $rc, message: $message")
+    on-complete: (rc: int, message: unicode) -> log.debug("return-code: {rc}, message: {message}")
 
 element: any
 sort(list: element[]) -> element[]
@@ -178,7 +174,7 @@ sorted1: sort([3, 2, 1]) {compare: e1 - e2}
 
 queue.post(sync: shade, data: 'data')
 
-# posponed code generation, template
+# postponed code generation, template
 person:
     name: unicode,
     match(iterable: iterable(person)) -> bool
@@ -202,18 +198,18 @@ for(p: people.match('John' = e.name))
 person: {
     name: 'John',
     last-name: 'Smith',
-    date-of-brith: date <+ {1974, 1, 1}
+    date-of-birth: date <+ {1974, 1, 1}
 }
 
 john: person + {
 	name: 'John';
         last-name: 'Smith';
-        date-of-brith: date(1974, 1, 1)
+        date-of-birth: date(1974, 1, 1)
 }
 
 person(name: 'John',
        last-name: 'Smith',
-       date-of-brith: date(1974, 1, 1))
+       date-of-birth: date(1974, 1, 1))
 
 john: person
 john: person()
@@ -221,13 +217,13 @@ john: person()
 person:
     name: 'John' # mutable variable
     last-name : 'Smith'
-    date-of-brith: date
+    date-of-birth: date
         year: 1974,
         month: 1,
         day: 1
 
-dob: person.date-of-brith | (2001, 1, 1)
-dob1: person.date-of-brith | (2001, 1, 1)
+dob: person.date-of-birth | (2001, 1, 1)
+dob1: person.date-of-birth | (2001, 1, 1)
 
 operator-example:
     1 < x <= 2
@@ -295,7 +291,7 @@ findy << find('Kris',
 case findy: find('Kris',
                  student_seq,
                  student -> student.name) {
-    exception: system.exit(0)
+    exception -> system.exit(0)
 }
 
 case findy: find()
@@ -325,7 +321,7 @@ case findy: find(5.0) {
 
 ###########################
 atomic safe-hello:
-    # * all routines are synchrinized by 'atom'
+    # * all routines are synchronized by 'atom'
     # * no var-ref can leak by any routine
     var student: {count: 0},
     change(i: 0) -> student.count <+ i
