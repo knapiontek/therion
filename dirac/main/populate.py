@@ -3,14 +3,12 @@ from copy import deepcopy
 
 import numpy as np
 
-from data import *
 
-dof_no = 3 * point_no  # degrees of freedom
-K = np.zeros((dof_no, dof_no))  # stiffness matrix
-F = np.zeros(dof_no)  # force vector
+def populate_equation(point_no, point_list, element_no, element_list, fix_dict, force_dict):
+    dof_no = 3 * point_no  # degrees of freedom
+    K = np.zeros((dof_no, dof_no))  # stiffness matrix
+    F = np.zeros(dof_no)  # force vector
 
-
-def populate_equation():
     # init F, K
     for i in range(point_no):
         fix = fix_dict.get(i) or [0, 0, 0]
@@ -106,8 +104,12 @@ def populate_equation():
             K[p2y][p2z] += cyzEAl
             K[p2z][p2z] += czzEAl
 
+    return K, F
 
-def copy_results(dP):
+
+def copy_results(dP, point_no, point_list, fix_dict, force_dict):
+    output_list = deepcopy(point_list)
+
     for i in range(point_no):
         fix = fix_dict.get(i) or [0, 0, 0]
         force = force_dict.get(i) or [0, 0, 0]
@@ -115,8 +117,6 @@ def copy_results(dP):
         px = 3 * i + 0
         py = 3 * i + 1
         pz = 3 * i + 2
-
-        output_list[i] = deepcopy(point_list[i])
 
         if fix[0]:
             force[0] = dP[px]

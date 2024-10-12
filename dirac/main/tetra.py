@@ -1,14 +1,15 @@
 import pyvista as pv
 
+from data import *
 from populate import *
 
 if __name__ == '__main__':
-    populate_equation()
-    x = np.linalg.solve(K, F)
-    eq = np.allclose(np.dot(K, x), F)
+    K, F = populate_equation(point_no, point_list, element_no, element_list, fix_dict, force_dict)
+    dP = np.linalg.solve(K, F)
+    eq = np.allclose(np.dot(K, dP), F)
     print(f'eq: {eq}')
 
-    output_list = copy_results(x)
+    output_list = copy_results(dP, point_no, point_list, fix_dict, force_dict)
 
     n = len(point_list)
 
