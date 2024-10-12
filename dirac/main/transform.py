@@ -3,10 +3,10 @@ import math
 import numpy as np
 
 
-def prepare_equation(nodes: list[list[float]], elements: list[list[int]],
+def prepare_equation(nodes: np.float64, elements: np.int32,
                      fixes: dict[int, list[float]], forces: dict[int, list[float]]):
-    nodes_len = len(nodes)
-    elements_len = len(elements)
+    nodes_len = nodes.shape[0]
+    elements_len = elements.shape[0]
     dof = 3 * nodes_len  # degrees of freedom
     K = np.zeros((dof, dof))  # stiffness matrix
     F = np.zeros(dof)  # force vector
@@ -109,11 +109,11 @@ def prepare_equation(nodes: list[list[float]], elements: list[list[int]],
     return K, F
 
 
-def prepare_results(X: list[float], nodes: list[list[float]],
+def prepare_results(X: np.float64, nodes: np.float64,
                     fixes: dict[int, list[float]], forces: dict[int, list[float]]):
     results = nodes.copy()
 
-    for i in range(len(nodes)):
+    for i in range(nodes.shape[0]):
         fix = fixes.get(i) or [0, 0, 0]
         force = forces.get(i) or [0, 0, 0]
 
