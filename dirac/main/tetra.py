@@ -1,5 +1,4 @@
 import pyvista as pv
-from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
 
 from data import *
@@ -7,8 +6,8 @@ from transform import *
 
 if __name__ == '__main__':
     K, F = prepare_equation(nodes, elements, fixes, forces)
-    X = spsolve(csr_matrix(K), F)
-    eq = np.allclose(np.dot(K, X), F)
+    X = spsolve(K, F)
+    eq = np.allclose(np.dot(K.toarray(), X), F)
     print(f'eq: {eq}')
 
     results = prepare_results(X, nodes, fixes, forces)

@@ -1,6 +1,8 @@
 import math
 
 import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse import lil_matrix
 
 
 def prepare_equation(nodes: np.float64, elements: np.int32,
@@ -8,7 +10,8 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
     nodes_len = nodes.shape[0]
     elements_len = elements.shape[0]
     dof = 3 * nodes_len  # degrees of freedom
-    K = np.zeros((dof, dof))  # stiffness matrix
+
+    K = lil_matrix((dof, dof), dtype=np.float64)  # stiffness matrix
     F = np.zeros(dof)  # force vector
 
     # init F, K
@@ -23,17 +26,17 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
         if not fix[0]:
             F[px] = force[0]
         else:
-            K[px][px] = -1
+            K[px, px] = -1
 
         if not fix[1]:
             F[py] = force[1]
         else:
-            K[py][py] = -1
+            K[py, py] = -1
 
         if not fix[2]:
             F[pz] = force[2]
         else:
-            K[pz][pz] = -1
+            K[pz, pz] = -1
 
     # compose K - stiffness matrix
     for i in range(elements_len):
@@ -64,49 +67,49 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
         cyzEAl = cy * cz * EA / length
 
         if not fix1[0]:
-            K[p1x][p1x] += cxxEAl
-            K[p1y][p1x] += cxyEAl
-            K[p1z][p1x] += cxzEAl
-            K[p2x][p1x] -= cxxEAl
-            K[p2y][p1x] -= cxyEAl
-            K[p2z][p1x] -= cxzEAl
+            K[p1x, p1x] += cxxEAl
+            K[p1y, p1x] += cxyEAl
+            K[p1z, p1x] += cxzEAl
+            K[p2x, p1x] -= cxxEAl
+            K[p2y, p1x] -= cxyEAl
+            K[p2z, p1x] -= cxzEAl
         if not fix1[1]:
-            K[p1x][p1y] += cxyEAl
-            K[p1y][p1y] += cyyEAl
-            K[p1z][p1y] += cyzEAl
-            K[p2x][p1y] -= cxyEAl
-            K[p2y][p1y] -= cyyEAl
-            K[p2z][p1y] -= cyzEAl
+            K[p1x, p1y] += cxyEAl
+            K[p1y, p1y] += cyyEAl
+            K[p1z, p1y] += cyzEAl
+            K[p2x, p1y] -= cxyEAl
+            K[p2y, p1y] -= cyyEAl
+            K[p2z, p1y] -= cyzEAl
         if not fix1[2]:
-            K[p1x][p1z] += cxzEAl
-            K[p1y][p1z] += cyzEAl
-            K[p1z][p1z] += czzEAl
-            K[p2x][p1z] -= cxzEAl
-            K[p2y][p1z] -= cyzEAl
-            K[p2z][p1z] -= czzEAl
+            K[p1x, p1z] += cxzEAl
+            K[p1y, p1z] += cyzEAl
+            K[p1z, p1z] += czzEAl
+            K[p2x, p1z] -= cxzEAl
+            K[p2y, p1z] -= cyzEAl
+            K[p2z, p1z] -= czzEAl
         if not fix2[0]:
-            K[p1x][p2x] -= cxxEAl
-            K[p1y][p2x] -= cxyEAl
-            K[p1z][p2x] -= cxzEAl
-            K[p2x][p2x] += cxxEAl
-            K[p2y][p2x] += cxyEAl
-            K[p2z][p2x] += cxzEAl
+            K[p1x, p2x] -= cxxEAl
+            K[p1y, p2x] -= cxyEAl
+            K[p1z, p2x] -= cxzEAl
+            K[p2x, p2x] += cxxEAl
+            K[p2y, p2x] += cxyEAl
+            K[p2z, p2x] += cxzEAl
         if not fix2[1]:
-            K[p1x][p2y] -= cxyEAl
-            K[p1y][p2y] -= cyyEAl
-            K[p1z][p2y] -= cyzEAl
-            K[p2x][p2y] += cxyEAl
-            K[p2y][p2y] += cyyEAl
-            K[p2z][p2y] += cyzEAl
+            K[p1x, p2y] -= cxyEAl
+            K[p1y, p2y] -= cyyEAl
+            K[p1z, p2y] -= cyzEAl
+            K[p2x, p2y] += cxyEAl
+            K[p2y, p2y] += cyyEAl
+            K[p2z, p2y] += cyzEAl
         if not fix2[2]:
-            K[p1x][p2z] -= cxzEAl
-            K[p1y][p2z] -= cyzEAl
-            K[p1z][p2z] -= czzEAl
-            K[p2x][p2z] += cxzEAl
-            K[p2y][p2z] += cyzEAl
-            K[p2z][p2z] += czzEAl
+            K[p1x, p2z] -= cxzEAl
+            K[p1y, p2z] -= cyzEAl
+            K[p1z, p2z] -= czzEAl
+            K[p2x, p2z] += cxzEAl
+            K[p2y, p2z] += cyzEAl
+            K[p2z, p2z] += czzEAl
 
-    return K, F
+    return csr_matrix(K), F
 
 
 def prepare_results(X: np.float64, nodes: np.float64,
