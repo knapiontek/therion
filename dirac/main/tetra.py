@@ -7,7 +7,7 @@ from transform import *
 if __name__ == '__main__':
     K, F = prepare_equation(nodes, elements, fixes, forces)
     X = spsolve(K, F)
-    eq = np.allclose(np.dot(K.toarray(), X), F)
+    eq = np.allclose(np.dot(K.toarray(), X), F.toarray())
     print(f'eq: {eq}')
 
     results = prepare_results(X, nodes, fixes, forces)

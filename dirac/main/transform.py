@@ -1,18 +1,21 @@
 import math
 
 import numpy as np
+from scipy.sparse import csc_matrix
 from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix
 
 
-def prepare_equation(nodes: np.float64, elements: np.int32,
-                     fixes: dict[int, list[float]], forces: dict[int, list[float]]):
+def prepare_equation(nodes: np.float64,
+                     elements: np.int32,
+                     fixes: dict[int, list[float]],
+                     forces: dict[int, list[float]]) -> tuple[csr_matrix, csc_matrix]:
     nodes_len = nodes.shape[0]
     elements_len = elements.shape[0]
     dof = 3 * nodes_len  # degrees of freedom
 
     K = lil_matrix((dof, dof), dtype=np.float64)  # stiffness matrix
-    F = np.zeros(dof)  # force vector
+    F = lil_matrix((dof, 1), dtype=np.float64)  # force vector
 
     # init F, K
     for i in range(nodes_len):
@@ -109,11 +112,11 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
             K[p2y, p2z] += cyzEAl
             K[p2z, p2z] += czzEAl
 
-    return csr_matrix(K), F
+    return csr_matrix(K), csc_matrix(F)
 
 
 def prepare_results(X: np.float64, nodes: np.float64,
-                    fixes: dict[int, list[float]], forces: dict[int, list[float]]):
+                    fixes: dict[int, list[float]], forces: dict[int, list[float]]) -> np.float64:
     results = nodes.copy()
 
     for i in range(nodes.shape[0]):
