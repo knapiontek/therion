@@ -5,7 +5,7 @@ nodes = np.array([
     [-2.0, 2.0, -2.0],  # 1
     [2.5, -2.0, -2.0],  # 2
     [-2.0, -2.0, 4.0]  # 3
-])
+], dtype=np.float64)
 
 elements = np.array([
     [0, 1],  # 0
@@ -14,7 +14,7 @@ elements = np.array([
     [3, 0],  # 3
     [3, 1],  # 4
     [3, 2]  # 5
-])
+], dtype=np.int32)
 
 # boolean values
 fixes = {

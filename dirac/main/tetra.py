@@ -5,6 +5,8 @@ from data import *
 from transform import *
 
 if __name__ == '__main__':
+    # assert fixes and forces don't clash
+    # fixes and forces as csc_array's
     K, F = prepare_equation(nodes, elements, fixes, forces)
     X = spsolve(K, F)
     eq = np.allclose(np.dot(K.toarray(), X), F.toarray())

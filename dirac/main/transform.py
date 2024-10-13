@@ -115,8 +115,10 @@ def prepare_equation(nodes: np.float64,
     return csr_matrix(K), csc_matrix(F)
 
 
-def prepare_results(X: np.float64, nodes: np.float64,
-                    fixes: dict[int, list[float]], forces: dict[int, list[float]]) -> np.float64:
+def prepare_results(X: np.float64,
+                    nodes: np.float64,
+                    fixes: dict[int, list[float]],
+                    forces: dict[int, list[float]]) -> np.float64:
     results = nodes.copy()
 
     for i in range(nodes.shape[0]):
