@@ -5,13 +5,15 @@ from data import *
 from transform import *
 
 if __name__ == '__main__':
-    # assert fixes and forces don't clash
     # fixes and forces as csc_array's
     K, F = prepare_equation(nodes, elements, fixes, forces)
-
     X = spsolve(K, F)
-    eq = np.allclose(np.dot(K.toarray(), X), F.toarray())
-    print(f'eq: {eq}')
+    diff = K.dot(X) - F.toarray().flatten()
+    print(f'precision: {diff.dot(diff)}')
+    keys = fixes.keys() & forces.keys()
+    for k in keys:
+        if not np.dot(fixes[k], forces[k]):
+            raise Exception(f'Conflict for {k} in {fixes[k]} and {forces[k]}')
 
     results = prepare_results(X, nodes, fixes, forces)
 
