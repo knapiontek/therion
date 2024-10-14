@@ -6,10 +6,19 @@ from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix
 
 
-def prepare_equation(nodes: np.float64,
-                     elements: np.int32,
-                     fixes: dict[int, list[float]],
-                     forces: dict[int, list[float]]) -> tuple[csr_matrix, csc_matrix]:
+class PointDict(dict[int, list[float]]):
+    pass
+
+
+def check_conflicts(fixes: PointDict, forces: PointDict):
+    keys = fixes.keys() & forces.keys()
+    for k in keys:
+        if not np.dot(fixes[k], forces[k]):
+            raise Exception(f'Conflict for {k} in {fixes[k]} and {forces[k]}')
+
+
+def prepare_equation(nodes: np.float64, elements: np.int32,
+                     fixes: PointDict, forces: PointDict) -> tuple[csr_matrix, csc_matrix]:
     nodes_len = nodes.shape[0]
     elements_len = elements.shape[0]
     dof = 3 * nodes_len  # degrees of freedom
@@ -115,10 +124,7 @@ def prepare_equation(nodes: np.float64,
     return csr_matrix(K), csc_matrix(F)
 
 
-def prepare_results(X: np.float64,
-                    nodes: np.float64,
-                    fixes: dict[int, list[float]],
-                    forces: dict[int, list[float]]) -> np.float64:
+def prepare_results(X: np.float64, nodes: np.float64, fixes: PointDict, forces: PointDict) -> np.float64:
     results = nodes.copy()
 
     for i in range(nodes.shape[0]):
