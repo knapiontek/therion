@@ -1,13 +1,12 @@
 import math
+from typing import NewType
 
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix
 
-
-class PointDict(dict[int, list[float]]):
-    pass
+PointDict = NewType('PointDict', dict[int, list[float]])
 
 
 def check_conflicts(fixes: PointDict, forces: PointDict):
