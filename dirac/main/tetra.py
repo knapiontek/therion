@@ -6,7 +6,7 @@ from transform import *
 
 if __name__ == '__main__':
     check_conflicts(fixes, forces)
-    K, F = prepare_equation(nodes, elements, fixes, forces)
+    K, F = prepare_equation(nodes, edges, fixes, forces)
     X = spsolve(K, F)
     diff = K.dot(X) - F.toarray().flatten()
     print(f'precision: {diff.dot(diff)}')
@@ -18,17 +18,17 @@ if __name__ == '__main__':
 
     print(nodes)
     print(results)
-    print(elements)
+    print(edges)
     print(centers)
     print(arrows)
 
     pl = pv.Plotter()
 
     pl.add_points(nodes, color='darkblue', point_size=4)
-    pl.add_lines(nodes[np.hstack(elements)], color='lightgrey', width=1)
+    pl.add_lines(nodes[np.hstack(edges)], color='lightgrey', width=1)
 
     pl.add_points(results, color='darkred', point_size=4)
-    pl.add_lines(results[np.hstack(elements)], color='blue', width=2)
+    pl.add_lines(results[np.hstack(edges)], color='blue', width=2)
 
     pl.add_arrows(centers, arrows, color='red', mag=0.01, line_width=2)
 

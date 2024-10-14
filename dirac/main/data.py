@@ -7,7 +7,7 @@ nodes = np.array([
     [-2.0, -2.0, 4.0]  # 3
 ], dtype=np.float64)
 
-elements = np.array([
+edges = np.array([
     [0, 1],  # 0
     [1, 2],  # 1
     [2, 0],  # 2
