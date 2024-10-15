@@ -1,12 +1,14 @@
 import math
-from typing import NewType
+from typing import TypeAlias, Any
 
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix
 
-PointDict = NewType('PointDict', dict[int, list[float]])
+PointDict: TypeAlias = dict[int, list[float]]
+Float64: TypeAlias = np.ndarray[Any, np.dtype[np.float64]]
+Int32: TypeAlias = np.ndarray[Any, np.dtype[np.int32]]
 
 
 def check_conflicts(fixes: PointDict, forces: PointDict):
@@ -16,7 +18,7 @@ def check_conflicts(fixes: PointDict, forces: PointDict):
             raise Exception(f'Conflict for {k} in {fixes[k]} and {forces[k]}')
 
 
-def prepare_equation(nodes: np.float64, elements: np.int32,
+def prepare_equation(nodes: Float64, elements: Int32,
                      fixes: PointDict, forces: PointDict) -> tuple[csr_matrix, csc_matrix]:
     nodes_len = nodes.shape[0]
     elements_len = elements.shape[0]
@@ -55,8 +57,8 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
         element = elements[i]
         point1 = nodes[element[0]]
         point2 = nodes[element[1]]
-        fix1 = fixes.get(element[0]) or [0, 0, 0]
-        fix2 = fixes.get(element[1]) or [0, 0, 0]
+        fix1 = fixes.get(int(element[0])) or [0, 0, 0]
+        fix2 = fixes.get(int(element[1])) or [0, 0, 0]
         p1x = 3 * element[0] + 0
         p1y = 3 * element[0] + 1
         p1z = 3 * element[0] + 2
@@ -123,7 +125,7 @@ def prepare_equation(nodes: np.float64, elements: np.int32,
     return csr_matrix(K), csc_matrix(F)
 
 
-def prepare_results(X: np.float64, nodes: np.float64, fixes: PointDict, forces: PointDict) -> np.float64:
+def prepare_results(X: Float64, nodes: Float64, fixes: PointDict, forces: PointDict) -> Float64:
     results = nodes.copy()
 
     for i in range(nodes.shape[0]):
@@ -137,17 +139,17 @@ def prepare_results(X: np.float64, nodes: np.float64, fixes: PointDict, forces: 
         if not fix[0]:
             results[i][0] += X[px]
         else:
-            force[0] = X[px]
+            force[0] = float(X[px])
 
         if not fix[1]:
             results[i][1] += X[py]
         else:
-            force[1] = X[py]
+            force[1] = float(X[py])
 
         if not fix[2]:
             results[i][2] += X[pz]
         else:
-            force[2] = X[pz]
+            force[2] = float(X[pz])
 
         if sum(force) != 0:
             forces[i] = force
