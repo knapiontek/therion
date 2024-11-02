@@ -1,7 +1,10 @@
 import numpy as np
 import pyvista as pv
+from scipy.sparse.linalg import spsolve
 
-n = 13
+from main.transform import check_conflicts, prepare_equation, prepare_results
+
+n = 5
 
 
 def n0(x1: int, y1: int):
@@ -16,7 +19,7 @@ nodes = np.zeros((n ** 2, 3), dtype=np.float64)
 
 for x in range(n):
     for y in range(n):
-        nodes[n0(x, y)] = [x, y, 0]
+        nodes[n0(x, y)] = [x + (0.5 * y), y, 0]
 
 edges_xy = np.zeros(((n - 1) ** 2, 6), dtype=np.int32)
 edges_x = np.zeros(((n - 1), 2), dtype=np.int32)
@@ -31,15 +34,47 @@ for x in range(n):
         elif y == n - 1:
             edges_x[x] = [n0(x, y), n0(x + 1, y)]
         else:
-            edges_xy[n1(x, y)] = [n0(x, y), n0(x + 1, y), n0(x + 1, y), n0(x, y + 1), n0(x, y + 1), n0(x, y)]
+            edges_xy[n1(x, y)] = [n0(x, y), n0(x + 1, y),
+                                  n0(x + 1, y), n0(x, y + 1),
+                                  n0(x, y + 1), n0(x, y)]
 
 edges = np.append(np.hstack(edges_xy), np.append(np.hstack(edges_x), np.hstack(edges_y)))
+edges = edges.reshape((edges.shape[0] // 2, 2))
 
 if __name__ == '__main__':
+    fix_keys = np.zeros(4 * (n - 1), dtype=np.int32)
+    for i in range(n - 1):
+        fix_keys[0 * (n - 1) + i] = i
+        fix_keys[1 * (n - 1) + i] = (n - 1) + n * i
+        fix_keys[2 * (n - 1) + i] = (n - 1) * n + i + 1
+        fix_keys[3 * (n - 1) + i] = (n - 1) + n * i + 1
+    fixes = {k: [1, 1, 1] for k in fix_keys}
+
+    middle = n // 2
+    forces = {n0(middle, middle): [0, 0, 30]}
+    centers = nodes[sorted(forces.keys())]
+    arrows = np.array(list(dict(sorted(forces.items())).values()))
+
+    check_conflicts(fixes, forces)
+    K, F = prepare_equation(nodes, edges, fixes, forces)
+    print(K.todense())
+    det = np.linalg.det(K.todense())
+    print(det)
+    if det:
+        X = spsolve(K, F)
+        diff = K.dot(X) - F.toarray().flatten()
+        print(f'precision: {diff.dot(diff)}')
+
+        results = prepare_results(X, nodes, fixes, forces)
+
+    print(nodes)
+    print(edges)
+
     pl = pv.Plotter()
 
-    pl.add_points(nodes, color='darkblue', point_size=4)
-    pl.add_lines(nodes[edges], color='lightgrey', width=1)
+    pl.add_points(nodes, color='darkblue', point_size=6)
+    pl.add_lines(nodes[np.hstack(edges)], color='lightgrey', width=1)
+    pl.add_arrows(centers, arrows, color='red', mag=0.02, line_width=2)
 
     pl.add_axes()
     pl.camera_position = 'xy'
