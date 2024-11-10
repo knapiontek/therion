@@ -62,7 +62,7 @@ if __name__ == '__main__':
     K, F = prepare_equation(nodes, edges, fixes, forces)
     print(K.todense())
     det = np.linalg.det(K.todense())
-    print(det)
+    print(f'det: {det}')
     if det:
         X = spsolve(K, F)
         diff = K.dot(X) - F.toarray().flatten()

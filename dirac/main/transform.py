@@ -120,7 +120,9 @@ def prepare_equation(nodes: Float64, elements: Int32,
             K[p2y, p2z] += cyzEAl
             K[p2z, p2z] += czzEAl
 
-    return csr_matrix(K), csc_matrix(F)
+    KK, KF = csr_matrix(K), csc_matrix(F)
+    k_transpose = KK.transpose()
+    return k_transpose * KK, k_transpose * KF
 
 
 def prepare_results(X: Float64, nodes: Float64, fixes: PointDict, forces: PointDict) -> Float64:
