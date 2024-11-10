@@ -35,20 +35,18 @@ def prepare_equation(nodes: Float64, elements: Int32,
         py = 3 * i + 1
         pz = 3 * i + 2
 
+        F[px] = force[0]
+        F[py] = force[1]
+        F[pz] = force[2]
+
         # reactions in K (in place of fixed displacement)
-        if not fix[0]:
-            F[px] = force[0]
-        else:
+        if fix[0]:
             K[px, px] = -1
 
-        if not fix[1]:
-            F[py] = force[1]
-        else:
+        if fix[1]:
             K[py, py] = -1
 
-        if not fix[2]:
-            F[pz] = force[2]
-        else:
+        if fix[2]:
             K[pz, pz] = -1
 
     # compose K - stiffness matrix

@@ -1,7 +1,11 @@
+import sys
+
 import pyvista as pv
 from scipy.sparse.linalg import spsolve
 
 from transform import *
+
+np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
 
 nodes = np.array([
     [-2.0, -2.0, -2.0],  # 0
@@ -36,6 +40,9 @@ if __name__ == '__main__':
     X = spsolve(K, F)
     diff = K.dot(X) - F.toarray().flatten()
     print(f'precision: {diff.dot(diff)}')
+    print(K.todense())
+    det = np.linalg.det(K.todense())
+    print(f'det: {det}')
 
     results = prepare_results(X, nodes, fixes, forces)
 

@@ -1,10 +1,14 @@
+import sys
+
 import numpy as np
 import pyvista as pv
 from scipy.sparse.linalg import spsolve
 
 from main.transform import check_conflicts, prepare_equation, prepare_results
 
-n = 5
+np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
+
+n = 3
 
 
 def n0(x1: int, y1: int):
@@ -19,7 +23,7 @@ nodes = np.zeros((n ** 2, 3), dtype=np.float64)
 
 for x in range(n):
     for y in range(n):
-        nodes[n0(x, y)] = [x + (0.5 * y), y, 0]
+        nodes[n0(x, y)] = [x + (.5 * y), y, .1 * x * y]
 
 edges_xy = np.zeros(((n - 1) ** 2, 6), dtype=np.int32)
 edges_x = np.zeros(((n - 1), 2), dtype=np.int32)
@@ -42,13 +46,12 @@ edges = np.append(np.hstack(edges_xy), np.append(np.hstack(edges_x), np.hstack(e
 edges = edges.reshape((edges.shape[0] // 2, 2))
 
 if __name__ == '__main__':
-    fix_keys = np.zeros(4 * (n - 1), dtype=np.int32)
-    for i in range(n - 1):
-        fix_keys[0 * (n - 1) + i] = i
-        fix_keys[1 * (n - 1) + i] = (n - 1) + n * i
-        fix_keys[2 * (n - 1) + i] = (n - 1) * n + i + 1
-        fix_keys[3 * (n - 1) + i] = (n - 1) + n * i + 1
-    fixes = {k: [1, 1, 1] for k in fix_keys}
+    fixes = {
+        n0(0, 0): [1, 1, 1],
+        n0(0, n - 1): [1, 0, 1],
+        n0(n - 1, 0): [1, 0, 1],
+        n0(n - 1, n - 1): [1, 0, 1],
+    }
 
     middle = n // 2
     forces = {n0(middle, middle): [0, 0, 30]}
