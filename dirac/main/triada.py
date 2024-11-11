@@ -12,35 +12,39 @@ n = 3
 n_1 = n - 1
 
 
-def n0(_x: int, _y: int, _z: int):
-    return (_x * n ** 2) + (_y * n) + _z
+def n0(x: int, y: int, z: int):
+    return (x * n ** 2) + (y * n) + z
 
 
-nodes = np.zeros((n ** 3, 3), dtype=np.float64)
+def prepare_geometry():
+    _nodes = np.zeros((n ** 3, 3), dtype=np.float64)
 
-for x in range(n):
-    for y in range(n):
-        for z in range(n):
-            nodes[n0(x, y, z)] = [x, y, z]
+    for x in range(n):
+        for y in range(n):
+            for z in range(n):
+                _nodes[n0(x, y, z)] = [x, y, z]
 
-edges = []
+    _edges = []
 
-for x in range(n):
-    for y in range(n):
-        for z in range(n):
-            if x == n_1 and y == n_1:
-                pass
-            elif x == n_1:
-                edges += [n0(x, y, z), n0(x, y + 1, z)]
-            elif y == n_1:
-                edges += [n0(x, y, z), n0(x + 1, y, z)]
-            else:
-                edges += [n0(x, y, z), n0(x + 1, y, z),
-                          n0(x + 1, y, z), n0(x, y + 1, z),
-                          n0(x, y + 1, z), n0(x, y, z)]
+    for x in range(n):
+        for y in range(n):
+            for z in range(n):
+                if x == n_1 and y == n_1:
+                    pass
+                elif x == n_1:
+                    _edges += [n0(x, y, z), n0(x, y + 1, z)]
+                elif y == n_1:
+                    _edges += [n0(x, y, z), n0(x + 1, y, z)]
+                else:
+                    _edges += [n0(x, y, z), n0(x + 1, y, z),
+                               n0(x + 1, y, z), n0(x, y + 1, z),
+                               n0(x, y + 1, z), n0(x, y, z)]
 
-edges = np.array(edges)
-edges = edges.reshape((edges.shape[0] // 2, 2))
+    _edges = np.array(_edges)
+    _edges = _edges.reshape((_edges.shape[0] // 2, 2))
+
+    return _nodes, _edges
+
 
 if __name__ == '__main__':
     fixes = {
@@ -50,6 +54,7 @@ if __name__ == '__main__':
         n0(n_1, n_1, 0): [1, 0, 1],
     }
 
+    nodes, edges = prepare_geometry()
     middle = n // 2
     forces = {n0(middle, middle, 1): [0, 0, 30]}
     centers = nodes[sorted(forces.keys())]
