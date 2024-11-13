@@ -8,7 +8,7 @@ from main.transform import check_conflicts, prepare_equation, prepare_results
 
 np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
 
-n = 3
+n = 5
 n_1 = n - 1
 
 
@@ -29,16 +29,19 @@ def prepare_geometry():
     for x in range(n):
         for y in range(n):
             for z in range(n):
-                if x == n_1 and y == n_1:
-                    pass
-                elif x == n_1:
-                    _edges += [n0(x, y, z), n0(x, y + 1, z)]
-                elif y == n_1:
+                if x < n_1:
                     _edges += [n0(x, y, z), n0(x + 1, y, z)]
-                else:
-                    _edges += [n0(x, y, z), n0(x + 1, y, z),
-                               n0(x + 1, y, z), n0(x, y + 1, z),
-                               n0(x, y + 1, z), n0(x, y, z)]
+                if y < n_1:
+                    _edges += [n0(x, y, z), n0(x, y + 1, z)]
+                if z < n_1:
+                    _edges += [n0(x, y, z), n0(x, y, z + 1)]
+
+                if x < n_1 and y < n_1:
+                    _edges += [n0(x + 1, y, z), n0(x, y + 1, z)]
+                if y < n_1 and z < n_1:
+                    _edges += [n0(x, y + 1, z), n0(x, y, z + 1)]
+                if x < n_1 and z < n_1:
+                    _edges += [n0(x, y, z + 1), n0(x + 1, y, z)]
 
     _edges = np.array(_edges)
     _edges = _edges.reshape((_edges.shape[0] // 2, 2))
@@ -56,30 +59,31 @@ if __name__ == '__main__':
 
     nodes, edges = prepare_geometry()
     middle = n // 2
-    forces = {n0(middle, middle, 1): [0, 0, 30]}
+    forces = {n0(middle, middle, n_1): [0, 0, 3000]}
     centers = nodes[sorted(forces.keys())]
     arrows = np.array(list(dict(sorted(forces.items())).values()))
 
     check_conflicts(fixes, forces)
     K, F = prepare_equation(nodes, edges, fixes, forces)
-    print(K.todense())
-    det = np.linalg.det(K.todense())
-    print(f'det: {det}')
-    if det:
-        X = spsolve(K, F)
-        diff = K.dot(X) - F.toarray().flatten()
-        print(f'precision: {diff.dot(diff)}')
+    # print(K.todense())
+    # det = np.linalg.det(K.todense())
+    # print(f'det: {det}')
 
-        results = prepare_results(X, nodes, fixes, forces)
+    X = spsolve(K, F)
+    diff = K.dot(X) - F.toarray().flatten()
+    # print(f'precision: {diff.dot(diff)}')
 
-    print(nodes)
-    print(edges)
+    results = prepare_results(X, nodes, fixes, forces)
+
+    # print(nodes)
+    # print(results)
+    # print(edges)
 
     pl = pv.Plotter()
 
-    pl.add_points(nodes, color='darkblue', point_size=6)
-    pl.add_lines(nodes[np.hstack(edges)], color='lightgrey', width=1)
-    pl.add_arrows(centers, arrows, color='red', mag=0.02, line_width=2)
+    pl.add_points(results, color='darkblue', point_size=6)
+    pl.add_lines(results[np.hstack(edges)], color='lightgrey', width=1)
+    pl.add_arrows(centers, arrows, color='red', mag=0.0007, line_width=2)
 
     pl.add_axes()
     pl.camera_position = 'xy'
