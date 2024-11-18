@@ -9,9 +9,9 @@ from main.transform import check_conflicts, prepare_equation, prepare_results
 
 np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
 
-nx = 9
+nx = 3
 nx_1 = nx - 1
-ny = 9
+ny = 2
 ny_1 = ny - 1
 nz = 2
 nz_1 = nz - 1
@@ -19,7 +19,7 @@ w = .5
 h = sqrt(3) / 2
 
 
-def n0(x: int, y: int, z: int):
+def n0(x: int, y: int, z: int) -> int:
     return (x * ny * nz) + (y * nz) + z
 
 
@@ -29,7 +29,8 @@ def prepare_geometry():
     for x in range(nx):
         for y in range(ny):
             for z in range(nz):
-                _nodes[n0(x, y, z)] = [x + w * y + w * z, y * h + w * z, z * h]
+                _nodes[n0(x, y, z)] = [x, y, z]
+                # _nodes[n0(x, y, z)] = [x + w * y + w * z, y * h + w * z, z * h]
 
     _edges = []
 
@@ -53,18 +54,18 @@ def prepare_geometry():
     _edges = np.array(_edges)
     _edges = _edges.reshape((_edges.shape[0] // 2, 2))
 
-    return _nodes, _edges
+    _fixes = {}
+
+    for x in range(nx):
+        for y in range(ny):
+            if x in (0, nx_1) or y in (0, ny_1):
+                _fixes[n0(x, y, 0)] = [1, 1, 1]
+
+    return _nodes, _edges, _fixes
 
 
 if __name__ == '__main__':
-    fixes = {
-        n0(0, 0, 0): [1, 1, 1],
-        n0(0, ny_1, 0): [1, 0, 1],
-        n0(nx_1, 0, 0): [1, 0, 1],
-        n0(nx_1, ny_1, 0): [1, 0, 1],
-    }
-
-    nodes, edges = prepare_geometry()
+    nodes, edges, fixes = prepare_geometry()
     mx = nx // 2
     my = ny // 2
     forces = {n0(mx, my, 0): [0, 0, 2000]}
@@ -89,7 +90,7 @@ if __name__ == '__main__':
 
     pl = pv.Plotter()
 
-    pl.add_points(results, color='darkblue', point_size=6)
+    pl.add_points(results[sorted(fixes.keys())], color='darkblue', point_size=6)
     pl.add_lines(results[np.hstack(edges)], color='lightgrey', width=1)
     pl.add_arrows(centers, arrows, color='red', mag=0.0007, line_width=2)
 
