@@ -1,22 +1,18 @@
 import sys
-from math import sqrt
 
 import numpy as np
 import pyvista as pv
-from scipy.sparse.linalg import spsolve
 
-from main.transform import check_conflicts, prepare_equation, prepare_results
+from main.transform import check_conflicts, prepare_equation
 
 np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
 
-nx = 3
+nx = 7
 nx_1 = nx - 1
-ny = 2
+ny = 7
 ny_1 = ny - 1
-nz = 2
+nz = 3
 nz_1 = nz - 1
-w = .5
-h = sqrt(3) / 2
 
 
 def n0(x: int, y: int, z: int) -> int:
@@ -30,7 +26,6 @@ def prepare_geometry():
         for y in range(ny):
             for z in range(nz):
                 _nodes[n0(x, y, z)] = [x, y, z]
-                # _nodes[n0(x, y, z)] = [x + w * y + w * z, y * h + w * z, z * h]
 
     _edges = []
 
@@ -45,11 +40,10 @@ def prepare_geometry():
                     _edges += [n0(x, y, z), n0(x, y, z + 1)]
 
                 if x < nx_1 and y < ny_1:
-                    _edges += [n0(x + 1, y, z), n0(x, y + 1, z)]
-                if y < ny_1 and z < nz_1:
-                    _edges += [n0(x, y + 1, z), n0(x, y, z + 1)]
-                if x < nx_1 and z < nz_1:
-                    _edges += [n0(x, y, z + 1), n0(x + 1, y, z)]
+                    if (z % 2 == 0) != (x % 2 == y % 2):
+                        _edges += [n0(x, y, z), n0(x + 1, y + 1, z)]
+                    if (z % 2 == 1) == (x % 2 != y % 2):
+                        _edges += [n0(x + 1, y, z), n0(x, y + 1, z)]
 
     _edges = np.array(_edges)
     _edges = _edges.reshape((_edges.shape[0] // 2, 2))
@@ -78,11 +72,12 @@ if __name__ == '__main__':
     # det = np.linalg.det(K.todense())
     # print(f'det: {det}')
 
-    X = spsolve(K, F)
-    diff = K.dot(X) - F.toarray().flatten()
-    print(f'precision: {diff.dot(diff)}')
-
-    results = prepare_results(X, nodes, fixes, forces)
+    # X = spsolve(K, F)
+    # diff = K.dot(X) - F.toarray().flatten()
+    # print(f'precision: {diff.dot(diff)}')
+    #
+    # results = prepare_results(X, nodes, fixes, forces)
+    results = nodes
 
     # print(nodes)
     # print(results)
