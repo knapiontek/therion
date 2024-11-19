@@ -2,17 +2,14 @@ import sys
 
 import numpy as np
 import pyvista as pv
+from scipy.sparse.linalg import spsolve
 
-from main.transform import check_conflicts, prepare_equation
+from main.transform import check_conflicts, prepare_equation, prepare_results
 
 np.set_printoptions(precision=2, suppress=True, threshold=sys.maxsize, linewidth=sys.maxsize)
 
-nx = 7
-nx_1 = nx - 1
-ny = 7
-ny_1 = ny - 1
-nz = 3
-nz_1 = nz - 1
+nx, ny, nz = 9, 9, 3
+nx_1, ny_1, nz_1 = nx - 1, ny - 1, nz - 1
 
 
 def n0(x: int, y: int, z: int) -> int:
@@ -39,11 +36,20 @@ def prepare_geometry():
                 if z < nz_1:
                     _edges += [n0(x, y, z), n0(x, y, z + 1)]
 
-                if x < nx_1 and y < ny_1:
-                    if (z % 2 == 0) != (x % 2 == y % 2):
+                if (z % 2 == 0) != (x % 2 == y % 2):
+                    if x < nx_1 and y < ny_1:
                         _edges += [n0(x, y, z), n0(x + 1, y + 1, z)]
-                    if (z % 2 == 1) == (x % 2 != y % 2):
+                    if x < nx_1 and z < nz_1:
+                        _edges += [n0(x, y, z), n0(x + 1, y, z + 1)]
+                    if y < ny_1 and z < nz_1:
+                        _edges += [n0(x, y, z), n0(x, y + 1, z + 1)]
+                else:
+                    if x < nx_1 and y < ny_1:
                         _edges += [n0(x + 1, y, z), n0(x, y + 1, z)]
+                    if x < nx_1 and z < nz_1:
+                        _edges += [n0(x + 1, y, z), n0(x, y, z + 1)]
+                    if y < ny_1 and z < nz_1:
+                        _edges += [n0(x, y + 1, z), n0(x, y, z + 1)]
 
     _edges = np.array(_edges)
     _edges = _edges.reshape((_edges.shape[0] // 2, 2))
@@ -62,7 +68,7 @@ if __name__ == '__main__':
     nodes, edges, fixes = prepare_geometry()
     mx = nx // 2
     my = ny // 2
-    forces = {n0(mx, my, 0): [0, 0, 2000]}
+    forces = {n0(mx, my, 1): [0, 0, 8000]}
     centers = nodes[sorted(forces.keys())]
     arrows = np.array(list(dict(sorted(forces.items())).values()))
 
@@ -72,12 +78,11 @@ if __name__ == '__main__':
     # det = np.linalg.det(K.todense())
     # print(f'det: {det}')
 
-    # X = spsolve(K, F)
+    X = spsolve(K, F)
     # diff = K.dot(X) - F.toarray().flatten()
     # print(f'precision: {diff.dot(diff)}')
     #
-    # results = prepare_results(X, nodes, fixes, forces)
-    results = nodes
+    results = prepare_results(X, nodes, fixes, forces)
 
     # print(nodes)
     # print(results)
