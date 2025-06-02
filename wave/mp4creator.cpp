@@ -15,7 +15,29 @@ Mp4Creator::Mp4Creator()
 
 }
 
-void Mp4Creator::init(int width, int height)
+Mp4Creator::~Mp4Creator()
+{
+    if (packet) {
+        av_packet_free(&packet);
+    }
+    if (frame) {
+        av_frame_free(&frame);
+    }
+    if (swsCtx) {
+        sws_freeContext(swsCtx);
+    }
+    if (codecCtx) {
+        avcodec_free_context(&codecCtx);
+    }
+    if (!(formatCtx->oformat->flags & AVFMT_NOFILE) && formatCtx->pb) {
+        avio_closep(&formatCtx->pb);
+    }
+    if (formatCtx) {
+        avformat_free_context(formatCtx);
+    }
+}
+
+void Mp4Creator::begin(int width, int height)
 {
     const char *filename = "output.mp4";
 
@@ -98,10 +120,14 @@ void Mp4Creator::init(int width, int height)
     }
 }
 
-void Mp4Creator::addFrame(const QImage &image) {
-    QImage rgbImage = image.convertToFormat(QImage::Format_RGB888);
-    uint8_t *inData[1] = {(uint8_t *) rgbImage.bits()};
-    int inLinesize[1] = {(int) rgbImage.bytesPerLine()};
+void Mp4Creator::addFrame(const QImage &image)
+{
+    if (image.format() != QImage::Format_RGB888) {
+        throw std::runtime_error("expected image format: QImage::Format_RGB888");
+    }
+
+    uint8_t *inData[1] = {(uint8_t *) image.bits()};
+    int inLinesize[1] = {(int) image.bytesPerLine()};
 
     sws_scale(swsCtx, inData, inLinesize, 0, codecCtx->height, frame->data, frame->linesize);
 
@@ -118,9 +144,8 @@ void Mp4Creator::addFrame(const QImage &image) {
     }
 }
 
-void Mp4Creator::destroy()
+void Mp4Creator::end()
 {
-    // flush
     avcodec_send_frame(codecCtx, nullptr);
     while (avcodec_receive_packet(codecCtx, packet) == 0) {
         packet->stream_index = stream->index;
@@ -129,23 +154,4 @@ void Mp4Creator::destroy()
     }
 
     av_write_trailer(formatCtx);
-
-    if (packet) {
-        av_packet_free(&packet);
-    }
-    if (frame) {
-        av_frame_free(&frame);
-    }
-    if (swsCtx) {
-        sws_freeContext(swsCtx);
-    }
-    if (codecCtx) {
-        avcodec_free_context(&codecCtx);
-    }
-    if (!(formatCtx->oformat->flags & AVFMT_NOFILE) && formatCtx->pb) {
-        avio_closep(&formatCtx->pb);
-    }
-    if (formatCtx) {
-        avformat_free_context(formatCtx);
-    }
 }

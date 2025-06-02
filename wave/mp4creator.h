@@ -14,8 +14,9 @@ class Mp4Creator
 {
 public:
     Mp4Creator();
-    void init(int width, int height);
-    void destroy();
+    ~Mp4Creator();
+    void begin(int width, int height);
+    void end();
     void addFrame(const QImage &image);
 private:
     AVFormatContext *formatCtx;

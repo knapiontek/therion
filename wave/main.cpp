@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     int count = 2000;
 
     Mp4Creator mp4Creator;
-    mp4Creator.init(width, height);
+    mp4Creator.begin(width, height);
 
     QPen pen5(Qt::white);
     pen5.setWidth(5);
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         mp4Creator.addFrame(image);
     }
 
-    mp4Creator.destroy();
+    mp4Creator.end();
 
     MainWindow w;
     w.show();
