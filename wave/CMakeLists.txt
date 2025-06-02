@@ -5,18 +5,29 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
+include_directories("C:/dev/ffmpeg/include")
+link_directories("C:/dev/ffmpeg/lib")
+
 qt_add_executable(wave
     WIN32 MACOSX_BUNDLE
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    mp4creator.h mp4creator.cpp
 )
 
 target_link_libraries(wave
     PRIVATE
-        Qt::Core
-        Qt::Widgets
+    Qt::Core
+    Qt::Widgets
+    avcodec
+    avdevice
+    avfilter
+    avformat
+    avutil
+    swresample
+    swscale
 )
 
 include(GNUInstallDirs)
