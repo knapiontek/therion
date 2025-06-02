@@ -15,10 +15,8 @@ class Mp4Creator
 public:
     Mp4Creator();
     void init(int width, int height);
-    void addFrame(const QImage &image);
-private:
-    void init();
     void destroy();
+    void addFrame(const QImage &image);
 private:
     AVFormatContext *formatCtx;
     AVCodecContext *codecCtx;
