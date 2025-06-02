@@ -88,6 +88,26 @@ void Mp4Creator::init(int width, int height)
     packet = av_packet_alloc();
 }
 
+void Mp4Creator::addFrame(const QImage &image) {
+    QImage rgbImage = image.convertToFormat(QImage::Format_RGB888);
+    uint8_t *inData[1] = {(uint8_t *) rgbImage.bits()};
+    int inLinesize[1] = {(int) rgbImage.bytesPerLine()};
+
+    sws_scale(swsCtx, inData, inLinesize, 0, codecCtx->height, frame->data, frame->linesize);
+
+    frame->pts = pts += 100000;
+
+    if (avcodec_send_frame(codecCtx, frame) < 0) {
+        throw std::runtime_error("Error sending frame to encoder");
+    }
+
+    while (avcodec_receive_packet(codecCtx, packet) == 0) {
+        packet->stream_index = stream->index;
+        av_interleaved_write_frame(formatCtx, packet);
+        av_packet_unref(packet);
+    }
+}
+
 void Mp4Creator::destroy()
 {
     // flush

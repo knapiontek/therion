@@ -1,6 +1,8 @@
 #ifndef MP4CREATOR_H
 #define MP4CREATOR_H
 
+#include <QImage>
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -13,6 +15,7 @@ class Mp4Creator
 public:
     Mp4Creator();
     void init(int width, int height);
+    void addFrame(const QImage &image);
 private:
     void init();
     void destroy();
