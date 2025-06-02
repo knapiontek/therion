@@ -22,25 +22,28 @@ int main(int argc, char *argv[])
     QPen pen3(Qt::white);
     pen3.setWidth(3);
 
+    QPainter painter;
+
     for (int i = 0; i < count; ++i) {
         QImage image(width, height, QImage::Format_RGB888);
         image.fill(QColor::fromHsv(255, 255, 255));
 
-        QPainter painter(&image);
-        painter.setFont(QFont("Arial", 20));
-        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i+1));
+        painter.begin(&image);
 
         double p5 = (double)i/10 + 0.5;
         painter.setPen(pen5);
-        painter.drawPoint(220 * cos(p5) + 512, 170 * sin(p5) + 384);
+        painter.drawPoint(320 * cos(p5) + 512, 270 * sin(p5) + 384);
 
         double p3 = (double)i/10 + 0.3;
         painter.setPen(pen4);
-        painter.drawPoint(220 * cos(p3) + 512, 170 * sin(p3) + 384);
+        painter.drawPoint(320 * cos(p3) + 512, 270 * sin(p3) + 384);
 
         double p1 = (double)i/10 + 0.1;
         painter.setPen(pen3);
-        painter.drawPoint(220 * cos(p1) + 512, 170 * sin(p1) + 384);
+        painter.drawPoint(320 * cos(p1) + 512, 270 * sin(p1) + 384);
+
+        painter.setFont(QFont("Arial", 20));
+        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i+1));
 
         painter.end();
 
