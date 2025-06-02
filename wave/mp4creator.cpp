@@ -4,9 +4,9 @@
 
 Mp4Creator::Mp4Creator()
     : formatCtx(nullptr)
-    , codecCtx(nullptr)
     , codec(nullptr)
     , stream(nullptr)
+    , codecCtx(nullptr)
     , swsCtx(nullptr)
     , frame(nullptr)
     , packet(nullptr)
@@ -105,7 +105,7 @@ void Mp4Creator::addFrame(const QImage &image) {
 
     sws_scale(swsCtx, inData, inLinesize, 0, codecCtx->height, frame->data, frame->linesize);
 
-    frame->pts = pts += 100000;
+    frame->pts = pts += 1000;
 
     if (avcodec_send_frame(codecCtx, frame) < 0) {
         throw std::runtime_error("Error sending frame to encoder");

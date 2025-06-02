@@ -19,9 +19,9 @@ public:
     void addFrame(const QImage &image);
 private:
     AVFormatContext *formatCtx;
-    AVCodecContext *codecCtx;
     const AVCodec *codec;
     AVStream *stream;
+    AVCodecContext *codecCtx;
     SwsContext *swsCtx;
     AVFrame *frame;
     AVPacket *packet;
