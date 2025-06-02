@@ -77,8 +77,15 @@ void Mp4Creator::init(int width, int height)
                             nullptr,
                             nullptr,
                             nullptr);
+    if (!swsCtx) {
+        throw std::runtime_error("fail to create swsCtx");
+    }
 
     frame = av_frame_alloc();
+    if (!frame) {
+        throw std::runtime_error("fail to create frame");
+    }
+
     frame->format = AV_PIX_FMT_YUV420P;
     frame->width = width;
     frame->height = height;
@@ -86,6 +93,9 @@ void Mp4Creator::init(int width, int height)
     av_frame_get_buffer(frame, 32);
 
     packet = av_packet_alloc();
+    if (!packet) {
+        throw std::runtime_error("fail to create packet");
+    }
 }
 
 void Mp4Creator::addFrame(const QImage &image) {
@@ -120,11 +130,22 @@ void Mp4Creator::destroy()
 
     av_write_trailer(formatCtx);
 
-    av_packet_free(&packet);
-    av_frame_free(&frame);
-    sws_freeContext(swsCtx);
-    avcodec_free_context(&codecCtx);
-    if (!(formatCtx->oformat->flags & AVFMT_NOFILE))
+    if (packet) {
+        av_packet_free(&packet);
+    }
+    if (frame) {
+        av_frame_free(&frame);
+    }
+    if (swsCtx) {
+        sws_freeContext(swsCtx);
+    }
+    if (codecCtx) {
+        avcodec_free_context(&codecCtx);
+    }
+    if (!(formatCtx->oformat->flags & AVFMT_NOFILE) && formatCtx->pb) {
         avio_closep(&formatCtx->pb);
-    avformat_free_context(formatCtx);
+    }
+    if (formatCtx) {
+        avformat_free_context(formatCtx);
+    }
 }
