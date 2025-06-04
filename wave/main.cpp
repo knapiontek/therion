@@ -1,9 +1,9 @@
+#include "mainwindow.h"
 #include "mp4creator.h"
 
 #include <QApplication>
-#include <QMediaPlayer>
 #include <QPainter>
-#include <QVideoWidget>
+#include <QPen>
 
 int solve();
 void populate_equation();
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     solve();
     populate_equation();
 
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     int width = 1024;
     int height = 768;
@@ -59,18 +59,10 @@ int main(int argc, char *argv[])
 
     mp4Creator.end();
 
-    QMediaPlayer *player = new QMediaPlayer;
-    QVideoWidget *videoWidget = new QVideoWidget;
+    MainWindow videoWidget;
+    videoWidget.setWindowTitle("Fiber of Space");
+    videoWidget.resize(width, height);
+    videoWidget.show();
 
-    player->setVideoOutput(videoWidget);
-
-    player->setSource(QUrl::fromLocalFile("output.mp4"));
-
-    videoWidget->setWindowTitle("Fiber of Space");
-    videoWidget->resize(width, height);
-    videoWidget->show();
-
-    player->play();
-
-    return a.exec();
+    return app.exec();
 }
