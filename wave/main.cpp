@@ -1,4 +1,3 @@
-#include "mainwindow.h"
 #include "mp4creator.h"
 
 #include <QApplication>

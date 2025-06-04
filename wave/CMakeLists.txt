@@ -13,9 +13,6 @@ qt_add_executable(
     wave
     WIN32 MACOSX_BUNDLE
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
     mp4creator.h mp4creator.cpp
     eigensolve.cpp
     fem.cpp
