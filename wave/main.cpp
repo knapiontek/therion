@@ -4,8 +4,12 @@
 #include <QApplication>
 #include <QPainter>
 
+int solve();
+
 int main(int argc, char *argv[])
 {
+    solve();
+
     QApplication a(argc, argv);
 
     int width = 1024;

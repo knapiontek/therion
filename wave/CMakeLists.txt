@@ -5,6 +5,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
+include_directories("C:/dev/eigen")
 include_directories("C:/dev/ffmpeg/include")
 link_directories("C:/dev/ffmpeg/lib")
 
@@ -15,6 +16,7 @@ qt_add_executable(wave
     mainwindow.h
     mainwindow.ui
     mp4creator.h mp4creator.cpp
+    solve.cpp
 )
 
 target_link_libraries(wave
