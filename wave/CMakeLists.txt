@@ -16,7 +16,8 @@ qt_add_executable(wave
     mainwindow.h
     mainwindow.ui
     mp4creator.h mp4creator.cpp
-    solve.cpp
+    eigensolve.cpp
+    fem.cpp
 )
 
 target_link_libraries(wave

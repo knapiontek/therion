@@ -18,6 +18,7 @@ public:
     void begin(int width, int height);
     void end();
     void addFrame(const QImage &image);
+
 private:
     AVFormatContext *formatCtx;
     const AVCodec *codec;

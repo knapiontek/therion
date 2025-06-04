@@ -1,10 +1,11 @@
-#include <iostream>
 #include <Eigen/Dense>
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-void solve() {
+void solve()
+{
     MatrixXd m = MatrixXd::Random(3, 3);
     m = (m + MatrixXd::Constant(3, 3, 1.2)) * 50;
     std::cout << "m =" << std::endl << m << std::endl;

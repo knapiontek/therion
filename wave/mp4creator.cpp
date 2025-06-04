@@ -11,9 +11,7 @@ Mp4Creator::Mp4Creator()
     , frame(nullptr)
     , packet(nullptr)
     , pts(0)
-{
-
-}
+{}
 
 Mp4Creator::~Mp4Creator()
 {

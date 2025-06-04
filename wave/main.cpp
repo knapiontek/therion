@@ -5,10 +5,12 @@
 #include <QPainter>
 
 int solve();
+void populate_equation();
 
 int main(int argc, char *argv[])
 {
     solve();
+    populate_equation();
 
     QApplication a(argc, argv);
 
@@ -34,20 +36,20 @@ int main(int argc, char *argv[])
 
         painter.begin(&image);
 
-        double p5 = (double)i/10 + 0.5;
+        double p5 = (double) i / 10 + 0.5;
         painter.setPen(pen5);
         painter.drawPoint(320 * cos(p5) + 512, 270 * sin(p5) + 384);
 
-        double p3 = (double)i/10 + 0.3;
+        double p3 = (double) i / 10 + 0.3;
         painter.setPen(pen4);
         painter.drawPoint(320 * cos(p3) + 512, 270 * sin(p3) + 384);
 
-        double p1 = (double)i/10 + 0.1;
+        double p1 = (double) i / 10 + 0.1;
         painter.setPen(pen3);
         painter.drawPoint(320 * cos(p1) + 512, 270 * sin(p1) + 384);
 
         painter.setFont(QFont("Arial", 20));
-        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i+1));
+        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));
 
         painter.end();
 
