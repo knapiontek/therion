@@ -9,7 +9,8 @@ include_directories("C:/dev/eigen")
 include_directories("C:/dev/ffmpeg/include")
 link_directories("C:/dev/ffmpeg/lib")
 
-qt_add_executable(wave
+qt_add_executable(
+    wave
     WIN32 MACOSX_BUNDLE
     main.cpp
     mainwindow.cpp
@@ -20,10 +21,20 @@ qt_add_executable(wave
     fem.cpp
 )
 
-target_link_libraries(wave
+find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS
+    Core
+    Widgets
+    Multimedia
+    MultimediaWidgets
+)
+
+target_link_libraries(
+    wave
     PRIVATE
     Qt::Core
     Qt::Widgets
+    Qt::Multimedia
+    Qt::MultimediaWidgets
     avcodec
     avdevice
     avfilter

@@ -2,7 +2,9 @@
 #include "mp4creator.h"
 
 #include <QApplication>
+#include <QMediaPlayer>
 #include <QPainter>
+#include <QVideoWidget>
 
 int solve();
 void populate_equation();
@@ -16,7 +18,7 @@ int main(int argc, char *argv[])
 
     int width = 1024;
     int height = 768;
-    int count = 2000;
+    int count = 100;
 
     Mp4Creator mp4Creator;
     mp4Creator.begin(width, height);
@@ -58,8 +60,18 @@ int main(int argc, char *argv[])
 
     mp4Creator.end();
 
-    MainWindow w;
-    w.show();
+    QMediaPlayer *player = new QMediaPlayer;
+    QVideoWidget *videoWidget = new QVideoWidget;
+
+    player->setVideoOutput(videoWidget);
+
+    player->setSource(QUrl::fromLocalFile("output.mp4"));
+
+    videoWidget->setWindowTitle("Simple MP4 Player");
+    videoWidget->resize(800, 600);
+    videoWidget->show();
+
+    player->play();
 
     return a.exec();
 }
