@@ -15,7 +15,7 @@ class Mp4Creator
 public:
     Mp4Creator();
     ~Mp4Creator();
-    void begin(int width, int height);
+    void begin(const char *filename, int width, int height);
     void end();
     void addFrame(const QImage &image);
 

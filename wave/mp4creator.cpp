@@ -27,7 +27,7 @@ Mp4Creator::~Mp4Creator()
     if (codecCtx) {
         avcodec_free_context(&codecCtx);
     }
-    if (!(formatCtx->oformat->flags & AVFMT_NOFILE) && formatCtx->pb) {
+    if (formatCtx->pb) {
         avio_closep(&formatCtx->pb);
     }
     if (formatCtx) {
@@ -35,10 +35,8 @@ Mp4Creator::~Mp4Creator()
     }
 }
 
-void Mp4Creator::begin(int width, int height)
+void Mp4Creator::begin(const char *filename, int width, int height)
 {
-    const char *filename = "output.mp4";
-
     avformat_network_init();
 
     avformat_alloc_output_context2(&formatCtx, nullptr, "mp4", filename);
@@ -76,10 +74,8 @@ void Mp4Creator::begin(int width, int height)
 
     avcodec_parameters_from_context(stream->codecpar, codecCtx);
 
-    if (!(formatCtx->oformat->flags & AVFMT_NOFILE)) {
-        if (avio_open(&formatCtx->pb, filename, AVIO_FLAG_WRITE) < 0) {
-            throw std::runtime_error("fail to open output file");
-        }
+    if (avio_open(&formatCtx->pb, filename, AVIO_FLAG_WRITE) < 0) {
+        throw std::runtime_error("fail to open output file");
     }
 
     int ret = avformat_write_header(formatCtx, nullptr);

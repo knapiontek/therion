@@ -15,12 +15,13 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
+    const char *filename = "output.mp4";
     int width = 1024;
     int height = 768;
     int count = 100;
 
     Mp4Creator mp4Creator;
-    mp4Creator.begin(width, height);
+    mp4Creator.begin(filename, width, height);
 
     QPen pen5(Qt::white);
     pen5.setWidth(5);
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
 
     mp4Creator.end();
 
-    MainWindow videoWidget;
+    MainWindow videoWidget(filename);
     videoWidget.setWindowTitle("Fiber of Space");
     videoWidget.resize(width, height);
     videoWidget.show();

@@ -12,14 +12,14 @@
 class MainWindow : public QMainWindow
 {
 public:
-    MainWindow(QWidget *parent = nullptr)
-        : QMainWindow(parent)
+    MainWindow(const char *filename)
+        : QMainWindow()
     {
         videoWidget = new QVideoWidget(this);
         player = new QMediaPlayer(this);
 
         player->setVideoOutput(videoWidget);
-        player->setSource(QUrl::fromLocalFile("output.mp4"));
+        player->setSource(QUrl::fromLocalFile(filename));
         player->play();
 
         setCentralWidget(videoWidget);
