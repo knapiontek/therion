@@ -89,10 +89,12 @@ void populate_equation()
         const Point3D& point2 = point_list[element.p2];
         const Point3D& fix1 = fix_list[element.p1];
         const Point3D& fix2 = fix_list[element.p2];
+
         int p1x = 2 * element.p1 + 0;
         int p1y = 2 * element.p1 + 1;
         int p2x = 2 * element.p2 + 0;
         int p2y = 2 * element.p2 + 1;
+
         double dx = point2.x - point1.x;
         double dy = point2.y - point1.y;
         double l = sqrt(dx * dx + dy * dy);
