@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
 
     player->setSource(QUrl::fromLocalFile("output.mp4"));
 
-    videoWidget->setWindowTitle("Simple MP4 Player");
-    videoWidget->resize(800, 600);
+    videoWidget->setWindowTitle("Fiber of Space");
+    videoWidget->resize(width, height);
     videoWidget->show();
 
     player->play();
