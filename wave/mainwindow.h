@@ -22,11 +22,7 @@ public:
         player->setSource(QUrl::fromLocalFile("output.mp4"));
         player->play();
 
-        QWidget *central = new QWidget(this);
-        QVBoxLayout *layout = new QVBoxLayout(central);
-        layout->addWidget(videoWidget);
-        central->setLayout(layout);
-        setCentralWidget(central);
+        setCentralWidget(videoWidget);
     }
 
     ~MainWindow() override { stopMedia(); }
