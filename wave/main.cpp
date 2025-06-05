@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
     int count = 100;
 
     Mp4Creator mp4Creator;
-    auto capture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
+    auto imageCapture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
 
     mp4Creator.begin(filename, width, height);
-    charge(width, height, capture);
-    spinningSnake(width, height, count, capture);
+    charge(width, height, imageCapture);
+    spinningSnake(width, height, count, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);
