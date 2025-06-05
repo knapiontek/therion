@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef VIDEOWINDOW_H
+#define VIDEOWINDOW_H
 
 #include <QCloseEvent>
 #include <QMainWindow>
@@ -9,10 +9,10 @@
 #include <QVBoxLayout>
 #include <QVideoWidget>
 
-class MainWindow : public QMainWindow
+class VideoWindow : public QMainWindow
 {
 public:
-    MainWindow(const char *filename)
+    VideoWindow(const char *filename)
         : QMainWindow()
     {
         videoWidget = new QVideoWidget(this);
@@ -25,7 +25,7 @@ public:
         setCentralWidget(videoWidget);
     }
 
-    ~MainWindow() override { stopMedia(); }
+    ~VideoWindow() override { stopMedia(); }
 
 public slots:
     void stopMedia()
@@ -34,7 +34,7 @@ public slots:
             if (player->playbackState() == QMediaPlayer::PlayingState) {
                 player->stop();
             }
-            player->setSource(QUrl()); // Clear media
+            player->setSource(QUrl());
             player->deleteLater();
         }
     }
@@ -51,4 +51,4 @@ private:
     QVideoWidget *videoWidget;
 };
 
-#endif // MAINWINDOW_H
+#endif // VIDEOWINDOW_H

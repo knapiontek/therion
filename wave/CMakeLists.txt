@@ -16,7 +16,7 @@ qt_add_executable(
     mp4creator.h mp4creator.cpp
     eigensolve.cpp
     fem.cpp
-    mainwindow.h
+    videowindow.h
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS
