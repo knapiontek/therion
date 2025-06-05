@@ -17,6 +17,7 @@ qt_add_executable(
     eigensolve.cpp
     fem.cpp
     videowindow.h
+    spin.cpp
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS
