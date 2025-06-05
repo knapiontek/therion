@@ -4,14 +4,17 @@
 #include <QApplication>
 #include <QPainter>
 #include <QPen>
+#include <functional>
 
 int solve();
 void populate_equation();
 
-void generateImages(int width, int height, int count, Mp4Creator &mp4Creator)
+using ImageCapture = std::function<void(const QImage &)>;
+
+void generateImages(int width, int height, int count, ImageCapture capture)
 {
-    int midWidth = 1024 / 2;
-    int midHeight = 768 / 2;
+    int midWidth = width >> 1;
+    int midHeight = height >> 1;
 
     QPen pen5(Qt::black);
     pen5.setWidth(5);
@@ -44,7 +47,8 @@ void generateImages(int width, int height, int count, Mp4Creator &mp4Creator)
         painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));
 
         painter.end();
-        mp4Creator.addFrame(image);
+
+        capture(image);
     }
 }
 
@@ -62,7 +66,9 @@ int main(int argc, char *argv[])
 
     Mp4Creator mp4Creator;
     mp4Creator.begin(filename, width, height);
-    generateImages(width, height, count, mp4Creator);
+    generateImages(width, height, count, [&mp4Creator](const QImage &image) {
+        mp4Creator.addFrame(image);
+    });
     mp4Creator.end();
 
     VideoWindow window(filename);
