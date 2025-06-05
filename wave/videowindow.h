@@ -21,6 +21,7 @@ public:
         player->setVideoOutput(videoWidget);
         player->setSource(QUrl::fromLocalFile(filename));
         player->play();
+        player->pause();
 
         setCentralWidget(videoWidget);
     }
