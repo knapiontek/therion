@@ -51,9 +51,15 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
 
     for (int h = 0; h < sizeH - 1; h++) {
         for (int v = 0; v < sizeV - 1; v++) {
-            int p1 = v * sizeH + h;
-            int p2 = (v + 1) * sizeH + h + 1;
-            mesh.elementSeq.append(Element{p1, p2});
+            if (v % 2 == 0) {
+                int p1 = v * sizeH + h;
+                int p2 = (v + 1) * sizeH + h + 1;
+                mesh.elementSeq.append(Element{p1, p2});
+            } else {
+                int p1 = (v + 1) * sizeH + h;
+                int p2 = v * sizeH + h + 1;
+                mesh.elementSeq.append(Element{p1, p2});
+            }
         }
     }
 }
