@@ -1,11 +1,10 @@
 #include <cmath>
 
-struct Point3D
+struct Point2D
 {
     double x, y;
 };
 
-// indices of first and second end of an element
 struct Element
 {
     int p1, p2;
@@ -15,7 +14,7 @@ const int point_no = 4;
 const int element_no = 6;
 
 // geometry nodes
-const Point3D point_list[point_no] = {
+const Point2D point_list[point_no] = {
     {-2.0, -2.0}, // 0
     {-2.0, 2.0},  // 1
     {2.5, -2.0},  // 2
@@ -33,7 +32,7 @@ const Element element_list[element_no] = {
 };
 
 // fixed point displacement list, boolean values
-Point3D fix_list[point_no] = {
+Point2D fix_list[point_no] = {
     {1, 0}, // 0
     {1, 0}, // 1
     {0, 0}, // 2
@@ -41,7 +40,7 @@ Point3D fix_list[point_no] = {
 };
 
 // forces attached to coresponding points
-Point3D force_list[point_no] = {
+Point2D force_list[point_no] = {
     {0.0, 0.0},  // 0
     {0.0, 0.0},  // 1
     {0.0, 30.0}, // 2
@@ -49,7 +48,7 @@ Point3D force_list[point_no] = {
 };
 
 // displaced points
-Point3D output_list[point_no] = {
+Point2D output_list[point_no] = {
     {0.0, 0.0}, // 0
     {0.0, 0.0}, // 1
     {0.0, 0.0}, // 2
@@ -64,8 +63,8 @@ void populate_equation()
 {
     // init F, K
     for (int i = 0; i < point_no; i++) {
-        const Point3D& fix = fix_list[i];
-        Point3D& force = force_list[i];
+        const Point2D& fix = fix_list[i];
+        Point2D& force = force_list[i];
         int px = 2 * i + 0;
         int py = 2 * i + 1;
 
@@ -85,10 +84,10 @@ void populate_equation()
     for (int i = 0; i < element_no; i++) {
         const double EA = 1000; // Young * Area
         const Element& element = element_list[i];
-        const Point3D& point1 = point_list[element.p1];
-        const Point3D& point2 = point_list[element.p2];
-        const Point3D& fix1 = fix_list[element.p1];
-        const Point3D& fix2 = fix_list[element.p2];
+        const Point2D& point1 = point_list[element.p1];
+        const Point2D& point2 = point_list[element.p2];
+        const Point2D& fix1 = fix_list[element.p1];
+        const Point2D& fix2 = fix_list[element.p2];
 
         int p1x = 2 * element.p1 + 0;
         int p1y = 2 * element.p1 + 1;
