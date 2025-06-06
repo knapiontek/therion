@@ -40,6 +40,22 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
             mesh.elementSeq.append(Element{p1, p2});
         }
     }
+
+    for (int h = 0; h < sizeH; h++) {
+        for (int v = 0; v < sizeV - 1; v++) {
+            int p1 = v * sizeH + h;
+            int p2 = (v + 1) * sizeH + h;
+            mesh.elementSeq.append(Element{p1, p2});
+        }
+    }
+
+    for (int h = 0; h < sizeH - 1; h++) {
+        for (int v = 0; v < sizeV - 1; v++) {
+            int p1 = v * sizeH + h;
+            int p2 = (v + 1) * sizeH + h + 1;
+            mesh.elementSeq.append(Element{p1, p2});
+        }
+    }
 }
 
 void charge(int width, int height, ImageCapture capture)
@@ -48,12 +64,13 @@ void charge(int width, int height, ImageCapture capture)
     image.fill(QColor::fromRgb(255, 255, 255));
 
     QPen redPen(Qt::red);
-    redPen.setWidth(3);
+    redPen.setWidth(2);
 
     QPen blackPen(Qt::black);
     blackPen.setWidth(1);
 
     QPainter painter;
+    painter.setRenderHint(QPainter::Antialiasing, true);
     painter.begin(&image);
 
     int sizeH = 40;
@@ -63,16 +80,16 @@ void charge(int width, int height, ImageCapture capture)
     Mesh mesh;
     buildMesh(mesh, sizeH, sizeV);
 
-    painter.setPen(redPen);
-    for (auto &p : mesh.pointSeq) {
-        painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
-    }
-
     painter.setPen(blackPen);
     for (auto &e : mesh.elementSeq) {
         auto &p1 = mesh.pointSeq[e.p1];
         auto &p2 = mesh.pointSeq[e.p2];
         painter.drawLine(unit * p1.x + 18, unit * p1.y + 18, unit * p2.x + 18, unit * p2.y + 18);
+    }
+
+    painter.setPen(redPen);
+    for (auto &p : mesh.pointSeq) {
+        painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
     }
 
     painter.end();
