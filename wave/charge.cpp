@@ -14,6 +14,7 @@ struct Element
 struct Mesh
 {
     QList<Point2D> pointSeq;
+    QList<int> fixSeq;
     QList<Element> elementSeq;
 };
 
@@ -31,6 +32,11 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
             double shiftH = v % 2 == 0 ? unitH : 0;
             mesh.pointSeq.append(Point2D{h * unit + shiftH, v * unitV});
         }
+    }
+
+    for (int i = 0; i < sizeV - 1; i++) {
+        mesh.fixSeq.append(i);
+        mesh.fixSeq.append((i + 1) * sizeH);
     }
 
     for (int v = 0; v < sizeV; v++) {
@@ -70,14 +76,17 @@ void charge(int width, int height, ImageCapture capture)
     image.fill(QColor::fromRgb(255, 255, 255));
 
     QPen redPen(Qt::red);
-    redPen.setWidth(2);
+    redPen.setWidth(3);
+
+    QPen greenPen(Qt::red);
+    greenPen.setWidth(2);
 
     QPen blackPen(Qt::black);
-    blackPen.setWidth(1);
+    blackPen.setWidthF(0.5);
 
     QPainter painter;
-    painter.setRenderHint(QPainter::Antialiasing, true);
     painter.begin(&image);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     int sizeH = 40;
     int sizeV = 35;
@@ -93,8 +102,14 @@ void charge(int width, int height, ImageCapture capture)
         painter.drawLine(unit * p1.x + 18, unit * p1.y + 18, unit * p2.x + 18, unit * p2.y + 18);
     }
 
+    // painter.setPen(greenPen);
+    // for (auto &p : mesh.pointSeq) {
+    //     painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
+    // }
+
     painter.setPen(redPen);
-    for (auto &p : mesh.pointSeq) {
+    for (auto &i : mesh.fixSeq) {
+        auto &p = mesh.pointSeq[i];
         painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
     }
 
