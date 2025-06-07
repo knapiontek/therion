@@ -78,7 +78,7 @@ void charge(int width, int height, ImageCapture capture)
     QPen redPen(Qt::red);
     redPen.setWidth(3);
 
-    QPen greenPen(Qt::red);
+    QPen greenPen(Qt::green);
     greenPen.setWidth(2);
 
     QPen blackPen(Qt::black);
@@ -102,10 +102,10 @@ void charge(int width, int height, ImageCapture capture)
         painter.drawLine(unit * p1.x + 18, unit * p1.y + 18, unit * p2.x + 18, unit * p2.y + 18);
     }
 
-    // painter.setPen(greenPen);
-    // for (auto &p : mesh.pointSeq) {
-    //     painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
-    // }
+    painter.setPen(greenPen);
+    for (auto &p : mesh.pointSeq) {
+        painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
+    }
 
     painter.setPen(redPen);
     for (auto &i : mesh.fixSeq) {
