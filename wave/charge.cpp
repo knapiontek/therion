@@ -2,6 +2,8 @@
 #include <QPen>
 #include "mesh.h"
 
+void populate(Mesh &mesh);
+
 void buildMesh(Mesh &mesh, int sizeH, int sizeV)
 {
     double unit = 1;
@@ -78,6 +80,7 @@ void charge(int width, int height, ImageCapture imageCapture)
 
     Mesh mesh;
     buildMesh(mesh, sizeH, sizeV);
+    populate(mesh);
 
     painter.setPen(blackPen);
     for (auto &e : mesh.elementSeq) {
