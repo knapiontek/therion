@@ -3,7 +3,7 @@
 
 using ImageCapture = std::function<void(const QImage &)>;
 
-void spinningSnake(int width, int height, int count, ImageCapture capture)
+void spinningSnake(int width, int height, int count, ImageCapture imageCapture)
 {
     auto scale = [&width, &height](double angle) {
         return QPointF(320 * cos(angle) + (width >> 1), 270 * sin(angle) + (height >> 1));
@@ -26,10 +26,8 @@ void spinningSnake(int width, int height, int count, ImageCapture capture)
 
         painter.setPen(pen5);
         painter.drawPoint(scale((double) i / 10 + 0.20));
-
         painter.setPen(pen4);
         painter.drawPoint(scale((double) i / 10 + 0.15));
-
         painter.setPen(pen3);
         painter.drawPoint(scale((double) i / 10 + 0.10));
 
@@ -38,6 +36,6 @@ void spinningSnake(int width, int height, int count, ImageCapture capture)
 
         painter.end();
 
-        capture(image);
+        imageCapture(image);
     }
 }

@@ -53,7 +53,7 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
 
 using ImageCapture = std::function<void(const QImage &)>;
 
-void charge(int width, int height, ImageCapture capture)
+void charge(int width, int height, ImageCapture imageCapture)
 {
     QImage image(width, height, QImage::Format_RGB888);
     image.fill(QColor::fromRgb(255, 255, 255));
@@ -100,5 +100,5 @@ void charge(int width, int height, ImageCapture capture)
     painter.end();
 
     image.save("sample.png");
-    capture(image);
+    imageCapture(image);
 }
