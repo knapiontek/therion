@@ -1,10 +1,11 @@
+#include "mesh.h"
 #include "mp4creator.h"
 #include "videowindow.h"
 
 #include <QApplication>
 
 int solve();
-void populate_equation();
+void populate(Mesh &mesh);
 using ImageCapture = std::function<void(const QImage &)>;
 void charge(int width, int height, ImageCapture imageCapture);
 void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
@@ -12,7 +13,9 @@ void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
 int main(int argc, char *argv[])
 {
     solve();
-    populate_equation();
+
+    Mesh mesh;
+    populate(mesh);
 
     QApplication app(argc, argv);
 
