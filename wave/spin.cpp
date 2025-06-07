@@ -5,8 +5,9 @@ using ImageCapture = std::function<void(const QImage &)>;
 
 void spinningSnake(int width, int height, int count, ImageCapture capture)
 {
-    int midWidth = width >> 1;
-    int midHeight = height >> 1;
+    auto scale = [&width, &height](double angle) {
+        return QPointF(320 * cos(angle) + (width >> 1), 270 * sin(angle) + (height >> 1));
+    };
 
     QPen pen5(Qt::black);
     pen5.setWidth(5);
@@ -23,17 +24,14 @@ void spinningSnake(int width, int height, int count, ImageCapture capture)
 
         painter.begin(&image);
 
-        double p5 = (double) i / 10 + 0.20;
         painter.setPen(pen5);
-        painter.drawPoint(320 * cos(p5) + midWidth, 270 * sin(p5) + midHeight);
+        painter.drawPoint(scale((double) i / 10 + 0.20));
 
-        double p3 = (double) i / 10 + 0.15;
         painter.setPen(pen4);
-        painter.drawPoint(320 * cos(p3) + midWidth, 270 * sin(p3) + midHeight);
+        painter.drawPoint(scale((double) i / 10 + 0.15));
 
-        double p1 = (double) i / 10 + 0.10;
         painter.setPen(pen3);
-        painter.drawPoint(320 * cos(p1) + midWidth, 270 * sin(p1) + midHeight);
+        painter.drawPoint(scale((double) i / 10 + 0.10));
 
         painter.setFont(QFont("Arial", 20));
         painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));

@@ -19,6 +19,7 @@ qt_add_executable(
     videowindow.h
     spin.cpp
     charge.cpp
+    mesh.h
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS

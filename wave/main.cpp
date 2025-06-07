@@ -6,8 +6,8 @@
 int solve();
 void populate_equation();
 using ImageCapture = std::function<void(const QImage &)>;
-void charge(int width, int height, ImageCapture capture);
-void spinningSnake(int width, int height, int count, ImageCapture capture);
+void charge(int width, int height, ImageCapture imageCapture);
+void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
 
 int main(int argc, char *argv[])
 {

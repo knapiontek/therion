@@ -1,14 +1,5 @@
+#include "mesh.h"
 #include <cmath>
-
-struct Point2D
-{
-    double x, y;
-};
-
-struct Element
-{
-    int p1, p2;
-};
 
 const int point_no = 4;
 const int element_no = 6;

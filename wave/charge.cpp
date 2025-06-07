@@ -1,31 +1,12 @@
 #include <QPainter>
 #include <QPen>
-
-struct Point2D
-{
-    double x, y;
-};
-
-struct Element
-{
-    int p1, p2;
-};
-
-struct Mesh
-{
-    QList<Point2D> pointSeq;
-    QList<int> fixSeq;
-    QList<Element> elementSeq;
-};
-
-using ImageCapture = std::function<void(const QImage &)>;
+#include "mesh.h"
 
 void buildMesh(Mesh &mesh, int sizeH, int sizeV)
 {
-    double PI = 4 * atan(1.0);
     double unit = 1;
     double unitH = unit / 2;
-    double unitV = unit * cos(PI / 6);
+    double unitV = unit * sqrt(3) / 2;
 
     for (int v = 0; v < sizeV; v++) {
         for (int h = 0; h < sizeH; h++) {
@@ -70,6 +51,8 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
     }
 }
 
+using ImageCapture = std::function<void(const QImage &)>;
+
 void charge(int width, int height, ImageCapture capture)
 {
     QImage image(width, height, QImage::Format_RGB888);
@@ -91,6 +74,7 @@ void charge(int width, int height, ImageCapture capture)
     int sizeH = 40;
     int sizeV = 35;
     double unit = width / sizeH;
+    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 18, unit * p.y + 18); };
 
     Mesh mesh;
     buildMesh(mesh, sizeH, sizeV);
@@ -99,18 +83,18 @@ void charge(int width, int height, ImageCapture capture)
     for (auto &e : mesh.elementSeq) {
         auto &p1 = mesh.pointSeq[e.p1];
         auto &p2 = mesh.pointSeq[e.p2];
-        painter.drawLine(unit * p1.x + 18, unit * p1.y + 18, unit * p2.x + 18, unit * p2.y + 18);
+        painter.drawLine(scale(p1), scale(p2));
     }
 
     painter.setPen(greenPen);
     for (auto &p : mesh.pointSeq) {
-        painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
+        painter.drawPoint(scale(p));
     }
 
     painter.setPen(redPen);
     for (auto &i : mesh.fixSeq) {
         auto &p = mesh.pointSeq[i];
-        painter.drawPoint(unit * p.x + 18, unit * p.y + 18);
+        painter.drawPoint(scale(p));
     }
 
     painter.end();
