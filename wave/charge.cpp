@@ -16,8 +16,8 @@ void buildMesh(Mesh &mesh, int sizeH, int sizeV)
     }
 
     for (int i = 0; i < sizeV - 1; i++) {
-        mesh.fixSeq.append(i);
-        mesh.fixSeq.append((i + 1) * sizeH);
+        mesh.fixMap.insert(i, Fix2D{true, true});
+        mesh.fixMap.insert((i + 1) * sizeH, Fix2D{true, true});
     }
 
     for (int v = 0; v < sizeV; v++) {
@@ -92,8 +92,8 @@ void charge(int width, int height, ImageCapture imageCapture)
     }
 
     painter.setPen(redPen);
-    for (auto &i : mesh.fixSeq) {
-        auto &p = mesh.pointSeq[i];
+    for (auto it = mesh.fixMap.begin(); it != mesh.fixMap.end(); ++it) {
+        auto &p = mesh.pointSeq[it.key()];
         painter.drawPoint(scale(p));
     }
 
