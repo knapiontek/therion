@@ -6,17 +6,18 @@
 typedef Eigen::Triplet<double> Triplet;
 typedef Eigen::SparseMatrix<double> SparseMatrix;
 
-void populate(Mesh &mesh)
+void solve(MeshInput &input, MeshOutput &output)
 {
-    int size = 2 * mesh.pointSeq.size();
+    int geomSize = input.pointSeq.size();
+    int solveSize = 2 * geomSize;
 
     QList<Triplet> K;
-    QList<double> F(size);
+    QList<double> F(solveSize);
 
     // init F, K
-    for (int i = 0; i < mesh.pointSeq.size(); i++) {
-        const Fix2D &fix = mesh.fixMap.value(i, Fix2D{false, false});
-        const Point2D &force = mesh.forceMap.value(i, Point2D{0, 0});
+    for (int i = 0; i < geomSize; i++) {
+        const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});
+        const Point2D &force = input.forceMap.value(i, Point2D{0, 0});
 
         int px = 2 * i + 0;
         int py = 2 * i + 1;
@@ -34,11 +35,11 @@ void populate(Mesh &mesh)
     }
 
     // compose K - stiffness matrix
-    for (auto &element : mesh.elementSeq) {
-        Point2D &point1 = mesh.pointSeq[element.p1];
-        Point2D &point2 = mesh.pointSeq[element.p2];
-        const Fix2D &fix1 = mesh.fixMap.value(element.p1, Fix2D{false, false});
-        const Fix2D &fix2 = mesh.fixMap.value(element.p2, Fix2D{false, false});
+    for (auto &element : input.elementSeq) {
+        Point2D &point1 = input.pointSeq[element.p1];
+        Point2D &point2 = input.pointSeq[element.p2];
+        const Fix2D &fix1 = input.fixMap.value(element.p1, Fix2D{false, false});
+        const Fix2D &fix2 = input.fixMap.value(element.p2, Fix2D{false, false});
 
         int p1x = 2 * element.p1 + 0;
         int p1y = 2 * element.p1 + 1;
@@ -81,9 +82,9 @@ void populate(Mesh &mesh)
         }
     }
 
-    SparseMatrix KK(size, size);
+    // calculate
+    SparseMatrix KK(solveSize, solveSize);
     KK.setFromTriplets(K.begin(), K.end());
-    Eigen::VectorXd b(size);
     Eigen::ConjugateGradient<SparseMatrix> solver;
     solver.compute(KK);
 
@@ -91,9 +92,34 @@ void populate(Mesh &mesh)
         throw std::runtime_error("decomposition failed");
     }
 
-    Eigen::VectorXd x = solver.solve(b);
+    Eigen::VectorXd dP = solver.solve(b);
 
     if (solver.info() != Eigen::Success) {
         throw std::runtime_error("solving failed");
+    }
+
+    // copy to global output
+    output.pointSeq.resize(geomSize);
+    output.forceSeq.resize(geomSize);
+    for (int i = 0; i < geomSize; i++) {
+        Point2D &point = input.pointSeq[i];
+        const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});
+        Point2D &outputPoint = output.pointSeq[i];
+        Point2D &ouputForce = output.forceSeq[i];
+
+        int px = 2 * i + 0;
+        int py = 2 * i + 1;
+        outputPoint = point;
+        ouputForce = Point2D{0, 0};
+
+        if (fix.x)
+            ouputForce.x = dP[px];
+        else
+            outputPoint.x += dP[px];
+
+        if (fix.y)
+            ouputForce.y = dP[py];
+        else
+            outputPoint.y += dP[py];
     }
 }

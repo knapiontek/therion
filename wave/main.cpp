@@ -5,7 +5,7 @@
 #include <QApplication>
 
 int solve();
-void populate(Mesh &mesh);
+void solve(MeshInput &input, MeshOutput &output);
 using ImageCapture = std::function<void(const QImage &)>;
 void charge(int width, int height, ImageCapture imageCapture);
 void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
@@ -14,8 +14,9 @@ int main(int argc, char *argv[])
 {
     solve();
 
-    Mesh mesh;
-    populate(mesh);
+    MeshInput meshInput;
+    MeshOutput meshOutput;
+    solve(meshInput, meshOutput);
 
     QApplication app(argc, argv);
 

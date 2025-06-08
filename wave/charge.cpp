@@ -2,9 +2,9 @@
 #include <QPen>
 #include "mesh.h"
 
-void populate(Mesh &mesh);
+void solve(MeshInput &input, MeshOutput &output);
 
-void buildMesh(Mesh &mesh, int sizeH, int sizeV)
+void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
 {
     double unit = 1;
     double unitH = unit / 2;
@@ -78,25 +78,26 @@ void charge(int width, int height, ImageCapture imageCapture)
     double unit = width / sizeH;
     auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 18, unit * p.y + 18); };
 
-    Mesh mesh;
-    buildMesh(mesh, sizeH, sizeV);
-    populate(mesh);
+    MeshInput meshInput;
+    MeshOutput meshOutput;
+    buildMesh(meshInput, sizeH, sizeV);
+    solve(meshInput, meshOutput);
 
     painter.setPen(blackPen);
-    for (auto &e : mesh.elementSeq) {
-        auto &p1 = mesh.pointSeq[e.p1];
-        auto &p2 = mesh.pointSeq[e.p2];
+    for (auto &e : meshInput.elementSeq) {
+        auto &p1 = meshInput.pointSeq[e.p1];
+        auto &p2 = meshInput.pointSeq[e.p2];
         painter.drawLine(scale(p1), scale(p2));
     }
 
     painter.setPen(greenPen);
-    for (auto &p : mesh.pointSeq) {
+    for (auto &p : meshInput.pointSeq) {
         painter.drawPoint(scale(p));
     }
 
     painter.setPen(redPen);
-    for (auto it = mesh.fixMap.begin(); it != mesh.fixMap.end(); ++it) {
-        auto &p = mesh.pointSeq[it.key()];
+    for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
+        auto &p = meshInput.pointSeq[it.key()];
         painter.drawPoint(scale(p));
     }
 
