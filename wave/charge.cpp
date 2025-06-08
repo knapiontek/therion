@@ -52,8 +52,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
-    int lastPoint = (sizeH - 1) * (sizeV - 1);
-    mesh.forceMap.insert(lastPoint, Point2D{20, -20});
+    mesh.forceMap.insert(mesh.pointSeq.size() - 10, Point2D{500, -300});
 }
 
 using ImageCapture = std::function<void(const QImage &)>;
@@ -67,7 +66,7 @@ void charge(int width, int height, ImageCapture imageCapture)
     redPen.setWidth(3);
 
     QPen greenPen(Qt::green);
-    greenPen.setWidth(2);
+    greenPen.setWidth(3);
 
     QPen blackPen(Qt::black);
     blackPen.setWidthF(0.5);
@@ -79,7 +78,7 @@ void charge(int width, int height, ImageCapture imageCapture)
     int sizeH = 40;
     int sizeV = 35;
     double unit = width / sizeH;
-    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 18, unit * p.y + 18); };
+    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 10, unit * p.y + 10); };
 
     MeshInput meshInput;
     MeshOutput meshOutput;
@@ -88,19 +87,20 @@ void charge(int width, int height, ImageCapture imageCapture)
 
     painter.setPen(blackPen);
     for (auto &e : meshInput.elementSeq) {
-        auto &p1 = meshInput.pointSeq[e.p1];
-        auto &p2 = meshInput.pointSeq[e.p2];
+        auto &p1 = meshOutput.pointSeq[e.p1];
+        auto &p2 = meshOutput.pointSeq[e.p2];
         painter.drawLine(scale(p1), scale(p2));
-    }
-
-    painter.setPen(greenPen);
-    for (auto &p : meshInput.pointSeq) {
-        painter.drawPoint(scale(p));
     }
 
     painter.setPen(redPen);
     for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
-        auto &p = meshInput.pointSeq[it.key()];
+        auto &p = meshOutput.pointSeq[it.key()];
+        painter.drawPoint(scale(p));
+    }
+
+    painter.setPen(greenPen);
+    for (auto it = meshInput.forceMap.begin(); it != meshInput.forceMap.end(); ++it) {
+        auto &p = meshOutput.pointSeq[it.key()];
         painter.drawPoint(scale(p));
     }
 
