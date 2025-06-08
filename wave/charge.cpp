@@ -63,6 +63,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
+    // forces
     mesh.forceMap.insert(mesh.pointSeq.size() / 2, Point2D{500, -300});
 }
 
