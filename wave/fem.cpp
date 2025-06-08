@@ -12,7 +12,7 @@ void solve(MeshInput &input, MeshOutput &output)
     int solveSize = 2 * geomSize;
 
     QList<Triplet> K;
-    QList<double> F(solveSize);
+    Eigen::VectorXd F(solveSize);
 
     // init F, K
     for (int i = 0; i < geomSize; i++) {
@@ -92,7 +92,7 @@ void solve(MeshInput &input, MeshOutput &output)
         throw std::runtime_error("decomposition failed");
     }
 
-    Eigen::VectorXd dP = solver.solve(b);
+    Eigen::VectorXd dP = solver.solve(F);
 
     if (solver.info() != Eigen::Success) {
         throw std::runtime_error("solving failed");

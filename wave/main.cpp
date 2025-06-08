@@ -4,20 +4,12 @@
 
 #include <QApplication>
 
-int solve();
-void solve(MeshInput &input, MeshOutput &output);
 using ImageCapture = std::function<void(const QImage &)>;
 void charge(int width, int height, ImageCapture imageCapture);
 void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
 
 int main(int argc, char *argv[])
 {
-    solve();
-
-    MeshInput meshInput;
-    MeshOutput meshOutput;
-    solve(meshInput, meshOutput);
-
     QApplication app(argc, argv);
 
     const char *filename = "sample.mp4";

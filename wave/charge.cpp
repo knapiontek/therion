@@ -51,6 +51,9 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
             }
         }
     }
+
+    int lastPoint = (sizeH - 1) * (sizeV - 1);
+    mesh.forceMap.insert(lastPoint, Point2D{20, -20});
 }
 
 using ImageCapture = std::function<void(const QImage &)>;

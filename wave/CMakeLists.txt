@@ -14,7 +14,6 @@ qt_add_executable(
     WIN32 MACOSX_BUNDLE
     main.cpp
     mp4creator.h mp4creator.cpp
-    eigensolve.cpp
     fem.cpp
     videowindow.h
     spin.cpp
