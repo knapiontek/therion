@@ -89,7 +89,7 @@ void solve(MeshInput &input, MeshOutput &output)
     solver.compute(KK);
 
     if (solver.info() != Eigen::Success) {
-        throw std::runtime_error("decomposition failed");
+        throw std::runtime_error("precondition failed");
     }
 
     Eigen::VectorXd dP = solver.solve(F);

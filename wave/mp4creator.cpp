@@ -128,7 +128,7 @@ void Mp4Creator::addFrame(const QImage &image)
     frame->pts = pts += 5000;
 
     if (avcodec_send_frame(codecCtx, frame) < 0) {
-        throw std::runtime_error("Error sending frame to encoder");
+        throw std::runtime_error("error sending frame to encoder");
     }
 
     while (avcodec_receive_packet(codecCtx, packet) == 0) {
