@@ -25,11 +25,11 @@ void spinningSnake(int width, int height, int count, ImageCapture imageCapture)
         painter.begin(&image);
 
         painter.setPen(pen5);
-        painter.drawPoint(scale((double) i / 10 + 0.20));
-        painter.setPen(pen4);
-        painter.drawPoint(scale((double) i / 10 + 0.15));
-        painter.setPen(pen3);
         painter.drawPoint(scale((double) i / 10 + 0.10));
+        painter.setPen(pen4);
+        painter.drawPoint(scale((double) i / 10 + 0.05));
+        painter.setPen(pen3);
+        painter.drawPoint(scale((double) i / 10 + 0.00));
 
         painter.setFont(QFont("Arial", 20));
         painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));

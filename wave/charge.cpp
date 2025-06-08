@@ -2,7 +2,7 @@
 #include <QPen>
 #include "mesh.h"
 
-void solve(MeshInput &input, MeshOutput &output);
+void solveMesh(MeshInput &input, MeshOutput &output);
 
 void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
 {
@@ -10,6 +10,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
     double unitH = unit / 2;
     double unitV = unit * sqrt(3) / 2;
 
+    // points
     for (int v = 0; v < sizeV; v++) {
         for (int h = 0; h < sizeH; h++) {
             double shiftH = v % 2 == 0 ? unitH : 0;
@@ -17,11 +18,19 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
-    for (int i = 0; i < sizeV - 1; i++) {
+    // fixes on horizontal borders
+    for (int i = 0; i < sizeH; i++) {
         mesh.fixMap.insert(i, Fix2D{true, true});
-        mesh.fixMap.insert((i + 1) * sizeH, Fix2D{true, true});
+        mesh.fixMap.insert((sizeH * sizeV) - 1 - i, Fix2D{true, true});
     }
 
+    // fixes on vertical borders
+    for (int i = 0; i < sizeV; i++) {
+        mesh.fixMap.insert(i * sizeH, Fix2D{true, true});
+        mesh.fixMap.insert(i * sizeH + sizeH - 1, Fix2D{true, true});
+    }
+
+    // horizontal elements
     for (int v = 0; v < sizeV; v++) {
         for (int h = 0; h < sizeH - 1; h++) {
             int p1 = v * sizeH + h;
@@ -30,6 +39,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
+    // vertical elements
     for (int h = 0; h < sizeH; h++) {
         for (int v = 0; v < sizeV - 1; v++) {
             int p1 = v * sizeH + h;
@@ -38,6 +48,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
+    // diagonal elements
     for (int h = 0; h < sizeH - 1; h++) {
         for (int v = 0; v < sizeV - 1; v++) {
             if (v % 2 == 0) {
@@ -52,7 +63,7 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
         }
     }
 
-    mesh.forceMap.insert(mesh.pointSeq.size() - 10, Point2D{500, -300});
+    mesh.forceMap.insert(mesh.pointSeq.size() / 2, Point2D{500, -300});
 }
 
 using ImageCapture = std::function<void(const QImage &)>;
@@ -83,8 +94,9 @@ void charge(int width, int height, ImageCapture imageCapture)
     MeshInput meshInput;
     MeshOutput meshOutput;
     buildMesh(meshInput, sizeH, sizeV);
-    solve(meshInput, meshOutput);
+    solveMesh(meshInput, meshOutput);
 
+    // elements
     painter.setPen(blackPen);
     for (auto &e : meshInput.elementSeq) {
         auto &p1 = meshOutput.pointSeq[e.p1];
@@ -92,12 +104,14 @@ void charge(int width, int height, ImageCapture imageCapture)
         painter.drawLine(scale(p1), scale(p2));
     }
 
+    // fixes
     painter.setPen(redPen);
     for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
         auto &p = meshOutput.pointSeq[it.key()];
         painter.drawPoint(scale(p));
     }
 
+    // forces
     painter.setPen(greenPen);
     for (auto it = meshInput.forceMap.begin(); it != meshInput.forceMap.end(); ++it) {
         auto &p = meshOutput.pointSeq[it.key()];

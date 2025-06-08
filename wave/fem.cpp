@@ -5,16 +5,19 @@
 
 typedef Eigen::Triplet<double> Triplet;
 typedef Eigen::SparseMatrix<double> SparseMatrix;
+typedef Eigen::VectorXd Vector;
+typedef Eigen::ConjugateGradient<SparseMatrix> Solver;
 
-void solve(MeshInput &input, MeshOutput &output)
+// solveMesh K * x = F for x
+void solveMesh(MeshInput &input, MeshOutput &output)
 {
     int geomSize = input.pointSeq.size();
     int solveSize = 2 * geomSize;
 
     QList<Triplet> K;
-    Eigen::VectorXd F(solveSize);
+    Vector F(solveSize);
 
-    // init F, K
+    // init K, F
     for (int i = 0; i < geomSize; i++) {
         const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});
         const Point2D &force = input.forceMap.value(i, Point2D{0, 0});
@@ -85,22 +88,23 @@ void solve(MeshInput &input, MeshOutput &output)
     // calculate
     SparseMatrix KK(solveSize, solveSize);
     KK.setFromTriplets(K.begin(), K.end());
-    Eigen::ConjugateGradient<SparseMatrix> solver;
+    Solver solver;
     solver.compute(KK);
 
     if (solver.info() != Eigen::Success) {
         throw std::runtime_error("precondition failed");
     }
 
-    Eigen::VectorXd dP = solver.solve(F);
+    Vector dP = solver.solve(F);
 
     if (solver.info() != Eigen::Success) {
-        throw std::runtime_error("solving failed");
+        throw std::runtime_error("cgm solving failed");
     }
 
     // copy to global output
     output.pointSeq.resize(geomSize);
     output.forceSeq.resize(geomSize);
+
     for (int i = 0; i < geomSize; i++) {
         Point2D &point = input.pointSeq[i];
         const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});

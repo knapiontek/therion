@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     const char *filename = "sample.mp4";
     int width = 1024;
     int height = 768;
-    int count = 100;
+    int count = 10;
 
     Mp4Creator mp4Creator;
     auto imageCapture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
