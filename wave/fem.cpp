@@ -49,7 +49,7 @@ void solveMesh(MeshInput &input, MeshOutput &output)
         int p2x = 2 * element.p2 + 0;
         int p2y = 2 * element.p2 + 1;
 
-        double EA = 1000; // Young * Area
+        double EA = 10000; // Young * Area
         double dx = point2.x - point1.x;
         double dy = point2.y - point1.y;
         double l = sqrt(dx * dx + dy * dy);

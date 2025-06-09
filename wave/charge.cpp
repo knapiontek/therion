@@ -64,7 +64,14 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
     }
 
     // forces
-    mesh.forceMap.insert(mesh.pointSeq.size() / 2, Point2D{500, -300});
+    int modul = 10000;
+    int mid = mesh.pointSeq.size() / 2;
+    mesh.forceMap.insert(mid - 1, Point2D{-unit * modul, 0});
+    mesh.forceMap.insert(mid + 1, Point2D{unit * modul, 0});
+    mesh.forceMap.insert(mid - sizeH, Point2D{unitH * modul, -unitV * modul});
+    mesh.forceMap.insert(mid - sizeH - 1, Point2D{-unitH * modul, -unitV * modul});
+    mesh.forceMap.insert(mid + sizeH, Point2D{unitH * modul, unitV * modul});
+    mesh.forceMap.insert(mid + sizeH - 1, Point2D{-unitH * modul, unitV * modul});
 }
 
 using ImageCapture = std::function<void(const QImage &)>;
