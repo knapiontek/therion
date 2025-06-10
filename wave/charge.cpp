@@ -1,14 +1,17 @@
+#include <QDebug>
 #include <QPainter>
 #include <QPen>
 #include "mesh.h"
 
 void solveMesh(MeshInput &input, MeshOutput &output);
 
+const double unit = 1;
+const double unitH = unit / 2;
+const double unitV = unit * sqrt(3) / 2;
+
 void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
 {
-    double unit = 1;
-    double unitH = unit / 2;
-    double unitV = unit * sqrt(3) / 2;
+    auto index = [&sizeH](int h, int v) { return h + (v * sizeH); };
 
     // points
     for (int v = 0; v < sizeV; v++) {
@@ -20,31 +23,27 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
 
     // fixes on horizontal borders
     for (int i = 0; i < sizeH; i++) {
-        mesh.fixMap.insert(i, Fix2D{true, true});
-        mesh.fixMap.insert((sizeH * sizeV) - 1 - i, Fix2D{true, true});
+        mesh.fixMap.insert(index(i, 0), Fix2D{true, true});
+        mesh.fixMap.insert(index(i, sizeV - 1), Fix2D{true, true});
     }
 
     // fixes on vertical borders
     for (int i = 0; i < sizeV; i++) {
-        mesh.fixMap.insert(i * sizeH, Fix2D{true, true});
-        mesh.fixMap.insert(i * sizeH + sizeH - 1, Fix2D{true, true});
+        mesh.fixMap.insert(index(0, i), Fix2D{true, true});
+        mesh.fixMap.insert(index(sizeH - 1, i), Fix2D{true, true});
     }
 
     // horizontal elements
     for (int v = 0; v < sizeV; v++) {
         for (int h = 0; h < sizeH - 1; h++) {
-            int p1 = v * sizeH + h;
-            int p2 = v * sizeH + h + 1;
-            mesh.elementSeq.append(Element{p1, p2});
+            mesh.elementSeq.append(Element{index(h, v), index(h + 1, v)});
         }
     }
 
     // vertical elements
     for (int h = 0; h < sizeH; h++) {
         for (int v = 0; v < sizeV - 1; v++) {
-            int p1 = v * sizeH + h;
-            int p2 = (v + 1) * sizeH + h;
-            mesh.elementSeq.append(Element{p1, p2});
+            mesh.elementSeq.append(Element{index(h, v), index(h, v + 1)});
         }
     }
 
@@ -52,30 +51,26 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
     for (int h = 0; h < sizeH - 1; h++) {
         for (int v = 0; v < sizeV - 1; v++) {
             if (v % 2 == 0) {
-                int p1 = v * sizeH + h;
-                int p2 = (v + 1) * sizeH + h + 1;
-                mesh.elementSeq.append(Element{p1, p2});
+                mesh.elementSeq.append(Element{index(h, v), index(h + 1, v + 1)});
             } else {
-                int p1 = (v + 1) * sizeH + h;
-                int p2 = v * sizeH + h + 1;
-                mesh.elementSeq.append(Element{p1, p2});
+                mesh.elementSeq.append(Element{index(h, v + 1), index(h + 1, v)});
             }
         }
     }
+}
 
-    // forces
-    int modul = 10000;
-    int mid = mesh.pointSeq.size() / 2;
+void applyForce(MeshInput &mesh, int point, int length, int sizeH, int sizeV)
+{
     struct
     {
         int i;
         Point2D p;
-    } vectorSeq[]{{mid - 1, Point2D{-unit * modul, 0}},
-                  {mid + 1, Point2D{unit * modul, 0}},
-                  {mid - sizeH, Point2D{unitH * modul, -unitV * modul}},
-                  {mid - sizeH - 1, Point2D{-unitH * modul, -unitV * modul}},
-                  {mid + sizeH, Point2D{unitH * modul, unitV * modul}},
-                  {mid + sizeH - 1, Point2D{-unitH * modul, unitV * modul}}};
+    } vectorSeq[]{{point - 1, Point2D{-unit * length, 0}},
+                  {point + 1, Point2D{unit * length, 0}},
+                  {point - sizeH, Point2D{unitH * length, -unitV * length}},
+                  {point - sizeH - 1, Point2D{-unitH * length, -unitV * length}},
+                  {point + sizeH, Point2D{unitH * length, unitV * length}},
+                  {point + sizeH - 1, Point2D{-unitH * length, unitV * length}}};
     for (auto &v : vectorSeq) {
         mesh.forceMap.insert(v.i, v.p);
     }
@@ -83,58 +78,76 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
 
 using ImageCapture = std::function<void(const QImage &)>;
 
-void charge(int width, int height, ImageCapture imageCapture)
+void charge(int width, int height, int count, ImageCapture imageCapture)
 {
-    QImage image(width, height, QImage::Format_RGB888);
-    image.fill(QColor::fromRgb(255, 255, 255));
-
-    QPen redPen(Qt::red);
-    redPen.setWidth(3);
-
-    QPen greenPen(Qt::green);
-    greenPen.setWidth(3);
-
-    QPen blackPen(Qt::black);
-    blackPen.setWidthF(0.5);
-
-    QPainter painter;
-    painter.begin(&image);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-
     int sizeH = 40;
     int sizeV = 35;
     double unit = width / sizeH;
+
     auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 10, unit * p.y + 10); };
+    auto index = [&sizeH](int h, int v) { return h + (v * sizeH); };
 
     MeshInput meshInput;
     MeshOutput meshOutput;
     buildMesh(meshInput, sizeH, sizeV);
-    solveMesh(meshInput, meshOutput);
 
-    // elements
-    painter.setPen(blackPen);
-    for (auto &e : meshInput.elementSeq) {
-        auto &p1 = meshOutput.pointSeq[e.p1];
-        auto &p2 = meshOutput.pointSeq[e.p2];
-        painter.drawLine(scale(p1), scale(p2));
+    for (int i = 0; i < count; i++) {
+        applyForce(meshInput,
+                   index(sizeH / 3, sizeV * 2 / 3),
+                   1000 + 10000 * cos((double) i / 10),
+                   sizeH,
+                   sizeV);
+        applyForce(meshInput,
+                   index(sizeH * 2 / 3, sizeV / 3),
+                   1000 + -10000 * sin((double) i / 10),
+                   sizeH,
+                   sizeV);
+        solveMesh(meshInput, meshOutput);
+
+        QImage image(width, height, QImage::Format_RGB888);
+        image.fill(QColor::fromRgb(0, 0, 0));
+
+        QPen redPen(Qt::red);
+        redPen.setWidth(3);
+
+        QPen greenPen(Qt::green);
+        greenPen.setWidth(3);
+
+        QPen whitePen(Qt::white);
+        whitePen.setWidthF(0.5);
+
+        QPainter painter;
+        painter.begin(&image);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+
+        // elements
+        painter.setPen(whitePen);
+        for (auto &e : meshInput.elementSeq) {
+            auto &p1 = meshOutput.pointSeq[e.p1];
+            auto &p2 = meshOutput.pointSeq[e.p2];
+            painter.drawLine(scale(p1), scale(p2));
+        }
+
+        // fixes
+        painter.setPen(redPen);
+        for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
+            auto &p = meshOutput.pointSeq[it.key()];
+            painter.drawPoint(scale(p));
+        }
+
+        // forces
+        painter.setPen(greenPen);
+        for (auto it = meshInput.forceMap.begin(); it != meshInput.forceMap.end(); ++it) {
+            auto &p = meshOutput.pointSeq[it.key()];
+            painter.drawPoint(scale(p));
+        }
+
+        painter.setFont(QFont("Arial", 20));
+        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));
+
+        painter.end();
+
+        qDebug() << "charge frame: " << i;
+        imageCapture(image);
     }
-
-    // fixes
-    painter.setPen(redPen);
-    for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
-        auto &p = meshOutput.pointSeq[it.key()];
-        painter.drawPoint(scale(p));
-    }
-
-    // forces
-    painter.setPen(greenPen);
-    for (auto it = meshInput.forceMap.begin(); it != meshInput.forceMap.end(); ++it) {
-        auto &p = meshOutput.pointSeq[it.key()];
-        painter.drawPoint(scale(p));
-    }
-
-    painter.end();
-
-    image.save("sample.png");
-    imageCapture(image);
 }

@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QPainter>
 #include <QPen>
 
@@ -9,20 +10,21 @@ void spinningSnake(int width, int height, int count, ImageCapture imageCapture)
         return QPointF(320 * cos(angle) + (width >> 1), 270 * sin(angle) + (height >> 1));
     };
 
-    QPen pen5(Qt::black);
+    QPen pen5(Qt::white);
     pen5.setWidth(5);
-    QPen pen4(Qt::black);
+    QPen pen4(Qt::white);
     pen4.setWidth(4);
-    QPen pen3(Qt::black);
+    QPen pen3(Qt::white);
     pen3.setWidth(3);
 
     QPainter painter;
 
     for (int i = 0; i < count; ++i) {
         QImage image(width, height, QImage::Format_RGB888);
-        image.fill(QColor::fromRgb(255, 255, 255));
+        image.fill(QColor::fromRgb(0, 0, 0));
 
         painter.begin(&image);
+        painter.setRenderHint(QPainter::Antialiasing, true);
 
         painter.setPen(pen5);
         painter.drawPoint(scale((double) i / 10 + 0.10));
@@ -36,6 +38,7 @@ void spinningSnake(int width, int height, int count, ImageCapture imageCapture)
 
         painter.end();
 
+        qDebug() << "snake frame: " << i;
         imageCapture(image);
     }
 }
