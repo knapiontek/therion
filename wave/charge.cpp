@@ -5,51 +5,51 @@
 
 void solveMesh(MeshInput &input, MeshOutput &output);
 
-const double unit = 1;
-const double unitH = unit / 2;
-const double unitV = unit * sqrt(3) / 2;
+const qreal unit = 1;
+const qreal unitH = unit / 2;
+const qreal unitV = unit * sqrt(3) / 2;
 
-void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
+void buildMesh(MeshInput &mesh, qint32 sizeH, qint32 sizeV)
 {
-    auto index = [&sizeH](int h, int v) { return h + (v * sizeH); };
+    auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
     // points
-    for (int v = 0; v < sizeV; v++) {
-        for (int h = 0; h < sizeH; h++) {
-            double shiftH = v % 2 == 0 ? unitH : 0;
+    for (qint32 v = 0; v < sizeV; v++) {
+        for (qint32 h = 0; h < sizeH; h++) {
+            qreal shiftH = v % 2 == 0 ? unitH : 0;
             mesh.pointSeq.append(Point2D{h * unit + shiftH, v * unitV});
         }
     }
 
     // fixes on horizontal borders
-    for (int i = 0; i < sizeH; i++) {
+    for (qint32 i = 0; i < sizeH; i++) {
         mesh.fixMap.insert(index(i, 0), Fix2D{true, true});
         mesh.fixMap.insert(index(i, sizeV - 1), Fix2D{true, true});
     }
 
     // fixes on vertical borders
-    for (int i = 0; i < sizeV; i++) {
+    for (qint32 i = 0; i < sizeV; i++) {
         mesh.fixMap.insert(index(0, i), Fix2D{true, true});
         mesh.fixMap.insert(index(sizeH - 1, i), Fix2D{true, true});
     }
 
     // horizontal elements
-    for (int v = 0; v < sizeV; v++) {
-        for (int h = 0; h < sizeH - 1; h++) {
+    for (qint32 v = 0; v < sizeV; v++) {
+        for (qint32 h = 0; h < sizeH - 1; h++) {
             mesh.elementSeq.append(Element{index(h, v), index(h + 1, v)});
         }
     }
 
     // vertical elements
-    for (int h = 0; h < sizeH; h++) {
-        for (int v = 0; v < sizeV - 1; v++) {
+    for (qint32 h = 0; h < sizeH; h++) {
+        for (qint32 v = 0; v < sizeV - 1; v++) {
             mesh.elementSeq.append(Element{index(h, v), index(h, v + 1)});
         }
     }
 
     // diagonal elements
-    for (int h = 0; h < sizeH - 1; h++) {
-        for (int v = 0; v < sizeV - 1; v++) {
+    for (qint32 h = 0; h < sizeH - 1; h++) {
+        for (qint32 v = 0; v < sizeV - 1; v++) {
             if (v % 2 == 0) {
                 mesh.elementSeq.append(Element{index(h, v), index(h + 1, v + 1)});
             } else {
@@ -59,11 +59,11 @@ void buildMesh(MeshInput &mesh, int sizeH, int sizeV)
     }
 }
 
-void applyForce(MeshInput &mesh, int point, int length, int sizeH, int sizeV)
+void applyForce(MeshInput &mesh, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV)
 {
     struct
     {
-        int i;
+        qint32 i;
         Point2D p;
     } vectorSeq[]{{point - 1, Point2D{-unit * length, 0}},
                   {point + 1, Point2D{unit * length, 0}},
@@ -76,30 +76,43 @@ void applyForce(MeshInput &mesh, int point, int length, int sizeH, int sizeV)
     }
 }
 
+struct Painter : public QPainter
+{
+    void drawArrow(const QPointF &begin, const QPointF &end)
+    {
+        qreal x = end.x() - begin.x();
+        qreal y = end.y() - begin.y();
+        qreal length = sqrt(x * x + y * y);
+        qreal unitX = x / length;
+        qreal unitY = y / length;
+        drawLine(begin, end);
+    }
+};
+
 using ImageCapture = std::function<void(const QImage &)>;
 
-void charge(int width, int height, int count, ImageCapture imageCapture)
+void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    int sizeH = 40;
-    int sizeV = 35;
-    double unit = width / sizeH;
+    qint32 sizeH = 40;
+    qint32 sizeV = 35;
+    qreal unit = width / sizeH;
 
     auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 10, unit * p.y + 10); };
-    auto index = [&sizeH](int h, int v) { return h + (v * sizeH); };
+    auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
     MeshInput meshInput;
     MeshOutput meshOutput;
     buildMesh(meshInput, sizeH, sizeV);
 
-    for (int i = 0; i < count; i++) {
+    for (qint32 i = 0; i < count; i++) {
         applyForce(meshInput,
                    index(sizeH / 3, sizeV * 2 / 3),
-                   1000 + 10000 * cos((double) i / 10),
+                   2000 + 10000 * cos((qreal) i / 10),
                    sizeH,
                    sizeV);
         applyForce(meshInput,
                    index(sizeH * 2 / 3, sizeV / 3),
-                   1000 + -10000 * sin((double) i / 10),
+                   2000 - 10000 * sin((qreal) i / 10),
                    sizeH,
                    sizeV);
         solveMesh(meshInput, meshOutput);
@@ -116,7 +129,7 @@ void charge(int width, int height, int count, ImageCapture imageCapture)
         QPen whitePen(Qt::white);
         whitePen.setWidthF(0.5);
 
-        QPainter painter;
+        Painter painter;
         painter.begin(&image);
         painter.setRenderHint(QPainter::Antialiasing, true);
 
@@ -125,7 +138,7 @@ void charge(int width, int height, int count, ImageCapture imageCapture)
         for (auto &e : meshInput.elementSeq) {
             auto &p1 = meshOutput.pointSeq[e.p1];
             auto &p2 = meshOutput.pointSeq[e.p2];
-            painter.drawLine(scale(p1), scale(p2));
+            painter.drawArrow(scale(p1), scale(p2));
         }
 
         // fixes

@@ -4,22 +4,22 @@
 #include "videowindow.h"
 
 using ImageCapture = std::function<void(const QImage &)>;
-void charge(int width, int height, int count, ImageCapture imageCapture);
-void spinningSnake(int width, int height, int count, ImageCapture imageCapture);
+void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture);
+void spinningSnake(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture);
 
-int main(int argc, char *argv[])
+qint32 main(qint32 argc, char *argv[])
 {
     QApplication app(argc, argv);
 
     const char *filename = "sample.mp4";
-    int width = 2 * 1024;
-    int height = 2 * 768;
+    qint32 width = 2 * 1024;
+    qint32 height = 2 * 768;
 
     Mp4Creator mp4Creator;
     auto imageCapture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
 
     mp4Creator.begin(filename, width, height);
-    charge(width, height, 100, imageCapture);
+    charge(width, height, 3, imageCapture);
     spinningSnake(width, height, 100, imageCapture);
     mp4Creator.end();
 

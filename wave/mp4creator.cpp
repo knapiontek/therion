@@ -35,7 +35,7 @@ Mp4Creator::~Mp4Creator()
     }
 }
 
-void Mp4Creator::begin(const char *filename, int width, int height)
+void Mp4Creator::begin(const char *filename, qint32 width, qint32 height)
 {
     avformat_network_init();
 
@@ -78,7 +78,7 @@ void Mp4Creator::begin(const char *filename, int width, int height)
         throw std::runtime_error("fail to open output file");
     }
 
-    int ret = avformat_write_header(formatCtx, nullptr);
+    qint32 ret = avformat_write_header(formatCtx, nullptr);
     if (ret < 0) {
         throw std::runtime_error("fail to write header");
     }
@@ -121,7 +121,7 @@ void Mp4Creator::addFrame(const QImage &image)
     }
 
     uint8_t *inData[1] = {(uint8_t *) image.bits()};
-    int inLinesize[1] = {(int) image.bytesPerLine()};
+    qint32 inLinesize[1] = {(qint32) image.bytesPerLine()};
 
     sws_scale(swsCtx, inData, inLinesize, 0, codecCtx->height, frame->data, frame->linesize);
 
