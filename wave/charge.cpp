@@ -67,10 +67,10 @@ void applyForce(MeshInput &mesh, qint32 point, qint32 length, qint32 sizeH, qint
         Point2D p;
     } vectorSeq[]{{point - 1, Point2D{-unit * length, 0}},
                   {point + 1, Point2D{unit * length, 0}},
-                  {point - sizeH, Point2D{unitH * length, -unitV * length}},
-                  {point - sizeH - 1, Point2D{-unitH * length, -unitV * length}},
-                  {point + sizeH, Point2D{unitH * length, unitV * length}},
-                  {point + sizeH - 1, Point2D{-unitH * length, unitV * length}}};
+                  {point - sizeH + 1, Point2D{unitH * length, -unitV * length}},
+                  {point - sizeH, Point2D{-unitH * length, -unitV * length}},
+                  {point + sizeH + 1, Point2D{unitH * length, unitV * length}},
+                  {point + sizeH, Point2D{-unitH * length, unitV * length}}};
     for (auto &v : vectorSeq) {
         mesh.forceMap.insert(v.i, v.p);
     }
@@ -93,11 +93,11 @@ using ImageCapture = std::function<void(const QImage &)>;
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qint32 sizeH = 40;
-    qint32 sizeV = 35;
+    qint32 sizeH = 1 * 42;
+    qint32 sizeV = 1 * 36;
     qreal unit = width / sizeH;
 
-    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 10, unit * p.y + 10); };
+    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 20, unit * p.y + 20); };
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
     MeshInput meshInput;
@@ -120,21 +120,21 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         QImage image(width, height, QImage::Format_RGB888);
         image.fill(QColor::fromRgb(0, 0, 0));
 
-        QPen redPen(Qt::red);
-        redPen.setWidth(3);
+        QPen fixPen(Qt::red);
+        fixPen.setWidth(3);
 
-        QPen greenPen(Qt::green);
-        greenPen.setWidth(3);
+        QPen forcePen(Qt::yellow);
+        forcePen.setWidth(4);
 
-        QPen whitePen(Qt::white);
-        whitePen.setWidthF(0.5);
+        QPen meshPen(Qt::white);
+        meshPen.setWidthF(0.5);
 
         Painter painter;
         painter.begin(&image);
         painter.setRenderHint(QPainter::Antialiasing, true);
 
         // elements
-        painter.setPen(whitePen);
+        painter.setPen(meshPen);
         for (auto &e : meshInput.elementSeq) {
             auto &p1 = meshOutput.pointSeq[e.p1];
             auto &p2 = meshOutput.pointSeq[e.p2];
@@ -142,14 +142,14 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         }
 
         // fixes
-        painter.setPen(redPen);
+        painter.setPen(fixPen);
         for (auto it = meshInput.fixMap.begin(); it != meshInput.fixMap.end(); ++it) {
             auto &p = meshOutput.pointSeq[it.key()];
             painter.drawPoint(scale(p));
         }
 
         // forces
-        painter.setPen(greenPen);
+        painter.setPen(forcePen);
         for (auto it = meshInput.forceMap.begin(); it != meshInput.forceMap.end(); ++it) {
             auto &p = meshOutput.pointSeq[it.key()];
             painter.drawPoint(scale(p));
@@ -161,6 +161,7 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.end();
 
         qDebug() << "charge frame: " << i;
+        image.save("sample.png");
         imageCapture(image);
     }
 }

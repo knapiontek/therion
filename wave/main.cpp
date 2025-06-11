@@ -19,8 +19,8 @@ qint32 main(qint32 argc, char *argv[])
     auto imageCapture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
 
     mp4Creator.begin(filename, width, height);
-    charge(width, height, 3, imageCapture);
-    spinningSnake(width, height, 100, imageCapture);
+    charge(width, height, 1, imageCapture);
+    spinningSnake(width, height, 5, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);
