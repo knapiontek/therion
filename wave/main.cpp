@@ -20,7 +20,7 @@ qint32 main(qint32 argc, char *argv[])
 
     mp4Creator.begin(filename, width, height);
     charge(width, height, 1, imageCapture);
-    spinningSnake(width, height, 5, imageCapture);
+    spinningSnake(width, height, 100, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);

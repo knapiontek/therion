@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QPen>
+#include <QPolygon>
 #include "mesh.h"
 
 void solveMesh(MeshInput &input, MeshOutput &output);
@@ -53,7 +54,7 @@ void buildMesh(MeshInput &mesh, qint32 sizeH, qint32 sizeV)
             if (v % 2 == 0) {
                 mesh.elementSeq.append(Element{index(h, v), index(h + 1, v + 1)});
             } else {
-                mesh.elementSeq.append(Element{index(h, v + 1), index(h + 1, v)});
+                mesh.elementSeq.append(Element{index(h + 1, v), index(h, v + 1)});
             }
         }
     }
@@ -82,10 +83,22 @@ struct Painter : public QPainter
     {
         qreal x = end.x() - begin.x();
         qreal y = end.y() - begin.y();
+
         qreal length = sqrt(x * x + y * y);
+
         qreal unitX = x / length;
         qreal unitY = y / length;
+
+        qreal midX = end.x() - 12 * unitX;
+        qreal midY = end.y() - 12 * unitY;
+
+        QPointF p1(midX + 3 * unitY, midY - 3 * unitX);
+        QPointF p2(midX - 3 * unitY, midY + 3 * unitX);
+
         drawLine(begin, end);
+        QPolygonF polygon;
+        polygon << end << p1 << p2;
+        drawPolygon(polygon);
     }
 };
 
@@ -97,7 +110,7 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     qint32 sizeV = 1 * 36;
     qreal unit = width / sizeH;
 
-    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 20, unit * p.y + 20); };
+    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
     MeshInput meshInput;
@@ -107,12 +120,12 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     for (qint32 i = 0; i < count; i++) {
         applyForce(meshInput,
                    index(sizeH / 3, sizeV * 2 / 3),
-                   2000 + 10000 * cos((qreal) i / 10),
+                   3000 + 10000 * cos((qreal) i / 10),
                    sizeH,
                    sizeV);
         applyForce(meshInput,
                    index(sizeH * 2 / 3, sizeV / 3),
-                   2000 - 10000 * sin((qreal) i / 10),
+                   3000 - 10000 * sin((qreal) i / 10),
                    sizeH,
                    sizeV);
         solveMesh(meshInput, meshOutput);
@@ -132,6 +145,7 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         Painter painter;
         painter.begin(&image);
         painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setBrush(Qt::white);
 
         // elements
         painter.setPen(meshPen);
