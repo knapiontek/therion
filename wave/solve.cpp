@@ -1,7 +1,9 @@
 #include "solve.h"
 
-void solveMesh(MeshInput &input, MeshOutput &output)
+OutputMesh solveMesh(InputMesh &input)
 {
+    OutputMesh output;
+
     qint32 pointSize = input.pointSeq.size();
     qint32 eqSize = 2 * pointSize;
 
@@ -117,4 +119,6 @@ void solveMesh(MeshInput &input, MeshOutput &output)
         else
             outputPoint.y += dP[py];
     }
+
+    return output;
 }

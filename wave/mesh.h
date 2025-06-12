@@ -19,7 +19,7 @@ struct Fix2D
     bool x, y;
 };
 
-struct MeshInput
+struct InputMesh
 {
     QList<Point2D> pointSeq;
     QList<Element> elementSeq;
@@ -27,7 +27,7 @@ struct MeshInput
     QMap<qint32, Point2D> forceMap;
 };
 
-struct MeshOutput
+struct OutputMesh
 {
     QList<Point2D> pointSeq;
     QList<Point2D> forceSeq;

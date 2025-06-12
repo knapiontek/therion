@@ -13,6 +13,6 @@ typedef Eigen::SparseLU<SparseMatrix, Eigen::COLAMDOrdering<qint32>> LUSolver;
 
 // K * x = F for x
 
-void solveMesh(MeshInput &input, MeshOutput &output);
+OutputMesh solveMesh(InputMesh &input);
 
 #endif // SOLVE_H
