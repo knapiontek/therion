@@ -6,9 +6,8 @@
 typedef Eigen::Triplet<qreal> Triplet;
 typedef Eigen::SparseMatrix<qreal> SparseMatrix;
 typedef Eigen::VectorXd Vector;
-typedef Eigen::ConjugateGradient<SparseMatrix> Solver;
+typedef Eigen::SparseLU<SparseMatrix, Eigen::COLAMDOrdering<qint32>> LuSolver;
 
-// solveMesh K * x = F for x
 void solveMesh(MeshInput &input, MeshOutput &output)
 {
     qint32 pointSize = input.pointSeq.size();
@@ -88,7 +87,7 @@ void solveMesh(MeshInput &input, MeshOutput &output)
     // calculate
     SparseMatrix KK(eqSize, eqSize);
     KK.setFromTriplets(K.begin(), K.end());
-    Solver solver;
+    LuSolver solver;
     solver.compute(KK);
 
     if (solver.info() != Eigen::Success) {
@@ -98,7 +97,7 @@ void solveMesh(MeshInput &input, MeshOutput &output)
     Vector dP = solver.solve(F);
 
     if (solver.info() != Eigen::Success) {
-        throw std::runtime_error("cgm solve failed");
+        throw std::runtime_error("solving 'Kx = F' failed");
     }
 
     // copy to global output

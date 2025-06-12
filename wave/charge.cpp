@@ -2,9 +2,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QPolygon>
-#include "mesh.h"
-
-void solveMesh(MeshInput &input, MeshOutput &output);
+#include "solve.h"
 
 const qreal unit = 1;
 const qreal unitH = unit / 2;
@@ -114,7 +112,6 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
     MeshInput meshInput;
-    MeshOutput meshOutput;
     buildMesh(meshInput, sizeH, sizeV);
 
     for (qint32 i = 0; i < count; i++) {
@@ -128,6 +125,8 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
                    3000 - 10000 * sin((qreal) i / 10),
                    sizeH,
                    sizeV);
+
+        MeshOutput meshOutput;
         solveMesh(meshInput, meshOutput);
 
         QImage image(width, height, QImage::Format_RGB888);
