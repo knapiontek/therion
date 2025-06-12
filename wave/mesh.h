@@ -31,6 +31,8 @@ struct OutputMesh
 {
     QList<Point2D> pointSeq;
     QList<Point2D> forceSeq;
+    QList<qreal> deltaSeq;
+    qreal deltaMax;
 };
 
 #endif // MESH_H

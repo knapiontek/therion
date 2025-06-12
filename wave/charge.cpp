@@ -7,7 +7,7 @@
 
 const qreal unit = 1;
 const qreal unitH = unit / 2;
-const qreal unitV = unit * sqrt(3) / 2;
+const qreal unitV = unit * std::sqrt(3) / 2;
 
 InputMesh buildMesh(qint32 sizeH, qint32 sizeV)
 {
@@ -87,7 +87,7 @@ struct Painter : public QPainter
         qreal x = end.x() - begin.x();
         qreal y = end.y() - begin.y();
 
-        qreal length = sqrt(x * x + y * y);
+        qreal length = std::sqrt(x * x + y * y);
 
         qreal unitX = x / length;
         qreal unitY = y / length;
