@@ -1,11 +1,8 @@
 #include <QApplication>
-#include "mesh.h"
+#include "charge.h"
 #include "mp4creator.h"
+#include "spin.h"
 #include "videowindow.h"
-
-using ImageCapture = std::function<void(const QImage &)>;
-void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture);
-void spinningSnake(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture);
 
 qint32 main(qint32 argc, char *argv[])
 {

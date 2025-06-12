@@ -1,8 +1,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QPen>
-
-using ImageCapture = std::function<void(const QImage &)>;
+#include "common.h"
 
 void spinningSnake(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {

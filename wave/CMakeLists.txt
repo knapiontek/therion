@@ -20,6 +20,9 @@ qt_add_executable(
     charge.cpp
     mesh.h
     solve.h
+    common.h
+    spin.h
+    charge.h
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS

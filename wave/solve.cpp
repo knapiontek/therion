@@ -1,12 +1,4 @@
-#include "mesh.h"
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/Sparse>
-#include <cmath>
-
-typedef Eigen::Triplet<qreal> Triplet;
-typedef Eigen::SparseMatrix<qreal> SparseMatrix;
-typedef Eigen::VectorXd Vector;
-typedef Eigen::SparseLU<SparseMatrix, Eigen::COLAMDOrdering<qint32>> LuSolver;
+#include "solve.h"
 
 void solveMesh(MeshInput &input, MeshOutput &output)
 {
@@ -87,7 +79,7 @@ void solveMesh(MeshInput &input, MeshOutput &output)
     // calculate
     SparseMatrix KK(eqSize, eqSize);
     KK.setFromTriplets(K.begin(), K.end());
-    LuSolver solver;
+    LUSolver solver;
     solver.compute(KK);
 
     if (solver.info() != Eigen::Success) {
@@ -100,7 +92,7 @@ void solveMesh(MeshInput &input, MeshOutput &output)
         throw std::runtime_error("solving 'Kx = F' failed");
     }
 
-    // copy to global output
+    // copy to output
     output.pointSeq.resize(pointSize);
     output.forceSeq.resize(pointSize);
 

@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QPolygon>
+#include "common.h"
 #include "solve.h"
 
 const qreal unit = 1;
@@ -104,8 +105,8 @@ using ImageCapture = std::function<void(const QImage &)>;
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qint32 sizeH = 1 * 42;
-    qint32 sizeV = 1 * 36;
+    qint32 sizeH = 2 * 42;
+    qint32 sizeV = 2 * 36;
     qreal unit = width / sizeH;
 
     auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
