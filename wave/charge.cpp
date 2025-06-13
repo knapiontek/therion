@@ -97,8 +97,8 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     InputMesh inputMesh = buildMesh(sizeH, sizeV);
 
     for (qint32 i = 0; i < count; i++) {
-        applyForce(inputMesh, force1, 10000 * cos((qreal) i / 10), sizeH, sizeV);
-        applyForce(inputMesh, force2, -10000 * cos((qreal) i / 10), sizeH, sizeV);
+        applyForce(inputMesh, force1, EA * cos((qreal) i / 10), sizeH, sizeV);
+        applyForce(inputMesh, force2, -EA * cos((qreal) i / 10), sizeH, sizeV);
 
         OutputMesh outputMesh = solveMesh(inputMesh);
 
