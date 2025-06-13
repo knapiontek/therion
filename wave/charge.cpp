@@ -83,6 +83,7 @@ void applyForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH,
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
+    qreal EA = 10000; // Young * Area
     qint32 sizeH = 1 * 42;
     qint32 sizeV = 1 * 36;
     qreal unit = width / sizeH;
@@ -150,8 +151,10 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             painter.drawPoint(scale(p));
 
             auto &f = it.value();
-            Point2D end{p.x + f.x / 10000, p.y + f.y / 10000};
-            painter.drawArrow(scale(p), scale(end));
+            if (f.x * f.x + f.y * f.y > 0.1 * EA * EA) {
+                Point2D end{p.x + f.x / EA, p.y + f.y / EA};
+                painter.drawArrow(scale(p), scale(end));
+            }
         }
 
         painter.setFont(QFont("Arial", 20));

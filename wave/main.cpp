@@ -9,15 +9,15 @@ qint32 main(qint32 argc, char *argv[])
     QApplication app(argc, argv);
 
     const char *filename = "sample.mp4";
-    qint32 width = 1 * 1024;
-    qint32 height = 1 * 768;
+    qint32 width = 2 * 1024;
+    qint32 height = 2 * 768;
 
     Mp4Creator mp4Creator;
     auto imageCapture = [&mp4Creator](const QImage &image) { mp4Creator.addFrame(image); };
 
     mp4Creator.begin(filename, width, height);
-    charge(width, height, 100, imageCapture);
-    spinningSnake(width, height, 300, imageCapture);
+    spinningSnake(width, height, 170, imageCapture);
+    charge(width, height, 300, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);
