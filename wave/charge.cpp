@@ -83,8 +83,8 @@ void applyForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH,
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qint32 sizeH = 2 * 42;
-    qint32 sizeV = 2 * 36;
+    qint32 sizeH = 1 * 42;
+    qint32 sizeV = 1 * 36;
     qreal unit = width / sizeH;
 
     auto scale = [&unit](const Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
@@ -112,7 +112,7 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
             auto &p = inputMesh.pointSeq[i];
             auto d = outputMesh.deltaSeq[i];
-            int c = 255 * d / outputMesh.deltaMax;
+            int c = std::fmin(0xFF * 3 * d, 0xFF); // 0.4 is max force
             QPen pen(QColor::fromRgb(c, c, c));
             pen.setWidth(4);
             painter.setPen(pen);
