@@ -1,19 +1,19 @@
 #include "solve.h"
 
-OutputMesh solveMesh(InputMesh &input)
+OutputMesh solveMesh(const InputMesh &inputMesh)
 {
-    OutputMesh output;
+    OutputMesh outputMesh;
 
-    qint32 pointSize = input.pointSeq.size();
-    qint32 eqSize = 2 * pointSize;
+    qint32 pointSize = inputMesh.pointSeq.size();
+    qint32 equationSize = 2 * pointSize;
 
     QList<Triplet> K;
-    Vector F(eqSize);
+    Vector F(equationSize);
 
     // init K, F
     for (qint32 i = 0; i < pointSize; i++) {
-        const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});
-        const Point2D &force = input.forceMap.value(i, Point2D{0, 0});
+        const Fix2D &fix = inputMesh.fixMap.value(i, Fix2D{false, false});
+        const Point2D &force = inputMesh.forceMap.value(i, Point2D{0, 0});
 
         qint32 px = 2 * i + 0;
         qint32 py = 2 * i + 1;
@@ -31,11 +31,11 @@ OutputMesh solveMesh(InputMesh &input)
     }
 
     // compose K - stiffness matrix
-    for (auto &element : input.elementSeq) {
-        Point2D &point1 = input.pointSeq[element.p1];
-        Point2D &point2 = input.pointSeq[element.p2];
-        const Fix2D &fix1 = input.fixMap.value(element.p1, Fix2D{false, false});
-        const Fix2D &fix2 = input.fixMap.value(element.p2, Fix2D{false, false});
+    for (auto &element : inputMesh.elementSeq) {
+        const Point2D &point1 = inputMesh.pointSeq[element.p1];
+        const Point2D &point2 = inputMesh.pointSeq[element.p2];
+        const Fix2D &fix1 = inputMesh.fixMap.value(element.p1, Fix2D{false, false});
+        const Fix2D &fix2 = inputMesh.fixMap.value(element.p2, Fix2D{false, false});
 
         qint32 p1x = 2 * element.p1 + 0;
         qint32 p1y = 2 * element.p1 + 1;
@@ -79,7 +79,7 @@ OutputMesh solveMesh(InputMesh &input)
     }
 
     // calculate
-    SparseMatrix KK(eqSize, eqSize);
+    SparseMatrix KK(equationSize, equationSize);
     KK.setFromTriplets(K.begin(), K.end());
     LUSolver solver;
     solver.compute(KK);
@@ -95,16 +95,17 @@ OutputMesh solveMesh(InputMesh &input)
     }
 
     // copy to output
-    output.pointSeq.resize(pointSize);
-    output.forceSeq.resize(pointSize);
-    output.deltaSeq.resize(pointSize);
+    outputMesh.pointSeq.resize(pointSize);
+    outputMesh.forceSeq.resize(pointSize);
+    outputMesh.deltaSeq.resize(pointSize);
+    outputMesh.deltaMax = 0;
 
     for (qint32 i = 0; i < pointSize; i++) {
-        Point2D &point = input.pointSeq[i];
-        const Fix2D &fix = input.fixMap.value(i, Fix2D{false, false});
-        Point2D &outputPoint = output.pointSeq[i];
-        Point2D &ouputForce = output.forceSeq[i];
-        qreal &delta = output.deltaSeq[i];
+        const Point2D &point = inputMesh.pointSeq[i];
+        const Fix2D &fix = inputMesh.fixMap.value(i, Fix2D{false, false});
+        Point2D &outputPoint = outputMesh.pointSeq[i];
+        Point2D &ouputForce = outputMesh.forceSeq[i];
+        qreal &delta = outputMesh.deltaSeq[i];
 
         qint32 px = 2 * i + 0;
         qint32 py = 2 * i + 1;
@@ -113,7 +114,6 @@ OutputMesh solveMesh(InputMesh &input)
 
         qreal delta2X = 0;
         qreal delta2Y = 0;
-        output.deltaMax = 0;
 
         if (fix.x) {
             ouputForce.x = dP[px];
@@ -130,8 +130,8 @@ OutputMesh solveMesh(InputMesh &input)
         }
 
         delta = std::sqrt(delta2X + delta2Y);
-        output.deltaMax = std::max(output.deltaMax, delta);
+        outputMesh.deltaMax = std::fmax(outputMesh.deltaMax, delta);
     }
 
-    return output;
+    return outputMesh;
 }

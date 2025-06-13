@@ -11,7 +11,7 @@ const qreal unitV = unit * std::sqrt(3) / 2;
 
 InputMesh buildMesh(qint32 sizeH, qint32 sizeV)
 {
-    InputMesh input;
+    InputMesh inputMesh;
 
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
@@ -19,33 +19,33 @@ InputMesh buildMesh(qint32 sizeH, qint32 sizeV)
     for (qint32 v = 0; v < sizeV; v++) {
         for (qint32 h = 0; h < sizeH; h++) {
             qreal shiftH = v % 2 == 0 ? unitH : 0;
-            input.pointSeq.append(Point2D{h * unit + shiftH, v * unitV});
+            inputMesh.pointSeq.append(Point2D{h * unit + shiftH, v * unitV});
         }
     }
 
     // fixes on horizontal borders
     for (qint32 i = 0; i < sizeH; i++) {
-        input.fixMap.insert(index(i, 0), Fix2D{true, true});
-        input.fixMap.insert(index(i, sizeV - 1), Fix2D{true, true});
+        inputMesh.fixMap.insert(index(i, 0), Fix2D{true, true});
+        inputMesh.fixMap.insert(index(i, sizeV - 1), Fix2D{true, true});
     }
 
     // fixes on vertical borders
     for (qint32 i = 0; i < sizeV; i++) {
-        input.fixMap.insert(index(0, i), Fix2D{true, true});
-        input.fixMap.insert(index(sizeH - 1, i), Fix2D{true, true});
+        inputMesh.fixMap.insert(index(0, i), Fix2D{true, true});
+        inputMesh.fixMap.insert(index(sizeH - 1, i), Fix2D{true, true});
     }
 
     // horizontal elements
     for (qint32 v = 0; v < sizeV; v++) {
         for (qint32 h = 0; h < sizeH - 1; h++) {
-            input.elementSeq.append(Element{index(h, v), index(h + 1, v)});
+            inputMesh.elementSeq.append(Element{index(h, v), index(h + 1, v)});
         }
     }
 
     // vertical elements
     for (qint32 h = 0; h < sizeH; h++) {
         for (qint32 v = 0; v < sizeV - 1; v++) {
-            input.elementSeq.append(Element{index(h, v), index(h, v + 1)});
+            inputMesh.elementSeq.append(Element{index(h, v), index(h, v + 1)});
         }
     }
 
@@ -53,17 +53,17 @@ InputMesh buildMesh(qint32 sizeH, qint32 sizeV)
     for (qint32 h = 0; h < sizeH - 1; h++) {
         for (qint32 v = 0; v < sizeV - 1; v++) {
             if (v % 2 == 0) {
-                input.elementSeq.append(Element{index(h, v), index(h + 1, v + 1)});
+                inputMesh.elementSeq.append(Element{index(h, v), index(h + 1, v + 1)});
             } else {
-                input.elementSeq.append(Element{index(h + 1, v), index(h, v + 1)});
+                inputMesh.elementSeq.append(Element{index(h + 1, v), index(h, v + 1)});
             }
         }
     }
 
-    return input;
+    return inputMesh;
 }
 
-void applyForce(InputMesh &input, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV)
+void applyForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV)
 {
     struct
     {
@@ -76,7 +76,7 @@ void applyForce(InputMesh &input, qint32 point, qint32 length, qint32 sizeH, qin
                   {point + sizeH + 1, Point2D{unitH * length, unitV * length}},
                   {point + sizeH, Point2D{-unitH * length, unitV * length}}};
     for (auto &v : vectorSeq) {
-        input.forceMap.insert(v.i, v.p);
+        inputMesh.forceMap.insert(v.i, v.p);
     }
 }
 
@@ -92,11 +92,11 @@ struct Painter : public QPainter
         qreal unitX = x / length;
         qreal unitY = y / length;
 
-        qreal midX = end.x() - 12 * unitX;
-        qreal midY = end.y() - 12 * unitY;
+        qreal midX = end.x() - 8 * unitX;
+        qreal midY = end.y() - 8 * unitY;
 
-        QPointF p1(midX + 3 * unitY, midY - 3 * unitX);
-        QPointF p2(midX - 3 * unitY, midY + 3 * unitX);
+        QPointF p1(midX + 2 * unitY, midY - 2 * unitX);
+        QPointF p2(midX - 2 * unitY, midY + 2 * unitX);
 
         drawLine(begin, end);
         QPolygonF polygon;
@@ -107,66 +107,75 @@ struct Painter : public QPainter
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qint32 sizeH = 1 * 42;
-    qint32 sizeV = 1 * 36;
+    qint32 sizeH = 2 * 42;
+    qint32 sizeV = 2 * 36;
     qreal unit = width / sizeH;
 
-    auto scale = [&unit](Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
+    auto scale = [&unit](const Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
-    InputMesh input = buildMesh(sizeH, sizeV);
+    qint32 force1 = index(sizeH / 3, sizeV * 2 / 3);
+    qint32 force2 = index(sizeH * 2 / 3, sizeV / 3);
+
+    InputMesh inputMesh = buildMesh(sizeH, sizeV);
 
     for (qint32 i = 0; i < count; i++) {
-        applyForce(input,
-                   index(sizeH / 3, sizeV * 2 / 3),
-                   3000 + 10000 * cos((qreal) i / 10),
-                   sizeH,
-                   sizeV);
-        applyForce(input,
-                   index(sizeH * 2 / 3, sizeV / 3),
-                   3000 - 10000 * sin((qreal) i / 10),
-                   sizeH,
-                   sizeV);
+        applyForce(inputMesh, force1, 10000 * cos((qreal) i / 10), sizeH, sizeV);
+        applyForce(inputMesh, force2, -10000 * cos((qreal) i / 10), sizeH, sizeV);
 
-        OutputMesh output = solveMesh(input);
+        OutputMesh outputMesh = solveMesh(inputMesh);
 
         QImage image(width, height, QImage::Format_RGB888);
         image.fill(QColor::fromRgb(0, 0, 0));
 
-        QPen fixPen(Qt::red);
-        fixPen.setWidth(3);
-
-        QPen forcePen(Qt::yellow);
-        forcePen.setWidth(4);
-
-        QPen meshPen(Qt::white);
-        meshPen.setWidthF(0.5);
-
         Painter painter;
         painter.begin(&image);
         painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setBrush(Qt::white);
 
-        // elements
-        painter.setPen(meshPen);
-        for (auto &e : input.elementSeq) {
-            auto &p1 = output.pointSeq[e.p1];
-            auto &p2 = output.pointSeq[e.p2];
-            painter.drawArrow(scale(p1), scale(p2));
+        // points
+        for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
+            auto &p = inputMesh.pointSeq[i];
+            auto d = outputMesh.deltaSeq[i];
+            int c = 255 * d / outputMesh.deltaMax;
+            QPen pen(QColor::fromRgb(c, c, c));
+            pen.setWidth(4);
+            painter.setPen(pen);
+            painter.drawPoint(scale(p));
         }
 
-        // fixes
-        painter.setPen(fixPen);
-        for (auto it = input.fixMap.begin(); it != input.fixMap.end(); ++it) {
-            auto &p = output.pointSeq[it.key()];
-            painter.drawPoint(scale(p));
+        if (false) {
+            // elements
+            QPen meshPen(Qt::red);
+            meshPen.setWidth(3);
+            painter.setPen(meshPen);
+            for (auto &e : inputMesh.elementSeq) {
+                auto &p1 = outputMesh.pointSeq[e.p1];
+                auto &p2 = outputMesh.pointSeq[e.p2];
+                painter.drawArrow(scale(p1), scale(p2));
+            }
+
+            // fixes
+            QPen fixPen(Qt::red);
+            fixPen.setWidth(3);
+            painter.setPen(fixPen);
+            for (auto it = inputMesh.fixMap.begin(); it != inputMesh.fixMap.end(); ++it) {
+                auto &p = inputMesh.pointSeq[it.key()];
+                painter.drawPoint(scale(p));
+            }
         }
 
         // forces
+        QPen forcePen(Qt::yellow);
+        forcePen.setWidth(1);
         painter.setPen(forcePen);
-        for (auto it = input.forceMap.begin(); it != input.forceMap.end(); ++it) {
-            auto &p = output.pointSeq[it.key()];
+        painter.setBrush(Qt::yellow);
+        for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
+            auto &p = inputMesh.pointSeq[it.key()];
             painter.drawPoint(scale(p));
+
+            auto &f = it.value();
+            Point2D end{p.x + f.x / 10000, p.y + f.y / 10000};
+            painter.drawArrow(scale(p), scale(end));
         }
 
         painter.setFont(QFont("Arial", 20));
