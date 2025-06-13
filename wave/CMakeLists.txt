@@ -23,6 +23,7 @@ qt_add_executable(
     common.h
     spin.h
     charge.h
+    painter.h
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS
