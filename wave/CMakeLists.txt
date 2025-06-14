@@ -13,17 +13,15 @@ qt_add_executable(
     wave
     WIN32 MACOSX_BUNDLE
     main.cpp
-    mp4creator.h mp4creator.cpp
-    solve.cpp
-    videowindow.h
-    spin.cpp
-    charge.cpp
-    mesh.h
-    solve.h
     common.h
-    spin.h
-    charge.h
     painter.h
+    videowindow.h
+    mp4creator.h mp4creator.cpp
+    mesh.h mesh.cpp
+    solve.h solve.cpp
+    spin.h spin.cpp
+    charge.h charge.cpp
+    torque.h torque.cpp
 )
 
 find_package(Qt6 ${USED_QT_VERSION} REQUIRED COMPONENTS

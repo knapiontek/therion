@@ -2,6 +2,7 @@
 #include "charge.h"
 #include "mp4creator.h"
 #include "spin.h"
+#include "torque.h"
 #include "videowindow.h"
 
 qint32 main(qint32 argc, char *argv[])
@@ -18,6 +19,7 @@ qint32 main(qint32 argc, char *argv[])
     mp4Creator.begin(filename, width, height);
     spinningSnake(width, height, 17, imageCapture);
     charge(width, height, 1, imageCapture);
+    torque(width, height, 1, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);

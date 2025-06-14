@@ -1,6 +1,8 @@
 #ifndef PAINTER_H
 #define PAINTER_H
 
+#include <QPainter>
+
 struct Painter : public QPainter
 {
     void drawArrow(const QPointF &begin, const QPointF &end)

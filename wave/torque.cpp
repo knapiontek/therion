@@ -1,3 +1,5 @@
+#include "torque.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QPen>
@@ -6,7 +8,7 @@
 #include "painter.h"
 #include "solve.h"
 
-void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
+void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
     qint32 sizeH = 1 * 42;
     qint32 sizeV = 1 * 36;
@@ -34,14 +36,13 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.setRenderHint(QPainter::Antialiasing, true);
 
         // points
+        QPen deltaPen(Qt::white);
+        deltaPen.setWidth(1);
+        painter.setPen(deltaPen);
         for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
             auto &p = inputMesh.pointSeq[i];
-            auto delta = outputMesh.deltaSeq[i];
-            int color = std::fmin(0xFF * 30 * (delta * delta), 0xFF);
-            QPen pen(QColor::fromRgb(color, color, color));
-            pen.setWidth(4);
-            painter.setPen(pen);
-            painter.drawPoint(scale(p));
+            auto &delta = outputMesh.deltaSeq[i];
+            painter.drawArrow(scale(p), scale(p + delta));
         }
 
         if (false) {
@@ -74,11 +75,13 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.setBrush(Qt::yellow);
         for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
             auto &p = inputMesh.pointSeq[it.key()];
-            painter.drawPoint(scale(p));
+            auto &dp = outputMesh.deltaSeq[it.key()];
+            auto pdp = p + dp;
+            painter.drawPoint(scale(pdp));
 
             auto &f = it.value();
             if (f * f > 0.07 * EA * EA) {
-                painter.drawArrow(scale(p), scale(p + f * .8 / EA));
+                painter.drawArrow(scale(pdp), scale(pdp + f / EA));
             }
         }
 
@@ -87,8 +90,8 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
 
         painter.end();
 
-        qDebug() << "charge frame: " << i;
-        image.save("charge.png");
+        qDebug() << "torque frame: " << i;
+        image.save("torque.png");
         imageCapture(image);
     }
 }

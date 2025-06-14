@@ -39,4 +39,7 @@ struct OutputMesh
     QList<Point2D> forceSeq;
 };
 
+InputMesh buildMesh(qint32 sizeH, qint32 sizeV);
+void applyStarForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV);
+
 #endif // MESH_H
