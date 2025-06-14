@@ -33,7 +33,7 @@ void spinningSnake(qint32 width, qint32 height, qint32 count, ImageCapture image
         painter.drawPoint(scale((qreal) i / 5 + 0.00));
 
         painter.setFont(QFont("Arial", 20));
-        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));
+        painter.drawText(image.rect(), Qt::AlignTop, QString("snake frame %1").arg(i + 1));
 
         painter.end();
 

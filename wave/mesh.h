@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <QDebug>
 #include <QList>
 #include <QMap>
 
@@ -14,6 +15,13 @@ struct Point2D
     Point2D operator/(qreal value) const { return Point2D{x / value, y / value}; }
     qreal operator*(const Point2D &rhs) const { return x * rhs.x + y * rhs.y; }
 };
+
+inline QDebug operator<<(QDebug dbg, const Point2D &p)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace() << "(" << p.x << ", " << p.y << ")";
+    return dbg;
+}
 
 struct Element
 {

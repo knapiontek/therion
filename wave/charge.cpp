@@ -44,6 +44,18 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             painter.drawPoint(scale(p));
         }
 
+        // forces
+        QPen forcePen(Qt::yellow);
+        forcePen.setWidth(1);
+        painter.setPen(forcePen);
+        painter.setBrush(Qt::yellow);
+        for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
+            auto &p = inputMesh.pointSeq[it.key()];
+            auto &f = it.value();
+            if (f * f > 0.07 * EA * EA)
+                painter.drawArrow(scale(p), scale(p + f * .8 / EA));
+        }
+
         if (false) {
             // elements
             QPen meshPen(Qt::red);
@@ -67,23 +79,8 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             }
         }
 
-        // forces
-        QPen forcePen(Qt::yellow);
-        forcePen.setWidth(1);
-        painter.setPen(forcePen);
-        painter.setBrush(Qt::yellow);
-        for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
-            auto &p = inputMesh.pointSeq[it.key()];
-            painter.drawPoint(scale(p));
-
-            auto &f = it.value();
-            if (f * f > 0.07 * EA * EA) {
-                painter.drawArrow(scale(p), scale(p + f * .8 / EA));
-            }
-        }
-
         painter.setFont(QFont("Arial", 20));
-        painter.drawText(image.rect(), Qt::AlignTop, QString("Frame %1").arg(i + 1));
+        painter.drawText(image.rect(), Qt::AlignTop, QString("charge frame %1").arg(i + 1));
 
         painter.end();
 
