@@ -16,8 +16,8 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     auto scale = [&unit](const Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
     auto index = [&sizeH](qint32 h, qint32 v) { return h + (v * sizeH); };
 
-    qint32 force1 = index(sizeH / 3, sizeV / 2);
-    qint32 force2 = index(sizeH * 2 / 3, sizeV / 2);
+    qint32 force1 = index(sizeH / 2 - 4, sizeV / 2);
+    qint32 force2 = index(sizeH / 2 + 4, sizeV / 2);
 
     InputMesh inputMesh = buildMesh(sizeH, sizeV);
 
@@ -42,8 +42,7 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
             auto &p = inputMesh.pointSeq[i];
             auto &d = outputMesh.deltaSeq[i];
-            if (d * d > 0.01)
-                painter.drawArrow(scale(p), scale(p + d * 2));
+            painter.drawArrow(scale(p), scale(p + d * 2));
         }
 
         // forces
@@ -55,7 +54,7 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             auto &p = inputMesh.pointSeq[it.key()];
             auto &d = outputMesh.deltaSeq[it.key()];
             auto &f = it.value();
-            qDebug() << "torque delta" << d << " force" << f << " at point" << p;
+            qDebug() << "torque delta" << d << "force" << f << "at point" << p;
             if (f * f > 0.07 * EA * EA)
                 painter.drawArrow(scale(p), scale(p + f * 2 / EA));
         }
@@ -65,7 +64,7 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
 
         painter.end();
 
-        qDebug() << "torque frame: " << i;
+        qDebug() << "torque frame:" << i;
         image.save("torque.png");
         imageCapture(image);
     }

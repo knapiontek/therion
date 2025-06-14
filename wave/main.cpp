@@ -18,8 +18,8 @@ qint32 main(qint32 argc, char *argv[])
 
     mp4Creator.begin(filename, width, height);
     spinningSnake(width, height, 17, imageCapture);
-    charge(width, height, 1, imageCapture);
-    torque(width, height, 1, imageCapture);
+    charge(width, height, 30, imageCapture);
+    torque(width, height, 30, imageCapture);
     mp4Creator.end();
 
     VideoWindow window(filename);

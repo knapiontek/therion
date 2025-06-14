@@ -52,8 +52,7 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
             auto &p = inputMesh.pointSeq[it.key()];
             auto &f = it.value();
-            if (f * f > 0.07 * EA * EA)
-                painter.drawArrow(scale(p), scale(p + f * .8 / EA));
+            painter.drawArrow(scale(p), scale(p + f * .8 / EA));
         }
 
         if (false) {
