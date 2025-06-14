@@ -16,6 +16,7 @@ struct Point2D
     Point2D operator+(const Point2D &rhs) const { return Point2D(x + rhs.x, y + rhs.y); }
     Point2D operator-(const Point2D &rhs) const { return Point2D(x - rhs.x, y - rhs.y); }
     Point2D operator*(qreal value) const { return Point2D(x * value, y * value); }
+    Point2D operator/(qreal value) const { return Point2D(x / value, y / value); }
     qreal operator*(const Point2D &rhs) const { return x * rhs.x + y * rhs.y; }
 };
 

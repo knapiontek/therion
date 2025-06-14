@@ -149,12 +149,12 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.setBrush(Qt::yellow);
         for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
             auto &p = inputMesh.pointSeq[it.key()];
-            painter.drawPoint(scale(p));
+            auto &dp = outputMesh.deltaSeq[it.key()];
+            painter.drawPoint(scale(p + dp));
 
             auto &f = it.value();
-            if (f.x * f.x + f.y * f.y > 0.1 * EA * EA) {
-                Point2D end{p.x + f.x / EA, p.y + f.y / EA};
-                painter.drawArrow(scale(p), scale(end));
+            if (f * f > 0.07 * EA * EA) {
+                painter.drawArrow(scale(p + dp), scale(p + dp / EA));
             }
         }
 
