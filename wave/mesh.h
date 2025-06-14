@@ -7,6 +7,16 @@
 struct Point2D
 {
     qreal x, y;
+
+    Point2D(qreal x = 0, qreal y = 0)
+        : x(x)
+        , y(y)
+    {}
+
+    Point2D operator+(const Point2D &rhs) const { return Point2D(x + rhs.x, y + rhs.y); }
+    Point2D operator-(const Point2D &rhs) const { return Point2D(x - rhs.x, y - rhs.y); }
+    Point2D operator*(qreal value) const { return Point2D(x * value, y * value); }
+    qreal operator*(const Point2D &rhs) const { return x * rhs.x + y * rhs.y; }
 };
 
 struct Element
@@ -29,10 +39,8 @@ struct InputMesh
 
 struct OutputMesh
 {
-    QList<Point2D> pointSeq;
+    QList<Point2D> deltaSeq;
     QList<Point2D> forceSeq;
-    QList<qreal> deltaSeq;
-    qreal deltaMax;
 };
 
 #endif // MESH_H

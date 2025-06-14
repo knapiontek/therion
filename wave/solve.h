@@ -6,6 +6,8 @@
 #include <Eigen/Sparse>
 #include <cmath>
 
+const qreal EA = 1000; // Young * Area
+
 typedef Eigen::Triplet<qreal> Triplet;
 typedef Eigen::SparseMatrix<qreal> SparseMatrix;
 typedef Eigen::VectorXd Vector;

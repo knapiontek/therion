@@ -42,7 +42,6 @@ OutputMesh solveMesh(const InputMesh &inputMesh)
         qint32 p2x = 2 * element.p2 + 0;
         qint32 p2y = 2 * element.p2 + 1;
 
-        qreal EA = 10000; // Young * Area
         qreal dx = point2.x - point1.x;
         qreal dy = point2.y - point1.y;
         qreal l = std::sqrt(dx * dx + dy * dy);
@@ -95,42 +94,26 @@ OutputMesh solveMesh(const InputMesh &inputMesh)
     }
 
     // copy to output
-    outputMesh.pointSeq.resize(pointSize);
-    outputMesh.forceSeq.resize(pointSize);
     outputMesh.deltaSeq.resize(pointSize);
-    outputMesh.deltaMax = 0;
+    outputMesh.forceSeq.resize(pointSize);
 
     for (qint32 i = 0; i < pointSize; i++) {
-        const Point2D &point = inputMesh.pointSeq[i];
         const Fix2D &fix = inputMesh.fixMap.value(i, Fix2D{false, false});
-        Point2D &outputPoint = outputMesh.pointSeq[i];
-        Point2D &ouputForce = outputMesh.forceSeq[i];
-        qreal &delta = outputMesh.deltaSeq[i];
+        Point2D &delta = outputMesh.deltaSeq[i];
+        Point2D &force = outputMesh.forceSeq[i];
 
         qint32 px = 2 * i + 0;
         qint32 py = 2 * i + 1;
-        outputPoint = point;
-        ouputForce = Point2D{0, 0};
 
-        qreal delta2X = 0;
-        qreal delta2Y = 0;
+        if (fix.x)
+            force.x = dP[px];
+        else
+            delta.x = dP[px];
 
-        if (fix.x) {
-            ouputForce.x = dP[px];
-        } else {
-            outputPoint.x += dP[px];
-            delta2X = dP[px] * dP[px];
-        }
-
-        if (fix.y) {
-            ouputForce.y = dP[py];
-        } else {
-            outputPoint.y += dP[py];
-            delta2Y = dP[py] * dP[py];
-        }
-
-        delta = std::sqrt(delta2X + delta2Y);
-        outputMesh.deltaMax = std::fmax(outputMesh.deltaMax, delta);
+        if (fix.y)
+            force.y = dP[py];
+        else
+            delta.y = dP[py];
     }
 
     return outputMesh;

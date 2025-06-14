@@ -64,26 +64,25 @@ InputMesh buildMesh(qint32 sizeH, qint32 sizeV)
     return inputMesh;
 }
 
-void applyForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV)
+void applyStarForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 sizeH, qint32 sizeV)
 {
     struct
     {
         qint32 i;
         Point2D p;
-    } vectorSeq[]{{point - 1, Point2D{-unit * length, 0}},
-                  {point + 1, Point2D{unit * length, 0}},
-                  {point - sizeH + 1, Point2D{unitH * length, -unitV * length}},
-                  {point - sizeH, Point2D{-unitH * length, -unitV * length}},
-                  {point + sizeH + 1, Point2D{unitH * length, unitV * length}},
-                  {point + sizeH, Point2D{-unitH * length, unitV * length}}};
+    } vectorSeq[]{{point - 1, Point2D(-unit, 0)},
+                  {point + 1, Point2D(unit, 0)},
+                  {point - sizeH + 1, Point2D(unitH, -unitV)},
+                  {point - sizeH, Point2D(-unitH, -unitV)},
+                  {point + sizeH + 1, Point2D(unitH, unitV)},
+                  {point + sizeH, Point2D(-unitH, unitV)}};
     for (auto &v : vectorSeq) {
-        inputMesh.forceMap.insert(v.i, v.p);
+        inputMesh.forceMap.insert(v.i, v.p * length);
     }
 }
 
 void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qreal EA = 10000; // Young * Area
     qint32 sizeH = 1 * 42;
     qint32 sizeV = 1 * 36;
     qreal unit = width / sizeH;
@@ -97,8 +96,8 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     InputMesh inputMesh = buildMesh(sizeH, sizeV);
 
     for (qint32 i = 0; i < count; i++) {
-        applyForce(inputMesh, force1, EA * cos((qreal) i / 10), sizeH, sizeV);
-        applyForce(inputMesh, force2, -EA * cos((qreal) i / 10), sizeH, sizeV);
+        applyStarForce(inputMesh, force1, EA * cos((qreal) i / 10), sizeH, sizeV);
+        applyStarForce(inputMesh, force2, -EA * cos((qreal) i / 10), sizeH, sizeV);
 
         OutputMesh outputMesh = solveMesh(inputMesh);
 
@@ -112,9 +111,9 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         // points
         for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
             auto &p = inputMesh.pointSeq[i];
-            auto d = outputMesh.deltaSeq[i];
-            int c = std::fmin(0xFF * 3 * d, 0xFF); // 0.4 is max force
-            QPen pen(QColor::fromRgb(c, c, c));
+            auto delta = outputMesh.deltaSeq[i];
+            int color = std::fmin(0xFF * 30 * (delta * delta), 0xFF); // 0.4 is max force
+            QPen pen(QColor::fromRgb(color, color, color));
             pen.setWidth(4);
             painter.setPen(pen);
             painter.drawPoint(scale(p));
@@ -126,9 +125,11 @@ void charge(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             meshPen.setWidth(3);
             painter.setPen(meshPen);
             for (auto &e : inputMesh.elementSeq) {
-                auto &p1 = outputMesh.pointSeq[e.p1];
-                auto &p2 = outputMesh.pointSeq[e.p2];
-                painter.drawArrow(scale(p1), scale(p2));
+                auto &p1 = inputMesh.pointSeq[e.p1];
+                auto &p2 = inputMesh.pointSeq[e.p2];
+                auto &dp1 = outputMesh.deltaSeq[e.p1];
+                auto &dp2 = outputMesh.deltaSeq[e.p2];
+                painter.drawArrow(scale(p1 + dp1), scale(p2 + dp2));
             }
 
             // fixes
