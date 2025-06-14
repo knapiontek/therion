@@ -99,8 +99,8 @@ OutputMesh solveMesh(const InputMesh &inputMesh)
 
     for (qint32 i = 0; i < pointSize; i++) {
         const Fix2D &fix = inputMesh.fixMap.value(i, Fix2D{false, false});
-        Point2D &delta = outputMesh.deltaSeq[i];
-        Point2D &force = outputMesh.forceSeq[i];
+        Point2D &delta = outputMesh.deltaSeq[i] = Point2D{0, 0};
+        Point2D &force = outputMesh.forceSeq[i] = Point2D{0, 0};
 
         qint32 px = 2 * i + 0;
         qint32 py = 2 * i + 1;

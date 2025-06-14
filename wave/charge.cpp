@@ -70,12 +70,12 @@ void applyStarForce(InputMesh &inputMesh, qint32 point, qint32 length, qint32 si
     {
         qint32 i;
         Point2D p;
-    } vectorSeq[]{{point - 1, Point2D(-unit, 0)},
-                  {point + 1, Point2D(unit, 0)},
-                  {point - sizeH + 1, Point2D(unitH, -unitV)},
-                  {point - sizeH, Point2D(-unitH, -unitV)},
-                  {point + sizeH + 1, Point2D(unitH, unitV)},
-                  {point + sizeH, Point2D(-unitH, unitV)}};
+    } vectorSeq[]{{point - 1, Point2D{-unit, 0}},
+                  {point + 1, Point2D{unit, 0}},
+                  {point - sizeH + 1, Point2D{unitH, -unitV}},
+                  {point - sizeH, Point2D{-unitH, -unitV}},
+                  {point + sizeH + 1, Point2D{unitH, unitV}},
+                  {point + sizeH, Point2D{-unitH, unitV}}};
     for (auto &v : vectorSeq) {
         inputMesh.forceMap.insert(v.i, v.p * length);
     }
