@@ -17,27 +17,23 @@ struct Painter : public QPainter
 
         drawLine(begin, end);
 
-        if (length > 30) {
-            qreal midX = end.x() - 8 * unitX;
-            qreal midY = end.y() - 8 * unitY;
+        qreal h = 8;
+        qreal w = 2;
 
-            QPointF p1(midX + 2 * unitY, midY - 2 * unitX);
-            QPointF p2(midX - 2 * unitY, midY + 2 * unitX);
-
-            QPolygonF polygon;
-            polygon << end << p1 << p2;
-            drawPolygon(polygon);
-        } else if (length > 10) {
-            qreal midX = end.x() - 4 * unitX;
-            qreal midY = end.y() - 4 * unitY;
-
-            QPointF p1(midX + 1 * unitY, midY - 1 * unitX);
-            QPointF p2(midX - 1 * unitY, midY + 1 * unitX);
-
-            QPolygonF polygon;
-            polygon << end << p1 << p2;
-            drawPolygon(polygon);
+        if (length < 30) {
+            h = h * length / 30;
+            w = w * length / 30;
         }
+
+        qreal midX = end.x() - h * unitX;
+        qreal midY = end.y() - h * unitY;
+
+        QPointF p1(midX + w * unitY, midY - w * unitX);
+        QPointF p2(midX - w * unitY, midY + w * unitX);
+
+        QPolygonF polygon;
+        polygon << end << p1 << p2;
+        drawPolygon(polygon);
     }
 };
 
