@@ -9,8 +9,8 @@
 
 void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture)
 {
-    qint32 sizeH = 1 * 42;
-    qint32 sizeV = 1 * 36;
+    qint32 sizeH = 2 * 42;
+    qint32 sizeV = 2 * 36;
     qreal unit = width / sizeH;
 
     auto scale = [&unit](const Point2D &p) { return QPointF(unit * p.x + 24, unit * p.y + 24); };
@@ -22,9 +22,10 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
     InputMesh inputMesh = buildMesh(sizeH, sizeV);
 
     for (qint32 i = 0; i < count; i++) {
-        qint32 length = EA * cos((qreal) i / 10);
-        inputMesh.forceMap.insert(force1, Point2D{0, -1} * length);
-        inputMesh.forceMap.insert(force2, Point2D{0, 1} * length);
+        qreal length1 = EA * cos(1.0 * i / 10);
+        qreal length2 = EA * cos(1.2 * i / 10);
+        inputMesh.forceMap.insert(force1, Point2D{0, -1} * length1);
+        inputMesh.forceMap.insert(force2, Point2D{0, 1} * length2);
 
         OutputMesh outputMesh = solveMesh(inputMesh);
 
@@ -36,13 +37,14 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.setRenderHint(QPainter::Antialiasing, true);
 
         // points
-        QPen deltaPen(Qt::white);
-        deltaPen.setWidth(1);
-        painter.setPen(deltaPen);
         for (qint32 i = 0; i < inputMesh.pointSeq.size(); ++i) {
-            auto &p = inputMesh.pointSeq[i];
-            auto &d = outputMesh.deltaSeq[i];
-            painter.drawArrow(scale(p), scale(p + d * 2));
+            auto &point = inputMesh.pointSeq[i];
+            auto &delta = outputMesh.deltaSeq[i];
+            int color = std::fmin(0xFF * 30 * (delta * delta), 0xFF);
+            QPen pen(QColor::fromRgb(color, color, color));
+            pen.setWidth(1);
+            painter.setPen(pen);
+            painter.drawArrow(scale(point), scale(point + delta * 2));
         }
 
         // forces
@@ -51,11 +53,11 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
         painter.setPen(forcePen);
         painter.setBrush(Qt::yellow);
         for (auto it = inputMesh.forceMap.begin(); it != inputMesh.forceMap.end(); ++it) {
-            auto &p = inputMesh.pointSeq[it.key()];
-            auto &d = outputMesh.deltaSeq[it.key()];
-            auto &f = it.value();
-            qDebug() << "torque delta" << d << "force" << f << "at point" << p;
-            painter.drawArrow(scale(p), scale(p + f * 2 / EA));
+            auto &point = inputMesh.pointSeq[it.key()];
+            auto &delta = outputMesh.deltaSeq[it.key()];
+            auto &force = it.value();
+            qDebug() << "torque delta" << delta << "force" << force << "at point" << point;
+            painter.drawArrow(scale(point), scale(point + force * 2 / EA));
         }
 
         painter.setFont(QFont("Arial", 20));
