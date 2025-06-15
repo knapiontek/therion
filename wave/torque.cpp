@@ -55,8 +55,7 @@ void torque(qint32 width, qint32 height, qint32 count, ImageCapture imageCapture
             auto &d = outputMesh.deltaSeq[it.key()];
             auto &f = it.value();
             qDebug() << "torque delta" << d << "force" << f << "at point" << p;
-            if (f * f > 0.07 * EA * EA)
-                painter.drawArrow(scale(p), scale(p + f * 2 / EA));
+            painter.drawArrow(scale(p), scale(p + f * 2 / EA));
         }
 
         painter.setFont(QFont("Arial", 20));
