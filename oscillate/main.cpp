@@ -37,7 +37,7 @@ struct Point2D
 // Constants
 const double k = 0.01;
 const double m = 1.0;
-const double dt = 0.5;
+const double dt = 0.2;
 const double restLength = 100.0;
 const Point2D p1 = {100, 200}; // Fixed
 const Point2D p3 = {300, 200}; // Fixed
