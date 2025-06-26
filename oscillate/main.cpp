@@ -104,8 +104,8 @@ private:
 
         v2 += a2 * 0.5 * dt;
 
-        auto d1 = (p2 - p1).length();
-        auto d3 = (p2 - p3).length();
+        auto d1 = (p2 - p1).length() - restLength;
+        auto d3 = (p2 - p3).length() - restLength;
         totalEnergy = (0.5 * m * v2.length() * v2.length()) + (0.5 * k * d1 * d1)
                       + (0.5 * k * d3 * d3);
 
