@@ -4,101 +4,113 @@
 #include <QWidget>
 #include <cmath>
 
-struct Point
+struct Point2D
 {
     double x, y;
+
+    Point2D operator+(const Point2D &b) const { return {x + b.x, y + b.y}; }
+    Point2D operator-(const Point2D &b) const { return {x - b.x, y - b.y}; }
+    Point2D operator*(double s) const { return {x * s, y * s}; }
+    Point2D operator/(double s) const { return {x / s, y / s}; }
+
+    Point2D &operator+=(const Point2D &b)
+    {
+        x += b.x;
+        y += b.y;
+        return *this;
+    }
+    Point2D &operator*=(double s)
+    {
+        x *= s;
+        y *= s;
+        return *this;
+    }
+
+    double length() const { return std::sqrt(x * x + y * y); }
+    Point2D normalized() const
+    {
+        double len = length();
+        return (len > 1e-8) ? *this / len : Point2D{0, 0};
+    }
 };
 
-const double k = 0.01;         // Spring constant
-const double m = 1.0;          // Mass
-const double dt = 0.5;         // Time step
-const double restLength = 100; // Natural spring length
+// Constants
+const double k = 0.01;
+const double m = 1.0;
+const double dt = 0.5;
+const double restLength = 100.0;
 
-// Initial positions
-Point p1 = {100, 200}; // Fixed
-Point p3 = {300, 200}; // Fixed
-Point p2 = {200, 150}; // Movable (initially displaced for oscillation)
+const Point2D p1 = {100, 200}; // Fixed
+const Point2D p3 = {300, 200}; // Fixed
 
-// Velocity and acceleration of p2
-Point v2 = {0, 0};
-Point a2 = {0, 0};
+// State of moving point
+Point2D p2 = {200, 100};       // Initial position
+Point2D v2_half = {-5.5, 3.5}; // Velocity at t + ½·dt
 
-class OscillatorWidget : public QWidget
+class LeapfrogOscillator : public QWidget
 {
 public:
-    OscillatorWidget(QWidget *parent = nullptr)
+    LeapfrogOscillator(QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setFixedSize(400, 400);
-
-        // Initial acceleration and half-step Leapfrog velocity
-        computeAcceleration();
-        v2.x -= 0.5 * dt * a2.x;
-        v2.y -= 0.5 * dt * a2.y;
-
         QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, this, &OscillatorWidget::updateSimulation);
-        timer->start(16);
+        connect(timer, &QTimer::timeout, this, &LeapfrogOscillator::simulate);
+        timer->start(16); // ~60 FPS
     }
 
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
 
         // Draw springs
-        p.setPen(Qt::black);
-        p.drawLine(QPointF(p1.x, p1.y), QPointF(p2.x, p2.y));
-        p.drawLine(QPointF(p2.x, p2.y), QPointF(p3.x, p3.y));
+        painter.setPen(Qt::black);
+        painter.drawLine(QPointF(p1.x, p1.y), QPointF(p2.x, p2.y));
+        painter.drawLine(QPointF(p3.x, p3.y), QPointF(p2.x, p2.y));
 
-        // Draw masses
-        p.setBrush(Qt::red);
-        p.drawEllipse(QPointF(p1.x, p1.y), 5, 5);
-        p.setBrush(Qt::blue);
-        p.drawEllipse(QPointF(p2.x, p2.y), 5, 5);
-        p.setBrush(Qt::red);
-        p.drawEllipse(QPointF(p3.x, p3.y), 5, 5);
+        // Fixed points
+        painter.setBrush(Qt::red);
+        painter.drawEllipse(QPointF(p1.x, p1.y), 5, 5);
+        painter.drawEllipse(QPointF(p3.x, p3.y), 5, 5);
+
+        // Moving mass
+        painter.setBrush(Qt::blue);
+        painter.drawEllipse(QPointF(p2.x, p2.y), 6, 6);
     }
 
 private:
-    void computeAcceleration()
+    Point2D springForce(const Point2D &anchor, const Point2D &mass)
     {
-        // Force from p1 to p2
-        double dx1 = p2.x - p1.x;
-        double dy1 = p2.y - p1.y;
-        double len1 = std::sqrt(dx1 * dx1 + dy1 * dy1);
-        double f1x = -k * (len1 - restLength) * (dx1 / len1);
-        double f1y = -k * (len1 - restLength) * (dy1 / len1);
-
-        // Force from p3 to p2
-        double dx2 = p2.x - p3.x;
-        double dy2 = p2.y - p3.y;
-        double len2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
-        double f2x = -k * (len2 - restLength) * (dx2 / len2);
-        double f2y = -k * (len2 - restLength) * (dy2 / len2);
-
-        // Net acceleration
-        a2.x = (f1x + f2x) / m;
-        a2.y = (f1y + f2y) / m;
+        Point2D delta = mass - anchor;
+        double len = delta.length();
+        double stretch = len - restLength;
+        return delta.normalized() * (-k * stretch);
     }
 
-    void updateSimulation()
+    void simulate()
     {
-        // Leapfrog integration
-        v2.x += dt * a2.x;
-        v2.y += dt * a2.y;
-        p2.x += dt * v2.x;
-        p2.y += dt * v2.y;
-        computeAcceleration();
-        update();
+        // Step 1: compute acceleration from current position
+        Point2D f1 = springForce(p1, p2);
+        Point2D f3 = springForce(p3, p2);
+        Point2D totalForce = f1 + f3;
+        Point2D a = totalForce / m;
+
+        // Step 2: update velocity at half-step
+        v2_half += a * dt;
+
+        // Step 3: update position at full-step using updated half-step velocity
+        p2 += v2_half * dt;
+
+        update(); // Trigger paintEvent()
     }
 };
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    OscillatorWidget w;
+    QApplication app(argc, argv);
+    LeapfrogOscillator w;
     w.show();
-    return a.exec();
+    return app.exec();
 }
