@@ -63,17 +63,20 @@ private:
         v2 += a2 * dt / 2;
         p2 += v2 * dt;
 
-        auto diff1 = p2 - p1;
-        auto diff3 = p2 - p3;
+        QPointF dp1 = p2 - p1;
+        QPointF dp3 = p2 - p3;
 
-        auto l1 = length(diff1);
-        auto l3 = length(diff3);
+        qreal l1 = length(dp1);
+        qreal l3 = length(dp3);
 
-        auto d1 = l1 - restLength;
-        auto d3 = l3 - restLength;
+        qreal d1 = l1 - restLength;
+        qreal d3 = l3 - restLength;
 
-        auto f1 = diff1 / l1 * (-k * d1);
-        auto f3 = diff3 / l3 * (-k * d3);
+        QPointF u1 = dp1 / l1;
+        QPointF u3 = dp3 / l3;
+
+        QPointF f1 = u1 * -k * d1;
+        QPointF f3 = u3 * -k * d3;
 
         a2 = (f1 + f3) / m;
         v2 += a2 * dt / 2;
