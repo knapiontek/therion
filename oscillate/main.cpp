@@ -44,8 +44,9 @@ const Point2D p1 = {100, 200}; // Fixed
 const Point2D p3 = {300, 200}; // Fixed
 
 // State of moving point
-Point2D p2 = {200, 100};       // Initial position
-Point2D v2_half = {-5.5, 3.5}; // Velocity at t + ½·dt
+Point2D p2 = {200, 100};  // Initial position
+Point2D v2 = {-5.5, 3.5}; // Velocity at t+1/2*dt
+Point2D a2 = {0.0, 0.0};
 
 class LeapfrogOscillator : public QWidget
 {
@@ -91,17 +92,15 @@ private:
 
     void simulate()
     {
-        // Step 1: compute acceleration from current position
+        v2 += a2 * 0.5 * dt;
+        p2 += v2 * dt;
+
         Point2D f1 = springForce(p1, p2);
         Point2D f3 = springForce(p3, p2);
         Point2D totalForce = f1 + f3;
-        Point2D a = totalForce / m;
+        a2 = totalForce / m;
 
-        // Step 2: update velocity at half-step
-        v2_half += a * dt;
-
-        // Step 3: update position at full-step using updated half-step velocity
-        p2 += v2_half * dt;
+        v2 += a2 * 0.5 * dt;
 
         update(); // Trigger paintEvent()
     }
