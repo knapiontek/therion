@@ -39,7 +39,6 @@ const double k = 0.01;
 const double m = 1.0;
 const double dt = 0.5;
 const double restLength = 100.0;
-
 const Point2D p1 = {100, 200}; // Fixed
 const Point2D p3 = {300, 200}; // Fixed
 
@@ -47,6 +46,7 @@ const Point2D p3 = {300, 200}; // Fixed
 Point2D p2 = {200, 100};  // Initial position
 Point2D v2 = {-5.5, 3.5}; // Velocity at t+1/2*dt
 Point2D a2 = {0.0, 0.0};
+double totalEnergy = 0.0;
 
 class LeapfrogOscillator : public QWidget
 {
@@ -79,6 +79,8 @@ protected:
         // Moving mass
         painter.setBrush(Qt::blue);
         painter.drawEllipse(QPointF(p2.x, p2.y), 6, 6);
+
+        painter.drawText(10, 20, QString("Total Energy: %1").arg(totalEnergy));
     }
 
 private:
@@ -102,7 +104,12 @@ private:
 
         v2 += a2 * 0.5 * dt;
 
-        update(); // Trigger paintEvent()
+        auto d1 = (p2 - p1).length();
+        auto d3 = (p2 - p3).length();
+        totalEnergy = (0.5 * m * v2.length() * v2.length()) + (0.5 * k * d1 * d1)
+                      + (0.5 * k * d3 * d3);
+
+        update();
     }
 };
 
