@@ -6,14 +6,13 @@
 
 const double k = 0.01;
 const double m = 1.0;
-const double dt = 0.2;
+const double dt = 0.1;
 const double restLength = 100.0;
 const QPointF p1 = {100, 200};
 const QPointF p3 = {300, 200};
 
 QPointF p2 = {200, 100};
 QPointF v2 = {-5.5, 3.5};
-QPointF a2 = {0.0, 0.0};
 double totalEnergy = 0.0;
 
 qreal length(const QPointF &p)
@@ -60,9 +59,14 @@ protected:
 private:
     void simulate()
     {
-        v2 += a2 * dt / 2;
-        p2 += v2 * dt;
+        for (int i = 0; i < 3; ++i) {
+            step();
+        }
+        update();
+    }
 
+    void step()
+    {
         QPointF dp1 = p2 - p1;
         QPointF dp3 = p2 - p3;
 
@@ -78,12 +82,12 @@ private:
         QPointF f1 = u1 * -k * d1;
         QPointF f3 = u3 * -k * d3;
 
-        a2 = (f1 + f3) / m;
-        v2 += a2 * dt / 2;
+        QPointF a2 = (f1 + f3) / m;
+
+        v2 += a2 * dt;
+        p2 += v2 * dt;
 
         totalEnergy = m * QPointF::dotProduct(v2, v2) + k * d1 * d1 + k * d3 * d3;
-
-        update();
     }
 };
 
