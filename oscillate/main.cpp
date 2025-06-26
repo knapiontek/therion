@@ -58,26 +58,26 @@ protected:
     }
 
 private:
-    QPointF force(const QPointF &delta)
-    {
-        double len = length(delta);
-        double stretch = len - restLength;
-        return delta / len * (-k * stretch);
-    }
-
     void simulate()
     {
         v2 += a2 * dt / 2;
         p2 += v2 * dt;
 
-        QPointF f1 = force(p2 - p1);
-        QPointF f3 = force(p2 - p3);
-        a2 = (f1 + f3) / m;
+        auto diff1 = p2 - p1;
+        auto diff3 = p2 - p3;
 
+        auto l1 = length(diff1);
+        auto l3 = length(diff3);
+
+        auto d1 = l1 - restLength;
+        auto d3 = l3 - restLength;
+
+        auto f1 = diff1 / l1 * (-k * d1);
+        auto f3 = diff3 / l3 * (-k * d3);
+
+        a2 = (f1 + f3) / m;
         v2 += a2 * dt / 2;
 
-        auto d1 = length(p2 - p1) - restLength;
-        auto d3 = length(p2 - p3) - restLength;
         totalEnergy = m * QPointF::dotProduct(v2, v2) + k * d1 * d1 + k * d3 * d3;
 
         update();
