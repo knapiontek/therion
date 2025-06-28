@@ -7,12 +7,21 @@
 const double k = 0.01;
 const double m = 1.0;
 const double dt = 0.1;
-const double restLength = 100.0;
-const QPointF p1 = {100, 200};
-const QPointF p3 = {300, 200};
+const double segment = 40.0;
 
-QPointF p2 = {200, 100};
-QPointF v2 = {-5.5, 3.5};
+const int pointSize = 10;
+QPointF pointSeq[pointSize]{{020.0, 300.0},
+                            {060.0, 200.0},
+                            {100.0, 200.0},
+                            {140.0, 200.0},
+                            {180.0, 200.0},
+                            {220.0, 200.0},
+                            {260.0, 200.0},
+                            {300.0, 200.0},
+                            {340.0, 200.0},
+                            {380.0, 200.0}};
+QPointF velocitySeq[pointSize];
+
 double totalEnergy = 0.0;
 
 qreal length(const QPointF &p)
@@ -37,44 +46,41 @@ protected:
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
-
-        // Draw springs
-        painter.setPen(Qt::black);
-        painter.drawLine(p1, p2);
-        painter.drawLine(p3, p2);
-
-        // Fixed points
-        painter.setBrush(Qt::red);
-        painter.drawEllipse(p1, 4, 4);
-        painter.drawEllipse(p3, 4, 4);
-
-        // Moving mass
         painter.setBrush(Qt::blue);
-        painter.drawEllipse(p2, 6, 6);
 
-        // Energy
+        for (auto &point : pointSeq) {
+            painter.drawEllipse(point, 4, 4);
+        }
         painter.drawText(10, 20, QString("Total Energy: %1").arg(totalEnergy));
     }
 
 private:
     void simulate()
     {
-        for (int i = 0; i < 3; ++i) {
-            step();
+        for ([[maybe_unused]] auto _ : {0, 1, 2, 3}) {
+            for (int i = 1; i < pointSize - 1; ++i) {
+                step(i);
+            }
         }
         update();
     }
 
-    void step()
+    void step(int i)
     {
+        QPointF &p1 = pointSeq[i - 1];
+        QPointF &p2 = pointSeq[i];
+        QPointF &p3 = pointSeq[i + 1];
+
+        QPointF &v2 = velocitySeq[i];
+
         QPointF dp1 = p2 - p1;
         QPointF dp3 = p2 - p3;
 
         qreal l1 = length(dp1);
         qreal l3 = length(dp3);
 
-        qreal d1 = l1 - restLength;
-        qreal d3 = l3 - restLength;
+        qreal d1 = l1 - segment;
+        qreal d3 = l3 - segment;
 
         QPointF u1 = dp1 / l1;
         QPointF u3 = dp3 / l3;
@@ -82,7 +88,7 @@ private:
         QPointF f1 = u1 * -k * d1;
         QPointF f3 = u3 * -k * d3;
 
-        QPointF a2 = (f1 + f3) / m;
+        QPointF a2 = (f1 + f3 - 0.001 * v2) / m;
 
         v2 += a2 * dt;
         p2 += v2 * dt;
