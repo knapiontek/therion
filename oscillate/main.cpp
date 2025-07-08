@@ -5,11 +5,12 @@
 #include <cmath>
 
 const double k = 0.1;
-const double m = 1.0;
+const double m = 10.0;
 const double dt = 0.1;
-const double segment = 8.0;
-const double omega = std::sqrt(k / m);
-const int pointSize = 45;
+const double dl = 8.0;
+const double omega2 = k / m;
+const double omega = std::sqrt(omega2);
+const int pointSize = 150;
 
 QPointF pointSeq[pointSize];
 QPointF velocitySeq[pointSize];
@@ -28,13 +29,13 @@ public:
     LeapfrogOscillator(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        setFixedSize(400, 400);
+        setFixedSize(1200, 400);
         QTimer *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &LeapfrogOscillator::simulate);
         timer->start(16);
 
         for (int i = 0; i < pointSize; ++i) {
-            pointSeq[i] = {20.0 + segment * i, 200.0};
+            pointSeq[i] = {20.0 + dl * i, 200.0};
         }
     }
 
@@ -64,9 +65,9 @@ private:
     {
         energy = 0.0;
 
-        for ([[maybe_unused]] auto _ : {0, 1, 2, 3}) {
+        for (int r = 0; r < 60; r++) {
             _time += dt;
-            pointSeq[0] = {20.0, 200 + 20 * std::sin(omega * _time / 20)};
+            pointSeq[0] = {20.0, 200 + 30 * std::sin(0.05 * omega * _time)};
 
             for (int i = 1; i < pointSize - 1; ++i) {
                 QPointF &p1 = pointSeq[i - 1];
@@ -81,16 +82,13 @@ private:
                 qreal l1 = length(dp1);
                 qreal l3 = length(dp3);
 
-                qreal d1 = l1 - segment;
-                qreal d3 = l3 - segment;
+                qreal d1 = l1 - dl;
+                qreal d3 = l3 - dl;
 
-                QPointF u1 = dp1 / l1;
-                QPointF u3 = dp3 / l3;
+                QPointF u1 = dp1 * d1 / l1;
+                QPointF u3 = dp3 * d3 / l3;
 
-                QPointF f1 = u1 * -k * d1;
-                QPointF f3 = u3 * -k * d3;
-
-                QPointF a2 = (f1 + f3) / m;
+                QPointF a2 = -omega2 * (u1 + u3) - 0.001 * v2;
 
                 v2 += a2 * dt;
                 p2 += v2 * dt;
