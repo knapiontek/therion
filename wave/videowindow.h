@@ -1,7 +1,6 @@
 #ifndef VIDEOWINDOW_H
 #define VIDEOWINDOW_H
 
-#include <QCloseEvent>
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QPainter>
